@@ -29,8 +29,9 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   private val pythonCtx = {
     val graalpyExecutable = settings.getString("raw.client.jinja-sql.graalpy.executable")
     val graalpyHome = settings.getString("raw.client.jinja-sql.graalpy.home")
+    val logging = settings.getBoolean("raw.client.jinja-sql.graalpy.logging")
     logger.info("pythonExecutable:" + graalpyExecutable)
-    Context
+    val builder = Context
       .newBuilder("python")
       .engine(engine)
       //      .environment("RAW_SETTINGS", settings.renderAsString)
@@ -45,11 +46,12 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       .allowHostClassLookup(_ => true)
       .allowNativeAccess(true)
       .option("python.DontWriteBytecodeFlag", "true")
-      .option("python.VerboseFlag", "true").option("log.python.level", "FINE")
       .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found
       .option("python.PythonHome", graalpyHome)
       .option("python.Executable", graalpyExecutable)
-      .build()
+    if (logging) builder.option("python.VerboseFlag", "true").option("log.python.level", "NONE")
+
+    builder.build()
   }
 
   private val bindings = {
