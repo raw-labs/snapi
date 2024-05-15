@@ -192,7 +192,9 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       ParamDoc("expectedStatus", TypeDoc(List("list")), "The list of expected statuses.", isOptional = true)
     ),
     ret = Some(ReturnDoc("A location to read from.", retType = Some(TypeDoc(List("location"))))),
-    info = Some("""Any key/value pair with a null key or value in the `headers` or in the `args` parameters will be omitted and won't be included in the request.""")
+    info = Some(
+      """Any key/value pair with a null key or value in the `headers` or in the `args` parameters will be omitted and won't be included in the request."""
+    )
   )
 
   override def nrMandatoryParams: Int = 1
