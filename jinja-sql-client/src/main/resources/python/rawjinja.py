@@ -52,8 +52,8 @@ class RawJinjaException(Exception):
 class RawEnvironment:
 
     def __init__(self, scopes, getSecret):
-        self.scopes = [s for s in scopes.iterator()]
-        self._getSecret = lambda s: getSecret.apply(s)
+        self.scopes = scopes
+        self._getSecret = getSecret
 
     def secret(self,s):
         return self._getSecret(s)
@@ -64,6 +64,8 @@ class RawJinja:
         self._env = Environment(finalize=lambda x: self.fix(x), autoescape=False, extensions=[RaiseExtension])
         self._env.filters['safe'] = self.flag_as_safe
         self._env.filters['identifier'] = self.flag_as_identifier
+        # a default env to make sure 'environment' is predefined
+        self._env.globals['environment'] = RawEnvironment(None, None)
 
     def fix(self, val):
         if isinstance(val, Markup):
@@ -95,10 +97,11 @@ class RawJinja:
        template = self._env.from_string(code)
        return template.render(args)
 
-    def apply(self, code, environment, args):
+    def apply(self, code, scopes, secret, args):
        d = {key: self._toPython(args.get(key)) for key in args.keySet()}
-       print(dir(environment))
-       d['environment'] = RawEnvironment(environment.scopes(), environment.secret())
+       print(dir(scopes))
+       print(dir(secret))
+       d['environment'] = RawEnvironment([s for s in scopes.iterator()], lambda s: secret.apply(s))
        return self._apply(code, d)
 
     def _toPython(self, arg):

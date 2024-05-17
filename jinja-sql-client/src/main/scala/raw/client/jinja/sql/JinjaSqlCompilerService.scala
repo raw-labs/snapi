@@ -18,6 +18,10 @@ import raw.client.api._
 import raw.creds.api.CredentialsServiceProvider
 import raw.utils.RawSettings
 
+class Env(val scopes: Value, val secret: String => String) {
+  def tralala(s: String) = secret(s)
+}
+
 class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     implicit protected val settings: RawSettings
 ) extends CompilerService {
@@ -50,6 +54,7 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found
       .option("python.PythonHome", graalpyHome)
       .option("python.Executable", graalpyExecutable)
+    maybeClassLoader.foreach(builder.hostClassLoader)
     if (logging) builder.option("python.VerboseFlag", "true").option("log.python.level", "NONE")
 
     builder.build()
@@ -78,8 +83,6 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       position: raw.client.api.Pos
   ): raw.client.api.AutoCompleteResponse = AutoCompleteResponse(Array.empty)
 
-  class Env(val scopes: Value, val secret: String => String) {}
-
   def execute(
       source: String,
       environment: raw.client.api.ProgramEnvironment,
@@ -100,7 +103,7 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
         )
         val sqlQuery: String =
           try {
-            apply.execute(pythonCtx.asValue(source), env, args).asString
+            apply.execute(pythonCtx.asValue(source), env.scopes, env.secret, args).asString
           } catch {
             case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
                 case Some(errorMessage) => return ExecutionValidationFailure(List(errorMessage))
