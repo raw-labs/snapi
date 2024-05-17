@@ -38,7 +38,7 @@ object JavaAnnotationProcessorPlugin extends AutoPlugin {
     runJavaAnnotationProcessor := {
       val log = streams.value.log
       log.info("Running Java annotation processor")
-      val annotationProcessorJar = baseDirectory.value / "truffle-dsl-processor-24.0.1.jar"
+      val annotationProcessorJar = baseDirectory.value / "truffle-dsl-processor-23.1.0.jar"
       val javaSources = baseDirectory.value / "src" / "main" / "java"
       val targetDir = baseDirectory.value / "target" / "java-processed-sources"
       val projectClasspath = calculateSnapiTruffleClasspath.value.mkString(":")

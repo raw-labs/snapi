@@ -81,7 +81,7 @@ class RawJinja:
         elif isinstance(val, list):
             items = ["(" + self.fix(i) + ")" for i in val]
             return "(VALUES " + ",".join(items) + ")"
-        elif val is None:
+        elif val is None or val == None:
             return "NULL"
         else:
             return val
@@ -99,8 +99,6 @@ class RawJinja:
 
     def apply(self, code, scopes, secret, args):
        d = {key: self._toPython(args.get(key)) for key in args.keySet()}
-       print(dir(scopes))
-       print(dir(secret))
        d['environment'] = RawEnvironment([s for s in scopes.iterator()], lambda s: secret.apply(s))
        return self._apply(code, d)
 

@@ -181,7 +181,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     runJavaAnnotationProcessor := {
       println("Running Java annotation processor")
 
-      val annotationProcessorJar = baseDirectory.value / "truffle-dsl-processor-24.0.1.jar"
+      val annotationProcessorJar = baseDirectory.value / "truffle-dsl-processor-23.1.0.jar"
 
       val javaSources = baseDirectory.value / "src" / "main" / "java"
       val targetDir = baseDirectory.value / "target" / "java-processed-sources"
@@ -190,8 +190,10 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
 
       val javacOptions = Seq(
         "javac",
-        "--release",
-        "22",
+        "-source",
+        "21",
+        "-target",
+        "21",
         "-d",
         targetDir.getAbsolutePath,
         "--module-path",
@@ -279,7 +281,8 @@ lazy val pythonClient = (project in file("python-client"))
     missingInterpolatorCompileSettings,
     testSettings,
     Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client"),
-    libraryDependencies ++= Seq(trufflePolyglot, trufflePython))
+    libraryDependencies += trufflePython
+  )
 
 lazy val jinjaSqlClient = (project in file("jinja-sql-client"))
   .dependsOn(
@@ -290,6 +293,6 @@ lazy val jinjaSqlClient = (project in file("jinja-sql-client"))
     commonSettings,
     missingInterpolatorCompileSettings,
     testSettings,
-    libraryDependencies ++= Seq(trufflePolyglot, trufflePython) ++ truffleCompiler
+    libraryDependencies += trufflePython
   )
 
