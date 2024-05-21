@@ -19,7 +19,7 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.utils.RawSettings
 
 class Env(val scopes: Value, val secret: String => String) {
-  def tralala(s: String) = secret(s)
+//  def tralala(s: String) = secret(s)
 }
 
 class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
@@ -53,6 +53,7 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       .option("python.DontWriteBytecodeFlag", "true")
       .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found
       .option("python.PythonHome", graalpyHome)
+      .option("python.CoreHome", graalpyHome)
       .option("python.Executable", graalpyExecutable)
     maybeClassLoader.foreach(builder.hostClassLoader)
     if (logging) builder.option("python.VerboseFlag", "true").option("log.python.level", "NONE")
@@ -220,17 +221,31 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   ): raw.client.api.RenameResponse = RenameResponse(Array.empty)
 
   def validate(source: String, environment: raw.client.api.ProgramEnvironment): ValidateResponse = {
-    {
-      try {
-        validate.execute(pythonCtx.asValue(source))
-      } catch {
-        case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
-            case Some(errorMessage) => return ValidateResponse(List(errorMessage))
-            case None => throw new CompilerServiceException(ex, environment)
-          }
+    try {
+      validate.execute(pythonCtx.asValue(source))
+      val args = new java.util.HashMap[String, Object]
+      codeArgs(source, environment) match {
+        case Left(errorMessages) => ValidateResponse(errorMessages)
+        case Right(params) =>
+          for (p <- params; value <- p.defaultValue) args.put(p.idn, rawValueToPolyglot(value))
+          for (userArgs <- environment.maybeArguments.toArray; (key, v) <- userArgs)
+            args.put(key, rawValueToPolyglot(v))
+          val scopes = new java.util.ArrayList[String]
+          environment.scopes.foreach(scopes.add)
+          val env = new Env(
+            Value.asValue(scopes),
+            (secret: String) => credentials.getSecret(environment.user, secret).map(_.value).orNull
+          )
+          val sqlQuery: String = apply.execute(pythonCtx.asValue(source), env.scopes, env.secret, args).asString
+          logger.debug(sqlQuery)
+          sqlCompilerService.validate(sqlQuery, environment)
       }
+    } catch {
+      case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
+          case Some(errorMessage) => ValidateResponse(List(errorMessage))
+          case None => throw new CompilerServiceException(ex, environment)
+        }
     }
-    ValidateResponse(List.empty)
   }
 
   def wordAutoComplete(

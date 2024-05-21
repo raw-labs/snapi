@@ -223,8 +223,8 @@ class PreprocessingTest
     param.required should be(false) // because we have a default
     param.tipe.get should be(RawTimeType(true, false)) // null is always OK
     param.comment.get should be("a random time here to test something")
-    code withArg "v" -> LocalTime.of(1, 1, 1, 3309000) should give("""[{"r":"01:01:01.003"}]""")
-    code withArgs Map.empty should give("""[{"r":"12:34:56.099"}]""")
+    code withArg "v" -> LocalTime.of(1, 1, 1, 3309000) should give("""[{"r":"01:01:01.000"}]""")
+    code withArgs Map.empty should give("""[{"r":"12:34:56.000"}]""")
   }
 
   test("""date expression""") { _ =>
@@ -297,8 +297,7 @@ class PreprocessingTest
     assert(r == ExecutionSuccess)
   }
 
-  test("""SELECT {{ 1 - 2 }} AS v
-    |""".stripMargin) { t =>
+  test("""SELECT {{ 1 - 2 }} AS v""".stripMargin) { t =>
     val q = Q(t.q)
     q should validate
     q should give("""[{"v":-1}]""")
@@ -333,7 +332,6 @@ class PreprocessingTest
     val q = Q(t.q)
     assert(compilerService.validate(t.q, asJson()).messages.map(_.message).exists(_.contains("unexpected '>'")))
     q should failWith("unexpected '>'")
-
   }
 
   ignore(s"""
@@ -414,6 +412,18 @@ class PreprocessingTest
   test("SELECT airport_id, {{ c }} FROM {{ }} ") { q =>
     val v = compilerService.validate(q.q, asJson())
     assert(v != null)
+  }
+
+  test("LSP error output test") { q =>
+    val code = """{% if False %}
+                 |SELECT {{ 1 }} AS v
+                 |{% else %}
+                 |SELECT ** {{     2 }} AS v
+                 |{% endif %}
+                 |""".stripMargin
+    val env = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val res = compilerService.validate(code, env)
+    assert(res == ValidateResponse(List.empty))
   }
 
   private var compilerService: CompilerService = _

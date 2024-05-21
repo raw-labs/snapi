@@ -61,7 +61,7 @@ class RawEnvironment:
 class RawJinja:
 
     def __init__(self):
-        self._env = Environment(finalize=lambda x: self.fix(x), autoescape=False, extensions=[RaiseExtension])
+        self._env = Environment(finalize=lambda x: self.fix(x), autoescape=False, extensions=[RaiseExtension], keep_trailing_newline=True)
         self._env.filters['safe'] = self.flag_as_safe
         self._env.filters['identifier'] = self.flag_as_identifier
         # a default env to make sure 'environment' is predefined
