@@ -64,7 +64,7 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
   private val bindings = {
-    val helper = getClass.getResource("/python/rawjinja.py")
+    val helper = getClass.getResource("/python/raw_jinja.py")
     logger.info(helper.toString)
     val truffleSource = Source.newBuilder("python", helper).build()
     pythonCtx.eval(truffleSource)
@@ -221,31 +221,17 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   ): raw.client.api.RenameResponse = RenameResponse(Array.empty)
 
   def validate(source: String, environment: raw.client.api.ProgramEnvironment): ValidateResponse = {
-    try {
-      validate.execute(pythonCtx.asValue(source))
-      val args = new java.util.HashMap[String, Object]
-      codeArgs(source, environment) match {
-        case Left(errorMessages) => ValidateResponse(errorMessages)
-        case Right(params) =>
-          for (p <- params; value <- p.defaultValue) args.put(p.idn, rawValueToPolyglot(value))
-          for (userArgs <- environment.maybeArguments.toArray; (key, v) <- userArgs)
-            args.put(key, rawValueToPolyglot(v))
-          val scopes = new java.util.ArrayList[String]
-          environment.scopes.foreach(scopes.add)
-          val env = new Env(
-            Value.asValue(scopes),
-            (secret: String) => credentials.getSecret(environment.user, secret).map(_.value).orNull
-          )
-          val sqlQuery: String = apply.execute(pythonCtx.asValue(source), env.scopes, env.secret, args).asString
-          logger.debug(sqlQuery)
-          sqlCompilerService.validate(sqlQuery, environment)
-      }
-    } catch {
-      case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
-          case Some(errorMessage) => ValidateResponse(List(errorMessage))
+    {
+      try {
+        validate.execute(pythonCtx.asValue(source))
+      } catch {
+        case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
+          case Some(errorMessage) => return ValidateResponse(List(errorMessage))
           case None => throw new CompilerServiceException(ex, environment)
         }
+      }
     }
+    ValidateResponse(List.empty)
   }
 
   def wordAutoComplete(

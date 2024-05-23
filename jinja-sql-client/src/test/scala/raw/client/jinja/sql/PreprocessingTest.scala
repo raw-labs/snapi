@@ -414,18 +414,6 @@ class PreprocessingTest
     assert(v != null)
   }
 
-  test("LSP error output test") { q =>
-    val code = """{% if False %}
-                 |SELECT {{ 1 }} AS v
-                 |{% else %}
-                 |SELECT ** {{     2 }} AS v
-                 |{% endif %}
-                 |""".stripMargin
-    val env = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    val res = compilerService.validate(code, env)
-    assert(res == ValidateResponse(List.empty))
-  }
-
   private var compilerService: CompilerService = _
 
   private val user = InteractiveUser(Uid(database), "fdw user", "email", Seq.empty)

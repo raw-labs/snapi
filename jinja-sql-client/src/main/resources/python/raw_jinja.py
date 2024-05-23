@@ -1,5 +1,3 @@
-import java
-from datetime import datetime, time
 from jinja2 import Environment, meta, nodes
 from jinja2.ext import Extension
 from jinja2.exceptions import TemplateRuntimeError
@@ -28,18 +26,6 @@ class RaiseExtension(Extension):
     def _raise(self, msg, caller):
         raise TemplateRuntimeError(msg)
 
-javaLocalDateClass = java.type('java.time.LocalDate')
-javaLocalTimeClass = java.type('java.time.LocalTime')
-javaLocalDateTimeClass = java.type('java.time.LocalDateTime')
-
-class RawDate(datetime):
-    pass
-
-class RawTimestamp(datetime):
-    pass
-
-class RawTime(time):
-    pass
 
 class RawJinjaException(Exception):
 
@@ -57,11 +43,24 @@ class RawEnvironment:
 
     def secret(self,s):
         return self._getSecret(s)
+    
+
+from datetime import datetime, time
+
+class RawDate(datetime):
+    pass
+
+class RawTimestamp(datetime):
+    pass
+
+class RawTime(time):
+    pass
+    
 
 class RawJinja:
 
     def __init__(self):
-        self._env = Environment(finalize=lambda x: self.fix(x), autoescape=False, extensions=[RaiseExtension], keep_trailing_newline=True)
+        self._env = Environment(finalize=lambda x: self.fix(x), autoescape=False, extensions=[RaiseExtension])
         self._env.filters['safe'] = self.flag_as_safe
         self._env.filters['identifier'] = self.flag_as_identifier
         # a default env to make sure 'environment' is predefined
@@ -92,25 +91,17 @@ class RawJinja:
     def flag_as_identifier(self, s):
         return Markup('"' + s.replace('"', '""') + '"')
 
-
     def _apply(self, code, args):
        template = self._env.from_string(code)
        return template.render(args)
 
     def apply(self, code, scopes, secret, args):
-       d = {key: self._toPython(args.get(key)) for key in args.keySet()}
+       adapter = RawJavaPythonAdapter()
+       d = {key: adapter._toPython(args.get(key)) for key in args.keySet()}
        d['environment'] = RawEnvironment([s for s in scopes.iterator()], lambda s: secret.apply(s))
        return self._apply(code, d)
 
-    def _toPython(self, arg):
-        if isinstance(arg, javaLocalDateClass):
-            return RawDate(arg.getYear(), arg.getMonthValue(), arg.getDayOfMonth())
-        if isinstance(arg, javaLocalTimeClass):
-            return RawTime(arg.getHour(), arg.getMinute(), arg.getSecond(), int(arg.getNano() / 1000))
-        if isinstance(arg, javaLocalDateTimeClass):
-            return RawTimestamp(arg.getYear(), arg.getMonthValue(), arg.getDayOfMonth(),
-                            arg.getHour(), arg.getMinute(), arg.getSecond(), int(arg.getNano()/ 1000))
-        return arg
+
 
     def validate(self, code):
       tree = self._env.parse(code)
@@ -118,3 +109,35 @@ class RawJinja:
 
     def metadata_comments(self, code):
         return [content for (line, tipe, content) in self._env.lex(code) if tipe == 'comment']
+    
+
+class RawJavaPythonAdapter:
+
+    def __init__(self):
+        import java
+        self.javaLocalDateClass = java.type('java.time.LocalDate')
+        self.javaLocalTimeClass = java.type('java.time.LocalTime')
+        self.javaLocalDateTimeClass = java.type('java.time.LocalDateTime')
+
+    def _toPython(self, arg):
+        if isinstance(arg, self.javaLocalDateClass):
+            return RawDate(arg.getYear(), arg.getMonthValue(), arg.getDayOfMonth())
+        if isinstance(arg, self.javaLocalTimeClass):
+            return RawTime(arg.getHour(), arg.getMinute(), arg.getSecond(), int(arg.getNano() / 1000))
+        if isinstance(arg, self.javaLocalDateTimeClass):
+            return RawTimestamp(arg.getYear(), arg.getMonthValue(), arg.getDayOfMonth(),
+                            arg.getHour(), arg.getMinute(), arg.getSecond(), int(arg.getNano()/ 1000))
+        return arg
+
+
+# rawJinja = RawJinja()
+# code = """{% if False %}
+# SELECT {{ 1 }} AS v
+# {% else %}
+# SELECT ** {{     2 }} AS v
+# {% endif %}"""
+# result = rawJinja._env.parse(code)
+# result2 = rawJinja._env.lex(code)
+# result3 = rawJinja._env.preprocess(code)
+# result3 = rawJinja._env.from_string(code).render()
+# print(result)
