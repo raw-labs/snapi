@@ -15,6 +15,7 @@ package raw.client.rql2.truffle
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot._
+import org.graalvm.polyglot.io.IOAccess
 import raw.client.api._
 import raw.client.rql2.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
@@ -700,6 +701,9 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
       .environment("RAW_SCOPES", environment.scopes.mkString(","))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
+      .allowIO(IOAccess.ALL)
+      .allowHostAccess(HostAccess.ALL)
+      .allowNativeAccess(true)
     environment.options.get("staged-compiler").foreach { stagedCompiler =>
       ctxBuilder.option("rql.staged-compiler", stagedCompiler)
     }
