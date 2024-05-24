@@ -30,8 +30,9 @@ final class CompilerServiceException(
 
   def this(t: Throwable, debugInfo: List[(String, String)]) = this(t.getMessage, debugInfo, t)
 
-  def this(t: Throwable, environment: ProgramEnvironment) =
-    this(t.getMessage, CompilerService.getDebugInfo(environment))
+  def this(t: Throwable, environment: ProgramEnvironment) = {
+    this(t, CompilerService.getDebugInfo(environment))
+  }
 
   def this(t: Throwable) = this(t.getMessage, cause = t)
 
