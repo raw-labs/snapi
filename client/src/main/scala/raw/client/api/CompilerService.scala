@@ -112,6 +112,14 @@ trait CompilerService extends RawService {
       environment: ProgramEnvironment
   ): EvalResponse
 
+  // Evaluate a source program and return the result as a RawValue.
+  @throws[CompilerServiceException]
+  def executeAsRawValue(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): EvalResponse
+
   // Execute a source program and write the results to the output stream.
   @throws[CompilerServiceException]
   def execute(

@@ -20,7 +20,7 @@ import raw.client.rql2.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import raw.compiler.base
 import raw.compiler.base.errors._
-import raw.compiler.base.source.BaseNode
+import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2._
@@ -198,44 +198,135 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
           val rawValue = polyglotValueToRawValue(polyglotValue, tipe)
           EvalSuccess(rawValue)
         } catch {
-          case ex: PolyglotException =>
-            // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
-            // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
-            // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
-            // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
-            // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
-            // and which must handle interruption as well.
-            if (ex.isInterrupted) {
-              throw new InterruptedException()
-            } else if (ex.getCause.isInstanceOf[InterruptedException]) {
-              throw ex.getCause
-            } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
-              throw new InterruptedException()
-            } else if (ex.isGuestException) {
-              val err = ex.getGuestObject
-              if (err != null && err.hasMembers && err.hasMember("errors")) {
-                val errorsValue = err.getMember("errors")
-                val errors = (0L until errorsValue.getArraySize).map { i =>
-                  val errorValue = errorsValue.getArrayElement(i)
-                  val message = errorValue.asString
-                  val positions = (0L until errorValue.getArraySize).map { j =>
-                    val posValue = errorValue.getArrayElement(j)
-                    val beginValue = posValue.getMember("begin")
-                    val endValue = posValue.getMember("end")
-                    val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
-                    val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
-                    ErrorRange(begin, end)
-                  }
-                  ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
-                }
-                EvalValidationFailure(errors.to)
-              } else {
-                EvalRuntimeFailure(ex.getMessage)
-              }
-            } else {
-              // Unexpected error. For now we throw the PolyglotException.
-              throw ex
-            }
+          case ex: PolyglotException => handlePolyglotException(
+              ex,
+              environment,
+              EvalValidationFailure,
+              EvalRuntimeFailure
+            )
+        }
+    )
+  }
+
+  private def truffleCompile(
+      ctx: Context,
+      source: String,
+      maybeDecl: Option[String],
+      user: AuthenticatedUser
+  ): (Value, Type) = {
+    maybeDecl match {
+      case Some(decl) =>
+        // Eval the code and extract the function referred to by 'decl'
+        val truffleSource = Source
+          .newBuilder("rql", source, "unnamed")
+          .cached(false) // Disable code caching because of the inferrer.
+          .build()
+        ctx.eval(truffleSource)
+        // 'decl' is found in the context bindings (by its name)
+        val bindings = ctx.getBindings("rql")
+        val f = bindings.getMember(decl)
+        // its type is found in the polyglot bindings as '@type:<name>'
+        val funType = {
+          val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
+          val ParseTypeSuccess(tipe: FunType) = parseType(rawType, user, internal = true)
+          tipe
+        }
+        (f, funType)
+      case None =>
+        val truffleSource = Source
+          .newBuilder("rql", source, "unnamed")
+          .cached(false) // Disable code caching because of the inferrer.
+          .build()
+        val result = ctx.eval(truffleSource)
+        // the value type is found in polyglot bindings after calling eval().
+        val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
+        val ParseTypeSuccess(tipe) = parseType(rawType, user, internal = true)
+        (result, tipe)
+    }
+  }
+
+  private def truffleRun(
+      ctx: Context,
+      f: Value,
+      funType: FunType,
+      maybeArguments: Option[Array[(String, RawValue)]]
+  ): Either[String, (Value, Type)] = {
+    // Prior to .execute, some checks on parameters since we may have
+    // to fill optional parameters with their default value
+
+    // mandatory arguments are those that don't have a matching 'name' in optional parameters
+    val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
+
+    // split the provided parameters in two (mandatory/optional)
+    val (optionalArgs, mandatoryArgs) = maybeArguments match {
+      case Some(args) =>
+        val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
+        (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
+      case None => (Map.empty[String, RawValue], Array.empty[RawValue])
+    }
+
+    // mandatory args have to be all provided
+    if (mandatoryArgs.length != funType.ms.size) {
+      return Left("missing mandatory arguments")
+    }
+    val mandatoryPolyglotArguments = mandatoryArgs.map(arg => rawValueToPolyglotValue(arg, ctx))
+    // optional arguments can be missing from the provided arguments.
+    // we replace the missing ones by their default value.
+    val optionalPolyglotArguments = funType.os.map { arg =>
+      optionalArgs.get(arg.i) match {
+        // if the argument is provided, use it
+        case Some(paramValue) => rawValueToPolyglotValue(paramValue, ctx)
+        // else, the argument has a default value that can be obtained from `f`.
+        case None => f.invokeMember("default_" + arg.i)
+      }
+    }
+    // all arguments are there. Call .execute.
+    val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
+    val tipe = funType.r
+    // return the result and its type
+    Right((result, tipe))
+  }
+
+  private def executeAsTruffleValue(
+      ctx: Context,
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): Either[String, (Value, Type)] = {
+    {
+      val (objectValue, objectType) = truffleCompile(ctx, source, maybeDecl, environment.user)
+      if (maybeDecl.nonEmpty) {
+        // a function. Execute it using the environment arguments
+        val funType = objectType.asInstanceOf[FunType]
+        val f = objectValue
+        truffleRun(ctx, f, funType, environment.maybeArguments)
+      } else Right((objectValue, objectType))
+    }
+  }
+
+  override def executeAsRawValue(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): EvalResponse = {
+    withTruffleContext(
+      environment,
+      ctx =>
+        try {
+          val (polyglotValue, tipe) = executeAsTruffleValue(ctx, source, environment, maybeDecl) match {
+            case Left(error) => return EvalRuntimeFailure(error)
+            case Right((result, tipe)) => (result, tipe)
+          }
+          val rawType = rql2TypeToRawType(tipe).get
+          val rawValue = polyglotValueToRawValue(polyglotValue, rawType)
+          EvalSuccess(rawValue)
+        } catch {
+          case ex: PolyglotException => handlePolyglotException(
+              ex,
+              environment,
+              EvalValidationFailure,
+              EvalRuntimeFailure
+            )
         }
     )
   }
@@ -250,69 +341,12 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     ctx.initialize("rql")
     ctx.enter()
     try {
-      val (v, tipe) = maybeDecl match {
-        case Some(decl) =>
-          // Eval the code and extract the function referred to by 'decl'
-          val truffleSource = Source
-            .newBuilder("rql", source, "unnamed")
-            .cached(false) // Disable code caching because of the inferrer.
-            .build()
-          ctx.eval(truffleSource)
-          // 'decl' is found in the context bindings (by its name)
-          val bindings = ctx.getBindings("rql")
-          val f = bindings.getMember(decl)
-          // its type is found in the polyglot bindings as '@type:<name>'
-          val funType = {
-            val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
-            val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.user, internal = true)
-            tipe
-          }
-          // Prior to .execute, some checks on parameters since we may have
-          // to fill optional parameters with their default value
-
-          // mandatory arguments are those that don't have a matching 'name' in optional parameters
-          val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
-
-          // split the provided parameters in two (mandatory/optional)
-          val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
-            case Some(args) =>
-              val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
-              (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
-            case None => (Map.empty[String, RawValue], Array.empty[RawValue])
-          }
-
-          // mandatory args have to be all provided
-          if (mandatoryArgs.length != funType.ms.size) {
-            return ExecutionRuntimeFailure("missing mandatory arguments")
-          }
-          val mandatoryPolyglotArguments = mandatoryArgs.map(arg => rawValueToPolyglotValue(arg, ctx))
-          // optional arguments can be missing from the provided arguments.
-          // we replace the missing ones by their default value.
-          val optionalPolyglotArguments = funType.os.map { arg =>
-            optionalArgs.get(arg.i) match {
-              // if the argument is provided, use it
-              case Some(paramValue) => rawValueToPolyglotValue(paramValue, ctx)
-              // else, the argument has a default value that can be obtained from `f`.
-              case None => f.invokeMember("default_" + arg.i)
-            }
-          }
-          // all arguments are there. Call .execute.
-          val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
-          val tipe = funType.r
-          // return the result and its type
-          (result, tipe)
-        case None =>
-          val truffleSource = Source
-            .newBuilder("rql", source, "unnamed")
-            .cached(false) // Disable code caching because of the inferrer.
-            .build()
-          val result = ctx.eval(truffleSource)
-          // the value type is found in polyglot bindings after calling eval().
-          val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
-          val ParseTypeSuccess(tipe) = parseType(rawType, environment.user, internal = true)
-          (result, tipe)
+      val (v, tipe) = executeAsTruffleValue(ctx, source, environment, maybeDecl) match {
+        case Left(error) => return ExecutionRuntimeFailure(error)
+        case Right((result, tipe)) => (result, tipe)
       }
 
+      // render the result to the output stream
       environment.options
         .get("output-format")
         .map(_.toLowerCase) match {
@@ -373,60 +407,74 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
         case _ => ExecutionRuntimeFailure("unknown output format")
       }
     } catch {
-      case ex: PolyglotException =>
-        // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
-        // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
-        // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
-        // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
-        // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
-        // and which must handle interruption as well.
-        if (ex.isInterrupted) {
-          throw new InterruptedException()
-        } else if (ex.getCause.isInstanceOf[InterruptedException]) {
-          throw ex.getCause
-        } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
-          throw new InterruptedException()
-        } else if (ex.isGuestException) {
-          if (ex.isInternalError) {
-            // An internal error. It means a regular Exception thrown from the language (e.g. a Java Exception,
-            // or a RawTruffleInternalErrorException, which isn't an AbstractTruffleException)
-            val programContext = getProgramContext(environment.user, environment)
-            throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
-          } else {
-            val err = ex.getGuestObject
-            if (err != null && err.hasMembers && err.hasMember("errors")) {
-              // A validation exception, semantic or syntax error (both come as the same kind of error)
-              // that has a list of errors and their positions.
-              val errorsValue = err.getMember("errors")
-              val errors = (0L until errorsValue.getArraySize).map { i =>
-                val errorValue = errorsValue.getArrayElement(i)
-                val message = errorValue.asString
-                val positions = (0L until errorValue.getArraySize).map { j =>
-                  val posValue = errorValue.getArrayElement(j)
-                  val beginValue = posValue.getMember("begin")
-                  val endValue = posValue.getMember("end")
-                  val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
-                  val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
-                  ErrorRange(begin, end)
-                }
-                ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
-              }
-              ExecutionValidationFailure(errors.to)
-            } else {
-              // A runtime failure during execution. The query could be a failed tryable, or a runtime error (e.g. a
-              // file not found) hit when processing a reader that evaluates as a _collection_ (processed outside the
-              // evaluation of the query).
-              ExecutionRuntimeFailure(ex.getMessage)
-            }
-          }
-        } else {
-          // Unexpected error. For now we throw the PolyglotException.
-          throw ex
-        }
+      case ex: PolyglotException => handlePolyglotException(
+          ex,
+          environment,
+          ExecutionValidationFailure,
+          ExecutionRuntimeFailure
+        )
     } finally {
       ctx.leave()
       ctx.close()
     }
+  }
+
+  private def handlePolyglotException[T](
+      ex: PolyglotException,
+      environment: ProgramEnvironment,
+      ifValidationErrors: List[ErrorMessage] => T,
+      ifRuntimeError: String => T
+  ): T = {
+    // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
+    // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
+    // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
+    // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
+    // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
+    // and which must handle interruption as well.
+    if (ex.isInterrupted) {
+      throw new InterruptedException()
+    } else if (ex.getCause.isInstanceOf[InterruptedException]) {
+      throw ex.getCause
+    } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
+      throw new InterruptedException()
+    } else if (ex.isGuestException) {
+      if (ex.isInternalError) {
+        // An internal error. It means a regular Exception thrown from the language (e.g. a Java Exception,
+        // or a RawTruffleInternalErrorException, which isn't an AbstractTruffleException)
+        val programContext = getProgramContext(environment.user, environment)
+        throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
+      } else {
+        val err = ex.getGuestObject
+        if (err != null && err.hasMembers && err.hasMember("errors")) {
+          // A validation exception, semantic or syntax error (both come as the same kind of error)
+          // that has a list of errors and their positions.
+          val errorsValue = err.getMember("errors")
+          val errors = (0L until errorsValue.getArraySize).map { i =>
+            val errorValue = errorsValue.getArrayElement(i)
+            val message = errorValue.asString
+            val positions = (0L until errorValue.getArraySize).map { j =>
+              val posValue = errorValue.getArrayElement(j)
+              val beginValue = posValue.getMember("begin")
+              val endValue = posValue.getMember("end")
+              val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
+              val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
+              ErrorRange(begin, end)
+            }
+            ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
+          }
+          ifValidationErrors(errors.toList)
+        } else {
+          // A runtime failure during execution. The query could be a failed tryable, or a runtime error (e.g. a
+          // file not found) hit when processing a reader that evaluates as a _collection_ (processed outside the
+          // evaluation of the query).
+          ifRuntimeError(ex.getMessage)
+        }
+      }
+    } else {
+      // Unexpected error. For now we throw the PolyglotException.
+      throw ex
+    }
+
   }
 
   override def formatCode(
