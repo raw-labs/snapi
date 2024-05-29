@@ -1,11 +1,15 @@
 lexer grammar PsqlLexer;
 
+UNICODE: 'U&';
+
 // Comments
 LINE_COMMENT_START: '--' -> pushMode(INSIDE_SINGLE_LINE_COMMENT);
 
 MULTI_LINE_COMMENT_START: '/*' -> pushMode(INSIDE_MULTI_LINE_COMMENT);
 
-QUOTE: '\'';
+STRING_LITERAL_START: '\'' -> pushMode(INSIDE_STRING_LITERAL);
+STRING_IDENTIFIER_START: '"' -> pushMode(INSIDE_STRING_IDENTIFIER);
+
 DOT: '.';
 STAR: '*';
 COMMA: ',';
@@ -44,8 +48,6 @@ CONCAT: '||';
 REGEX_CASE_INSENSITIVE_MATCH: '~*';
 REGEX_CASE_INSENSITIVE_NOT_MATCH: '!~*';
 
-UNICODE: 'U&';
-
 
 DOUBLE_COLON: '::';
 
@@ -55,8 +57,6 @@ FLOATING_POINT: DIGIT+ '.' DIGIT* EXPONENT?;
 PARAM: ':' WORD;
 
 // Strings
-DOUBLE_QUOTED_STRING: '"' (~[" \u0000] | '""')* '"'?;
-SINGLE_QUOTED_STRING: '\'' (ESC | ~['\\])* '\'';
 TICKS_QUOTED_STRING: '`' (ESC | ~[`\\])* '`';
 
 BIGSERIAL: B I G S E R I A L;
@@ -1013,3 +1013,12 @@ UNKNOWN_WORD_END: [ \t\r\n;EOF] -> popMode, skip;
 UNKNOWN_WORD_END2: [)] -> type(R_PAREN), popMode;
 
 IN_UNKNOWN_WORD: ~[;)];
+
+mode INSIDE_STRING_LITERAL;
+STRING_LITERAL_END: '\'' -> popMode;
+STRING_LITERAL_CONTENT: (ESC | ~['\\]);
+
+mode INSIDE_STRING_IDENTIFIER;
+STRING_ESCAPE: '"' '"';
+STRING_IDENTIFIER_END: '"' -> popMode;
+STRING_IDENTIFIER_CONTENT: (ESC | ~["]);
