@@ -582,33 +582,32 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.isSuccess)
   }
 
-  ignore("double quoted identifier with a newline, in the end of the code") {
-    val code = """SELECT * FROM x
-      |WHERE example."c si
-      |
-      |
-      |bon"
-      |""".stripMargin
-    val result = doTest(code)
-    assert(result.isSuccess)
-  }
-
-  ignore("-- double quoted identifier with a newline, in the end of the code") {
-    val code = """SELECT * FROM x
-      |WHERE example."c
-      |si
-      |bon
-      |""".stripMargin
-    val result = doTest(code)
-    assert(result.isSuccess)
-  }
-
-  ignore("single quoted string with a newline, in the end of the code") {
+  test("single quoted string with a newline") {
     val code = """SELECT 'c
       | si
       | bon' FROM x
       |""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
+  }
+
+  test("single quoted identifier with a newline") {
+    val code = """SELECT "c
+                 | si
+                 | bon" FROM x
+                 |""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("colon in the end of the code with a newline") {
+    val code = """:
+                 |""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+    val SqlProgramNode(stmt) = result.tree
+    assert(result.positions.getStart(stmt).isDefined)
+    assert(result.positions.getStart(stmt).flatMap(_.optOffset).isDefined)
+    assert(result.positions.getFinish(stmt).flatMap(_.optOffset).isDefined)
   }
 }
