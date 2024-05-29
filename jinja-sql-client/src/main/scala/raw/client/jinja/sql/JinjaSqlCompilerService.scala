@@ -34,6 +34,8 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   private val pythonCtx = {
     val graalpyExecutable = settings.getString("raw.client.jinja-sql.graalpy.executable")
     val graalpyHome = settings.getString("raw.client.jinja-sql.graalpy.home")
+    val graalpyCore = settings.getString("raw.client.jinja-sql.graalpy.core")
+    val graalpystdLib = settings.getString("raw.client.jinja-sql.graalpy.stdLib")
     val logging = settings.getBoolean("raw.client.jinja-sql.graalpy.logging")
     logger.info("pythonExecutable:" + graalpyExecutable)
     val builder = Context
@@ -53,7 +55,8 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       .option("python.DontWriteBytecodeFlag", "true")
       .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found
       .option("python.PythonHome", graalpyHome)
-      .option("python.CoreHome", graalpyHome)
+      .option("python.CoreHome", graalpyCore)
+      .option("python.StdLibHome", graalpystdLib)
       .option("python.Executable", graalpyExecutable)
     maybeClassLoader.foreach(builder.hostClassLoader)
     if (logging) builder.option("python.VerboseFlag", "true").option("log.python.level", "NONE")

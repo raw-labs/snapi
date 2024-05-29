@@ -78,7 +78,6 @@ object Dependencies {
   val springCore = "org.springframework" % "spring-core" % "5.3.13"
   val truffleCompiler = Seq(
     "org.graalvm.truffle" % "truffle-api" % "23.1.0",
-    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
     "org.graalvm.truffle" % "truffle-compiler" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi-libffi" % "23.1.0",
