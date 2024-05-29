@@ -14,7 +14,18 @@ package raw.client.sql
 
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.scalatest.funsuite.AnyFunSuite
-import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlFunctionCall, SqlIdentifierNode, SqlKeywordNode, SqlProgramNode, SqlProjNode, SqlStatementNode, SqlStringLiteralNode, SqlWithComaSeparatorNode}
+import raw.client.sql.antlr4.{
+  ParseProgramResult,
+  RawSqlSyntaxAnalyzer,
+  SqlFunctionCall,
+  SqlIdentifierNode,
+  SqlKeywordNode,
+  SqlProgramNode,
+  SqlProjNode,
+  SqlStatementNode,
+  SqlStringLiteralNode,
+  SqlWithComaSeparatorNode
+}
 
 class TestSqlParser extends AnyFunSuite {
 
@@ -589,23 +600,25 @@ class TestSqlParser extends AnyFunSuite {
       case SqlStatementNode(statementItems) =>
         assert(statementItems.size == 4)
         statementItems(1) match {
-          case node: SqlIdentifierNode => val finish = result.positions.getFinish(node)
-          assert(finish.get.line == 3)
+          case node: SqlIdentifierNode =>
+            val finish = result.positions.getFinish(node)
+            assert(finish.get.line == 3)
         }
     }
   }
 
   test("multiline string test") {
     val code = """select '
-                 |a
-                 |' from anything """.stripMargin
+      |a
+      |' from anything """.stripMargin
     val result = doTest(code)
     val SqlProgramNode(stmt) = result.tree
     stmt match {
       case SqlStatementNode(statementItems) =>
         assert(statementItems.size == 4)
         statementItems(1) match {
-          case node: SqlStringLiteralNode => val finish = result.positions.getFinish(node)
+          case node: SqlStringLiteralNode =>
+            val finish = result.positions.getFinish(node)
             assert(finish.get.line == 3)
         }
     }

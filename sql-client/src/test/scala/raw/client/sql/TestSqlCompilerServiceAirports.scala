@@ -963,35 +963,35 @@ class TestSqlCompilerServiceAirports
     assert(v.messages.exists(_.message contains "the input does not form a valid statement or expression"))
   }
 
-  test("""RD-10948+10961"""){_ =>
+  test("""RD-10948+10961""") { _ =>
     val q = """:
-              |""".stripMargin
+      |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
     assert(errors.nonEmpty)
   }
 
-  test("""RD-10948"""){_ =>
+  test("""RD-10948""") { _ =>
     val q = """SELECT * FROM
-              |(VALUES
-              |  (1, 'aravind', 'aravind@gmail.com', '123456'),
-              |  (2, 'arjun', 'arjun@gmail.com', '11223344')
-              |) as i(id, first_name, email, password)
-              |WHERE email = :email AND password:
-              |""".stripMargin
+      |(VALUES
+      |  (1, 'aravind', 'aravind@gmail.com', '123456'),
+      |  (2, 'arjun', 'arjun@gmail.com', '11223344')
+      |) as i(id, first_name, email, password)
+      |WHERE email = :email AND password:
+      |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
     assert(errors.nonEmpty)
   }
 
-  test("""RD-10961"""){_ =>
+  test("""RD-10961""") { _ =>
     val q = """-- @default id 1
-              |
-              |SELECT * FROM
-              |(VALUES
-              |  (1, 'John', 'Doe', DATE '2023-01-01'),
-              |  (2, 'Jane', 'Doe', DATE '2024-01-01')
-              |) as i(id, first_name, last_name, birthday)
-              |WHERE id = :id && id = :
-              |""".stripMargin
+      |
+      |SELECT * FROM
+      |(VALUES
+      |  (1, 'John', 'Doe', DATE '2023-01-01'),
+      |  (2, 'Jane', 'Doe', DATE '2024-01-01')
+      |) as i(id, first_name, last_name, birthday)
+      |WHERE id = :id && id = :
+      |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
     assert(errors.nonEmpty)
   }
