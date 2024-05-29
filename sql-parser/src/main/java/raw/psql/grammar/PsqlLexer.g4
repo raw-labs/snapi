@@ -1009,7 +1009,7 @@ ML_STAR: '*';
 
 mode INSIDE_UNKNOWN_WORD;
 
-UNKNOWN_WORD_END: [ \t\r\n;EOF] -> popMode;
+UNKNOWN_WORD_END: [ \t\r\n;EOF] -> popMode, skip;
 UNKNOWN_WORD_END2: [)] -> type(R_PAREN), popMode;
 
 IN_UNKNOWN_WORD: ~[;)];
