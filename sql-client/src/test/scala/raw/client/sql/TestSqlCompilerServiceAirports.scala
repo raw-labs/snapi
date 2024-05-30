@@ -964,6 +964,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("""RD-10948+10961""") { _ =>
+    assume(password != "")
     val q = """:
       |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
@@ -971,10 +972,11 @@ class TestSqlCompilerServiceAirports
   }
 
   test("""RD-10948""") { _ =>
+    assume(password != "")
     val q = """SELECT * FROM
       |(VALUES
-      |  (1, 'aravind', 'aravind@gmail.com', '123456'),
-      |  (2, 'arjun', 'arjun@gmail.com', '11223344')
+      |  (1, 'janedoe', 'janedoe@raw-labs.com', '123'),
+      |  (2, 'janedoe', 'janedoe@raw-labs.com', '123')
       |) as i(id, first_name, email, password)
       |WHERE email = :email AND password:
       |""".stripMargin
@@ -983,12 +985,13 @@ class TestSqlCompilerServiceAirports
   }
 
   test("""RD-10961""") { _ =>
+    assume(password != "")
     val q = """-- @default id 1
       |
       |SELECT * FROM
       |(VALUES
-      |  (1, 'John', 'Doe', DATE '2023-01-01'),
-      |  (2, 'Jane', 'Doe', DATE '2024-01-01')
+      |  (1, 'John', 'Doe', DATE '2023-01-02'),
+      |  (2, 'Jane', 'Doe', DATE '2024-01-03')
       |) as i(id, first_name, last_name, birthday)
       |WHERE id = :id && id = :
       |""".stripMargin

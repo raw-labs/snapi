@@ -104,7 +104,7 @@ proj: idnt (DOT idnt)+                                                        #p
     | idnt DOT {notifyErrorListeners("Missing identifier after '.'");}        #missingIdenProj
     ;
 
-idnt: (WORD | STRING_IDENTIFIER_START (STRING_IDENTIFIER_CONTENT | STRING_ESCAPE)* STRING_IDENTIFIER_END | non_reserved_keyword);
+idnt: (WORD | STRING_IDENTIFIER_START (STRING_IDENTIFIER_CONTENT | STRING_ESCAPE)* STRING_IDENTIFIER_END? | non_reserved_keyword);
 
 
 literal: STRING_LITERAL_START STRING_LITERAL_CONTENT* STRING_LITERAL_END #stringLiteral

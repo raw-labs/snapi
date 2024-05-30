@@ -243,7 +243,7 @@ class TestSqlParser extends AnyFunSuite {
   }
 
   test("Test multiple param occurrences") {
-    val code = """SELECT * FROM example.airports WHERE city = :param and airport_id = :param"""".stripMargin
+    val code = """SELECT * FROM example.airports WHERE city = :param and airport_id = :param""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
     result.params.get("param") match {
