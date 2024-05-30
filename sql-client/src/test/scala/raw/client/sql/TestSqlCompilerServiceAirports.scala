@@ -37,11 +37,11 @@ class TestSqlCompilerServiceAirports
 
   private var compilerService: CompilerService = _
 
-  private val database = sys.env.getOrElse("FDW_DATABASE", "unittest")
+  private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
   private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
-  private val username = sys.env.getOrElse("FDW_USERNAME", "postgres")
-  private val password = sys.env.getOrElse("FDW_PASSWORD", "1234")
+  private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
+  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
 
   property("raw.creds.jdbc.fdw.host", hostname)
   property("raw.creds.jdbc.fdw.port", port)
@@ -963,35 +963,38 @@ class TestSqlCompilerServiceAirports
     assert(v.messages.exists(_.message contains "the input does not form a valid statement or expression"))
   }
 
-  test("""RD-10948+10961"""){_ =>
+  test("""RD-10948+10961""") { _ =>
+    assume(password != "")
     val q = """:
-              |""".stripMargin
+      |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
     assert(errors.nonEmpty)
   }
 
-  test("""RD-10948"""){_ =>
+  test("""RD-10948""") { _ =>
+    assume(password != "")
     val q = """SELECT * FROM
-              |(VALUES
-              |  (1, 'aravind', 'aravind@gmail.com', '123456'),
-              |  (2, 'arjun', 'arjun@gmail.com', '11223344')
-              |) as i(id, first_name, email, password)
-              |WHERE email = :email AND password:
-              |""".stripMargin
+      |(VALUES
+      |  (1, 'janedoe', 'janedoe@raw-labs.com', '123'),
+      |  (2, 'janedoe', 'janedoe@raw-labs.com', '123')
+      |) as i(id, first_name, email, password)
+      |WHERE email = :email AND password:
+      |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
     assert(errors.nonEmpty)
   }
 
-  test("""RD-10961"""){_ =>
+  test("""RD-10961""") { _ =>
+    assume(password != "")
     val q = """-- @default id 1
-              |
-              |SELECT * FROM
-              |(VALUES
-              |  (1, 'John', 'Doe', DATE '2023-01-01'),
-              |  (2, 'Jane', 'Doe', DATE '2024-01-01')
-              |) as i(id, first_name, last_name, birthday)
-              |WHERE id = :id && id = :
-              |""".stripMargin
+      |
+      |SELECT * FROM
+      |(VALUES
+      |  (1, 'John', 'Doe', DATE '2023-01-02'),
+      |  (2, 'Jane', 'Doe', DATE '2024-01-03')
+      |) as i(id, first_name, last_name, birthday)
+      |WHERE id = :id && id = :
+      |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
     assert(errors.nonEmpty)
   }
