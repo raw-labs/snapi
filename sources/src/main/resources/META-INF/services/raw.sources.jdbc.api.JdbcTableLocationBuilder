@@ -4,4 +4,3 @@ raw.sources.jdbc.pgsql.PostgresqlTableLocationBuilder
 raw.sources.jdbc.mysql.MySqlTableLocationBuilder
 raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder
 raw.sources.jdbc.oracle.OracleTableLocationBuilder
-raw.sources.jdbc.teradata.TeradataTableLocationBuilder

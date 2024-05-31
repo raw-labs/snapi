@@ -55,7 +55,8 @@ object Dependencies {
   val kiamaVersion = IO.read(new File("./deps/kiama/version")).trim
   val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
 
-  val aws = "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
+  val aws =
+    "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
   val commonsLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
@@ -65,8 +66,7 @@ object Dependencies {
   val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0-rawlabs"
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
   val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33"
-  val oracleDeps = "com.raw-labs" % "ojdbc7" % "12.1.0.1.0"
-  val teradataDeps = "com.raw-labs" % "terajdbc4" % "17.00.00.03"
+  val oracleDeps = "com.oracle.database.jdbc" % "ojdbc10" % "19.23.0.0"
   val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
   val poiDeps = Seq(
     "org.apache.poi" % "poi" % "5.2.3",

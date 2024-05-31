@@ -57,7 +57,7 @@ module raw.sources {
   requires org.postgresql.jdbc;
   requires com.microsoft.sqlserver.jdbc;
   requires mysql.connector.j;
-
+  requires ojdbc10;
   requires raw.utils;
   requires raw.client;
 
@@ -79,7 +79,6 @@ module raw.sources {
   exports raw.sources.jdbc.sqlite;
   exports raw.sources.jdbc.sqlserver;
   exports raw.sources.jdbc.oracle;
-  exports raw.sources.jdbc.teradata;
 
   opens raw.creds.api to
       com.fasterxml.jackson.databind;
@@ -112,8 +111,7 @@ module raw.sources {
       raw.sources.jdbc.snowflake.SnowflakeLocationBuilder,
       raw.sources.jdbc.sqlite.SqliteLocationBuilder,
       raw.sources.jdbc.sqlserver.SqlServerLocationBuilder,
-      raw.sources.jdbc.oracle.OracleLocationBuilder,
-      raw.sources.jdbc.teradata.TeradataLocationBuilder;
+      raw.sources.jdbc.oracle.OracleLocationBuilder;
 
   uses raw.sources.jdbc.api.JdbcSchemaLocationBuilder;
 
@@ -123,8 +121,7 @@ module raw.sources {
       raw.sources.jdbc.snowflake.SnowflakeSchemaLocationBuilder,
       raw.sources.jdbc.sqlite.SqliteSchemaLocationBuilder,
       raw.sources.jdbc.sqlserver.SqlServerSchemaLocationBuilder,
-      raw.sources.jdbc.oracle.OracleSchemaLocationBuilder,
-      raw.sources.jdbc.teradata.TeradataSchemaLocationBuilder;
+      raw.sources.jdbc.oracle.OracleSchemaLocationBuilder;
 
   uses raw.sources.jdbc.api.JdbcTableLocationBuilder;
 
@@ -134,6 +131,5 @@ module raw.sources {
       raw.sources.jdbc.snowflake.SnowflakeTableLocationBuilder,
       raw.sources.jdbc.sqlite.SqliteTableLocationBuilder,
       raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder,
-      raw.sources.jdbc.oracle.OracleTableLocationBuilder,
-      raw.sources.jdbc.teradata.TeradataTableLocationBuilder;
+      raw.sources.jdbc.oracle.OracleTableLocationBuilder;
 }
