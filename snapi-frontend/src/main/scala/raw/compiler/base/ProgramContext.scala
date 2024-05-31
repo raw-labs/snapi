@@ -12,23 +12,22 @@
 
 package raw.compiler.base
 
-import raw.runtime.RuntimeContext
 import raw.utils.RawSettings
-import raw.client.api.CompilerService
+import raw.client.api.{CompilerService, ProgramEnvironment}
 
 /**
  * Contains state that is shared between compilation phases of a single program.
  */
 trait ProgramContext {
 
-  def runtimeContext: RuntimeContext
+  def programEnvironment: ProgramEnvironment
 
   def compilerContext: CompilerContext
 
-  def settings: RawSettings = runtimeContext.settings
+  def settings: RawSettings = compilerContext.settings
 
   def dumpDebugInfo: List[(String, String)] = {
-    CompilerService.getDebugInfo(runtimeContext.environment)
+    CompilerService.getDebugInfo(programEnvironment)
   }
 
 }

@@ -14,7 +14,6 @@ package raw.compiler.rql2.antlr4
 
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, Source}
-import raw.compiler.common.source.SourceNode
 
 class RawPositions(positions: Positions, source: Source) {
 

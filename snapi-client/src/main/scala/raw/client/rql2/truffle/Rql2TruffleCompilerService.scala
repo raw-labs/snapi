@@ -31,7 +31,6 @@ import raw.compiler.rql2.lsp.CompilerLspService
 import raw.compiler.rql2.source._
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
-import raw.runtime._
 import raw.sources.api.SourceContext
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
@@ -88,8 +87,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
 
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {
     val compilerContext = getCompilerContext(user)
-    val runtimeContext = new RuntimeContext(compilerContext.sourceContext, environment)
-    new Rql2ProgramContext(runtimeContext, compilerContext)
+    new Rql2ProgramContext(environment, compilerContext)
   }
 
   override def prettyPrint(node: BaseNode, user: AuthenticatedUser): String = {

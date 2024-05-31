@@ -40,7 +40,6 @@ import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
 import raw.compiler.rql2.source.Rql2Program;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.inferrer.api.InferrerService;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
@@ -121,11 +120,9 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   protected CallTarget parse(ParsingRequest request) throws Exception {
     RawContext context = RawContext.get(null);
 
-    RuntimeContext runtimeContext =
-        new RuntimeContext(context.getSourceContext(), context.getProgramEnvironment());
     ProgramContext programContext =
         new Rql2ProgramContext(
-            runtimeContext, getCompilerContext(context.getUser(), context.getSettings()));
+                context.getProgramEnvironment(), getCompilerContext(context.getUser(), context.getSettings()));
 
     String source = request.getSource().getCharacters().toString();
 
