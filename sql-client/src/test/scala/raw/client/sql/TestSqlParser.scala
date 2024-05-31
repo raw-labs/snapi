@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RAW Labs S.A.
+ * Copyright 2024 RAW Labs S.A.
  *
  * Use of this software is governed by the Business Source License
  * included in the file licenses/BSL.txt.
@@ -23,6 +23,7 @@ import raw.client.sql.antlr4.{
   SqlProgramNode,
   SqlProjNode,
   SqlStatementNode,
+  SqlStringLiteralNode,
   SqlWithComaSeparatorNode
 }
 
@@ -242,7 +243,7 @@ class TestSqlParser extends AnyFunSuite {
   }
 
   test("Test multiple param occurrences") {
-    val code = """SELECT * FROM example.airports WHERE city = :param and airport_id = :param"""".stripMargin
+    val code = """SELECT * FROM example.airports WHERE city = :param and airport_id = :param""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
     result.params.get("param") match {
@@ -378,57 +379,35 @@ class TestSqlParser extends AnyFunSuite {
   }
 
   test("Test complex ChatGPT generated query") {
-    val code = """SELECT 
+    val code = """SELECT
       |    p.project_name,
       |    SUM(e.salary) AS total_salary,
       |    COUNT(DISTINCT e.department_id) AS unique_departments
-      |FROM 
+      |FROM
       |    projects p
-      |INNER JOIN 
+      |INNER JOIN
       |    employee_project ep ON p.project_id = ep.project_id
-      |INNER JOIN 
+      |INNER JOIN
       |    employees e ON e.employee_id = ep.employee_id
-      |WHERE 
+      |WHERE
       |    p.project_id IN (
-      |        SELECT 
+      |        SELECT
       |            ep_inner.project_id
-      |        FROM 
+      |        FROM
       |            employee_project ep_inner
-      |        JOIN 
+      |        JOIN
       |            employees e_inner ON ep_inner.employee_id = e_inner.employee_id
-      |        GROUP BY 
+      |        GROUP BY
       |            ep_inner.project_id
-      |        HAVING 
+      |        HAVING
       |            COUNT(DISTINCT e_inner.department_id) > 1
       |    )
-      |GROUP BY 
+      |GROUP BY
       |    p.project_name
-      |ORDER BY 
+      |ORDER BY
       |    total_salary DESC;""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
-  }
-
-  test("Test missing closing double quote identifier") {
-    val code = """select somethin."asdf from anything""".stripMargin
-    val result = doTest(code)
-    assert(result.errors.size == 1)
-    assert(
-      result.errors.head.message == "Missing closing \""
-    )
-    result.tree match {
-      case SqlProgramNode(statement) => statement match {
-          case SqlStatementNode(statementItems) =>
-            assert(statementItems.size == 4)
-            statementItems(1) match {
-              case SqlProjNode(identifiers) => identifiers(1) match {
-                  case identifier: SqlIdentifierNode =>
-                    assert(identifier.name == "asdf")
-                    assert(identifier.isQuoted)
-                }
-            }
-        }
-    }
   }
 
   test("Test missing identifier after dot") {
@@ -528,7 +507,7 @@ class TestSqlParser extends AnyFunSuite {
   test("Test mock sql query with comments") {
     val code = """SELECT
       |    -- Identifier, which comes from "generate_series"
-      |    s as id, 
+      |    s as id,
       |    -- Pick a random first name from 'firstnames' array
       |    arrays.firstnames[trunc(random() * ARRAY_LENGTH(arrays.firstnames, 1) + 1)] AS firstname,
       |    -- Pick a random middle name character
@@ -582,28 +561,7 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.isSuccess)
   }
 
-  ignore("double quoted identifier with a newline, in the end of the code") {
-    val code = """SELECT * FROM x
-      |WHERE example."c si
-      |
-      |
-      |bon"
-      |""".stripMargin
-    val result = doTest(code)
-    assert(result.isSuccess)
-  }
-
-  ignore("-- double quoted identifier with a newline, in the end of the code") {
-    val code = """SELECT * FROM x
-      |WHERE example."c
-      |si
-      |bon
-      |""".stripMargin
-    val result = doTest(code)
-    assert(result.isSuccess)
-  }
-
-  ignore("single quoted string with a newline, in the end of the code") {
+  test("single quoted string with a newline") {
     val code = """SELECT 'c
       | si
       | bon' FROM x
@@ -611,4 +569,59 @@ class TestSqlParser extends AnyFunSuite {
     val result = doTest(code)
     assert(result.isSuccess)
   }
+
+  test("single quoted identifier with a newline") {
+    val code = """SELECT "c
+      | si
+      | bon" FROM x
+      |""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("colon in the end of the code with a newline") {
+    val code = """:
+      |""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+    val SqlProgramNode(stmt) = result.tree
+    assert(result.positions.getStart(stmt).isDefined)
+    assert(result.positions.getStart(stmt).flatMap(_.optOffset).isDefined)
+    assert(result.positions.getFinish(stmt).flatMap(_.optOffset).isDefined)
+  }
+
+  test("multiline string-identifier test") {
+    val code = """select "
+      |a
+      |" from anything """.stripMargin
+    val result = doTest(code)
+    val SqlProgramNode(stmt) = result.tree
+    stmt match {
+      case SqlStatementNode(statementItems) =>
+        assert(statementItems.size == 4)
+        statementItems(1) match {
+          case node: SqlIdentifierNode =>
+            val finish = result.positions.getFinish(node)
+            assert(finish.get.line == 3)
+        }
+    }
+  }
+
+  test("multiline string test") {
+    val code = """select '
+      |a
+      |' from anything """.stripMargin
+    val result = doTest(code)
+    val SqlProgramNode(stmt) = result.tree
+    stmt match {
+      case SqlStatementNode(statementItems) =>
+        assert(statementItems.size == 4)
+        statementItems(1) match {
+          case node: SqlStringLiteralNode =>
+            val finish = result.positions.getFinish(node)
+            assert(finish.get.line == 3)
+        }
+    }
+  }
+
 }

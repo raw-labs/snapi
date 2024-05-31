@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RAW Labs S.A.
+ * Copyright 2024 RAW Labs S.A.
  *
  * Use of this software is governed by the Business Source License
  * included in the file licenses/BSL.txt.
@@ -26,10 +26,16 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
 
   // One pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
+  private val poolsLock = new Object
+
   private val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
   private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
   private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
   private val password = settings.getString("raw.creds.jdbc.fdw.password")
+  private val maxConnections = settings.getInt("raw.client.sql.pool.max-connections")
+  private val idleTimeout = settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS)
+  private val maxLifetime = settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS)
+  private val connectionTimeout = settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
 
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
@@ -40,33 +46,37 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
 
   @throws[SQLException]
   private def getConnection(db: String): java.sql.Connection = {
-    val pool = pools.get(db) match {
-      case Some(existingPool) => existingPool
-      case None =>
-        // Create a pool and store it in `pools`.
-        logger.info(s"Creating a SQL connection pool for database $db")
-        val config = new HikariConfig()
-        config.setJdbcUrl(s"jdbc:postgresql://$dbHost:$dbPort/$db")
-        config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
-        config.setMinimumIdle(0)
-        config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
-        config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
-        config.setConnectionTimeout(
-          settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
-        )
-        config.setUsername(readOnlyUser)
-        config.setPassword(password)
-        val pool = new HikariDataSource(config)
-        pools.put(db, pool)
-        pool
+    val pool = {
+      poolsLock.synchronized {
+        pools.get(db) match {
+          case Some(existingPool) => existingPool
+          case None =>
+            // Create a pool and store it in `pools`.
+            logger.info(s"Creating a SQL connection pool for database $db")
+            val config = new HikariConfig()
+            config.setJdbcUrl(s"jdbc:postgresql://$dbHost:$dbPort/$db")
+            config.setMaximumPoolSize(maxConnections)
+            config.setMinimumIdle(0)
+            config.setIdleTimeout(idleTimeout)
+            config.setMaxLifetime(maxLifetime)
+            config.setConnectionTimeout(connectionTimeout)
+            config.setUsername(readOnlyUser)
+            config.setPassword(password)
+            val pool = new HikariDataSource(config)
+            pools.put(db, pool)
+            pool
+        }
+      }
     }
     pool.getConnection
   }
 
   override def doStop(): Unit = {
-    for ((db, pool) <- pools) {
-      logger.info(s"Shutting down SQL connection pool for database $db")
-      RawUtils.withSuppressNonFatalException(pool.close())
+    poolsLock.synchronized {
+      for ((db, pool) <- pools) {
+        logger.info(s"Shutting down SQL connection pool for database $db")
+        RawUtils.withSuppressNonFatalException(pool.close())
+      }
     }
   }
 }

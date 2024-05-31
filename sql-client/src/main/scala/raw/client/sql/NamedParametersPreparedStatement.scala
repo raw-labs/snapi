@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RAW Labs S.A.
+ * Copyright 2024 RAW Labs S.A.
  *
  * Use of this software is governed by the Business Source License
  * included in the file licenses/BSL.txt.
@@ -395,7 +395,18 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
         mandatoryParameters.remove(p)
     }
     if (mandatoryParameters.nonEmpty) Left(s"no value was specified for ${mandatoryParameters.mkString(", ")}")
-    else Right(stmt.executeQuery())
+    else
+      try {
+        Right(stmt.executeQuery())
+      } catch {
+        // We'd catch here user-visible PSQL runtime errors (e.g. schema not found, table not found,
+        // wrong credentials) hit _at runtime_ because the user FDW schema.table maps to a datasource
+        // that has ... changed (e.g. the database doesn't have the table anymore, a remote service
+        // account has expired (RD-10895)). We report these errors to the user.
+        case ex: PSQLException =>
+          val error = ex.getMessage // it has the code, the message, hint, etc.
+          Left(error)
+      }
   }
 
   def close(): Unit = stmt.close()

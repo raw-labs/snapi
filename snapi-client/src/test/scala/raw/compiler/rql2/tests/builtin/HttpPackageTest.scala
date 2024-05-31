@@ -82,7 +82,24 @@ trait HttpPackageTest extends CompilerTestContext with DropboxTestCreds with Bef
       }
     )
 
-    val returnBodyCtx = server.createContext(
+    server.createContext(
+      "/return-args",
+      (exchange: HttpExchange) => {
+        logger.debug(s"/return-args Received request: $exchange")
+        val response = exchange.getRequestURI.getQuery
+        val os = exchange.getResponseBody
+        try {
+          if (response != null) {
+            exchange.sendResponseHeaders(200, response.length)
+            os.write(response.getBytes)
+          } else {
+            exchange.sendResponseHeaders(200, 0)
+          }
+        } finally os.close()
+      }
+    )
+
+    private val returnBodyCtx = server.createContext(
       "/return-body",
       (exchange: HttpExchange) => {
         logger.debug(s"/return-body Received request: $exchange")
@@ -102,7 +119,7 @@ trait HttpPackageTest extends CompilerTestContext with DropboxTestCreds with Bef
     logger.info(s"Starting server at address: ${server.getAddress}")
     server.start()
 
-    def address = server.getAddress
+    def address: InetSocketAddress = server.getAddress
 
     def stop(): Unit = {
       server.stop(0)
@@ -399,4 +416,40 @@ trait HttpPackageTest extends CompilerTestContext with DropboxTestCreds with Bef
     |  "http://localhost:$testPort/csv",
     |  bodyBinary = Binary.FromString("a|b|c\\n1|2|3\\n4|5|6")
     |))""".stripMargin)(it => it should evaluateTo("""[{a: 1, b: 2, c: 3}, {a: 4, b: 5, c: 6}]"""))
+
+  test(s"""String.Read(Http.Get(
+    |  "http://localhost:$testPort/return-args",
+    |  args=[{"a", "12"}, {"b", "13"}])
+    |)
+    |""".stripMargin)(_ should evaluateTo("\"a=12&b=13\""))
+
+  test(s"""String.Read(Http.Get(
+    |  "http://localhost:$testPort/return-args",
+    |  args=[{"a", "12"}, {"b", null}, {"c", "14"}])
+    |)
+    |""".stripMargin)(_ should evaluateTo("\"a=12&c=14\""))
+
+  test(s"""String.Read(Http.Get(
+    |  "http://localhost:$testPort/return-args",
+    |  args=[{null, "12"}, {null, "14"}])
+    |)
+    |""".stripMargin)(_ should evaluateTo("\"\""))
+
+  test(s"""String.Read(Http.Get(
+    |  "http://localhost:$testPort/return-headers",
+    |  headers=[{"a", "12"}])
+    |)
+    |""".stripMargin)(_ should evaluateTo("\"A:12\""))
+
+  test(s"""String.Read(Http.Get(
+    |  "http://localhost:$testPort/return-headers",
+    |  headers=[{"a", "12"}, {"b", null}])
+    |)
+    |""".stripMargin)(_ should evaluateTo("\"A:12\""))
+
+  test(s"""String.Read(Http.Get(
+    |  "http://localhost:$testPort/return-headers",
+    |  headers=[{null, "12"}, {"b", null}])
+    |)
+    |""".stripMargin)(_ should evaluateTo("\"\""))
 }

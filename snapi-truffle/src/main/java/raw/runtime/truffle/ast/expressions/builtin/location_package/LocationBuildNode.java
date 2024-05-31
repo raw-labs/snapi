@@ -120,7 +120,9 @@ public class LocationBuildNode extends ExpressionNode {
           Object keys = interops.getMembers(record);
           Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
           Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
-          vec = vec.$plus$eq(Tuple2.apply((String) key, (String) val));
+          // ignore entries where key or val is null
+          if (key != NullObject.INSTANCE && val != NullObject.INSTANCE)
+            vec = vec.$plus$eq(Tuple2.apply((String) key, (String) val));
         }
         return new LocationKVSetting(vec.result());
       } else if (TypeGuards.isBinaryKind(type)) {

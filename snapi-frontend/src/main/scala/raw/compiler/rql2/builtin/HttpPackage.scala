@@ -103,7 +103,8 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       ExampleDoc(
         s"""Http.${method.capitalize}(
           |  "https://www.somewhere.com/something",
-          |  headers = [{ "Content-Type", "application/json"}],
+          |  headers = [{"Content-Type", "application/json"}],
+          |  args = [{"download", "true"}],
           |  bodyString = Json.Print({name: "john", age: 35})
           |)""".stripMargin
       )
@@ -179,18 +180,21 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       ParamDoc(
         "args",
         TypeDoc(List("list")),
-        "The query parameters arguments for the HTTP request. Parameters are URL-encoded automatically.",
+        """The query parameters arguments for the HTTP request, e.g. `[{"name", "john"}, {"age", "22"}]`. They are URL-encoded automatically.""".stripMargin,
         isOptional = true
       ),
       ParamDoc(
         "headers",
         TypeDoc(List("list")),
-        "The HTTP headers to include in the request.",
+        """The HTTP headers to include in the request, e.g. `[{"Authorization", "Bearer 1234"}, {"Accept", "application/json"}]`.""".stripMargin,
         isOptional = true
       ),
       ParamDoc("expectedStatus", TypeDoc(List("list")), "The list of expected statuses.", isOptional = true)
     ),
-    ret = Some(ReturnDoc("A location to read from.", retType = Some(TypeDoc(List("location")))))
+    ret = Some(ReturnDoc("A location to read from.", retType = Some(TypeDoc(List("location"))))),
+    info = Some(
+      """Any key/value pair with a null key or value in the `headers` or in the `args` parameters will be omitted and won't be included in the request."""
+    )
   )
 
   override def nrMandatoryParams: Int = 1

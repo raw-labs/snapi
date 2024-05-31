@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RAW Labs S.A.
+ * Copyright 2024 RAW Labs S.A.
  *
  * Use of this software is governed by the Business Source License
  * included in the file licenses/BSL.txt.
@@ -70,6 +70,10 @@ class RawSqlVisitor(
   override def visitProg(ctx: PsqlParser.ProgContext): SqlBaseNode = {
     isFirstStatement = true
     Option(ctx).flatMap(context => Option(context.code()).map(codeCtx => visit(codeCtx))).getOrElse(SqlErrorNode())
+  }
+
+  override protected def defaultResult(): SqlErrorNode = {
+    SqlErrorNode();
   }
 
   override def visitCode(ctx: PsqlParser.CodeContext): SqlBaseNode = Option(ctx)
@@ -437,12 +441,12 @@ class RawSqlVisitor(
       if (context.multiline_word_or_star(0) == null) {
         addError("Missing name for syntax @default <name> <value>", context)
         SqlErrorNode()
-      } else if (context.multiline_word_or_star(1) == null) {
+      } else if (context.multiline_word_or_star.size() <= 1) {
         addError("Missing default value for syntax @default <name> <value>", context)
         SqlErrorNode()
       } else {
         val name = context.multiline_word_or_star(0).getText
-        val defaultValue = context.multiline_word_or_star(1).getText
+        val defaultValue = context.multiline_word_or_star.asScala.tail.map(_.getText.trim).mkString(" ")
         val paramDefaultComment = SqlParamDefaultCommentNode(name, defaultValue)
         positionsWrapper.setPosition(ctx, paramDefaultComment)
 
@@ -695,10 +699,10 @@ class RawSqlVisitor(
 
   override def visitIdnt(ctx: PsqlParser.IdntContext): SqlBaseNode = Option(ctx)
     .map { context =>
-      val isDoubleQuoted = context.DOUBLE_QUOTED_STRING() != null
+      val isDoubleQuoted = context.STRING_IDENTIFIER_START() != null
       val value =
         if (isDoubleQuoted) {
-          val text = context.DOUBLE_QUOTED_STRING().getText
+          val text = context.getText
           val withoutLast =
             if (!text.endsWith("\"")) {
               addError("Missing closing \"", context)

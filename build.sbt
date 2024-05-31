@@ -8,7 +8,7 @@ import raw.build.Dependencies._
 import raw.build.BuildSettings._
 
 import java.io.IOException
-import java.nio.file.{Paths, Files}
+import java.nio.file.{Files, Paths}
 import java.nio.charset.StandardCharsets
 
 import scala.sys.process._
@@ -31,6 +31,7 @@ writeVersionToFile := {
 lazy val root = (project in file("."))
   .aggregate(
     utils,
+    sources,
     client,
     snapiParser,
     snapiFrontend,
@@ -38,14 +39,14 @@ lazy val root = (project in file("."))
     snapiClient,
     sqlParser,
     sqlClient
-    )
+  )
   .settings(
     commonSettings,
-    publish := (publish dependsOn(writeVersionToFile)).value,
-    publishLocal := (publishLocal dependsOn(writeVersionToFile)).value,
-    publishSigned := (publishSigned dependsOn(writeVersionToFile)).value,
+    publish := (publish dependsOn writeVersionToFile).value,
+    publishLocal := (publishLocal dependsOn writeVersionToFile).value,
+    publishSigned := (publishSigned dependsOn writeVersionToFile).value,
     publish / skip := true,
-    publishSigned / skip  := true,
+    publishSigned / skip := true,
     publishLocal / skip := true
   )
 
@@ -80,76 +81,53 @@ lazy val client = (project in file("client"))
     libraryDependencies += trufflePolyglot
   )
 
-val generateSnapiParser = taskKey[Unit]("Generated antlr4 base SNAPI parser and lexer")
+lazy val sources = (project in file("sources"))
+  .dependsOn(
+    client % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    nonStrictScalaCompileSettings,
+    testSettings,
+    libraryDependencies ++= Seq(
+      apacheHttpClient,
+      springCore,
+      jwtApi,
+      jwtImpl,
+      jwtCore,
+      dropboxSDK,
+      aws,
+      postgresqlDeps,
+      mysqlDeps,
+      mssqlDeps,
+      snowflakeDeps
+    )
+  )
 
 lazy val snapiParser = (project in file("snapi-parser"))
+  .enablePlugins(GenParserPlugin)
   .settings(
     commonSettings,
     commonCompileSettings,
+    javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
+    parserDefinitions := List(
+      (s"${javaSrcBasePath.value}/raw/compiler/rql2/generated",
+        "raw.compiler.rql2.generated",
+        s"${javaSrcBasePath.value}/raw/snapi/grammar",
+        "Snapi")
+    ),
     Compile / doc := { file("/dev/null") },
     compileOrder := CompileOrder.JavaThenScala,
     libraryDependencies ++= Seq(
       antlr4Runtime
     ),
-    generateSnapiParser := {
-      // List of output paths
-      val basePath: String = s"${baseDirectory.value}/src/main/java"
-      val parsers = List(
-        (s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
-      )
-      def deleteRecursively(file: File): Unit = {
-        if (file.isDirectory) {
-          file.listFiles.foreach(deleteRecursively)
-        }
-        if (file.exists && !file.delete()) {
-          throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
-        }
-      }
-      val s: TaskStreams = streams.value
-      parsers.foreach(parser => {
-        val outputPath = parser._1
-        val file = new File(outputPath)
-        if (file.exists()) {
-          deleteRecursively(file)
-        }
-        val packageName: String = parser._2
-        val jarName = "antlr-4.12.0-complete.jar"
-        val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
-        val output = new StringBuilder
-        val logger = ProcessLogger(
-          (o: String) => output.append(o + "\n"), // for standard output
-          (e: String) => output.append(e + "\n") // for standard error
-        )
-        val grammarPath = parser._3
-        val grammarName = parser._4
-        val lexerResult = s"$command  $grammarPath/${grammarName}Lexer.g4".!(logger)
-        if (lexerResult == 0) {
-          s.log.info("Lexer code generated successfully")
-        } else {
-          s.log.error("Lexer code generation failed with exit code " + lexerResult)
-          s.log.error("Output:\n" + output.toString)
-        }
-        val parserResult = s"$command $grammarPath/${grammarName}Parser.g4".!(logger)
-        if (parserResult == 0) {
-          s.log.info("Parser code generated successfully")
-        } else {
-          s.log.error("Parser code generation failed with exit code " + lexerResult)
-          s.log.error("Output:\n" + output.toString)
-        }
-      })
-    },
-    Compile / compile := (Compile / compile).dependsOn(generateSnapiParser).value,
-    Compile / doc := (Compile / doc).dependsOn(generateSnapiParser).value,
-    Test / compile := (Test / compile).dependsOn(generateSnapiParser).value,
-    publish := (publish dependsOn(generateSnapiParser)).value,
-    publishLocal := (publishLocal dependsOn(generateSnapiParser)).value,
-    publishSigned := (publishSigned dependsOn(generateSnapiParser)).value
   )
 
 lazy val snapiFrontend = (project in file("snapi-frontend"))
   .dependsOn(
     utils % "compile->compile;test->test",
     client % "compile->compile;test->test",
+    sources % "compile->compile;test->test",
     snapiParser % "compile->compile;test->test"
   )
   .settings(
@@ -159,21 +137,10 @@ lazy val snapiFrontend = (project in file("snapi-frontend"))
     libraryDependencies ++= Seq(
       commonsLang,
       commonsText,
-      apacheHttpClient,
       icuDeps,
       woodstox,
       kiama,
-      dropboxSDK,
-      aws,
-      jwtApi,
-      jwtImpl,
-      jwtCore,
-      postgresqlDeps,
-      mysqlDeps,
-      mssqlDeps,
-      snowflakeDeps,
       commonsCodec,
-      springCore,
       kryo
     ) ++
       poiDeps
@@ -249,11 +216,10 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     Compile / compile := (Compile / compile).dependsOn(runJavaAnnotationProcessor).value,
     Compile / doc := (Compile / doc).dependsOn(runJavaAnnotationProcessor).value,
     Test / compile := (Test / compile).dependsOn(runJavaAnnotationProcessor).value,
-    publish := (publish dependsOn(runJavaAnnotationProcessor)).value,
-    publishLocal := (publishLocal dependsOn(runJavaAnnotationProcessor)).value,
-    publishSigned := (publishSigned dependsOn(runJavaAnnotationProcessor)).value,
+    publish := (publish dependsOn runJavaAnnotationProcessor).value,
+    publishLocal := (publishLocal dependsOn runJavaAnnotationProcessor).value,
+    publishSigned := (publishSigned dependsOn runJavaAnnotationProcessor).value
   )
-
 
 lazy val snapiClient = (project in file("snapi-client"))
   .dependsOn(
@@ -263,89 +229,56 @@ lazy val snapiClient = (project in file("snapi-client"))
   )
   .settings(
     commonSettings,
-    snapiClientCompileSettings,
+    missingInterpolatorCompileSettings,
     testSettings
   )
 
-val generateSqlParser = taskKey[Unit]("Generated antlr4 base SQL parser and lexer")
 
 lazy val sqlParser = (project in file("sql-parser"))
+  .enablePlugins(GenParserPlugin)
   .settings(
     commonSettings,
     commonCompileSettings,
+    javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
+    parserDefinitions := List(
+      (s"${javaSrcBasePath.value}/raw/client/sql/generated",
+      "raw.client.sql.generated",
+      s"${javaSrcBasePath.value}/raw/psql/grammar",
+      "Psql")
+    ),
     Compile / doc := { file("/dev/null") },
     compileOrder := CompileOrder.JavaThenScala,
     libraryDependencies ++= Seq(
-      antlr4Runtime
-    ),
-    generateSqlParser := {
-      // List of output paths
-      val basePath: String = s"${baseDirectory.value}/src/main/java"
-      val parsers = List(
-        (s"${basePath}/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql"),
-      )
-      def deleteRecursively(file: File): Unit = {
-        if (file.isDirectory) {
-          file.listFiles.foreach(deleteRecursively)
-        }
-        if (file.exists && !file.delete()) {
-          throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
-        }
-      }
-      val s: TaskStreams = streams.value
-      parsers.foreach(parser => {
-        val outputPath = parser._1
-        val file = new File(outputPath)
-        if (file.exists()) {
-          deleteRecursively(file)
-        }
-        val packageName: String = parser._2
-        val jarName = "antlr-4.12.0-complete.jar"
-        val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
-        val output = new StringBuilder
-        val logger = ProcessLogger(
-          (o: String) => output.append(o + "\n"), // for standard output
-          (e: String) => output.append(e + "\n") // for standard error
-        )
-        val grammarPath = parser._3
-        val grammarName = parser._4
-        val lexerResult = s"$command  $grammarPath/${grammarName}Lexer.g4".!(logger)
-        if (lexerResult == 0) {
-          s.log.info("Lexer code generated successfully")
-        } else {
-          s.log.error("Lexer code generation failed with exit code " + lexerResult)
-          s.log.error("Output:\n" + output.toString)
-        }
-        val parserResult = s"$command $grammarPath/${grammarName}Parser.g4".!(logger)
-        if (parserResult == 0) {
-          s.log.info("Parser code generated successfully")
-        } else {
-          s.log.error("Parser code generation failed with exit code " + lexerResult)
-          s.log.error("Output:\n" + output.toString)
-        }
-      })
-    },
-    Compile / compile := (Compile / compile).dependsOn(generateSqlParser).value,
-    Compile / doc := (Compile / doc).dependsOn(generateSqlParser).value,
-    Test / compile := (Test / compile).dependsOn(generateSqlParser).value,
-    publish := (publish dependsOn(generateSqlParser)).value,
-    publishLocal := (publishLocal dependsOn(generateSqlParser)).value,
-    publishSigned := (publishSigned dependsOn(generateSqlParser)).value
+      antlr4Runtime,
+    )
   )
 
 lazy val sqlClient = (project in file("sql-client"))
   .dependsOn(
     client % "compile->compile;test->test",
     snapiFrontend % "compile->compile;test->test",
-    sqlParser % "compile->compile;test->test"
+    sqlParser % "compile->compile;test->test",
+    sources % "compile->compile;test->test",
   )
   .settings(
     commonSettings,
-    snapiClientCompileSettings,
+    missingInterpolatorCompileSettings,
     testSettings,
     libraryDependencies ++= Seq(
       kiama,
       postgresqlDeps,
       hikariCP
     )
+  )
+
+lazy val pythonClient = (project in file("python-client"))
+  .dependsOn(
+    client % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    missingInterpolatorCompileSettings,
+    testSettings,
+    Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client"),
+    libraryDependencies += "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
   )

@@ -2,6 +2,7 @@ name: CI
 on:
   pull_request:
     paths:
+      - .sbtopts
       - build.sbt
       - project/**
       - deps/**
@@ -84,14 +85,20 @@ jobs:
           yes n | sdk install java 21.0.1-graalce || true
           sdk use java 21.0.1-graalce
           echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
-      ##- name: headers
-      ##  run: sbt headerCheckAll
+      - name: headers
+        run: sbt headerCheckAll
       - name: scala fmt
         run: sbt scalafmtCheckAll
       - name: java fmt
         run: sbt javafmtCheckAll
       - name: doc
-        run: sbt doc
+        run: |
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 21.0.1-graalce || true
+          sdk use java 21.0.1-graalce
+          sbt doc
   tests:
     needs: build-custom-deps
     strategy:
@@ -101,6 +108,7 @@ jobs:
           - snapiFrontend
           - snapiClient
           - sqlClient
+          - pythonClient
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
@@ -123,8 +131,10 @@ jobs:
         with:
           name: m2
           path: /home/sbtuser/.m2/repository
-      - name: sdkman java setup
-        id: sdkman
+      - uses: oNaiPs/secrets-to-env-action@v1.5
+        with:
+          secrets: ${{ toJSON(secrets) }}
+      - name: test
         run: |
           export HOME="/home/sbtuser"
           export SDKMAN_DIR="$HOME/.sdkman"
@@ -132,11 +142,7 @@ jobs:
           yes n | sdk install java 21.0.1-graalce || true
           sdk use java 21.0.1-graalce
           echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
-      - uses: oNaiPs/secrets-to-env-action@v1.5
-        with:
-          secrets: ${{ toJSON(secrets) }}
-      - name: test
-        run: sbt ${{ matrix.component }}/test
+          sbt ${{ matrix.component }}/test
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
