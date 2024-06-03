@@ -229,9 +229,9 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
         validate.execute(pythonCtx.asValue(source))
       } catch {
         case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
-          case Some(errorMessage) => return ValidateResponse(List(errorMessage))
-          case None => throw new CompilerServiceException(ex, environment)
-        }
+            case Some(errorMessage) => return ValidateResponse(List(errorMessage))
+            case None => throw new CompilerServiceException(ex, environment)
+          }
       }
     }
     ValidateResponse(List.empty)
