@@ -17,7 +17,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FO
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import org.graalvm.polyglot.Value
 import raw.client.api._
-import raw.utils.RecordFieldsNaming
+import raw.client.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.time.format.DateTimeFormatter

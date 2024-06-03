@@ -639,6 +639,19 @@ class TestSqlCompilerServiceAirports
     assert(executionErrors.forall(err => expectedErrors.exists(err.message.contains)))
   }
 
+  test("""/* @default a 1 + 1 */
+    |SELECT :a + :a AS v""".stripMargin) { t =>
+    assume(password != "")
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.isEmpty, v.messages.mkString(","))
+    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    assert(!description.maybeRunnable.get.params.get.head.required)
+    assert(description.maybeRunnable.get.params.get.head.defaultValue.contains(RawInt(2)))
+    val baos = new ByteArrayOutputStream()
+    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess)
+    assert(baos.toString() == """[{"v":4}]""")
+  }
+
   test("SELECT * FROM wrong.relation") { t =>
     assume(password != "")
 
@@ -950,4 +963,39 @@ class TestSqlCompilerServiceAirports
     assert(v.messages.exists(_.message contains "the input does not form a valid statement or expression"))
   }
 
+  test("""RD-10948+10961""") { _ =>
+    assume(password != "")
+    val q = """:
+      |""".stripMargin
+    val ValidateResponse(errors) = compilerService.validate(q, asJson())
+    assert(errors.nonEmpty)
+  }
+
+  test("""RD-10948""") { _ =>
+    assume(password != "")
+    val q = """SELECT * FROM
+      |(VALUES
+      |  (1, 'janedoe', 'janedoe@raw-labs.com', '123'),
+      |  (2, 'janedoe', 'janedoe@raw-labs.com', '123')
+      |) as i(id, first_name, email, password)
+      |WHERE email = :email AND password:
+      |""".stripMargin
+    val ValidateResponse(errors) = compilerService.validate(q, asJson())
+    assert(errors.nonEmpty)
+  }
+
+  test("""RD-10961""") { _ =>
+    assume(password != "")
+    val q = """-- @default id 1
+      |
+      |SELECT * FROM
+      |(VALUES
+      |  (1, 'John', 'Doe', DATE '2023-01-02'),
+      |  (2, 'Jane', 'Doe', DATE '2024-01-03')
+      |) as i(id, first_name, last_name, birthday)
+      |WHERE id = :id && id = :
+      |""".stripMargin
+    val ValidateResponse(errors) = compilerService.validate(q, asJson())
+    assert(errors.nonEmpty)
+  }
 }

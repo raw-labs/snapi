@@ -33,9 +33,10 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
 import raw.sources.api.SourceContext
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, RawUtils}
+import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
+import scala.collection.mutable
 import scala.util.control.NonFatal
 
 object Rql2TruffleCompilerService {
@@ -65,10 +66,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
   // Map of users to compiler context.
-  private val compilerContextCaches = new RawConcurrentHashMap[AuthenticatedUser, CompilerContext]
+  private val compilerContextCaches = new mutable.HashMap[AuthenticatedUser, CompilerContext]
+  private val compilerContextCachesLock = new Object
 
   private def getCompilerContext(user: AuthenticatedUser): CompilerContext = {
-    compilerContextCaches.getOrElseUpdate(user, createCompilerContext(user, "rql2-truffle"))
+    compilerContextCachesLock.synchronized {
+      compilerContextCaches.getOrElseUpdate(user, createCompilerContext(user, "rql2-truffle"))
+    }
   }
 
   private def createCompilerContext(user: AuthenticatedUser, language: String): CompilerContext = {

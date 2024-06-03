@@ -441,12 +441,12 @@ class RawSqlVisitor(
       if (context.multiline_word_or_star(0) == null) {
         addError("Missing name for syntax @default <name> <value>", context)
         SqlErrorNode()
-      } else if (context.multiline_word_or_star(1) == null) {
+      } else if (context.multiline_word_or_star.size() <= 1) {
         addError("Missing default value for syntax @default <name> <value>", context)
         SqlErrorNode()
       } else {
         val name = context.multiline_word_or_star(0).getText
-        val defaultValue = context.multiline_word_or_star(1).getText
+        val defaultValue = context.multiline_word_or_star.asScala.tail.map(_.getText.trim).mkString(" ")
         val paramDefaultComment = SqlParamDefaultCommentNode(name, defaultValue)
         positionsWrapper.setPosition(ctx, paramDefaultComment)
 
@@ -699,10 +699,10 @@ class RawSqlVisitor(
 
   override def visitIdnt(ctx: PsqlParser.IdntContext): SqlBaseNode = Option(ctx)
     .map { context =>
-      val isDoubleQuoted = context.DOUBLE_QUOTED_STRING() != null
+      val isDoubleQuoted = context.STRING_IDENTIFIER_START() != null
       val value =
         if (isDoubleQuoted) {
-          val text = context.DOUBLE_QUOTED_STRING().getText
+          val text = context.getText
           val withoutLast =
             if (!text.endsWith("\"")) {
               addError("Missing closing \"", context)

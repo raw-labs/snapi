@@ -248,55 +248,6 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     }
   }
 
-  private val prettyPrinter = new SourceTypePrettyPrinter
-
-  def prettyPrint(sourceType: SourceType): String = {
-    prettyPrinter.format(sourceType)
-  }
-
-  private class SourceTypePrettyPrinter extends PrettyPrinter {
-
-    override val defaultIndent = 2
-
-    override val defaultWidth = 60
-
-    implicit class extraDocOps(private val d: Doc) extends Doc(d.f) {
-      def ?<>(cond: Boolean, other: => Doc): Doc = if (cond) this <> other else this
-      def ?<+>(cond: Boolean, other: => Doc): Doc = if (cond) this <+> other else this
-      //    def ?<>(v: Option[Doc]): Doc = if (v.isDefined) this <> v.get else this
-      //    def ?<+>(v: Option[Doc]): Doc = if (v.isEmpty) this <+> v.get else this
-    }
-
-    def format(t: SourceType): String = pretty(toDoc(t)).layout
-
-    def toDoc(t: SourceType): Doc = t match {
-      case _: SourceNothingType => text("nothing")
-      case _: SourceAnyType => text("any")
-      case _: SourceNullType => text("null")
-      case SourceByteType(nullable) => text("byte") ?<+> (nullable, "nullable")
-      case SourceShortType(nullable) => text("short") ?<+> (nullable, "nullable")
-      case SourceIntType(nullable) => text("int") ?<+> (nullable, "nullable")
-      case SourceLongType(nullable) => text("long") ?<+> (nullable, "nullable")
-      case SourceFloatType(nullable) => text("float") ?<+> (nullable, "nullable")
-      case SourceDoubleType(nullable) => text("double") ?<+> (nullable, "nullable")
-      case SourceDecimalType(nullable) => text("decimal") ?<+> (nullable, "nullable")
-      case SourceBoolType(nullable) => text("bool") ?<+> (nullable, "nullable")
-      case SourceStringType(nullable) => text("string") ?<+> (nullable, "nullable")
-      case SourceDateType(fmt, nullable) => text("date") <> parens(text(fmt.getOrElse(""))) ?<+> (nullable, "nullable")
-      case SourceTimeType(fmt, nullable) => text("time") <> parens(text(fmt.getOrElse(""))) ?<+> (nullable, "nullable")
-      case SourceTimestampType(fmt, nullable) =>
-        text("timestamp") <> parens(text(fmt.getOrElse(""))) ?<+> (nullable, "nullable")
-      case SourceIntervalType(nullable) => text("interval") ?<+> (nullable, "nullable")
-      case SourceBinaryType(nullable) => text("blob") ?<+> (nullable, "nullable")
-      case SourceOrType(tipes) => tipes.tail.foldLeft(toDoc(tipes.head)) { case (acc, t) => acc <+> "or" <+> toDoc(t) }
-      case SourceRecordType(atts, nullable) =>
-        val attsDoc = atts.map(att => backquote <> text(att.idn) <> backquote <> ":" <+> toDoc(att.tipe))
-        text("record") <> parens(group(nest(lsep(attsDoc, ",")))) ?<+> (nullable, "nullable")
-      case SourceCollectionType(inner, nullable) =>
-        text("collection") <> parens(group(nest(toDoc(inner)))) ?<+> (nullable, "nullable")
-    }
-  }
-
   /**
    * TODO (msb): This method should *also* do a metadata call to ensure it is a directory?
    *  Or should listFiles throw if not a directory? listFiles right now is 'ls' so works for both.
@@ -458,7 +409,5 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
         ExcelInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sheet1, x01, y01, x11, y11)
       case _ => throw new LocalInferrerException(s"incompatible formats found")
     }
-
-  override def doStop(): Unit = {}
 
 }
