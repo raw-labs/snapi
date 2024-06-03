@@ -699,10 +699,10 @@ class RawSqlVisitor(
 
   override def visitIdnt(ctx: PsqlParser.IdntContext): SqlBaseNode = Option(ctx)
     .map { context =>
-      val isDoubleQuoted = context.DOUBLE_QUOTED_STRING() != null
+      val isDoubleQuoted = context.STRING_IDENTIFIER_START() != null
       val value =
         if (isDoubleQuoted) {
-          val text = context.DOUBLE_QUOTED_STRING().getText
+          val text = context.getText
           val withoutLast =
             if (!text.endsWith("\"")) {
               addError("Missing closing \"", context)
