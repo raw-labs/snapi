@@ -20,10 +20,10 @@ import raw.runtime.truffle.runtime.primitives.DecimalObject;
 @NodeInfo(shortName = "Jdbc.DecimalRead")
 public class DecimalReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+  private final int index;
 
-  public DecimalReadJdbcQuery(String idx) {
-    this.idx = idx;
+  public DecimalReadJdbcQuery(int idx) {
+    this.index = idx;
   }
 
   public Object executeGeneric(VirtualFrame frame) {
@@ -34,6 +34,6 @@ public class DecimalReadJdbcQuery extends ExpressionNode {
   public final DecimalObject executeDecimal(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getDecimal(idx, this);
+    return rs.getDecimal(index, this);
   }
 }

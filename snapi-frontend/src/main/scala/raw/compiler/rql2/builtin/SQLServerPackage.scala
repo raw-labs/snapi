@@ -94,6 +94,18 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""SQLServer.InferAndRead("database", "schema", "table")""")),
@@ -117,6 +129,8 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
       case "port" => Right(ValueParam(Rql2IntType()))
       case "username" => Right(ValueParam(Rql2StringType()))
       case "password" => Right(ValueParam(Rql2StringType()))
+      case "byIndex" => Right(ValueParam(Rql2BoolType()))
+      case "skipUnsupportedType" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -131,7 +145,7 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
     val schema = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(2))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs = optionalArgs.filter(x => x._1 != "skipUnsupportedType").map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("SQLServer"), "Read"),
       Vector(db, schema, table, readType) ++ optArgs
@@ -146,9 +160,9 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
     for (
       inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs, SqlServerVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
+      t <- resolveInferType(inputFormatDescriptor, optionalArgs)
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      t
     }
   }
 }
@@ -208,6 +222,12 @@ class SQLServerReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(
@@ -236,6 +256,7 @@ class SQLServerReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
       case "port" => Right(ExpParam(Rql2IntType()))
       case "username" => Right(ExpParam(Rql2StringType()))
       case "password" => Right(ExpParam(Rql2StringType()))
+      case "byIndex" => Right(ExpParam(Rql2BoolType()))
     }
   }
 
@@ -320,6 +341,18 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""SQLServer.InferAndQuery("database", "SELECT * FROM schema.table")""")),
@@ -343,6 +376,8 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
       case "port" => Right(ValueParam(Rql2IntType()))
       case "username" => Right(ValueParam(Rql2StringType()))
       case "password" => Right(ValueParam(Rql2StringType()))
+      case "byIndex" => Right(ValueParam(Rql2BoolType()))
+      case "skipUnsupportedType" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -354,9 +389,9 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
     for (
       inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, SqlServerVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
+      t <- resolveInferType(inputFormatDescriptor, optionalArgs)
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      t
     }
   }
 
@@ -370,7 +405,7 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
     val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs = optionalArgs.filter(x => x._1 != "skipUnsupportedType").map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("SQLServer"), "Query"),
       Vector(db, query, readType) ++ optArgs
@@ -428,6 +463,12 @@ class SQLServerQueryEntry extends EntryExtension with SqlTableExtensionHelper {
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(
@@ -456,6 +497,7 @@ class SQLServerQueryEntry extends EntryExtension with SqlTableExtensionHelper {
       case "port" => Right(ExpParam(Rql2IntType()))
       case "username" => Right(ExpParam(Rql2StringType()))
       case "password" => Right(ExpParam(Rql2StringType()))
+      case "byIndex" => Right(ExpParam(Rql2BoolType()))
     }
   }
 

@@ -19,10 +19,10 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.LongRead")
 public class LongReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+  private final int index;
 
-  public LongReadJdbcQuery(String idx) {
-    this.idx = idx;
+  public LongReadJdbcQuery(int idx) {
+    this.index = idx;
   }
 
   public Object executeGeneric(VirtualFrame frame) {
@@ -33,6 +33,6 @@ public class LongReadJdbcQuery extends ExpressionNode {
   public final long executeLong(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getLong(idx, this);
+    return rs.getLong(index, this);
   }
 }

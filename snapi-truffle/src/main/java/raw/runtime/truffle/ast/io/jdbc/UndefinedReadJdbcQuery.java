@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RAW Labs S.A.
+ * Copyright 2024 RAW Labs S.A.
  *
  * Use of this software is governed by the Business Source License
  * included in the file licenses/BSL.txt.
@@ -13,26 +13,20 @@
 package raw.runtime.truffle.ast.io.jdbc;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
-@NodeInfo(shortName = "Jdbc.ShortRead")
-public class ShortReadJdbcQuery extends ExpressionNode {
-
+public class UndefinedReadJdbcQuery extends ExpressionNode {
   private final int index;
 
-  public ShortReadJdbcQuery(int idx) {
+  public UndefinedReadJdbcQuery(int idx) {
     this.index = idx;
   }
 
   public Object executeGeneric(VirtualFrame frame) {
-    return this.executeShort(frame);
-  }
-
-  @Override
-  public final short executeShort(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getShort(index, this);
+    return new ErrorObject(
+        String.format("skipping column of type %s", rs.getDatabaseType(index, this)));
   }
 }

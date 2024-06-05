@@ -26,6 +26,7 @@ import raw.inferrer.api.{
   SourceIntType,
   SourceIntervalType,
   SourceLongType,
+  SourceNullType,
   SourceRecordType,
   SourceShortType,
   SourceStringType,
@@ -71,23 +72,21 @@ trait JdbcTypeToSourceType {
 
   protected def tableMetadataToSourceType(tableMetadata: TableMetadata): SourceType = {
     val TableMetadata(tableColumns, _) = tableMetadata
-    val columns = mutable.ListBuffer[SourceAttrType]()
-    val unsupportedColumns = mutable.ListBuffer[String]()
-    tableColumns.foreach {
+
+    val columns: Vector[SourceAttrType] = tableColumns.map {
       case TableColumn(columnName, columnType) => columnType match {
           case JdbcColumnType(jdbcType, jdbcNullability) => jdbcColumnToSourceType(jdbcType, jdbcNullability) match {
-              case Some(t) => columns += SourceAttrType(columnName, t)
-              case None => unsupportedColumns.append(columnName)
+              case Some(t) => SourceAttrType(columnName, t)
+              case None => SourceAttrType(columnName, SourceNullType())
             }
-          case NativeIntervalType(nullable) => columns += SourceAttrType(columnName, SourceIntervalType(nullable))
-          case UnsupportedColumnType => unsupportedColumns.append(columnName)
+          // This UnsupportedColumnType is just used in this match, how do we get one?
+          case NativeIntervalType(nullable) => SourceAttrType(columnName, SourceIntervalType(nullable))
+          case UnsupportedColumnType => SourceAttrType(columnName, SourceNullType())
         }
-    }
+    }.toVector
 
-    if (tableColumns.isEmpty && unsupportedColumns.isEmpty) throw new InferrerException("could not find table")
-    else if (columns.isEmpty) throw new InferrerException("table has only unsupported column types")
-
-    SourceCollectionType(SourceRecordType(columns.to, nullable = false), nullable = false)
+    if (tableColumns.isEmpty) throw new InferrerException("could not find table")
+    SourceCollectionType(SourceRecordType(columns, nullable = false), nullable = false)
   }
 
 }

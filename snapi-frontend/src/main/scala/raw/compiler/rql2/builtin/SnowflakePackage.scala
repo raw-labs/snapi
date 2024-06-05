@@ -97,6 +97,18 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
         typeDoc = TypeDoc(List("list")),
         description = """Extra connection options.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""Snowflake.InferAndRead("database", "schema", "table")""")),
@@ -237,6 +249,12 @@ class SnowflakeReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
         typeDoc = TypeDoc(List("list")),
         description = """Extra connection options.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(
@@ -276,6 +294,7 @@ class SnowflakeReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
             )
           )
         )
+      case "byIndex" => Right(ExpParam(Rql2BoolType()))
     }
   }
 
@@ -365,6 +384,18 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
         typeDoc = TypeDoc(List("list")),
         description = """Extra connection options.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""Snowflake.InferAndQuery("database", "SELECT * FROM schema.table")""")),
@@ -399,6 +430,8 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
             )
           )
         )
+      case "byIndex" => Right(ValueParam(Rql2BoolType()))
+      case "skipUnsupportedType" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -410,9 +443,9 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
     for (
       inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, SnowflakeVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
+      t <- resolveInferType(inputFormatDescriptor, optionalArgs)
     ) yield {
-      inferTypeToRql2Type(tipe, makeNullable = false, makeTryable = false)
+      t
     }
   }
 
@@ -500,6 +533,19 @@ class SnowflakeQueryEntry extends EntryExtension with SqlTableExtensionHelper {
         typeDoc = TypeDoc(List("list")),
         description = """Extra connection options.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "password",
+        typeDoc = TypeDoc(List("string")),
+        description =
+          """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(
@@ -539,6 +585,7 @@ class SnowflakeQueryEntry extends EntryExtension with SqlTableExtensionHelper {
             )
           )
         )
+      case "byIndex" => Right(ExpParam(Rql2BoolType()))
     }
   }
 

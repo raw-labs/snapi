@@ -15,7 +15,9 @@ package raw.compiler.rql2.tests.truffle.regressions
 import raw.client.api.{GetProgramDescriptionSuccess, ProgramEnvironment}
 import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.compiler.utils.SnapiInterpolator
+import raw.testing.tags.TruffleTests
 
+@TruffleTests
 class RD10767Test extends TruffleCompilerTestContext {
   private val data = tempFile("""
     |[

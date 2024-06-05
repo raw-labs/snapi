@@ -26,61 +26,71 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import scala.collection.JavaConverters;
 
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 public class Jdbc {
-  static public JdbcQueryNode query(
-      ExpressionNode location,
-      ExpressionNode query,
-      Type t,
-      JdbcExceptionHandler exceptionHandler,
-      RawLanguage lang) {
-    Rql2IterableType iterableType = (Rql2IterableType) t;
-    Rql2RecordType recordType = (Rql2RecordType) iterableType.innerType();
-    assert iterableType.props().isEmpty();
-    assert recordType.props().isEmpty();
 
-    FrameDescriptor frameDescriptor = new FrameDescriptor();
+    static public JdbcQueryNode query(
+            ExpressionNode location,
+            ExpressionNode query,
+            Type t,
+            JdbcExceptionHandler exceptionHandler,
+            RawLanguage lang) {
+        Rql2IterableType iterableType = (Rql2IterableType) t;
+        Rql2RecordType recordType = (Rql2RecordType) iterableType.innerType();
+        assert iterableType.props().isEmpty();
+        assert recordType.props().isEmpty();
 
-    ProgramExpressionNode[] columnParsers =
-        JavaConverters.asJavaCollection(recordType.atts()).stream().map(a -> (Rql2AttrType) a)
-            .map(att -> columnReader(att.idn(), att.tipe(), lang))
-            .toArray(ProgramExpressionNode[]::new);
-    RecordReadJdbcQuery recordParser =
-        new RecordReadJdbcQuery(
-            columnParsers,
-            JavaConverters.asJavaCollection(recordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new));
-    return new JdbcQueryNode(
-        location,
-        query,
-        new ProgramExpressionNode(lang, frameDescriptor, recordParser),
-        exceptionHandler);
-  }
+        FrameDescriptor frameDescriptor = new FrameDescriptor();
 
-  static private ProgramExpressionNode columnReader(String colName, Type t, RawLanguage lang) {
-    FrameDescriptor frameDescriptor = new FrameDescriptor();
-    ExpressionNode node = switch (t){
-      case Rql2TypeWithProperties r when r.props().contains(tryable) -> {
-        ProgramExpressionNode inner = columnReader(colName,r.cloneAndRemoveProp(tryable),lang);
-        yield new TryableReadJdbcQuery(inner, colName);
-      }
-      case Rql2TypeWithProperties r when r.props().contains(nullable) -> {
-        ProgramExpressionNode inner = columnReader(colName,r.cloneAndRemoveProp(nullable),lang);
-        yield new NullableReadJdbcQuery(inner, colName);
-      }
-      case Rql2ByteType ignored ->  new ByteReadJdbcQuery(colName);
-      case Rql2ShortType ignored ->  new ShortReadJdbcQuery(colName);
-      case Rql2IntType ignored ->  new IntReadJdbcQuery(colName);
-      case Rql2LongType ignored ->  new LongReadJdbcQuery(colName);
-      case Rql2FloatType ignored ->  new FloatReadJdbcQuery(colName);
-      case Rql2DoubleType ignored ->  new DoubleReadJdbcQuery(colName);
-      case Rql2DecimalType ignored ->  new DecimalReadJdbcQuery(colName);
-      case Rql2StringType ignored ->  new StringReadJdbcQuery(colName);
-      case Rql2DateType ignored ->  new DateReadJdbcQuery(colName);
-      case Rql2TimeType ignored ->  new TimeReadJdbcQuery(colName);
-      case Rql2TimestampType ignored ->  new TimestampReadJdbcQuery(colName);
-      case Rql2BoolType ignored ->  new BoolReadJdbcQuery(colName);
-      case Rql2BinaryType ignored ->  new BinaryReadJdbcQuery(colName);
-      default -> throw new RawTruffleInternalErrorException();
-    };
-    return new ProgramExpressionNode(lang, frameDescriptor, node);
-  }
+        Stream<AttrWithIndex> attrWithIndexStream = IntStream.range(0, recordType.atts().size())
+                .mapToObj(i -> new AttrWithIndex(i, recordType.atts().apply(i)));
+
+        ProgramExpressionNode[] columnParsers = attrWithIndexStream
+                .map(att -> columnReader(att.index, att.attr.tipe(), lang))
+                .toArray(ProgramExpressionNode[]::new);
+
+        // Should we reuse the attrWithIndexStream?
+        RecordReadJdbcQuery recordParser =
+                new RecordReadJdbcQuery(
+                        columnParsers,
+                        JavaConverters.asJavaCollection(recordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new));
+        return new JdbcQueryNode(
+                location,
+                query,
+                new ProgramExpressionNode(lang, frameDescriptor, recordParser),
+                exceptionHandler);
+    }
+
+    static private ProgramExpressionNode columnReader(int index, Type t, RawLanguage lang) {
+        FrameDescriptor frameDescriptor = new FrameDescriptor();
+        ExpressionNode node = switch (t) {
+            case Rql2TypeWithProperties r when r.props().contains(tryable) -> {
+                ProgramExpressionNode inner = columnReader(index,  r.cloneAndRemoveProp(tryable), lang);
+                yield new TryableReadJdbcQuery(inner,  index);
+            }
+            case Rql2TypeWithProperties r when r.props().contains(nullable) -> {
+                ProgramExpressionNode inner = columnReader(index,  r.cloneAndRemoveProp(nullable), lang);
+                yield new NullableReadJdbcQuery(inner, index);
+            }
+            case Rql2ByteType ignored -> new ByteReadJdbcQuery( index);
+            case Rql2ShortType ignored -> new ShortReadJdbcQuery( index);
+            case Rql2IntType ignored -> new IntReadJdbcQuery( index);
+            case Rql2LongType ignored -> new LongReadJdbcQuery( index);
+            case Rql2FloatType ignored -> new FloatReadJdbcQuery( index);
+            case Rql2DoubleType ignored -> new DoubleReadJdbcQuery( index);
+            case Rql2DecimalType ignored -> new DecimalReadJdbcQuery( index);
+            case Rql2StringType ignored -> new StringReadJdbcQuery( index);
+            case Rql2DateType ignored -> new DateReadJdbcQuery( index);
+            case Rql2TimeType ignored -> new TimeReadJdbcQuery( index);
+            case Rql2TimestampType ignored -> new TimestampReadJdbcQuery( index);
+            case Rql2BoolType ignored -> new BoolReadJdbcQuery( index);
+            case Rql2BinaryType ignored -> new BinaryReadJdbcQuery(index);
+            case Rql2UndefinedType ignored -> new UndefinedReadJdbcQuery( index);
+            default -> throw new RawTruffleInternalErrorException();
+        };
+        return new ProgramExpressionNode(lang, frameDescriptor, node);
+    }
+
 }

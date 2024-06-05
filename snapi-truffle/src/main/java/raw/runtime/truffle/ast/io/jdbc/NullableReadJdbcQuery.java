@@ -23,17 +23,17 @@ import raw.runtime.truffle.runtime.primitives.NullObject;
 public class NullableReadJdbcQuery extends ExpressionNode {
 
   @Child private DirectCallNode innerParse;
-  private final String idx;
+  private final int index;
 
-  public NullableReadJdbcQuery(ProgramExpressionNode innerParse, String idx) {
+  public NullableReadJdbcQuery(ProgramExpressionNode innerParse, int idx) {
     this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
-    this.idx = idx;
+    this.index = idx;
   }
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    if (rs.isNull(idx, this)) return NullObject.INSTANCE;
-    else return innerParse.call(rs, idx);
+    if (rs.isNull(index, this)) return NullObject.INSTANCE;
+    else return innerParse.call(rs, index);
   }
 }
