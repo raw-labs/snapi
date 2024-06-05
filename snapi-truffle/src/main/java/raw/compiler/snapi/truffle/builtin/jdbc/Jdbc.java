@@ -31,8 +31,6 @@ import java.util.stream.Stream;
 
 public class Jdbc {
 
-
-
     static public JdbcQueryNode query(
             ExpressionNode location,
             ExpressionNode query,

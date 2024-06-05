@@ -14,9 +14,14 @@ package raw.compiler.rql2.builtin
 
 import raw.compiler.base.errors.UnsupportedType
 import raw.compiler.base.source.Type
-import raw.compiler.rql2.api.{Arg, EntryExtensionHelper, StringValue, ValueArg}
+import raw.compiler.rql2.api.{Arg, BoolValue, EntryExtensionHelper, StringValue, ValueArg}
 import raw.compiler.rql2.source._
-import raw.inferrer.api.{SqlQueryInferrerProperties, SqlTableInferrerProperties}
+import raw.inferrer.api.{
+  InputFormatDescriptor,
+  SqlQueryInferrerProperties,
+  SqlTableInferrerProperties,
+  SqlTableInputFormatDescriptor
+}
 import raw.client.api._
 
 import scala.collection.mutable
@@ -111,6 +116,36 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
       case SparkSqlVendor() => "sparksql"
       case TeradataVendor() => "teradata"
       case SnowflakeVendor() => "snowflake"
+    }
+  }
+
+  protected def resolveInferType(
+      desc: InputFormatDescriptor,
+      optionalArgs: Seq[(String, Arg)]
+  ): Either[String, Type] = {
+    val skipUnsupported = optionalArgs
+      .find(_._1 == "skipUnsupportedType").exists(x => x._2.asInstanceOf[BoolValue].v)
+
+    val byIndex = optionalArgs
+      .find(_._1 == "byIndex").exists(x => x._2.asInstanceOf[BoolValue].v)
+
+    val SqlTableInputFormatDescriptor(_, _, _, _, inferType) = desc
+    if (skipUnsupported && byIndex) {
+      return Left("cannot use both skipUnsupportedType and byIndex options at the same time")
+    }
+
+    val tipe = inferTypeToRql2Type(inferType, false, false)
+    tipe match {
+      case Rql2IterableType(Rql2RecordType(atts, p1), p2) if skipUnsupported =>
+        val filtered = atts.filter(x =>
+          x.tipe match {
+            case _: Rql2UndefinedType => false
+            case _ => true
+          }
+        )
+        Right(Rql2IterableType(Rql2RecordType(filtered, p1), p2))
+      case _ => Right(tipe)
+
     }
   }
 

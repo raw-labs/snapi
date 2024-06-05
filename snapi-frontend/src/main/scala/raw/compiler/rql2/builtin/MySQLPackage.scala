@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
+import com.sun.jdi.BooleanValue
 import raw.compiler.base.errors.ErrorCompilerMessage
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
@@ -19,7 +20,14 @@ import raw.compiler.rql2.api._
 import raw.compiler.rql2.ProgramContext
 import raw.compiler.rql2.source._
 import raw.client.api._
-import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
+import raw.inferrer.api.{
+  SourceAttrType,
+  SourceCollectionType,
+  SourceNullType,
+  SourceRecordType,
+  SqlQueryInputFormatDescriptor,
+  SqlTableInputFormatDescriptor
+}
 
 class MySQLPackage extends PackageExtension {
 
@@ -76,6 +84,18 @@ class MySQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionH
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""MySQL.InferAndRead("database", "table")""")),
@@ -98,6 +118,8 @@ class MySQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionH
       case "port" => Right(ValueParam(Rql2IntType()))
       case "username" => Right(ValueParam(Rql2StringType()))
       case "password" => Right(ValueParam(Rql2StringType()))
+      case "byIndex" => Right(ValueParam(Rql2BoolType()))
+      case "skipUnsupportedType" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -126,9 +148,9 @@ class MySQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionH
     for (
       inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs, MySqlVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
+      t <- resolveInferType(inputFormatDescriptor, optionalArgs)
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      t
     }
   }
 }
@@ -183,6 +205,12 @@ class MySQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
       )
     ),
     examples =
@@ -207,6 +235,7 @@ class MySQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
       case "port" => Right(ExpParam(Rql2IntType()))
       case "username" => Right(ExpParam(Rql2StringType()))
       case "password" => Right(ExpParam(Rql2StringType()))
+      case "byIndex" => Right(ExpParam(Rql2BoolType()))
     }
   }
 
@@ -288,6 +317,18 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtension
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""MySQL.InferAndQuery("database", "SELECT * FROM table")""")),
@@ -310,6 +351,8 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtension
       case "port" => Right(ValueParam(Rql2IntType()))
       case "username" => Right(ValueParam(Rql2StringType()))
       case "password" => Right(ValueParam(Rql2StringType()))
+      case "byIndex" => Right(ValueParam(Rql2BoolType()))
+      case "skipUnsupportedType" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -321,9 +364,10 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtension
     for (
       inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, MySqlVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
+      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor;
+      t <- resolveInferType(inferTypeToRql2Type(tipe, false, false), optionalArgs)
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      t
     }
   }
 
@@ -396,6 +440,12 @@ class MySQLQueryEntry extends EntryExtension with SqlTableExtensionHelper {
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(
@@ -413,7 +463,7 @@ class MySQLQueryEntry extends EntryExtension with SqlTableExtensionHelper {
     else Right(ExpParam(Rql2StringType()))
   }
 
-  override def optionalParams: Option[Set[String]] = Some(Set("host", "username", "port", "password"))
+  override def optionalParams: Option[Set[String]] = Some(Set("host", "username", "port", "password", "byIndex"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
@@ -421,6 +471,7 @@ class MySQLQueryEntry extends EntryExtension with SqlTableExtensionHelper {
       case "port" => Right(ExpParam(Rql2IntType()))
       case "username" => Right(ExpParam(Rql2StringType()))
       case "password" => Right(ExpParam(Rql2StringType()))
+      case "byIndex" => Right(ExpParam(Rql2BoolType()))
     }
   }
   override def returnTypeErrorList(

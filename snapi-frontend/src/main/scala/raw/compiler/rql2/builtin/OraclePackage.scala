@@ -94,6 +94,18 @@ class OracleInferAndReadEntry extends SugarEntryExtension with SqlTableExtension
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""Oracle.InferAndRead("database", "schema", "table")""")),
@@ -116,6 +128,8 @@ class OracleInferAndReadEntry extends SugarEntryExtension with SqlTableExtension
       case "port" => Right(ValueParam(Rql2IntType()))
       case "username" => Right(ValueParam(Rql2StringType()))
       case "password" => Right(ValueParam(Rql2StringType()))
+      case "byIndex" => Right(ValueParam(Rql2BoolType()))
+      case "skipUnsupportedType" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -145,9 +159,9 @@ class OracleInferAndReadEntry extends SugarEntryExtension with SqlTableExtension
     for (
       inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs, OracleVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
+      t <- resolveInferType(inputFormatDescriptor, optionalArgs)
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      t
     }
   }
 }
@@ -207,6 +221,12 @@ class OracleReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(
@@ -232,6 +252,7 @@ class OracleReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
       case "port" => Right(ExpParam(Rql2IntType()))
       case "username" => Right(ExpParam(Rql2StringType()))
       case "password" => Right(ExpParam(Rql2StringType()))
+      case "byIndex" => Right(ExpParam(Rql2BoolType()))
     }
   }
 
