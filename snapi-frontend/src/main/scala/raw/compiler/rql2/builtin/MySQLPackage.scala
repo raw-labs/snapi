@@ -133,7 +133,7 @@ class MySQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionH
     val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs = optionalArgs.filter(x => x._1 != "skipUnsupportedType").map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("MySQL"), "Read"),
       Vector(db, table, readType) ++ optArgs
@@ -259,7 +259,7 @@ class MySQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
     val db = FunAppArg(mandatoryArgs.head.asInstanceOf[ExpArg].e, None)
     val table = FunAppArg(mandatoryArgs(1).asInstanceOf[ExpArg].e, None)
     val tipe = FunAppArg(TypeExp(mandatoryArgs(2).asInstanceOf[TypeArg].t), None)
-    val optArgs = optionalArgs.map { case (idn, ExpArg(e, _)) => FunAppArg(e, Some(idn)) }
+    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
 
     // MySql needs the table name to be quoted with backticks
     def quoted(e: Exp) = BinaryExp(Plus(), BinaryExp(Plus(), StringConst("`"), e), StringConst("`"))
@@ -380,7 +380,7 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtension
     val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs = optionalArgs.filter(x => x._1 != "skipUnsupportedType").map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("MySQL"), "Query"),
       Vector(db, query, readType) ++ optArgs

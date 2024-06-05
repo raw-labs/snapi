@@ -145,7 +145,7 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
     val schema = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(2))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs = optionalArgs.filter(x => x._1 != "skipUnsupportedType").map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("SQLServer"), "Read"),
       Vector(db, schema, table, readType) ++ optArgs
@@ -405,7 +405,7 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
     val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs = optionalArgs.filter(x => x._1 != "skipUnsupportedType").map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("SQLServer"), "Query"),
       Vector(db, query, readType) ++ optArgs
