@@ -12,12 +12,11 @@
 
 package raw.inferrer.local.jdbc
 
-import java.sql.ResultSetMetaData
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer.api.{SourceAttrType, SourceCollectionType, SourceNullType, SourceRecordType, SourceType}
+import raw.inferrer.api._
 import raw.sources.jdbc.api.{JdbcLocation, JdbcTableLocation}
 
-import scala.collection.mutable
+import java.sql.ResultSetMetaData
 
 class JdbcInferrer extends JdbcTypeToSourceType with StrictLogging {
 

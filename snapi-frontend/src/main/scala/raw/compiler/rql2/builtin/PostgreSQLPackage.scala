@@ -93,6 +93,18 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension with SqlTableExten
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""PostgreSQL.InferAndRead("database", "schema", "table")""")),
@@ -116,6 +128,8 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension with SqlTableExten
       case "port" => Right(ValueParam(Rql2IntType()))
       case "username" => Right(ValueParam(Rql2StringType()))
       case "password" => Right(ValueParam(Rql2StringType()))
+      case "byIndex" => Right(ValueParam(Rql2BoolType()))
+      case "skipUnsupportedType" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -145,9 +159,9 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension with SqlTableExten
     for (
       inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs, PgSqlVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
+      t <- resolveInferType(inputFormatDescriptor, optionalArgs)
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      t
     }
   }
 }
@@ -207,6 +221,12 @@ class PostgreSQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelp
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(
@@ -235,6 +255,7 @@ class PostgreSQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelp
       case "port" => Right(ExpParam(Rql2IntType()))
       case "username" => Right(ExpParam(Rql2StringType()))
       case "password" => Right(ExpParam(Rql2StringType()))
+      case "byIndex" => Right(ExpParam(Rql2BoolType()))
     }
   }
 
@@ -318,6 +339,18 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExte
         description =
           """The database user password. Can only to be used together with 'host' and 'username' arguments.""".stripMargin,
         isOptional = true
+      ),
+      ParamDoc(
+        "byIndex",
+        typeDoc = TypeDoc(List("bool")),
+        """Fetch the fields of the database by index instead of by name""".stripMargin,
+        isOptional = true
+      ),
+      ParamDoc(
+        "skipUnsupportedType",
+        typeDoc = TypeDoc(List("bool")),
+        """will remove unsupported types from the output of the query automatically""".stripMargin,
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""PostgreSQL.InferAndQuery("database", "SELECT * FROM schema.table")""")),
@@ -341,6 +374,8 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExte
       case "port" => Right(ValueParam(Rql2IntType()))
       case "username" => Right(ValueParam(Rql2StringType()))
       case "password" => Right(ValueParam(Rql2StringType()))
+      case "byIndex" => Right(ValueParam(Rql2BoolType()))
+      case "skipUnsupportedType" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -352,9 +387,9 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExte
     for (
       inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, PgSqlVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
+      t <- resolveInferType(inputFormatDescriptor, optionalArgs)
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      t
     }
   }
 

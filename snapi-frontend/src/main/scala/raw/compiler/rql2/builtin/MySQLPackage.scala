@@ -364,8 +364,7 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtension
     for (
       inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, MySqlVendor());
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor;
-      t <- resolveInferType(inferTypeToRql2Type(tipe, false, false), optionalArgs)
+      t <- resolveInferType(inputFormatDescriptor, optionalArgs)
     ) yield {
       t
     }
