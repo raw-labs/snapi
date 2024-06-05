@@ -26,11 +26,11 @@ class TestNamedParametersStatement
     with CredentialsTestContext
     with LocalCredentialsTestContext {
 
-  private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
+  private val database = sys.env.getOrElse("FDW_DATABASE", "unittest")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
   private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
-  private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
-  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
+  private val username = sys.env.getOrElse("FDW_USERNAME", "postgres")
+  private val password = sys.env.getOrElse("FDW_PASSWORD", "1234")
 
   property("raw.creds.jdbc.fdw.host", hostname)
   property("raw.creds.jdbc.fdw.port", port)
@@ -40,18 +40,19 @@ class TestNamedParametersStatement
   // Username equals the database
   private val user = InteractiveUser(Uid(database), "fdw user", "email", Seq.empty)
 
+  private var connectionPool: SqlConnectionPool = _
   private var con: java.sql.Connection = _
 
   override def beforeAll(): Unit = {
+    super.beforeAll()
     if (password != "") {
-      val connectionPool = new SqlConnectionPool(credentials)
+      connectionPool = new SqlConnectionPool(credentials)
       con = connectionPool.getConnection(user)
     }
-    super.beforeAll()
   }
 
   override def afterAll(): Unit = {
-    if (con != null) con.close()
+    if (connectionPool != null) connectionPool.stop()
     super.afterAll()
   }
 
@@ -61,9 +62,7 @@ class TestNamedParametersStatement
     val code = "SELECT :v1 as arg"
 
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setParam("v1", RawString("Hello!"))
-    val rs = statement.executeQuery()
-
+    val rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
     rs.next()
     assert(rs.getString("arg") == "Hello!")
   }
@@ -73,8 +72,7 @@ class TestNamedParametersStatement
 
     val code = "SELECT :v::varchar AS greeting;"
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setParam("v", RawString("Hello!"))
-    val rs = statement.executeQuery()
+    val rs = statement.executeWith(Seq("v" -> RawString("Hello!"))).right.get
 
     rs.next()
     assert(rs.getString("greeting") == "Hello!")
@@ -89,9 +87,7 @@ class TestNamedParametersStatement
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("v1", "v2"))
 
-    statement.setParam("v1", RawString("Lisbon"))
-    statement.setParam("v2", RawInt(1))
-    val rs = statement.executeQuery()
+    val rs = statement.executeWith(Seq("v1" -> RawString("Lisbon"), "v2" -> RawInt(1))).right.get
     rs.next()
     assert(rs.getString(1) == "Lisbon")
     assert(rs.getInt(2) == 1)
@@ -106,8 +102,7 @@ class TestNamedParametersStatement
       |*/
       |SELECT :v1 as arg  -- neither this one :bar """.stripMargin
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setParam("v1", RawString("Hello!"))
-    val rs = statement.executeQuery()
+    val rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
 
     rs.next()
     assert(rs.getString("arg") == "Hello!")
@@ -120,8 +115,7 @@ class TestNamedParametersStatement
     val statement = new NamedParametersPreparedStatement(con, parse(code))
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("bar"))
-    statement.setParam("bar", RawString("Hello!"))
-    val rs = statement.executeQuery()
+    val rs = statement.executeWith(Seq("bar" -> RawString("Hello!"))).right.get
 
     rs.next()
     assert(rs.getString("v1") == ":foo")
@@ -136,7 +130,7 @@ class TestNamedParametersStatement
     val metadata = statement.queryMetadata
     assert(metadata.isRight)
     assert(metadata.right.get.parameters.isEmpty)
-    val rs = statement.executeQuery()
+    val rs = statement.executeWith(Seq.empty).right.get
 
     rs.next()
     assert(rs.getString("arg") == """[1, 2, "3", {"a": "Hello"}]""")

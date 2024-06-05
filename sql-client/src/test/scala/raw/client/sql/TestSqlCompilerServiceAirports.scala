@@ -37,11 +37,11 @@ class TestSqlCompilerServiceAirports
 
   private var compilerService: CompilerService = _
 
-  private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
+  private val database = sys.env.getOrElse("FDW_DATABASE", "unittest")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
   private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
-  private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
-  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
+  private val username = sys.env.getOrElse("FDW_USERNAME", "postgres")
+  private val password = sys.env.getOrElse("FDW_PASSWORD", "1234")
 
   property("raw.creds.jdbc.fdw.host", hostname)
   property("raw.creds.jdbc.fdw.port", port)
@@ -997,5 +997,55 @@ class TestSqlCompilerServiceAirports
       |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
     assert(errors.nonEmpty)
+  }
+
+  test("""scopes work""") { _ =>
+    assume(password != "")
+    val baos = new ByteArrayOutputStream()
+    def runWith(q: String, scopes: Set[String]): String = {
+      val env = ProgramEnvironment(
+        user,
+        None,
+        scopes,
+        Map("output-format" -> "json")
+      )
+      assert(compilerService.validate(q, env).messages.isEmpty)
+      val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(q, env)
+      baos.reset()
+      assert(compilerService.execute(q, env, None, baos) == ExecutionSuccess)
+      baos.toString
+    }
+//    assert(runWith("SELECT e.airport_id FROM example.airports e", Set.empty) == """[]""")
+    assert(runWith("SELECT token\nFROM scopes", Set.empty) == """[]""")
+    assert(runWith("SELECT * FROM scopes value ORDER by value", Set.empty) == """[]""")
+    assert(runWith("SELECT * FROM scopes AS value ORDER by value", Set("ADMIN")) == """[{"token":"ADMIN"}]""")
+    assert(
+      runWith(
+        "SELECT token FROM scopes value ORDER by value",
+        Set("ADMIN", "SALES", "DEV")
+      ) == """[{"token":"ADMIN"},{"token":"DEV"},{"token":"SALES"}]"""
+    )
+    assert(
+      runWith(
+        """SELECT 'DEV' IN (SELECT * FROM scopes) AS isDev,
+          |       'ADMIN' IN (SELECT token FROM scopes) AS isAdmin""".stripMargin,
+        Set("ADMIN")
+      ) == """[{"isdev":false,"isadmin":true}]"""
+    )
+    // demo CASE WHEN to hide a certain field
+    val q = """SELECT
+      |    CASE WHEN 'DEV' IN (SELECT * FROM scopes) THEN trip_id END AS trip_id, -- "AS trip_id" to name it normally
+      |    departure_date,
+      |    arrival_date
+      |FROM example.trips
+      |WHERE reason = 'Holidays' AND departure_date = DATE '2016-02-27'""".stripMargin
+    assert(
+      runWith(q, Set("ADMIN"))
+        == """[{"trip_id":null,"departure_date":"2016-02-27","arrival_date":"2016-03-06"}]"""
+    )
+    assert(
+      runWith(q, Set("DEV"))
+        == """[{"trip_id":0,"departure_date":"2016-02-27","arrival_date":"2016-03-06"}]"""
+    )
   }
 }

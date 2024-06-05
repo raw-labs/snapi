@@ -61,10 +61,10 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     syntaxAnalyzer.parse(prog)
   }
 
-  private def treeErrors(tree: ParseProgramResult, messages: Seq[String]): Seq[ErrorMessage] = {
-    val start = tree.positions.getStart(tree).get
+  private def treeErrors(program: ParseProgramResult, messages: Seq[String]): Seq[ErrorMessage] = {
+    val start = program.positions.getStart(program.tree).get
     val startPosition = ErrorPosition(start.line, start.column)
-    val end = tree.positions.getFinish(tree).get
+    val end = program.positions.getFinish(program.tree).get
     val endPosition = ErrorPosition(end.line, end.column)
     messages.map(message => ErrorMessage(message, List(ErrorRange(startPosition, endPosition)), ErrorCode.SqlErrorCode))
   }
@@ -159,7 +159,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         case Right(parsedTree) =>
           val conn = connectionPool.getConnection(environment.user)
           try {
-            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree)
+            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
             try {
               pstmt.queryMetadata match {
                 case Right(info) => pgRowTypeToIterableType(info.outputType) match {
