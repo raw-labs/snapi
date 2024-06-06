@@ -28,7 +28,7 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
 
   private val JINJA_ERROR = "jinjaError"
 
-  private val (engine, _) = CompilerService.getEngine
+  private val (engine, isEngineInitialized) = CompilerService.getEngine
   private val sqlCompilerService = CompilerServiceProvider("sql", maybeClassLoader)
 
   private val pythonCtx = {
@@ -249,6 +249,9 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   def doStop(): Unit = {
     sqlCompilerService.stop()
     credentials.stop()
+    if (isEngineInitialized) {
+      CompilerService.releaseEngine
+    }
   }
 
   private def handlePolyglotException(
