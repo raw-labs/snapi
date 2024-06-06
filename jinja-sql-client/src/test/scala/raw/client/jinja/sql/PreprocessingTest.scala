@@ -34,7 +34,7 @@ class PreprocessingTest
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
   private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
   private val username = sys.env.getOrElse("FDW_USERNAME", "postgres")
-  private val password = sys.env.getOrElse("FDW_PASSWORD", "1234")
+  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
 
   property("raw.creds.jdbc.fdw.host", hostname)
   property("raw.creds.jdbc.fdw.port", port)
