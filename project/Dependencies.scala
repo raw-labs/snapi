@@ -67,6 +67,7 @@ object Dependencies {
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
   val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33"
   val oracleDeps = "com.oracle.database.jdbc" % "ojdbc10" % "19.23.0.0"
+  val teradataDeps = "com.teradata.jdbc" % "terajdbc" % "20.00.00.24"
   val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
   val poiDeps = Seq(
     "org.apache.poi" % "poi" % "5.2.3",
