@@ -28,7 +28,7 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
 
   private val JINJA_ERROR = "jinjaError"
 
-  private val (engine, isEngineInitialized) = CompilerService.getEngine
+  private val (engine, _) = CompilerService.getEngine
   private val sqlCompilerService = CompilerServiceProvider("sql", maybeClassLoader)
 
   private val pythonCtx = {
