@@ -122,7 +122,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
     ProgramContext programContext =
         new Rql2ProgramContext(
-                context.getProgramEnvironment(), getCompilerContext(context.getUser(), context.getSettings()));
+            context.getProgramEnvironment(),
+            getCompilerContext(context.getUser(), context.getSettings()));
 
     String source = request.getSource().getCharacters().toString();
 
