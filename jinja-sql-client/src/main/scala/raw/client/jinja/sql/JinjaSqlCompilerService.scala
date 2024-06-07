@@ -249,9 +249,6 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   def doStop(): Unit = {
     sqlCompilerService.stop()
     credentials.stop()
-    if (isEngineInitialized) {
-      CompilerService.releaseEngine
-    }
   }
 
   private def handlePolyglotException(
