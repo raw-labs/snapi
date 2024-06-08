@@ -19,7 +19,6 @@ import raw.rest.client.APIException
 import raw.utils.{AuthenticatedUser, RawSettings}
 
 import java.net.URI
-import java.util.concurrent.TimeUnit
 
 object ClientCredentialsService {
   private val SERVER_ADDRESS = "raw.creds.client.server-address"

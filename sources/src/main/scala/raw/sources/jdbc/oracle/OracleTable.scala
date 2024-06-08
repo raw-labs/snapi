@@ -10,12 +10,17 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2
+package raw.sources.jdbc.oracle
 
-import raw.client.api.ProgramEnvironment
-import raw.compiler.base.CompilerContext
+import raw.sources.jdbc.api.JdbcTableLocation
 
-class Rql2ProgramContext(
-    override val programEnvironment: ProgramEnvironment,
-    override val compilerContext: CompilerContext
-) extends ProgramContext
+class OracleTable(
+    cli: OracleClient,
+    dbName: String,
+    schema: String,
+    table: String
+) extends JdbcTableLocation(cli, "oracle", dbName, table.toUpperCase, Some(schema.toUpperCase)) {
+
+  override def rawUri: String = s"oracle:$dbName/$schema/$table"
+
+}

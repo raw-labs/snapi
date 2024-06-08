@@ -465,13 +465,13 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   // We need it to prevent infinite recursion in the getValue function
   private def isStagedCompiler: Boolean = {
     // comes from scala
-    (programContext.runtimeContext.environment.options.contains(
+    (programContext.programEnvironment.options.contains(
       "staged-compiler"
-    ) && programContext.runtimeContext.environment.options("staged-compiler") == "true") ||
+    ) && programContext.programEnvironment.options("staged-compiler") == "true") ||
     // Comes from truffle language
-    (programContext.runtimeContext.environment.options.contains(
+    (programContext.programEnvironment.options.contains(
       "rql.staged-compiler"
-    ) && programContext.runtimeContext.environment.options("rql.staged-compiler") == "true")
+    ) && programContext.programEnvironment.options("rql.staged-compiler") == "true")
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -1610,9 +1610,9 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
         val rawType = rql2TypeToRawType(expected).get
-        val stagedCompilerEnvironment = programContext.runtimeContext.environment
+        val stagedCompilerEnvironment = programContext.programEnvironment
           .copy(
-            options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"),
+            options = programContext.programEnvironment.options + ("staged-compiler" -> "true"),
             maybeArguments = None
           )
 

@@ -100,7 +100,9 @@ lazy val sources = (project in file("sources"))
       postgresqlDeps,
       mysqlDeps,
       mssqlDeps,
-      snowflakeDeps
+      snowflakeDeps,
+      oracleDeps,
+      teradataDeps
     )
   )
 
