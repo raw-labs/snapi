@@ -12,42 +12,9 @@
 
 package raw.client.python
 
-import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
-import raw.client.api.{
-  AutoCompleteResponse,
-  CompilerService,
-  CompilerServiceException,
-  EvalResponse,
-  EvalRuntimeFailure,
-  EvalSuccess,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  FormatCodeResponse,
-  GetProgramDescriptionResponse,
-  GoToDefinitionResponse,
-  HoverResponse,
-  Pos,
-  ProgramEnvironment,
-  RawBool,
-  RawByte,
-  RawDate,
-  RawDecimal,
-  RawDouble,
-  RawFloat,
-  RawInt,
-  RawInterval,
-  RawLong,
-  RawNull,
-  RawShort,
-  RawString,
-  RawTime,
-  RawTimestamp,
-  RawType,
-  RawValue,
-  RenameResponse,
-  ValidateResponse
-}
+import org.graalvm.polyglot.io.IOAccess
+import org.graalvm.polyglot.{Context, Engine, HostAccess, PolyglotAccess, PolyglotException, Source, Value}
+import raw.client.api.{AutoCompleteResponse, CompilerService, CompilerServiceException, EvalResponse, EvalRuntimeFailure, EvalSuccess, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, FormatCodeResponse, GetProgramDescriptionResponse, GoToDefinitionResponse, HoverResponse, Pos, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawType, RawValue, RenameResponse, ValidateResponse}
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import raw.utils.{RawSettings, RawUtils}
 
@@ -328,6 +295,9 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
       .environment("RAW_SCOPES", environment.scopes.mkString(","))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
+      .allowIO(IOAccess.ALL)
+      .allowHostAccess(HostAccess.ALL)
+      .allowNativeAccess(true)
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
     val ctx = ctxBuilder.build()
     ctx

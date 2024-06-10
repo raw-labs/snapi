@@ -38,7 +38,8 @@ lazy val root = (project in file("."))
     snapiTruffle,
     snapiClient,
     sqlParser,
-    sqlClient
+    sqlClient,
+    jinjaSqlClient
   )
   .settings(
     commonSettings,
@@ -282,5 +283,18 @@ lazy val pythonClient = (project in file("python-client"))
     missingInterpolatorCompileSettings,
     testSettings,
     Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client"),
-    libraryDependencies += "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
+    libraryDependencies += trufflePython
   )
+
+lazy val jinjaSqlClient = (project in file("jinja-sql-client"))
+  .dependsOn(
+    client % "compile->compile;test->test",
+    sqlClient % "compile->compile;test->test",
+  )
+  .settings(
+    commonSettings,
+    missingInterpolatorCompileSettings,
+    testSettings,
+    libraryDependencies += trufflePython
+  )
+

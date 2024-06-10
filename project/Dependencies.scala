@@ -47,6 +47,7 @@ object Dependencies {
 
   // from client
   val trufflePolyglot = "org.graalvm.polyglot" % "polyglot" % "23.1.0"
+  val trufflePython = "org.graalvm.polyglot" % "python-community" % "23.1.0"
 
   // from snapi-parser
   val antlr4Runtime = "org.antlr" % "antlr4-runtime" % "4.12.0"
@@ -79,7 +80,6 @@ object Dependencies {
   val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4-rawlabs"
   val springCore = "org.springframework" % "spring-core" % "5.3.13"
   val truffleCompiler = Seq(
-    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
     "org.graalvm.truffle" % "truffle-api" % "23.1.0",
     "org.graalvm.truffle" % "truffle-compiler" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi" % "23.1.0",
