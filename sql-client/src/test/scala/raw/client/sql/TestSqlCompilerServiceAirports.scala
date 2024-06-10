@@ -37,11 +37,11 @@ class TestSqlCompilerServiceAirports
 
   private var compilerService: CompilerService = _
 
-  private val database = sys.env.getOrElse("FDW_DATABASE", "unittest")
+  private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
   private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
-  private val username = sys.env.getOrElse("FDW_USERNAME", "postgres")
-  private val password = sys.env.getOrElse("FDW_PASSWORD", "1234")
+  private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
+  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
 
   property("raw.creds.jdbc.fdw.host", hostname)
   property("raw.creds.jdbc.fdw.port", port)
