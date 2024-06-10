@@ -74,3 +74,4 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD10220TruffleTest extends TruffleCompilerTestContext with RD10220Test
 @TruffleTests class RD10723TruffleTest extends TruffleCompilerTestContext with RD10723Test
 @TruffleTests class RD10801TruffleTest extends TruffleCompilerTestContext with RD10801Test
+@TruffleTests class RD10971TruffleTest extends TruffleCompilerTestContext with RD10971Test
