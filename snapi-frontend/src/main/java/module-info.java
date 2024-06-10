@@ -62,7 +62,6 @@ module raw.snapi.frontend {
   exports raw.inferrer.local;
   exports raw.rest.client;
   exports raw.rest.common;
-  exports raw.runtime;
 
   opens raw.inferrer.api to
       com.fasterxml.jackson.databind;

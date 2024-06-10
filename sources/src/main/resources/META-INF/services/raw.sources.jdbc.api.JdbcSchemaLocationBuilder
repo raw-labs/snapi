@@ -3,3 +3,5 @@ raw.sources.jdbc.snowflake.SnowflakeSchemaLocationBuilder
 raw.sources.jdbc.pgsql.PostgresqlSchemaLocationBuilder
 raw.sources.jdbc.mysql.MySqlSchemaLocationBuilder
 raw.sources.jdbc.sqlserver.SqlServerSchemaLocationBuilder
+raw.sources.jdbc.oracle.OracleSchemaLocationBuilder
+raw.sources.jdbc.teradata.TeradataSchemaLocationBuilder

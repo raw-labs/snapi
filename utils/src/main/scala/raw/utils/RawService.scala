@@ -82,6 +82,6 @@ trait RawService extends StrictLogging {
    *
    * Purposely not implemented so that children do not need to artificial call super.doStop()
    */
-  def doStop(): Unit
+  protected def doStop(): Unit
 
 }

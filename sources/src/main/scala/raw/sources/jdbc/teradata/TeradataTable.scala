@@ -10,8 +10,17 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime
+package raw.sources.jdbc.teradata
 
-import raw.client.api.Entrypoint
+import raw.sources.jdbc.api.JdbcTableLocation
 
-final case class JvmEntrypoint(className: String, target: Any = null) extends Entrypoint
+class TeradataTable(
+    cli: TeradataClient,
+    dbName: String,
+    schema: String,
+    table: String
+) extends JdbcTableLocation(cli, "teradata", dbName, table, Some(schema)) {
+
+  override def rawUri: String = s"teradata:$dbName/$schema/$table"
+
+}

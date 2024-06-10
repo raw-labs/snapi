@@ -39,13 +39,21 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
 
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
-    val db = credentialsService.getUserDb(user)
-    logger.debug(s"Got database $db for user $user")
-    getConnection(db)
+    // Try to find a user DB in the config settings...
+    settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.db") match {
+      case Some(db) =>
+        logger.debug(s"Found database $db for user ${user.uid.uid} in settings.")
+        getConnection(db, settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.schema"))
+      case None =>
+        // None found, so check the credentials service.
+        val db = credentialsService.getUserDb(user)
+        logger.debug(s"Found database $db for user $user in credentials service.")
+        getConnection(db)
+    }
   }
 
   @throws[SQLException]
-  private def getConnection(db: String): java.sql.Connection = {
+  private def getConnection(db: String, currentSchema: Option[String] = None): java.sql.Connection = {
     val pool = {
       poolsLock.synchronized {
         pools.get(db) match {
@@ -54,7 +62,11 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
             // Create a pool and store it in `pools`.
             logger.info(s"Creating a SQL connection pool for database $db")
             val config = new HikariConfig()
-            config.setJdbcUrl(s"jdbc:postgresql://$dbHost:$dbPort/$db")
+            val jdbcUrl = currentSchema match {
+              case Some(schema) => s"jdbc:postgresql://$dbHost:$dbPort/$db?currentSchema=$schema"
+              case None => s"jdbc:postgresql://$dbHost:$dbPort/$db"
+            }
+            config.setJdbcUrl(jdbcUrl)
             config.setMaximumPoolSize(maxConnections)
             config.setMinimumIdle(0)
             config.setIdleTimeout(idleTimeout)
