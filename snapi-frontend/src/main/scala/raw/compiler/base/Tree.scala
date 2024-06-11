@@ -24,6 +24,8 @@ abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest]
 )(implicit programContext: ProgramContext)
     extends BaseTree[N, P, E](ensureTree) {
 
+  private val checkSyntaxAnalyzers = programContext.settings.getBooleanOpt("raw.check-syntax-analyzers").getOrElse(false)
+
   protected def cloneWithPositions(): TreeWithPositions[N, P, E]
 
   def checkSyntaxAnalyzer(): Boolean = {
@@ -66,7 +68,7 @@ abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest]
 
   def checkTree(): Boolean = {
     var r = true
-    if (programContext.settings.checkSyntaxAnalyzers) {
+    if (checkSyntaxAnalyzers) {
       r &= checkSyntaxAnalyzer()
     }
     r &= checkSemanticAnalyzer()
