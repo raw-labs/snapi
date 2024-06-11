@@ -5,6 +5,7 @@ import scalariform.formatter.preferences._
 // Settings for entire build
 
 ThisBuild/version := IO.read(new File("version")).trim
+ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild/organization := "org.bitbucket.inkytonik.kiama"
 
@@ -42,6 +43,13 @@ ThisBuild/scalacOptions := {
             lintOption
         )
 }
+
+ThisBuild / credentials += Credentials(
+  "GitHub Package Registry",
+  "maven.pkg.github.com",
+  "raw-labs",
+  sys.env.getOrElse("GITHUB_TOKEN", "")
+)
 
 ThisBuild/resolvers ++= Resolver.sonatypeOssRepos("releases")
 ThisBuild/resolvers ++= Resolver.sonatypeOssRepos("snapshots")
@@ -110,13 +118,7 @@ val commonSettings =
             .setPreference(SpacesAroundMultiImports, false),
 
         // Publishing
-        publishTo := {
-            val nexus = "https://oss.sonatype.org/"
-            if (version.value.trim.endsWith("SNAPSHOT"))
-                Some("snapshots" at nexus + "content/repositories/snapshots")
-            else
-                Some("releases" at nexus + "service/local/staging/deploy/maven2")
-        },
+        publishTo := Some("GitHub raw-labs Apache Maven Packages" at "https://maven.pkg.github.com/raw-labs/raw"),
         publishMavenStyle := true,
         Test/publishArtifact := true,
         pomIncludeRepository := { _ => false },
