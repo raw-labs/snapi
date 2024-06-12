@@ -45,7 +45,39 @@ private case class ParamLocation(
 /* The parameter `parsedTree` implies parsing errors have been potential caught and reported
    upfront, but we can't assume that tree is error-free. Indeed, for
  */
-class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgramResult) extends StrictLogging {
+class NamedParametersPreparedStatement(
+    conn: Connection,
+    parsedTree: ParseProgramResult,
+    scopes: Set[String] = Set.empty
+) extends StrictLogging {
+
+  {
+    // create the `scopes` table if it doesn't exist. And delete its rows (in case it existed already).
+    val stmt = conn.prepareStatement("""
+      |CREATE TEMPORARY TABLE IF NOT EXISTS scopes (token VARCHAR NOT NULL);
+      |DELETE FROM scopes;
+      |""".stripMargin)
+    // an error is reported as a CompilerServiceException
+    try {
+      stmt.execute()
+    } finally {
+      stmt.close()
+    }
+    // insert the query scopes
+    val insert = conn.prepareStatement("INSERT INTO scopes (token) VALUES (?)")
+    // an error is reported as a CompilerServiceException
+    try {
+      // all scopes are added as batches
+      for (scope <- scopes) {
+        insert.setString(1, scope)
+        insert.addBatch()
+      }
+      // execute once all inserts
+      insert.executeBatch()
+    } finally {
+      insert.close()
+    }
+  }
 
   private val treePositions = parsedTree.positions
 
@@ -379,8 +411,6 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     def errorPosition(p: Position): ErrorPosition = ErrorPosition(p.line, p.column)
     ErrorRange(errorPosition(position), errorPosition(position1))
   }
-  def executeQuery(): ResultSet = stmt.executeQuery()
-
   def executeWith(parameters: Seq[(String, RawValue)]): Either[String, ResultSet] = {
     val mandatoryParameters = {
       for (
@@ -528,7 +558,7 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
   }
 
   private def asErrorString(ex: PSQLException): Option[String] = {
-    if (Set("42", "22").exists(ex.getSQLState.startsWith)) {
+    if (Set("42", "22", "0A").exists(ex.getSQLState.startsWith)) {
       // syntax error / semantic error
       val psqlError = Option(ex.getServerErrorMessage) // getServerErrorMessage can be null!
       val error = psqlError.map(_.getMessage).getOrElse(ex.getMessage)
