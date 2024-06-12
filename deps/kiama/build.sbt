@@ -118,6 +118,7 @@ val commonSettings =
             .setPreference(SpacesAroundMultiImports, false),
 
         // Publishing
+        //TODO: handle properly existing version publish error
         publishTo := Some("GitHub raw-labs Apache Maven Packages" at "https://maven.pkg.github.com/raw-labs/raw"),
         publishMavenStyle := true,
         Test/publishArtifact := true,

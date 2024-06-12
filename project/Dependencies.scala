@@ -52,8 +52,7 @@ object Dependencies {
   val antlr4Runtime = "org.antlr" % "antlr4-runtime" % "4.12.0"
 
   // from snapi-frontend
-  val kiamaVersion = IO.read(new File("./deps/kiama/version")).trim
-  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
+  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.1-rawlabs"
 
   val aws =
     "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.

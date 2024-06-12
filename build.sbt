@@ -18,6 +18,15 @@ import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 ThisBuild / sonatypeProfileName := "com.raw-labs"
+ThisBuild / credentials += Credentials(
+  "GitHub Package Registry",
+  "maven.pkg.github.com",
+  "raw-labs",
+  sys.env.getOrElse("GITHUB_TOKEN", "")
+)
+
+ThisBuild/ resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/raw-labs/raw"
+
 
 val writeVersionToFile = taskKey[Unit]("Writes the project version to a file at the root.")
 
