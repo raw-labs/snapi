@@ -9,5 +9,5 @@ yes n | sdk install java 17.0.5-amzn || true
 sdk use java 17.0.5-amzn
 
 cd "$SCRIPT_HOME"
-sbt patchDependencies
+sbt patchAndPublishDependencies
 

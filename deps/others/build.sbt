@@ -63,9 +63,10 @@ def updatePom(pomFile: File, newVersion: String): Unit = {
 }
 
 // Task to patch dependencies
-val patchDependencies = taskKey[Unit]("Patch dependencies")
+//TODO: handle publishing existing version maven error
+val patchAndPublishDependencies = taskKey[Unit]("Patch dependencies")
 
-patchDependencies := {
+patchAndPublishDependencies := {
   val log = streams.value.log
   val updateReport = update.value
 

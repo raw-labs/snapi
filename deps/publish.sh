@@ -2,7 +2,7 @@
 DEPS_HOME="$(cd "$(dirname "$0")"; pwd)"
 
 cd "$DEPS_HOME"/kiama
-./build.sh
+./publish.sh
 
 cd "$DEPS_HOME"/others
-./build.sh
+./publish.sh
