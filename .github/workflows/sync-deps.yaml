@@ -1,4 +1,4 @@
-name: sync custom deps
+name: release custom deps
 on:
   push:
     branches:
@@ -10,26 +10,33 @@ on:
 permissions:
   id-token: write # These permission is needed to interact with GitHub's OIDC Token endpoint
   contents: read
+  packages: write
+
+env:
+  WD: deps
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   sync:
     runs-on: self-hosted
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
-      options: --user 1001
+      image: ghcr.io/raw-labs/raw-ci-runner:latest
+      options: --user sbtuser
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: stCarolas/setup-maven@v5
         with:
-          role-to-assume: ${{ secrets.AWS_IAM_AUTOMATION_ROLE }}
-          aws-region: ${{ secrets.AWS_AUTOMATION_REGION }}
+          maven-version: 3.9.6
+      - uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: '[{"id": "githubraw", "username": "gha", "password": "${{ env.GITHUB_TOKEN }}"}]'
       - name: build
         run: ./build.sh
-        working-directory: deps
-      - name: sync
+        working-directory: ${{env.WD}}
+      - name: push
         env:
           BUCKET: ${{ secrets.AWS_RAW_S3_BIN_BUCKET }}
         run: |

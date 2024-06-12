@@ -114,12 +114,20 @@ patchDependencies := {
             val copiedPomFile = new File(pomFile.getParent, s"$artifactID-$version-rawlabs.pom")
             Files.copy(pomFile.toPath, copiedPomFile.toPath, StandardCopyOption.REPLACE_EXISTING)
             log.info(s"Updated POM file for $artifactID with version $version-rawlabs")
-
-            val publishCommand = s"mvn install:install-file -Dfile=${newJarFile.getAbsolutePath} -DpomFile=${copiedPomFile.getAbsolutePath} -DgroupId=$groupID -DartifactId=$artifactID -Dversion=$version-rawlabs -Dpackaging=jar"
+            val publishCommand = s"""mvn deploy:deploy-file
+              |-Dfile=${newJarFile.getAbsolutePath}
+              |-DpomFile=${copiedPomFile.getAbsolutePath}
+              |-DgroupId=$groupID
+              |-DartifactId=$artifactID
+              |-Dversion=$version-rawlabs
+              |-Dpackaging=jar
+              |-DrepositoryId=githubraw
+              |-Durl=https://maven.pkg.github.com/raw-labs/raw""".stripMargin.replaceAll("\n", " ")
             val publishExitCode = publishCommand.!
             if (publishExitCode == 0) {
               log.info(s"Published patched JAR $newName with updated POM $artifactID-$version-rawlabs.")
             } else {
+              log.error(s"Failed to run $publishCommand")
               log.error(s"Failed to publish JAR $newName and POM $artifactID-$version-rawlabs.")
             }
           }
@@ -130,31 +138,4 @@ patchDependencies := {
       }
     }
   }
-}
-
-
-val createS3SyncScript = taskKey[Unit]("Create a bash script for syncing dependencies to S3")
-
-val scriptFile = "s3-sync-deps.sh"
-
-createS3SyncScript := {
-  val dependencies = libraryDependencies.value
-
-  val writer = new BufferedWriter(new FileWriter(scriptFile))
-
-  try {
-    writer.write("#!/bin/bash\n\n")
-    dependencies.foreach { dep =>
-      writer.write(s"aws s3 sync $$M2_HOME s3://$$BUCKET/maven --exclude '*' --include '**${dep.name}**'\n")
-    }
-  } finally {
-    // Always close the writer to release resources
-    writer.close()
-  }
-
-  // Make the script executable
-  new File(scriptFile).setExecutable(true)
-
-  // Notify that the task is completed
-  println(s"Bash script created: $scriptFile")
 }
