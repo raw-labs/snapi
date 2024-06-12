@@ -62,10 +62,9 @@ def updatePom(pomFile: File, newVersion: String): Unit = {
   }
 }
 
-// Task to patch dependencies
-val patchDependencies = taskKey[Unit]("Patch dependencies")
+val patchAndInstallDependencies = taskKey[Unit]("Patch and Install dependencies")
 
-patchDependencies := {
+patchAndInstallDependencies := {
   val log = streams.value.log
   val updateReport = update.value
 
@@ -114,12 +113,20 @@ patchDependencies := {
             val copiedPomFile = new File(pomFile.getParent, s"$artifactID-$version-rawlabs.pom")
             Files.copy(pomFile.toPath, copiedPomFile.toPath, StandardCopyOption.REPLACE_EXISTING)
             log.info(s"Updated POM file for $artifactID with version $version-rawlabs")
-
-            val publishCommand = s"mvn install:install-file -Dfile=${newJarFile.getAbsolutePath} -DpomFile=${copiedPomFile.getAbsolutePath} -DgroupId=$groupID -DartifactId=$artifactID -Dversion=$version-rawlabs -Dpackaging=jar"
+            val publishCommand = s"""mvn install:install-file
+              |-Dfile=${newJarFile.getAbsolutePath}
+              |-DpomFile=${copiedPomFile.getAbsolutePath}
+              |-DgroupId=$groupID
+              |-DartifactId=$artifactID
+              |-Dversion=$version-rawlabs
+              |-Dpackaging=jar
+              |-DrepositoryId=githubraw
+              |-Durl=https://maven.pkg.github.com/raw-labs/raw""".stripMargin.replaceAll("\n", " ")
             val publishExitCode = publishCommand.!
             if (publishExitCode == 0) {
               log.info(s"Published patched JAR $newName with updated POM $artifactID-$version-rawlabs.")
             } else {
+              log.error(s"Failed to run $publishCommand")
               log.error(s"Failed to publish JAR $newName and POM $artifactID-$version-rawlabs.")
             }
           }
@@ -133,28 +140,80 @@ patchDependencies := {
 }
 
 
-val createS3SyncScript = taskKey[Unit]("Create a bash script for syncing dependencies to S3")
+//TODO: handle publishing existing version maven error
+val patchAndPublishDependencies = taskKey[Unit]("Patch and Publish dependencies")
 
-val scriptFile = "s3-sync-deps.sh"
+patchAndPublishDependencies := {
+  val log = streams.value.log
+  val updateReport = update.value
 
-createS3SyncScript := {
-  val dependencies = libraryDependencies.value
+  updateReport.configurations.flatMap(_.modules).distinct.foreach { module =>
+    val groupID = module.module.organization
+    val artifactID = module.module.name
+    val version = module.module.revision
+    val scalaVersionSuffixPattern = "_2\\.\\d{1,2}".r
+    val normalizedArtifactId = scalaVersionSuffixPattern.replaceFirstIn(artifactID, "")
+    if (moduleNames.contains(normalizedArtifactId)) {
+      log.info(s"Found module $artifactID:$version")
+      module.artifacts.find(_._1.extension == "jar").foreach { case (_, jarFile) =>
+        try {
+          val pomPath = jarFile.getAbsolutePath.replace(".jar", ".pom")
+          val pomFile = new File(pomPath)
+          if (!pomFile.exists()) {
+            log.error(s"Expected POM file does not exist for $artifactID:$version at $pomPath")
+          } else {
+            log.info(s"Found POM file for $artifactID:$version at $pomPath")
 
-  val writer = new BufferedWriter(new FileWriter(scriptFile))
+            val newName = jarFile.getName.replace(".jar", "-rawlabs.jar")
+            val newJarFile = new File(jarFile.getParent, newName)
+            Files.copy(jarFile.toPath, newJarFile.toPath, StandardCopyOption.REPLACE_EXISTING)
+            log.info(s"Patched JAR file created: $newName")
 
-  try {
-    writer.write("#!/bin/bash\n\n")
-    dependencies.foreach { dep =>
-      writer.write(s"aws s3 sync $$M2_HOME s3://$$BUCKET/maven --exclude '*' --include '**${dep.name}**'\n")
+            // Handling the manifest
+            val manifest = new File("manifest.txt")
+            val bw = new BufferedWriter(new FileWriter(manifest))
+            try {
+              bw.write(s"Automatic-Module-Name: ${moduleNames(normalizedArtifactId)}\n")
+            } finally {
+              bw.close()
+            }
+
+            // Update the JAR file with the new manifest
+            val patchCommand = s"jar --update --file ${newJarFile.getAbsolutePath} --manifest=manifest.txt"
+            val patchExitCode = patchCommand.!
+            if (patchExitCode == 0) {
+              log.info(s"JAR file $newName patched successfully with new manifest.")
+            } else {
+              log.error(s"Failed to patch JAR file $newName with new manifest.")
+            }
+
+            // Update and publish the POM file
+            updatePom(pomFile, version)
+            val copiedPomFile = new File(pomFile.getParent, s"$artifactID-$version-rawlabs.pom")
+            Files.copy(pomFile.toPath, copiedPomFile.toPath, StandardCopyOption.REPLACE_EXISTING)
+            log.info(s"Updated POM file for $artifactID with version $version-rawlabs")
+            val publishCommand = s"""mvn deploy:deploy-file
+              |-Dfile=${newJarFile.getAbsolutePath}
+              |-DpomFile=${copiedPomFile.getAbsolutePath}
+              |-DgroupId=$groupID
+              |-DartifactId=$artifactID
+              |-Dversion=$version-rawlabs
+              |-Dpackaging=jar
+              |-DrepositoryId=githubraw
+              |-Durl=https://maven.pkg.github.com/raw-labs/raw""".stripMargin.replaceAll("\n", " ")
+            val publishExitCode = publishCommand.!
+            if (publishExitCode == 0) {
+              log.info(s"Published patched JAR $newName with updated POM $artifactID-$version-rawlabs.")
+            } else {
+              log.error(s"Failed to run $publishCommand")
+              log.error(s"Failed to publish JAR $newName and POM $artifactID-$version-rawlabs.")
+            }
+          }
+        } catch {
+          case e: Exception =>
+            log.error(s"Error during the patching process for $artifactID:$version: ${e.getMessage}")
+        }
+      }
     }
-  } finally {
-    // Always close the writer to release resources
-    writer.close()
   }
-
-  // Make the script executable
-  new File(scriptFile).setExecutable(true)
-
-  // Notify that the task is completed
-  println(s"Bash script created: $scriptFile")
 }
