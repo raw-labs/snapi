@@ -13,11 +13,14 @@ val jacksonModuleScala = "com.fasterxml.jackson.module" %% "jackson-module-scala
 
 val mysqlModule = "com.mysql" % "mysql-connector-j" % "8.1.0"
 
+val ojdbc10 = "com.oracle.database.jdbc" % "ojdbc10" % "19.23.0.0"
+
 libraryDependencies ++= Seq(
   jwtCore,
   scalaLogging,
   jacksonModuleScala,
-  mysqlModule
+  mysqlModule,
+  ojdbc10
 )
 
 // Map of artifact ID to module name
@@ -26,6 +29,7 @@ val moduleNames = Map(
   "scala-logging" -> "typesafe.scalalogging",
   "jackson-module-scala" -> "com.fasterxml.jackson.scala",
   "mysql-connector-j" -> "mysql.connector.j",
+  "ojdbc10" -> "ojdbc10"
 )
 
 def updatePom(pomFile: File, newVersion: String): Unit = {
