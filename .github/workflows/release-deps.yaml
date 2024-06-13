@@ -2,7 +2,7 @@ name: release custom deps
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - 'deps/**'
   workflow_dispatch:
