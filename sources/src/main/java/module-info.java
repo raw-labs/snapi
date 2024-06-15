@@ -26,7 +26,6 @@ module raw.sources {
   requires org.apache.httpcomponents.client5.httpclient5;
   requires java.net.http;
   requires spring.core;
-  requires spring.jcl;
   requires typesafe.config;
   requires typesafe.scalalogging;
   requires ch.qos.logback.classic;

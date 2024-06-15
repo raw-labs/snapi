@@ -39,7 +39,6 @@ module raw.snapi.truffle {
   requires java.net.http;
   requires com.ibm.icu;
   requires spring.core;
-  requires spring.jcl;
   requires com.esotericsoftware.kryo;
   requires com.esotericsoftware.minlog;
   requires com.esotericsoftware.reflectasm;

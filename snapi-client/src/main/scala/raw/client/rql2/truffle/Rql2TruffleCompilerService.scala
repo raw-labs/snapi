@@ -39,13 +39,19 @@ import scala.collection.mutable
 import scala.util.control.NonFatal
 
 object Rql2TruffleCompilerService {
-  val language: Set[String] = Set("rql2", "rql2-truffle", "snapi")
+  val LANGUAGE: Set[String] = Set("rql2", "rql2-truffle", "snapi")
+
+  val JARS_PATH = "raw.client.rql2.jars-path"
 }
 
 class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader])(
     implicit protected val settings: RawSettings
 ) extends Rql2CompilerService
+    with CustomClassAndModuleLoader
     with Rql2TypeUtils {
+
+  // If defined, contains the path used to create a classloader for the Truffle language runtime.
+  private val maybeJarsPath = settings.getStringOpt(Rql2TruffleCompilerService.JARS_PATH)
 
   private val (engine, initedEngine) = engineDefinition
 
@@ -60,7 +66,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     this(CompilerService.getEngine, maybeClassLoader)
   }
 
-  override def language: Set[String] = Rql2TruffleCompilerService.language
+  override def language: Set[String] = Rql2TruffleCompilerService.LANGUAGE
 
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
@@ -701,6 +707,16 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     environment.options.get("staged-compiler").foreach { stagedCompiler =>
       ctxBuilder.option("rql.staged-compiler", stagedCompiler)
     }
+    // If the jars path is defined, create a custom class loader and set it as the host class loader.
+    maybeJarsPath.foreach { jarsPath =>
+      // Create the custom class loader
+      val customClassLoader = createCustomClassAndModuleLoader(jarsPath)
+
+      // Set the module class loader as the Truffle runtime classloader.
+      // This enables the Truffle language runtime to be fully isolated from the rest of the application.
+      ctxBuilder.hostClassLoader(customClassLoader)
+    }
+
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
     val ctx = ctxBuilder.build()
     ctx

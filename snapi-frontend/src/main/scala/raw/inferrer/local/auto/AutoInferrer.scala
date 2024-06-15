@@ -17,7 +17,6 @@ import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.inferrer.local.csv.CsvInferrer
-import raw.inferrer.local.excel.ExcelInferrer
 import raw.inferrer.local.hjson.HjsonInferrer
 import raw.inferrer.local.json.JsonInferrer
 import raw.inferrer.local.text.TextInferrer
@@ -36,7 +35,6 @@ class AutoInferrer(
     jsonInferrer: JsonInferrer,
     hjsonInferrer: HjsonInferrer,
     xmlInferrer: XmlInferrer,
-    excelInferrer: ExcelInferrer
 )(implicit protected val sourceContext: SourceContext)
     extends InferrerErrorHandler
     with EncodingInferrer
@@ -58,13 +56,6 @@ class AutoInferrer(
     }
 
     maybeFileExtension match {
-      case Some(extension) if extension.equalsIgnoreCase("xls") || extension.equalsIgnoreCase("xlsx") =>
-        val is = location.getInputStream
-        try {
-          excelInferrer.infer(is, None, None, None)
-        } finally {
-          is.close()
-        }
       case _ => location match {
           case fs: FileSystemLocation =>
             // If it is a file system, check if it is a directory, to attempt to detect Hadoop-like files.
