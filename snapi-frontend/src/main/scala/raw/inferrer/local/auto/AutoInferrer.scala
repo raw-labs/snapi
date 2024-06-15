@@ -34,7 +34,7 @@ class AutoInferrer(
     csvInferrer: CsvInferrer,
     jsonInferrer: JsonInferrer,
     hjsonInferrer: HjsonInferrer,
-    xmlInferrer: XmlInferrer,
+    xmlInferrer: XmlInferrer
 )(implicit protected val sourceContext: SourceContext)
     extends InferrerErrorHandler
     with EncodingInferrer
