@@ -12,15 +12,15 @@
 
 package raw.compiler.rql2.antlr4
 
-import jakarta.xml.bind.DatatypeConverter
 import org.antlr.v4.runtime.ParserRuleContext
+import org.apache.commons.codec.binary.Hex
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
-import raw.compiler.rql2.source.{LetDecl, _}
+import raw.compiler.rql2.source._
 import raw.utils.RawUtils
 
 import scala.collection.JavaConverters._
@@ -1284,7 +1284,7 @@ class RawSnapiVisitor(
         .flatMap { context =>
           Option(context.BINARY_CONST())
             .map(bContext =>
-              Try(BinaryConst(DatatypeConverter.parseHexBinary(bContext.getText.drop(2)))).getOrElse {
+              Try(BinaryConst(Hex.decodeHex(bContext.getText.drop(2)))).getOrElse {
                 errors.addError(
                   ErrorMessage(
                     "Invalid binary literal",
