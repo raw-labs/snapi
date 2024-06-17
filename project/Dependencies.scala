@@ -72,7 +72,6 @@ object Dependencies {
     "org.springframework" % "spring-core" % "5.3.13" exclude ("org.springframework", "spring-jcl") // we use jcl-over-slf4j
   val truffleCompiler = Seq(
     "org.graalvm.truffle" % "truffle-api" % "23.1.0",
-    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
     "org.graalvm.truffle" % "truffle-compiler" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi-libffi" % "23.1.0",

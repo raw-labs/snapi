@@ -44,7 +44,7 @@ trait CustomClassAndModuleLoader extends StrictLogging {
       .map(_.asInstanceOf[java.lang.module.ModuleReference].descriptor().name())
       .toSet
 
-    modulesFromModulePathFinder.foreach(f => logger.trace(s"Module path $f"))
+    modulesFromModulePathFinder.foreach(f => logger.trace(s"JAR path module: $f"))
 
     // Get the parent layer
     val parentLayer = ModuleLayer.boot()
@@ -52,6 +52,8 @@ trait CustomClassAndModuleLoader extends StrictLogging {
     // Get all modules in the system module finder
     val systemModuleFinder = ModuleFinder.ofSystem()
     val systemModules = parentLayer.configuration().modules().asScala.map(_.reference().descriptor().name()).toSet
+
+    systemModules.foreach(f => logger.trace(s"System module: $f"))
 
     // Combine all modules
     val allModules = modulesFromModulePathFinder ++ systemModules

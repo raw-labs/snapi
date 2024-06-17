@@ -50,8 +50,15 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     with CustomClassAndModuleLoader
     with Rql2TypeUtils {
 
-  // If defined, contains the path used to create a classloader for the Truffle language runtime.
-  private val maybeJarsPath = settings.getStringOpt(Rql2TruffleCompilerService.JARS_PATH)
+  private val originalClassLoader = maybeClassLoader.getOrElse(Thread.currentThread().getContextClassLoader)
+
+  private val maybeTruffleClassLoader: Option[ClassLoader] = {
+    // If defined, contains the path used to create a classloader for the Truffle language runtime.
+    val maybeJarsPath = settings.getStringOpt(Rql2TruffleCompilerService.JARS_PATH)
+
+    // If the jars path is defined, create a custom class loader.
+    maybeJarsPath.map(jarsPath => createCustomClassAndModuleLoader(jarsPath))
+  }
 
   private val (engine, initedEngine) = engineDefinition
 
@@ -82,13 +89,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
 
   private def createCompilerContext(user: AuthenticatedUser, language: String): CompilerContext = {
     // Initialize source context
-    implicit val sourceContext = new SourceContext(user, credentials, settings, maybeClassLoader)
+    implicit val sourceContext = new SourceContext(user, credentials, settings, Some(originalClassLoader))
 
     // Initialize inferrer
-    val inferrer = InferrerServiceProvider(maybeClassLoader)
+    val inferrer = InferrerServiceProvider(Some(originalClassLoader))
 
     // Initialize compiler context
-    new CompilerContext(language, user, inferrer, sourceContext, maybeClassLoader)
+    new CompilerContext(language, user, inferrer, sourceContext, Some(originalClassLoader))
   }
 
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {
@@ -708,13 +715,10 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
       ctxBuilder.option("rql.staged-compiler", stagedCompiler)
     }
     // If the jars path is defined, create a custom class loader and set it as the host class loader.
-    maybeJarsPath.foreach { jarsPath =>
-      // Create the custom class loader
-      val customClassLoader = createCustomClassAndModuleLoader(jarsPath)
-
+    maybeTruffleClassLoader.map { classLoader =>
       // Set the module class loader as the Truffle runtime classloader.
       // This enables the Truffle language runtime to be fully isolated from the rest of the application.
-      ctxBuilder.hostClassLoader(customClassLoader)
+      ctxBuilder.hostClassLoader(classLoader)
     }
 
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
