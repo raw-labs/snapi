@@ -37,11 +37,6 @@ jobs:
         fetch-depth: 0
     - name: build all
       run: ./rebuild.sh
-    - name: Import GPG key
-      uses: crazy-max/ghaction-import-gpg@v6
-      with:
-        gpg_private_key: ${{ secrets.PGP_SECRET }}
-        passphrase: ${{ secrets.PGP_PASSPHRASE }}
     - name: sbt ci-release
       run: |
         export HOME="/home/sbtuser"
@@ -50,7 +45,7 @@ jobs:
         yes n | sdk install java 21.0.1-graalce || true
         sdk use java 21.0.1-graalce
         echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
-        sbt clean publishSigned
+        sbt clean publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: evaluate produced version
