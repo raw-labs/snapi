@@ -7,9 +7,8 @@ on:
     tags:
       - "v*.*.*"
 
-permissions:
-  contents: read    # This is required for actions/checkout
-  packages: write
+env:
+  GITHUB_TOKEN: ${{ secrets.WRITE_PACKAGES }}
 
 jobs:
   publish-snapi-components:
@@ -44,8 +43,6 @@ jobs:
         sdk use java 21.0.1-graalce
         echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
         sbt clean publish
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: evaluate produced version
       shell: bash
       run: echo "VERSION=$(cat ./version)" >> $GITHUB_ENV
