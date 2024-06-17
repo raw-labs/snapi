@@ -25,7 +25,7 @@ ThisBuild / credentials += Credentials(
   sys.env.getOrElse("GITHUB_TOKEN", "")
 )
 
-ThisBuild/ resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/raw-labs/raw"
+ThisBuild/ resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/raw-labs/snapi"
 
 
 val writeVersionToFile = taskKey[Unit]("Writes the project version to a file at the root.")

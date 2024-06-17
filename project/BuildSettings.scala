@@ -28,7 +28,9 @@ object BuildSettings {
     updateOptions := updateOptions.in(Global).value.withCachedResolution(true),
     publish / skip := false,
     publishSigned / skip  := false,
-    publishLocal / skip := false
+    publishLocal / skip := false,
+    publishTo := Some("GitHub raw-labs Apache Maven Packages" at "https://maven.pkg.github.com/raw-labs/raw"),
+    publishMavenStyle := true
   )
 
   lazy val commonCompileSettings = Seq(

@@ -6,6 +6,11 @@ on:
   push:
     tags:
       - "v*.*.*"
+
+permissions:
+  contents: read    # This is required for actions/checkout
+  packages: write
+
 jobs:
   publish-snapi-components:
     runs-on: self-hosted
@@ -32,6 +37,11 @@ jobs:
         fetch-depth: 0
     - name: build all
       run: ./rebuild.sh
+    - name: Import GPG key
+      uses: crazy-max/ghaction-import-gpg@v6
+      with:
+        gpg_private_key: ${{ secrets.PGP_SECRET }}
+        passphrase: ${{ secrets.PGP_PASSPHRASE }}
     - name: sbt ci-release
       run: |
         export HOME="/home/sbtuser"
@@ -40,15 +50,9 @@ jobs:
         yes n | sdk install java 21.0.1-graalce || true
         sdk use java 21.0.1-graalce
         echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
-        sbt ci-release
+        sbt clean publishSigned
       env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: evaluate produced version
       shell: bash
       run: echo "VERSION=$(cat ./version)" >> $GITHUB_ENV
