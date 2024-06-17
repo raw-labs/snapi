@@ -35,8 +35,6 @@ jobs:
       with:
         ref: ${{ github.event.client_payload.pull_request.head.sha }}
         fetch-depth: 0
-    - name: build all
-      run: ./rebuild.sh
     - name: sbt ci-release
       run: |
         export HOME="/home/sbtuser"
