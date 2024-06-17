@@ -29,7 +29,7 @@ object BuildSettings {
     publish / skip := false,
     publishSigned / skip  := false,
     publishLocal / skip := false,
-    publishTo := Some("GitHub raw-labs Apache Maven Packages" at "https://maven.pkg.github.com/raw-labs/snapi"),
+    publishTo := Some("GitHub raw-labs Apache Maven Sanpi Packages" at "https://maven.pkg.github.com/raw-labs/snapi"),
     publishMavenStyle := true,
     versionScheme := Some("early-semver")
   )
