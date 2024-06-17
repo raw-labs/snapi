@@ -30,7 +30,8 @@ object BuildSettings {
     publishSigned / skip  := false,
     publishLocal / skip := false,
     publishTo := Some("GitHub raw-labs Apache Maven Packages" at "https://maven.pkg.github.com/raw-labs/snapi"),
-    publishMavenStyle := true
+    publishMavenStyle := true,
+    versionScheme := Some("early-semver")
   )
 
   lazy val commonCompileSettings = Seq(
