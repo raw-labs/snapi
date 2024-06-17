@@ -28,7 +28,10 @@ object BuildSettings {
     updateOptions := updateOptions.in(Global).value.withCachedResolution(true),
     publish / skip := false,
     publishSigned / skip  := false,
-    publishLocal / skip := false
+    publishLocal / skip := false,
+    publishTo := Some("GitHub raw-labs Apache Maven Sanpi Packages" at "https://maven.pkg.github.com/raw-labs/snapi"),
+    publishMavenStyle := true,
+    versionScheme := Some("early-semver")
   )
 
   lazy val commonCompileSettings = Seq(
