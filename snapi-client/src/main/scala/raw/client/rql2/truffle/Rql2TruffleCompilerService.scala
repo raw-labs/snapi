@@ -75,7 +75,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
 
   override def language: Set[String] = Rql2TruffleCompilerService.LANGUAGE
 
-  private val credentials = CredentialsServiceProvider(maybeClassLoader)
+  private val credentials = CredentialsServiceProvider(Some(originalClassLoader))
 
   // Map of users to compiler context.
   private val compilerContextCaches = new mutable.HashMap[AuthenticatedUser, CompilerContext]
