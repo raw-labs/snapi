@@ -57,7 +57,6 @@ module raw.snapi.truffle {
   uses raw.sources.filesystem.api.FileSystemLocationBuilder;
   uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
   uses raw.sources.jdbc.api.JdbcLocationBuilder;
-  uses raw.inferrer.api.InferrerServiceBuilder;
   uses raw.sources.jdbc.api.JdbcSchemaLocationBuilder;
 
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with

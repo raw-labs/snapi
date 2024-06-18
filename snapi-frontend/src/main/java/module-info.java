@@ -70,11 +70,6 @@ module raw.snapi.frontend {
   opens raw.rest.common to
       com.fasterxml.jackson.databind;
 
-  uses raw.inferrer.api.InferrerServiceBuilder;
-
-  provides raw.inferrer.api.InferrerServiceBuilder with
-      raw.inferrer.local.LocalInferrerServiceBuilder;
-
   uses raw.creds.api.CredentialsServiceBuilder;
 
   provides raw.creds.api.CredentialsServiceBuilder with
