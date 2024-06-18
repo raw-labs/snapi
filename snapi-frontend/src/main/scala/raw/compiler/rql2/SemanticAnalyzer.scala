@@ -459,6 +459,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
 class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext: ProgramContext)
     extends CommonSemanticAnalyzer(tree)
     with ExpectedTypes
+    with StagedCompiler
     with Rql2TypeUtils {
 
   // This function checks if the semantic analysis is being run with the staged compiler
@@ -1620,15 +1621,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         logger.trace("Pretty printed staged compiler type is:\n" + rawType)
 
         try {
-          CompilerServiceProvider(
-            programContext.compilerContext.language,
-            programContext.compilerContext.maybeClassLoader
-          )(programContext.settings).eval(
-            prettyPrinterProgram,
-            rawType,
-            stagedCompilerEnvironment
-          ) match {
-            case EvalSuccess(v) =>
+          eval(prettyPrinterProgram, rawType, stagedCompilerEnvironment)(programContext.settings) match {
+            case StagedCompilerSuccess(v) =>
               var stagedCompilerResult = rawValueToRql2Value(v, rawType)
               // Remove extraProps
               if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
@@ -1646,13 +1640,13 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                 stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
               }
               Right(stagedCompilerResult)
-            case EvalValidationFailure(errs) =>
+            case StagedCompilerValidationFailure(errs) =>
               logger.warn(s"""Staged compilation of expression failed to validate with semantic errors:
 -                |Expected type: $expected
 -                |Expression: $e
 -                |Errors: $errs""".stripMargin)
               Left(FailedToEvaluate(e))
-            case EvalRuntimeFailure(err) =>
+            case StagedCompilerRuntimeFailure(err) =>
               logger.warn(s"""Staged compilation of expression failed at runtime with errors:
                 |Expected type: $expected
                 |Expression: $e

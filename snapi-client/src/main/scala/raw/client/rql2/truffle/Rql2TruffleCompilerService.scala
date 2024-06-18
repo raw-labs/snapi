@@ -196,61 +196,6 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     )
   }
 
-  override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
-    withTruffleContext(
-      environment,
-      ctx =>
-        try {
-          val truffleSource = Source
-            .newBuilder("rql", source, "unnamed")
-            .cached(false) // Disable code caching because of the inferrer.
-            .build()
-          val polyglotValue = ctx.eval(truffleSource)
-          val rawValue = polyglotValueToRawValue(polyglotValue, tipe)
-          EvalSuccess(rawValue)
-        } catch {
-          case ex: PolyglotException =>
-            // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
-            // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
-            // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
-            // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
-            // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
-            // and which must handle interruption as well.
-            if (ex.isInterrupted) {
-              throw new InterruptedException()
-            } else if (ex.getCause.isInstanceOf[InterruptedException]) {
-              throw ex.getCause
-            } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
-              throw new InterruptedException()
-            } else if (ex.isGuestException) {
-              val err = ex.getGuestObject
-              if (err != null && err.hasMembers && err.hasMember("errors")) {
-                val errorsValue = err.getMember("errors")
-                val errors = (0L until errorsValue.getArraySize).map { i =>
-                  val errorValue = errorsValue.getArrayElement(i)
-                  val message = errorValue.asString
-                  val positions = (0L until errorValue.getArraySize).map { j =>
-                    val posValue = errorValue.getArrayElement(j)
-                    val beginValue = posValue.getMember("begin")
-                    val endValue = posValue.getMember("end")
-                    val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
-                    val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
-                    ErrorRange(begin, end)
-                  }
-                  ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
-                }
-                EvalValidationFailure(errors.to)
-              } else {
-                EvalRuntimeFailure(ex.getMessage)
-              }
-            } else {
-              // Unexpected error. For now we throw the PolyglotException.
-              throw ex
-            }
-        }
-    )
-  }
-
   override def execute(
       source: String,
       environment: ProgramEnvironment,

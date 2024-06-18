@@ -135,26 +135,6 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
 //    )
   }
 
-  override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
-    withTruffleContext(
-      environment,
-      ctx =>
-        try {
-          val truffleSource = Source.newBuilder("python", source, "unnamed").build()
-          val polyglotValue = ctx.eval(truffleSource)
-          val rawValue = polyglotValueToRawValue(polyglotValue, tipe)
-          EvalSuccess(rawValue)
-        } catch {
-          case ex: PolyglotException =>
-            if (ex.isInterrupted) {
-              throw new InterruptedException()
-            } else {
-              EvalRuntimeFailure(ex.getMessage)
-            }
-        }
-    )
-  }
-
   override def execute(
       source: String,
       environment: ProgramEnvironment,
