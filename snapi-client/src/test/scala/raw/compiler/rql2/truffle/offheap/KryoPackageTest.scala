@@ -10,14 +10,14 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests.offheap
+package raw.compiler.rql2.truffle.offheap
 
 import org.scalatest.prop.TableDrivenPropertyChecks
-import raw.compiler.rql2.truffle.TruffleCompilerTestContext
+import raw.compiler.rql2.truffle.TruffleWithLocalCredentialsTestContext
 import raw.testing.tags.TruffleTests
 
 @TruffleTests
-class KryoPackageTest extends TruffleCompilerTestContext with TableDrivenPropertyChecks {
+class KryoPackageTest extends TruffleWithLocalCredentialsTestContext with TableDrivenPropertyChecks {
 
   private val cases = Table(
     ("value", "type"),

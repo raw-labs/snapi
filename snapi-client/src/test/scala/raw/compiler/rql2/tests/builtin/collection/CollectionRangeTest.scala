@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait CollectionRangeTest extends CompilerTestContext {
+trait CollectionRangeTest extends Rql2CompilerTestContext {
 
   // Long.Range
 

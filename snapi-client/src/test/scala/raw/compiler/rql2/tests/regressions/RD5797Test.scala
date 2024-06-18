@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5797Test extends CompilerTestContext {
+trait RD5797Test extends Rql2CompilerTestContext {
 
   // "raw.eu.auth0.com" is a wrong value, it should be 'auth0' for example
   test("""

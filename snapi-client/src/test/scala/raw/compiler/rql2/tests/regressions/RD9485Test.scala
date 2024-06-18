@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD9485Test extends CompilerTestContext {
+trait RD9485Test extends Rql2CompilerTestContext {
 
   property("raw.inferrer.local.xml.sample-size", "2")
 

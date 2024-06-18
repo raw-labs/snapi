@@ -13,13 +13,13 @@
 package raw.compiler.rql2.tests.output
 
 import org.apache.commons.io.FileUtils
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
 import java.io.File
 import java.nio.file.Files
 
-trait BinaryOutputTest extends CompilerTestContext with LocalLocationsTestContext {
+trait BinaryOutputTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   option("output-format", "binary")
 

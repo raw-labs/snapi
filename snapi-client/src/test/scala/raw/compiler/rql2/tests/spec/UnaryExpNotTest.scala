@@ -14,9 +14,9 @@ package raw.compiler.rql2.tests.spec
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait UnaryExpNotTest extends CompilerTestContext with TableDrivenPropertyChecks {
+trait UnaryExpNotTest extends Rql2CompilerTestContext with TableDrivenPropertyChecks {
   test("""not true""".stripMargin) { it =>
     it should typeAs("bool")
     it should evaluateTo("false")

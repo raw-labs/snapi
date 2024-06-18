@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.client.api._
 
-trait LspRenameTest extends CompilerTestContext {
+trait LspRenameTest extends Rql2CompilerTestContext {
 
   test("rename identifier at usage test") { _ =>
     val code = """let

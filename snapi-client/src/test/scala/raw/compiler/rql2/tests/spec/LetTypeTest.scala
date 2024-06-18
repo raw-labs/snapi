@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait LetTypeTest extends CompilerTestContext {
+trait LetTypeTest extends Rql2CompilerTestContext {
 
   test("""
     |let t = type int,

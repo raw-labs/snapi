@@ -14,10 +14,10 @@ package raw.compiler.rql2.tests.builtin.list
 
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.KeyNotComparable
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
-trait ListJoinTest extends CompilerTestContext with LocalLocationsTestContext {
+trait ListJoinTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   private val listOfCountries = """[
     | {region: "AFRICA", nation: "ALGERIA"},

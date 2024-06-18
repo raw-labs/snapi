@@ -27,6 +27,8 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
   override def beforeAll(): Unit = {
     super.beforeAll()
 
+    property("raw.compiler.impl", "rql2-truffle")
+
     // Create an isolated Truffle Engine
     val options = new java.util.HashMap[String, String]()
     options.put("rql.settings", settings.renderAsString)
@@ -73,8 +75,6 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
       .allowExperimentalOptions(true)
       .options(options)
       .build()
-
-    property("raw.compiler.impl", "rql2-truffle")
 
     rql2TruffleCompilerService = new Rql2TruffleCompilerService((engine, false), None)
     setCompilerService(rql2TruffleCompilerService)

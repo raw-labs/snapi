@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD10194Test extends CompilerTestContext {
+trait RD10194Test extends Rql2CompilerTestContext {
 
   private val q =
     """main(title: string = null, description: string = null, category: string = null, rating: string = null, actor: string = null) =

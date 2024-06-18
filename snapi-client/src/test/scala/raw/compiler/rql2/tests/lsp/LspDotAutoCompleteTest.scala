@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.lsp
 
 import raw.client.api._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait LspDotAutoCompleteTest extends CompilerTestContext {
+trait LspDotAutoCompleteTest extends Rql2CompilerTestContext {
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, String)]): Unit = {
     val AutoCompleteResponse(entries) = dotAutoComplete(code, Pos(line, col))

@@ -10,13 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests.truffle.regressions
+package raw.compiler.rql2.truffle.truffle.regressions
 
 import raw.client.api.{GetProgramDescriptionSuccess, ProgramEnvironment}
-import raw.compiler.rql2.truffle.TruffleCompilerTestContext
+import raw.compiler.rql2.truffle.TruffleWithLocalCredentialsTestContext
 import raw.compiler.utils.SnapiInterpolator
 
-class RD10767Test extends TruffleCompilerTestContext {
+class RD10767Test extends TruffleWithLocalCredentialsTestContext {
   private val data = tempFile("""
     |[
     |  {"a": 1, "b": 10, "c": 100},

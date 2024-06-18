@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.creds.api.CredentialsTestContext
 import raw.creds.jdbc.RDBMSTestCreds
 
-trait SqlServerPackageTest extends CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
+trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
 
   val sqlServDb = "rawtest"
   val sqlServRegDb = "registered-db"

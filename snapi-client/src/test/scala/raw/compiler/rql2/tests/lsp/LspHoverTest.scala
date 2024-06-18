@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.lsp
 
 import raw.client.api._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait LspHoverTest extends CompilerTestContext {
+trait LspHoverTest extends Rql2CompilerTestContext {
 
   test("hover identifier at definition test") { _ =>
     val code = """let

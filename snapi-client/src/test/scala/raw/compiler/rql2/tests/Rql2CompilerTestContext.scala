@@ -19,7 +19,7 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.client.api._
 import raw.client.rql2.api._
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
+import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
 import raw.inferrer.local.LocalInferrerTestContext
 import raw.utils._
 
@@ -29,12 +29,13 @@ import java.nio.file.{Files, Path, StandardOpenOption}
 import scala.collection.mutable
 import scala.io.Source
 
-trait CompilerTestContext
+trait Rql2CompilerTestContext
     extends RawTestSuite
     with Matchers
     with SettingsTestContext
     with TrainingWheelsContext
     with Rql2CompilerServiceTestContext
+    with Rql2OutputTestContext
 
     // Simple inferrer
     with LocalInferrerTestContext {

@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2.tests.regressions.credentials
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.creds.api.CredentialsTestContext
 import raw.creds.jdbc.RDBMSTestCreds
 
-trait RD3084Test extends CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
+trait RD3084Test extends Rql2CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
 
   rdbms(authorizedUser, "mysql-test", mysqlCreds)
   rdbms(authorizedUser, "postgres-test", pgsqlCreds)

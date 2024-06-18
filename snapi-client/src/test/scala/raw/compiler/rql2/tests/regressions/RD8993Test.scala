@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD8993Test extends CompilerTestContext {
+trait RD8993Test extends Rql2CompilerTestContext {
 
   test("""apply(f: int -> bool) = f(1)
     |apply((x: int) -> true)""".stripMargin)(_ should evaluateTo("true"))

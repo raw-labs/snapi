@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5488Test extends CompilerTestContext {
+trait RD5488Test extends Rql2CompilerTestContext {
 
   // All these tests are valid queries. They fail in the middle of compilation, at L0, with "lines is declared more than once".
 

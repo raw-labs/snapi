@@ -1,0 +1,55 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+package raw.compiler.rql2.truffle.spec
+
+import raw.compiler.rql2.tests.spec._
+import raw.compiler.rql2.truffle.TruffleWithLocalCredentialsTestContext
+import raw.testing.tags.TruffleTests
+
+@TruffleTests class PropagationTruffleTest extends TruffleWithLocalCredentialsTestContext with PropagationTest
+@TruffleTests class JoinWithTryRowsTruffleTest extends TruffleWithLocalCredentialsTestContext with JoinWithTryRowsTest
+@TruffleTests class ConstTruffleTest extends TruffleWithLocalCredentialsTestContext with ConstTest
+@TruffleTests class BinaryExpLeTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpLeTest
+@TruffleTests class BinaryExpAndTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpAndTest
+@TruffleTests class UnaryExpNotTruffleTest extends TruffleWithLocalCredentialsTestContext with UnaryExpNotTest
+@TruffleTests class ProjTruffleTest extends TruffleWithLocalCredentialsTestContext with ProjTest
+@TruffleTests class ErrorsTruffleTest extends TruffleWithLocalCredentialsTestContext with ErrorsTest
+
+@TruffleTests class IfThenElseTruffleTest extends TruffleWithLocalCredentialsTestContext with IfThenElseTest
+@TruffleTests class BinaryExpGtTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpGtTest
+@TruffleTests class BinaryExpMultTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpMultTest
+@TruffleTests class BinaryExpGeTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpGeTest
+@TruffleTests class UnaryExpNegTruffleTest extends TruffleWithLocalCredentialsTestContext with UnaryExpNegTest
+@TruffleTests class BinaryExpDivTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpDivTest
+@TruffleTests class MigrationTruffleTest extends TruffleWithLocalCredentialsTestContext with MigrationTest
+
+@TruffleTests class LetBindTruffleTest extends TruffleWithLocalCredentialsTestContext with LetBindTest
+@TruffleTests class FunAbsTruffleTest extends TruffleWithLocalCredentialsTestContext with FunAbsTest
+
+@TruffleTests class LetFunRecTruffleTest extends TruffleWithLocalCredentialsTestContext with LetFunRecTest
+@TruffleTests class ClosureTruffleTest extends TruffleWithLocalCredentialsTestContext with ClosureTest
+@TruffleTests class BinaryExpOrTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpOrTest
+@TruffleTests class BinaryExpEqTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpEqTest
+@TruffleTests class BinaryExpNeqTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpNeqTest
+@TruffleTests class ImplicitCastTruffleTest extends TruffleWithLocalCredentialsTestContext with ImplicitCastTest
+@TruffleTests class BinaryExpModTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpModTest
+@TruffleTests class BinaryExpSubTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpSubTest
+@TruffleTests class LetTypeTruffleTest extends TruffleWithLocalCredentialsTestContext with LetTypeTest
+@TruffleTests class BinaryExpPlusTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpPlusTest
+@TruffleTests class BasicStagedCompilerTruffleTest extends TruffleWithLocalCredentialsTestContext with BasicStagedCompilerTest
+@TruffleTests class BinaryExpLtTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpLtTest
+@TruffleTests class PackageNameTruffleTest extends TruffleWithLocalCredentialsTestContext with PackageNameTest
+
+@TruffleTests class StagedCompilerTruffleTest extends TruffleWithLocalCredentialsTestContext with StagedCompilerTest
+
+@TruffleTests class LetFunTruffleTest extends TruffleWithLocalCredentialsTestContext with LetFunTest

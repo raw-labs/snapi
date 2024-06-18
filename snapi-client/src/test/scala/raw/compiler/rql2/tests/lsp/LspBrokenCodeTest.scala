@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.lsp
 
 import raw.client.api._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait LspBrokenCodeTest extends CompilerTestContext {
+trait LspBrokenCodeTest extends Rql2CompilerTestContext {
 
   test("broken code hover test") { _ =>
     val code = """let

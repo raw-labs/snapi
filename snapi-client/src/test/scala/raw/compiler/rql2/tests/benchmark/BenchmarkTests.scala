@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.benchmark
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait BenchmarkTests extends CompilerTestContext {
+trait BenchmarkTests extends Rql2CompilerTestContext {
 
   property("raw.training-wheels", "false")
 

@@ -14,9 +14,9 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
 import raw.creds.s3.S3TestCreds
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5932Test extends CompilerTestContext with S3TestCreds {
+trait RD5932Test extends Rql2CompilerTestContext with S3TestCreds {
 
   val data = tempFile("""[
     |    {"id": 1, "network_interface": "eni-08b85cc07294f82bf"},

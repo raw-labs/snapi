@@ -14,11 +14,11 @@ package raw.compiler.rql2.tests.builtin.credentials
 
 import raw.creds.dropbox.DropboxTestCreds
 import raw.creds.s3.S3TestCreds
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.creds.api.CredentialsTestContext
 
 trait LocationPackageTest
-    extends CompilerTestContext
+    extends Rql2CompilerTestContext
     with CredentialsTestContext
     with DropboxTestCreds
     with S3TestCreds {

@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5921Test extends CompilerTestContext {
+trait RD5921Test extends Rql2CompilerTestContext {
 
   val data1 = tempFile("""<a>1</a>
     |<a>2</a>

@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait LetFunTest extends CompilerTestContext {
+trait LetFunTest extends Rql2CompilerTestContext {
 
   test("""let f(x: int) = x + 1
     |in f(0)

@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait TimePackageTest extends CompilerTestContext {
+trait TimePackageTest extends Rql2CompilerTestContext {
 
   test("Time.Build(9, 30)") { it =>
     it should typeAs("time")

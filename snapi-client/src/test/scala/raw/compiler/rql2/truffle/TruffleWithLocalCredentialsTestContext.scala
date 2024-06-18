@@ -12,10 +12,12 @@
 
 package raw.compiler.rql2.truffle
 
-import raw.compiler.rql2.api.Rql2OutputTestContext
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.creds.api.CredentialsTestContext
+import raw.creds.local.LocalCredentialsTestContext
 
-class TruffleCompilerTestContext
-    extends CompilerTestContext
-    with Rql2OutputTestContext
+trait TruffleWithLocalCredentialsTestContext
+    extends Rql2CompilerTestContext
+    with LocalCredentialsTestContext
+    with CredentialsTestContext
     with Rql2TruffleCompilerServiceTestContext

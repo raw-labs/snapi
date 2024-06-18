@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RecordPackageTest extends CompilerTestContext {
+trait RecordPackageTest extends Rql2CompilerTestContext {
 
   test("""Record.Build(a = 1, b = "Hello")""".stripMargin)(_ should (typeAs("record(a: int, b: string)") and run))
 

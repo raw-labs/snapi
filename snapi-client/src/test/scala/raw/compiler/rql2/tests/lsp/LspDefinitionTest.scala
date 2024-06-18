@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.client.api._
 
-trait LspDefinitionTest extends CompilerTestContext {
+trait LspDefinitionTest extends Rql2CompilerTestContext {
 
   test("go to definition identifier at usage test") { _ =>
     val code = """let

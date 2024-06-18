@@ -14,9 +14,9 @@ package raw.compiler.rql2.tests.spec
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait BinaryExpAndTest extends CompilerTestContext with TableDrivenPropertyChecks {
+trait BinaryExpAndTest extends Rql2CompilerTestContext with TableDrivenPropertyChecks {
 
   test("""true and true""")(_ should evaluateTo("true"))
   test("""true and false""")(_ should evaluateTo("false"))

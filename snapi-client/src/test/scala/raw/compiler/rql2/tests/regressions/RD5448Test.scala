@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5448Test extends CompilerTestContext {
+trait RD5448Test extends Rql2CompilerTestContext {
 
   private val ttt = "\"\"\""
   private val jsonString = """[

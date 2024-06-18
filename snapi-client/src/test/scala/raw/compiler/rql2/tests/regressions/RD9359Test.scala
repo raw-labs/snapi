@@ -12,12 +12,12 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.compiler.utils._
 
 import java.nio.file.{Files, Path}
 
-trait RD9359Test extends CompilerTestContext {
+trait RD9359Test extends Rql2CompilerTestContext {
 
   private val duplicateCsvString = """a,b,a
     |1,2,3

@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait TryPackageTest extends CompilerTestContext {
+trait TryPackageTest extends Rql2CompilerTestContext {
 
   test("""Try.IsError("hi")""")(_ should evaluateTo("false"))
   test("""Try.IsError(1)""")(_ should evaluateTo("false"))

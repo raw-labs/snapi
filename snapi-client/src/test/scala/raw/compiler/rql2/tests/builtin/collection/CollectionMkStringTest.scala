@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait CollectionMkStringTest extends CompilerTestContext {
+trait CollectionMkStringTest extends Rql2CompilerTestContext {
 
   test("""let items = Collection.Build()
     |in Collection.MkString(items, sep="|")""".stripMargin)(_ should evaluateTo(""" "" """))

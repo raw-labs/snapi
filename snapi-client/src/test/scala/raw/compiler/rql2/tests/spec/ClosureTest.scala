@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait ClosureTest extends CompilerTestContext {
+trait ClosureTest extends Rql2CompilerTestContext {
 
   test("""let functions =
     |   List.Transform([1,2,3],

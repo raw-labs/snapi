@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait PackageNameTest extends CompilerTestContext {
+trait PackageNameTest extends Rql2CompilerTestContext {
 
   test("""Record""")(it => it should typeAs("""package("Record")"""))
 

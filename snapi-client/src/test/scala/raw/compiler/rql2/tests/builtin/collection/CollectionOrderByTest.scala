@@ -14,10 +14,10 @@ package raw.compiler.rql2.tests.builtin.collection
 
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable, OrderSpecMustFollowOrderingFunction}
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
-trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestContext {
+trait CollectionOrderByTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   private val coolBandsWithoutHeader = tempFile("""Bee Gees|Maurice|Gibb|1949
     |Bee Gees|Robin|Gibb|1949

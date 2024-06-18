@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.client.api._
 
-trait LspWordAutoCompleteTest extends CompilerTestContext {
+trait LspWordAutoCompleteTest extends Rql2CompilerTestContext {
 
   private lazy val allTypes = Seq(
     ("byte", Some("")),

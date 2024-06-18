@@ -10,11 +10,10 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests.benchmark
+package raw.compiler.rql2.truffle.hints
 
-import raw.compiler.rql2.truffle.TruffleCompilerTestContext
+import raw.compiler.rql2.truffle.TruffleWithLocalCredentialsTestContext
 import raw.testing.tags.TruffleTests
+import raw.compiler.rql2.tests.hints._
 
-@TruffleTests class BenchmarkTruffleTests extends TruffleCompilerTestContext with BenchmarkTests
-
-@TruffleTests class StressTruffleTests extends TruffleCompilerTestContext with StressTests
+@TruffleTests class SemanticAnalyzerHintsTruffleTest extends TruffleWithLocalCredentialsTestContext with SemanticAnalyzerHintsTest

@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RegexPackageTest extends CompilerTestContext {
+trait RegexPackageTest extends Rql2CompilerTestContext {
 
   test("""Regex.Replace("Heelloo John", "[aeiou]+", "_")""")(it => it should evaluateTo(""" "H_ll_ J_hn" """))
 
