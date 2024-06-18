@@ -1,3 +1,5 @@
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 /*
  * Copyright 2024 RAW Labs S.A.
  *
@@ -10,11 +12,17 @@
  * licenses/APL.txt.
  */
 
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 package raw.compiler.rql2
 
 import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source}
 import raw.client.api.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment, RawType, RawValue}
 import raw.compiler.rql2.antlr4.ParserErrors
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import raw.utils.RawSettings
 
 import java.io.OutputStream
@@ -46,6 +54,77 @@ trait StagedCompiler {
     val (engine, wasInited) = CompilerService.getEngine()
     assert(!wasInited, "The engine should have not been initialized by the staged compiler!")
 
+=======
+=======
+>>>>>>> Stashed changes
+
+import java.io.OutputStream
+
+class StagedCompiler {
+
+  def doEval(source: String, tipe: RawType, environment: ProgramEnvironment) = {
+    withTruffleContext(
+      environment,
+      ctx =>
+        try {
+          val truffleSource = Source
+            .newBuilder("rql", source, "unnamed")
+            .cached(false) // Disable code caching because of the inferrer.
+            .build()
+          val polyglotValue = ctx.eval(truffleSource)
+          val rawValue = CompilerService.polyglotValueToRawValue(polyglotValue, tipe)
+          EvalSuccess(rawValue)
+        } catch {
+          case ex: PolyglotException =>
+            // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
+            // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
+            // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
+            // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
+            // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
+            // and which must handle interruption as well.
+            if (ex.isInterrupted) {
+              throw new InterruptedException()
+            } else if (ex.getCause.isInstanceOf[InterruptedException]) {
+              throw ex.getCause
+            } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
+              throw new InterruptedException()
+            } else if (ex.isGuestException) {
+              val err = ex.getGuestObject
+              if (err != null && err.hasMembers && err.hasMember("errors")) {
+                val errorsValue = err.getMember("errors")
+                val errors = (0L until errorsValue.getArraySize).map { i =>
+                  val errorValue = errorsValue.getArrayElement(i)
+                  val message = errorValue.asString
+                  val positions = (0L until errorValue.getArraySize).map { j =>
+                    val posValue = errorValue.getArrayElement(j)
+                    val beginValue = posValue.getMember("begin")
+                    val endValue = posValue.getMember("end")
+                    val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
+                    val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
+                    ErrorRange(begin, end)
+                  }
+                  ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
+                }
+                EvalValidationFailure(errors.to)
+              } else {
+                EvalRuntimeFailure(ex.getMessage)
+              }
+            } else {
+              // Unexpected error. For now we throw the PolyglotException.
+              throw ex
+            }
+        }
+    )
+  }
+
+  private def buildTruffleContext(
+      environment: ProgramEnvironment,
+      maybeOutputStream: Option[OutputStream] = None
+  ): Context = {
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
       .newBuilder("rql")
@@ -59,6 +138,8 @@ trait StagedCompiler {
       ctxBuilder.option("rql.staged-compiler", stagedCompiler)
     }
     ctxBuilder.option("rql.settings", settings.renderAsString)
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     val ctx = ctxBuilder.build()
     ctx.initialize("rql")
     ctx.enter()
@@ -111,15 +192,116 @@ trait StagedCompiler {
             throw ex
           }
       }
+=======
+=======
+>>>>>>> Stashed changes
+    // If the jars path is defined, create a custom class loader and set it as the host class loader.
+    maybeTruffleClassLoader.map { classLoader =>
+      // Set the module class loader as the Truffle runtime classloader.
+      // This enables the Truffle language runtime to be fully isolated from the rest of the application.
+      ctxBuilder.hostClassLoader(classLoader)
+    }
+
+    maybeOutputStream.foreach(os => ctxBuilder.out(os))
+    val ctx = ctxBuilder.build()
+    ctx
+  }
+
+  private def withTruffleContext[T](
+      environment: ProgramEnvironment,
+      f: Context => T
+  ): T = {
+    val ctx = buildTruffleContext(environment)
+    ctx.initialize("rql")
+    ctx.enter()
+    try {
+      f(ctx)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     } finally {
       ctx.leave()
       ctx.close()
     }
   }
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 }
 
 sealed trait StagedCompilerResponse
 final case class StagedCompilerSuccess(v: RawValue) extends StagedCompilerResponse
 final case class StagedCompilerValidationFailure(errors: List[ErrorMessage]) extends StagedCompilerResponse
 final case class StagedCompilerRuntimeFailure(error: String) extends StagedCompilerResponse
+=======
+=======
+>>>>>>> Stashed changes
+  /*
+
+  override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
+    withTruffleContext(
+      environment,
+      ctx =>
+        try {
+          val truffleSource = Source
+            .newBuilder("rql", source, "unnamed")
+            .cached(false) // Disable code caching because of the inferrer.
+            .build()
+          val polyglotValue = ctx.eval(truffleSource)
+          val rawValue = polyglotValueToRawValue(polyglotValue, tipe)
+          EvalSuccess(rawValue)
+        } catch {
+          case ex: PolyglotException =>
+            // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
+            // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
+            // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
+            // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
+            // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
+            // and which must handle interruption as well.
+            if (ex.isInterrupted) {
+              throw new InterruptedException()
+            } else if (ex.getCause.isInstanceOf[InterruptedException]) {
+              throw ex.getCause
+            } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
+              throw new InterruptedException()
+            } else if (ex.isGuestException) {
+              val err = ex.getGuestObject
+              if (err != null && err.hasMembers && err.hasMember("errors")) {
+                val errorsValue = err.getMember("errors")
+                val errors = (0L until errorsValue.getArraySize).map { i =>
+                  val errorValue = errorsValue.getArrayElement(i)
+                  val message = errorValue.asString
+                  val positions = (0L until errorValue.getArraySize).map { j =>
+                    val posValue = errorValue.getArrayElement(j)
+                    val beginValue = posValue.getMember("begin")
+                    val endValue = posValue.getMember("end")
+                    val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
+                    val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
+                    ErrorRange(begin, end)
+                  }
+                  ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
+                }
+                EvalValidationFailure(errors.to)
+              } else {
+                EvalRuntimeFailure(ex.getMessage)
+              }
+            } else {
+              // Unexpected error. For now we throw the PolyglotException.
+              throw ex
+            }
+        }
+    )
+  }
+
+   */
+}
+
+sealed trait EvalResponse
+final case class EvalSuccess(v: RawValue) extends EvalResponse
+final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
+final case class EvalRuntimeFailure(error: String) extends EvalResponse
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
