@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait IfThenElseTest extends CompilerTestContext with CombinationSpecTestHelper {
+trait IfThenElseTest extends Rql2CompilerTestContext with CombinationSpecTestHelper {
 
   test("""
     |if true then "a" else "b"

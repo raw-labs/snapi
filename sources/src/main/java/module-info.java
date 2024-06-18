@@ -26,7 +26,6 @@ module raw.sources {
   requires org.apache.httpcomponents.client5.httpclient5;
   requires java.net.http;
   requires spring.core;
-  requires spring.jcl;
   requires typesafe.config;
   requires typesafe.scalalogging;
   requires ch.qos.logback.classic;
@@ -61,7 +60,13 @@ module raw.sources {
   requires raw.utils;
   requires raw.client;
 
+  exports raw.auth.api;
+  exports raw.rest.client;
+  exports raw.rest.common;
   exports raw.creds.api;
+  exports raw.creds.client;
+  exports raw.creds.local;
+  exports raw.creds.protocol;
   exports raw.sources.api;
   exports raw.sources.bytestream.api;
   exports raw.sources.bytestream.github;
@@ -81,59 +86,10 @@ module raw.sources {
   exports raw.sources.jdbc.oracle;
   exports raw.sources.jdbc.teradata;
 
+  opens raw.auth.api to
+      com.fasterxml.jackson.databind;
+  opens raw.rest.common to
+      com.fasterxml.jackson.databind;
   opens raw.creds.api to
       com.fasterxml.jackson.databind;
-
-  uses raw.creds.api.CredentialsServiceBuilder;
-  uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
-
-  provides raw.sources.bytestream.api.ByteStreamLocationBuilder with
-      raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
-      raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
-      raw.sources.filesystem.s3.S3FileSystemLocationBuilder,
-      raw.sources.filesystem.mock.MockFileSystemLocationBuilder,
-      raw.sources.bytestream.github.GithubByteStreamLocationBuilder,
-      raw.sources.bytestream.http.HttpByteStreamLocationBuilder,
-      raw.sources.bytestream.in_memory.InMemoryByteStreamLocationBuilder;
-
-  uses raw.sources.filesystem.api.FileSystemLocationBuilder;
-
-  provides raw.sources.filesystem.api.FileSystemLocationBuilder with
-      raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
-      raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
-      raw.sources.filesystem.s3.S3FileSystemLocationBuilder,
-      raw.sources.filesystem.mock.MockFileSystemLocationBuilder;
-
-  uses raw.sources.jdbc.api.JdbcLocationBuilder;
-
-  provides raw.sources.jdbc.api.JdbcLocationBuilder with
-      raw.sources.jdbc.mysql.MySqlLocationBuilder,
-      raw.sources.jdbc.pgsql.PostgresqlLocationBuilder,
-      raw.sources.jdbc.snowflake.SnowflakeLocationBuilder,
-      raw.sources.jdbc.sqlite.SqliteLocationBuilder,
-      raw.sources.jdbc.sqlserver.SqlServerLocationBuilder,
-      raw.sources.jdbc.oracle.OracleLocationBuilder,
-      raw.sources.jdbc.teradata.TeradataLocationBuilder;
-
-  uses raw.sources.jdbc.api.JdbcSchemaLocationBuilder;
-
-  provides raw.sources.jdbc.api.JdbcSchemaLocationBuilder with
-      raw.sources.jdbc.mysql.MySqlSchemaLocationBuilder,
-      raw.sources.jdbc.pgsql.PostgresqlSchemaLocationBuilder,
-      raw.sources.jdbc.snowflake.SnowflakeSchemaLocationBuilder,
-      raw.sources.jdbc.sqlite.SqliteSchemaLocationBuilder,
-      raw.sources.jdbc.sqlserver.SqlServerSchemaLocationBuilder,
-      raw.sources.jdbc.oracle.OracleSchemaLocationBuilder,
-      raw.sources.jdbc.teradata.TeradataSchemaLocationBuilder;
-
-  uses raw.sources.jdbc.api.JdbcTableLocationBuilder;
-
-  provides raw.sources.jdbc.api.JdbcTableLocationBuilder with
-      raw.sources.jdbc.mysql.MySqlTableLocationBuilder,
-      raw.sources.jdbc.pgsql.PostgresqlTableLocationBuilder,
-      raw.sources.jdbc.snowflake.SnowflakeTableLocationBuilder,
-      raw.sources.jdbc.sqlite.SqliteTableLocationBuilder,
-      raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder,
-      raw.sources.jdbc.oracle.OracleTableLocationBuilder,
-      raw.sources.jdbc.teradata.TeradataTableLocationBuilder;
 }

@@ -18,7 +18,6 @@ import raw.utils.RawException
 import raw.inferrer.api._
 import raw.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
 import raw.inferrer.local.csv.{CsvInferrer, CsvMergeTypes}
-import raw.inferrer.local.excel.ExcelInferrer
 import raw.inferrer.local.hjson.HjsonInferrer
 import raw.inferrer.local.jdbc.JdbcInferrer
 import raw.inferrer.local.json.JsonInferrer
@@ -45,8 +44,6 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
   private val hjsonInferrer = new HjsonInferrer
   private val xmlInferrer = new XmlInferrer
 
-  private val excelInferrer = new ExcelInferrer
-
   private val jdbcInferrer = new JdbcInferrer
 
   protected val autoInferrer = new AutoInferrer(
@@ -54,8 +51,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     csvInferrer,
     jsonInferrer,
     hjsonInferrer,
-    xmlInferrer,
-    excelInferrer
+    xmlInferrer
   )
 
   private val defaultSampleFiles = settings.getInt("raw.inferrer.local.sample-files")
@@ -121,29 +117,6 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
                   csv.maybeEscapeChar,
                   csv.maybeQuoteChars
                 )
-              } finally {
-                is.close()
-              }
-            }
-          )
-        case excel: ExcelInferrerProperties =>
-          val location = ByteStreamLocationProvider.build(excel.location)
-          val is = location.getInputStream
-          try {
-            excelInferrer.infer(is, excel.maybeSheet, excel.maybeHasHeader, excel.maybeAt)
-          } finally {
-            is.close()
-          }
-        case excel: ManyExcelInferrerProperties =>
-          val location = FileSystemLocationProvider.build(excel.location)
-          val files = location.ls()
-          readMany(
-            files,
-            excel.maybeSampleFiles,
-            { file =>
-              val is = file.getInputStream
-              try {
-                excelInferrer.infer(is, excel.maybeSheet, excel.maybeHasHeader, excel.maybeAt)
               } finally {
                 is.close()
               }
@@ -399,14 +372,6 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
           case _ => LinesInputFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, false)
         }
         TextInputStreamFormatDescriptor(encoding, confidence, merge)
-      case (
-            ExcelInputFormatDescriptor(t1, sheet1, x01, y01, x11, y11),
-            ExcelInputFormatDescriptor(t2, sheet2, x02, y02, x12, y12)
-          ) =>
-        if (sheet1 != sheet2 || x01 != x02 || y01 != y02 || x11 != x12 || y11 != y12) {
-          throw new LocalInferrerException("incompatible excel files found")
-        }
-        ExcelInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sheet1, x01, y01, x11, y11)
       case _ => throw new LocalInferrerException(s"incompatible formats found")
     }
 

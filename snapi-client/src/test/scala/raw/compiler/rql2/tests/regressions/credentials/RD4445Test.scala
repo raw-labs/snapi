@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2.tests.regressions.credentials
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.creds.api.CredentialsTestContext
 import raw.creds.dropbox.DropboxTestCreds
 
-trait RD4445Test extends CompilerTestContext with CredentialsTestContext with DropboxTestCreds {
+trait RD4445Test extends Rql2CompilerTestContext with CredentialsTestContext with DropboxTestCreds {
 
   dropbox(authorizedUser, dropboxToken)
   oauth(authorizedUser, "rawlabs-dropbox", dropboxAccessTokenCredential)

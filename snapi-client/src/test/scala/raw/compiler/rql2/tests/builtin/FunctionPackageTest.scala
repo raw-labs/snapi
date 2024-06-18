@@ -13,10 +13,10 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.bytestream.api.HttpLocationsTestContext
 
-trait FunctionPackageTest extends CompilerTestContext with HttpLocationsTestContext {
+trait FunctionPackageTest extends Rql2CompilerTestContext with HttpLocationsTestContext {
 
   test("""Function.InvokeAfter(() -> 1 +1, 10)""".stripMargin)(_ should evaluateTo("2"))
 

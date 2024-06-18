@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.benchmark
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait StressTests extends CompilerTestContext {
+trait StressTests extends Rql2CompilerTestContext {
 
   val shouldBeExecuted = false
 

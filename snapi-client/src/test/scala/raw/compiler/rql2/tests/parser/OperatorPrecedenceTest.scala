@@ -14,9 +14,9 @@ package raw.compiler.rql2.tests.parser
 
 import raw.compiler.common.source._
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait OperatorPrecedenceTest extends CompilerTestContext {
+trait OperatorPrecedenceTest extends Rql2CompilerTestContext {
 
   test("""1+2*3""") { it =>
     it should evaluateTo("(1+(2*3))")

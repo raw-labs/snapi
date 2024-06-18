@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait FunAbsTest extends CompilerTestContext {
+trait FunAbsTest extends Rql2CompilerTestContext {
 
   test("""
     |let f = (v: int) -> v + 1

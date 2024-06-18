@@ -13,10 +13,10 @@
 package raw.compiler.rql2.tests.builtin.list
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
-trait ListExplodeTest extends CompilerTestContext with LocalLocationsTestContext {
+trait ListExplodeTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   private val nba = tempFile("""[
     |  {"team": {"name": "Bulls", "city": "Chicago"},

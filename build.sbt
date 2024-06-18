@@ -98,10 +98,10 @@ lazy val sources = (project in file("sources"))
     testSettings,
     libraryDependencies ++= Seq(
       apacheHttpClient,
-      springCore,
       jwtApi,
       jwtImpl,
       jwtCore,
+      springCore,
       dropboxSDK,
       aws,
       postgresqlDeps,
@@ -151,8 +151,7 @@ lazy val snapiFrontend = (project in file("snapi-frontend"))
       kiama,
       commonsCodec,
       kryo
-    ) ++
-      poiDeps
+    )
   )
 
 val calculateClasspath = taskKey[Seq[File]]("Calculate the full classpath")
@@ -179,7 +178,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     commonSettings,
     snapiTruffleCompileSettings,
     testSettings,
-    libraryDependencies ++= truffleCompiler ++ scalaCompiler,
+    libraryDependencies ++= truffleCompiler,
     calculateClasspath := {
       val dependencyFiles = (Compile / dependencyClasspath).value.files
       val unmanagedFiles = (Compile / unmanagedClasspath).value.files

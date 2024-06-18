@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait TimestampPackageTest extends CompilerTestContext {
+trait TimestampPackageTest extends Rql2CompilerTestContext {
 
   test("Timestamp.Build(2022, 1, 15, 9, 30)") { it =>
     it should typeAs("timestamp")

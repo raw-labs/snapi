@@ -57,23 +57,6 @@ final case class ManyCsvInferrerProperties(
     maybeQuoteChars: Option[Seq[Option[Char]]]
 ) extends InferrerProperties
 
-final case class ExcelInferrerProperties(
-    location: LocationDescription,
-    maybeSampleSize: Option[Int],
-    maybeSheet: Option[String],
-    maybeHasHeader: Option[Boolean],
-    maybeAt: Option[String]
-) extends InferrerProperties
-
-final case class ManyExcelInferrerProperties(
-    location: LocationDescription,
-    maybeSampleSize: Option[Int],
-    maybeSampleFiles: Option[Int],
-    maybeSheet: Option[String],
-    maybeHasHeader: Option[Boolean],
-    maybeAt: Option[String]
-) extends InferrerProperties
-
 final case class HjsonInferrerProperties(
     location: LocationDescription,
     maybeSampleSize: Option[Int],

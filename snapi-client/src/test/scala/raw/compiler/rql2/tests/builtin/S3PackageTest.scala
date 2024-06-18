@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.creds.s3.S3TestCreds
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait S3PackageTest extends CompilerTestContext with S3TestCreds {
+trait S3PackageTest extends Rql2CompilerTestContext with S3TestCreds {
 
   // reading a public s3 bucket without registering or passing credentials
   test(s"""let

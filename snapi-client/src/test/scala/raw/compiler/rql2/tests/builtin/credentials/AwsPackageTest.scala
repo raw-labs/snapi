@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.creds.api.CredentialsTestContext
 
-trait AwsPackageTest extends CompilerTestContext with CredentialsTestContext {
+trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext {
 
   val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
   val secretAccessKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")

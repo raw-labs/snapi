@@ -1,0 +1,77 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+package raw.compiler.rql2.truffle.regressions
+
+import raw.compiler.rql2.truffle.TruffleWithLocalCredentialsTestContext
+import raw.testing.tags.TruffleTests
+import raw.compiler.rql2.tests.regressions._
+
+@TruffleTests class RD9932TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9932Test
+@TruffleTests class RD9485TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9485Test
+@TruffleTests class RD9445TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9445Test
+@TruffleTests class RD5797TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5797Test
+@TruffleTests class RD5779TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5779Test
+@TruffleTests class RD5393TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5393Test
+@TruffleTests class RD5884TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5884Test
+@TruffleTests class RD5448TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5448Test
+@TruffleTests class RD5238TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5238Test
+@TruffleTests class RD3742TruffleTest extends TruffleWithLocalCredentialsTestContext with RD3742Test
+@TruffleTests class RD3784TruffleTest extends TruffleWithLocalCredentialsTestContext with RD3784Test
+@TruffleTests class RD5784TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5784Test
+@TruffleTests class RD4981TruffleTest extends TruffleWithLocalCredentialsTestContext with RD4981Test
+@TruffleTests class RD5920TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5920Test
+@TruffleTests class RD572TruffleTest extends TruffleWithLocalCredentialsTestContext with RD572Test
+@TruffleTests class RD5785TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5785Test
+@TruffleTests class RD5491TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5491Test
+@TruffleTests class RD7974TruffleTest extends TruffleWithLocalCredentialsTestContext with RD7974Test
+@TruffleTests class RD5714TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5714Test
+@TruffleTests class RD5697TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5697Test
+@TruffleTests class RD5644TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5644Test
+@TruffleTests class RD8993TruffleTest extends TruffleWithLocalCredentialsTestContext with RD8993Test
+@TruffleTests class RD4529TruffleTest extends TruffleWithLocalCredentialsTestContext with RD4529Test
+@TruffleTests class RD5893TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5893Test
+@TruffleTests class RD8764TruffleTest extends TruffleWithLocalCredentialsTestContext with RD8764Test
+@TruffleTests class RD5979TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5979Test
+@TruffleTests class RD5679TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5679Test
+@TruffleTests class RD5775TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5775Test
+@TruffleTests class RD5851TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5851Test
+@TruffleTests class RD5412TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5412Test
+@TruffleTests class RD5971TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5971Test
+@TruffleTests class RD5968TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5968Test
+@TruffleTests class RD5691TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5691Test
+@TruffleTests class RD8935TruffleTest extends TruffleWithLocalCredentialsTestContext with RD8935Test
+@TruffleTests class RD7924TruffleTest extends TruffleWithLocalCredentialsTestContext with RD7924Test
+@TruffleTests class RD5488TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5488Test
+@TruffleTests class RD5786TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5786Test
+@TruffleTests class RD5722TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5722Test
+@TruffleTests class RD5925TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5925Test
+@TruffleTests class RD5921TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5921Test
+@TruffleTests class RD5932TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5932Test
+@TruffleTests class RD5484TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5484Test
+@TruffleTests class RD8530TruffleTest extends TruffleWithLocalCredentialsTestContext with RD8530Test
+@TruffleTests class RD5685TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5685Test
+@TruffleTests class RD5365TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5365Test
+@TruffleTests class RD5914TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5914Test
+@TruffleTests class RD9137TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9137Test
+@TruffleTests class RD9228TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9228Test
+@TruffleTests class RD9359TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9359Test
+@TruffleTests class RD9255TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9255Test
+@TruffleTests class RD9229TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9229Test
+@TruffleTests class RD9409TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9409Test
+@TruffleTests class RD9479TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9479Test
+@TruffleTests class RD9554TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9554Test
+@TruffleTests class RD9616TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9616Test
+@TruffleTests class RD10194TruffleTest extends TruffleWithLocalCredentialsTestContext with RD10194Test
+@TruffleTests class RD10220TruffleTest extends TruffleWithLocalCredentialsTestContext with RD10220Test
+@TruffleTests class RD10723TruffleTest extends TruffleWithLocalCredentialsTestContext with RD10723Test
+@TruffleTests class RD10801TruffleTest extends TruffleWithLocalCredentialsTestContext with RD10801Test

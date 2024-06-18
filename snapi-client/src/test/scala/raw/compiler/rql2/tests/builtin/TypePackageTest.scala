@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait TypePackageTest extends CompilerTestContext {
+trait TypePackageTest extends Rql2CompilerTestContext {
 
   ignore("""Types.Merge(int, float)""")(it => it should typeAs("float"))
 

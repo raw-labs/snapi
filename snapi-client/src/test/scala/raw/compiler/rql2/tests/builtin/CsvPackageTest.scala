@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait CsvPackageTest extends CompilerTestContext {
+trait CsvPackageTest extends Rql2CompilerTestContext {
 
   val ttt = "\"\"\""
 

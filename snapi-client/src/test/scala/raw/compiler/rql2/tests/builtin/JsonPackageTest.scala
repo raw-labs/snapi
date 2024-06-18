@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait JsonPackageTest extends CompilerTestContext {
+trait JsonPackageTest extends Rql2CompilerTestContext {
 
   private val junkAfter10Items = tempFile("""[
     |  {"a": 1, "b": "#1", "c": 1.1},

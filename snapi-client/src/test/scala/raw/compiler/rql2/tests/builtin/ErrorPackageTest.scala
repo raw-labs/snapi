@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait ErrorPackageTest extends CompilerTestContext {
+trait ErrorPackageTest extends Rql2CompilerTestContext {
   test(""" Error.Build("an error")""")(it => it should runErrorAs("an error"))
   test(""" Error.Build("an error") == Error.Build("an error")""")(it => it should runErrorAs("an error"))
   test(""" Error.Build("an error") == Error.Build("another error")""")(it => it should runErrorAs("an error"))

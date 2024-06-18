@@ -21,6 +21,8 @@ module raw.snapi.client {
   requires raw.client;
   requires raw.snapi.frontend;
 
+  uses raw.client.api.CompilerServiceBuilder;
+
   provides raw.client.api.CompilerServiceBuilder with
       raw.client.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
 }

@@ -12,12 +12,12 @@
 
 package raw.compiler.rql2.tests.output
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.utils._
 
 import java.nio.file.{Files, Path}
 
-trait JsonOutputTest extends CompilerTestContext {
+trait JsonOutputTest extends Rql2CompilerTestContext {
 
   option("output-format", "json")
 

@@ -12,47 +12,19 @@
 
 package raw.inferrer.api
 
-import java.util.ServiceLoader
-import scala.collection.JavaConverters._
+import raw.inferrer.local.LocalInferrerService
+
 import raw.sources.api.SourceContext
 
 object InferrerServiceProvider {
 
   private val INFERRER_IMPL = "raw.inferrer.impl"
 
-  def apply(maybeClassLoader: Option[ClassLoader] = None)(implicit sourceContext: SourceContext): InferrerService = {
-    maybeClassLoader match {
-      case Some(cl) => apply(cl)
-      case None => apply()
-    }
-  }
-
   def apply()(implicit sourceContext: SourceContext): InferrerService = {
-    build()
-  }
-
-  def apply(classLoader: ClassLoader)(implicit sourceContext: SourceContext): InferrerService = {
-    build(Some(classLoader))
-  }
-
-  @throws[InferrerException]
-  private def build(
-      maybeClassLoader: Option[ClassLoader] = None
-  )(implicit sourceContext: SourceContext): InferrerService = {
-    val services = maybeClassLoader match {
-      case Some(cl) => ServiceLoader.load(classOf[InferrerServiceBuilder], cl).asScala.toArray
-      case None => ServiceLoader.load(classOf[InferrerServiceBuilder]).asScala.toArray
-    }
-    if (services.isEmpty) {
-      throw new InferrerException("no inferrer service available")
-    } else if (services.length > 1) {
-      val implClassName = sourceContext.settings.getString(INFERRER_IMPL)
-      services.find(p => p.name == implClassName) match {
-        case Some(builder) => builder.build
-        case None => throw new InferrerException(s"cannot find inferrer service: $implClassName")
-      }
-    } else {
-      services.head.build
+    sourceContext.settings.getStringOpt(INFERRER_IMPL) match {
+      case Some("local") => new LocalInferrerService()
+      case Some(impl) => throw new InferrerException(s"cannot find inferrer service: $impl")
+      case None => new LocalInferrerService()
     }
   }
 

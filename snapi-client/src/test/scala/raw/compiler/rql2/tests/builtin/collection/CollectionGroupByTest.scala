@@ -14,10 +14,10 @@ package raw.compiler.rql2.tests.builtin.collection
 
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.KeyNotComparable
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
-trait CollectionGroupByTest extends CompilerTestContext with LocalLocationsTestContext {
+trait CollectionGroupByTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   private val lineitemType = """record(
     |   l_orderkey: int,

@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.errors.CannotDetermineTypeOfParameter
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5393Test extends CompilerTestContext {
+trait RD5393Test extends Rql2CompilerTestContext {
 
   test("""main(country: string = null,code: string = null) =
     |    let

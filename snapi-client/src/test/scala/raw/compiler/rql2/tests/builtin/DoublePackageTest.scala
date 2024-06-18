@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait DoublePackageTest extends CompilerTestContext {
+trait DoublePackageTest extends Rql2CompilerTestContext {
 
   test(""" Double.From(1)""")(it => it should evaluateTo("1.0"))
 

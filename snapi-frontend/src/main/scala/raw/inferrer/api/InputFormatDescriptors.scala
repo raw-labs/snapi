@@ -34,9 +34,6 @@ final case class SqlQueryInputFormatDescriptor(
 
 sealed trait InputStreamFormatDescriptor extends InputFormatDescriptor
 
-final case class ExcelInputFormatDescriptor(tipe: SourceType, sheet: String, x0: Int, y0: Int, x1: Int, y1: Int)
-    extends InputStreamFormatDescriptor
-
 final case class TextInputStreamFormatDescriptor(encoding: Encoding, confidence: Int, format: TextInputFormatDescriptor)
     extends InputStreamFormatDescriptor {
   def tipe: SourceType = format.tipe

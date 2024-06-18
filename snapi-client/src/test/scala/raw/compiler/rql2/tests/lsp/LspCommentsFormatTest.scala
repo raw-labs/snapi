@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.client.api._
 
-trait LspCommentsFormatTest extends CompilerTestContext {
+trait LspCommentsFormatTest extends Rql2CompilerTestContext {
 
   def assertFormattedCode(
       code: String,

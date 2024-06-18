@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5412Test extends CompilerTestContext {
+trait RD5412Test extends Rql2CompilerTestContext {
 
   test("""let
     |    json_type = type record(creation_date: string, entries: list(string)),

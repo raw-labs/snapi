@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait BinaryExpModTest extends CompilerTestContext with CombinationSpecTestHelper {
+trait BinaryExpModTest extends Rql2CompilerTestContext with CombinationSpecTestHelper {
 
   test("""5 % 3""") { it =>
     it should typeAs("int")

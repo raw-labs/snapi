@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.regressions
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD9137Test extends CompilerTestContext with StrictLogging {
+trait RD9137Test extends Rql2CompilerTestContext with StrictLogging {
 
   test("""Json.InferAndRead("https://raw-tutorial.s3.eu-west-1.amazonaws.com/patients.json")""".stripMargin)(
     _ should run

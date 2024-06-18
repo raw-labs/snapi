@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5971Test extends CompilerTestContext {
+trait RD5971Test extends Rql2CompilerTestContext {
 
   // error when type isn't supported
   test(s"""[{a: "binary", b: [1,2,3,4]}]""") { it =>

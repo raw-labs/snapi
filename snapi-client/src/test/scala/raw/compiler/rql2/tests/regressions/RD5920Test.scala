@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5920Test extends CompilerTestContext {
+trait RD5920Test extends Rql2CompilerTestContext {
 
   test("""let f(x: int) = x * 10
     |in f(10)""".stripMargin)(_ should evaluateTo("100"))

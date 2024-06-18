@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5884Test extends CompilerTestContext {
+trait RD5884Test extends Rql2CompilerTestContext {
 
   test("""let f(x: int, y: int = 12) = 3.14 + x + y
     |in f(1)""".stripMargin)(_ should run)

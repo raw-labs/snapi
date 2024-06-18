@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait BinaryExpNeqTest extends CompilerTestContext with CombinationSpecTestHelper {
+trait BinaryExpNeqTest extends Rql2CompilerTestContext with CombinationSpecTestHelper {
 
   test("1 != 1")(it => it should evaluateTo("false"))
   test("1 != 2")(it => it should evaluateTo("true"))

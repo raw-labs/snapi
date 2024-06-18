@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait ShortPackageTest extends CompilerTestContext {
+trait ShortPackageTest extends Rql2CompilerTestContext {
 
   test(""" Short.From(1)""")(it => it should evaluateTo("1s"))
 

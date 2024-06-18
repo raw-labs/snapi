@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.builtin.list
 
 import raw.compiler.rql2.errors.ItemsNotComparable
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait ListDistinctTest extends CompilerTestContext {
+trait ListDistinctTest extends Rql2CompilerTestContext {
 
   test("""let numbers = [5, 2, 4, 2, 2, 4, 5]
     |in List.Distinct(numbers)""".stripMargin)(_ should evaluateTo("[2, 4, 5]"))

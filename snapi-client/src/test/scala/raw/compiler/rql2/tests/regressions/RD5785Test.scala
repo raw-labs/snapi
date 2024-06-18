@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5785Test extends CompilerTestContext {
+trait RD5785Test extends Rql2CompilerTestContext {
 
   // The only way of this returning true is if all values in the list are the same.
   // Almost impossible with 5 random values.

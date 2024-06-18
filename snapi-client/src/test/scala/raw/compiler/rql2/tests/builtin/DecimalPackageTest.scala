@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait DecimalPackageTest extends CompilerTestContext {
+trait DecimalPackageTest extends Rql2CompilerTestContext {
 
   test("""Decimal.Round(Decimal.From("1.423"), 2)""") { it =>
     it should evaluateTo("""1.42q""")

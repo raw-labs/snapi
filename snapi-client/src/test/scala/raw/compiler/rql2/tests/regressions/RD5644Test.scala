@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5644Test extends CompilerTestContext {
+trait RD5644Test extends Rql2CompilerTestContext {
 
   // Basic reference behavior. The function parameter isn't type and inherits the list item type. Everything matches.
   test("""

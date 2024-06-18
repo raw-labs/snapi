@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.regressions
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD8764Test extends CompilerTestContext with StrictLogging {
+trait RD8764Test extends Rql2CompilerTestContext with StrictLogging {
 
   test("""
     |let f: (record(_1: int, _2: int)) -> bool = (x: int, y: int) -> x == y

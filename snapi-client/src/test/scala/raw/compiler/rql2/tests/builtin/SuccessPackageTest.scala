@@ -14,9 +14,9 @@ package raw.compiler.rql2.tests.builtin
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait SuccessPackageTest extends CompilerTestContext with TableDrivenPropertyChecks {
+trait SuccessPackageTest extends Rql2CompilerTestContext with TableDrivenPropertyChecks {
 
   test("Success.Build(1)")(_ should evaluateTo("1"))
 
