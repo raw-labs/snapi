@@ -41,10 +41,6 @@ module raw.snapi.frontend {
   requires raw.sources;
   requires raw.snapi.parser;
 
-  exports raw.auth.api;
-  exports raw.creds.client;
-  exports raw.creds.local;
-  exports raw.creds.protocol;
   exports raw.compiler.base;
   exports raw.compiler.base.errors;
   exports raw.compiler.base.source;
@@ -60,21 +56,9 @@ module raw.snapi.frontend {
   exports raw.compiler.utils;
   exports raw.inferrer.api;
   exports raw.inferrer.local;
-  exports raw.rest.client;
-  exports raw.rest.common;
 
   opens raw.inferrer.api to
       com.fasterxml.jackson.databind;
-  opens raw.auth.api to
-      com.fasterxml.jackson.databind;
-  opens raw.rest.common to
-      com.fasterxml.jackson.databind;
-
-  uses raw.creds.api.CredentialsServiceBuilder;
-
-  provides raw.creds.api.CredentialsServiceBuilder with
-      raw.creds.local.LocalCredentialsServiceBuilder,
-      raw.creds.client.ClientCredentialsServiceBuilder;
 
   uses raw.compiler.rql2.api.PackageExtension;
 

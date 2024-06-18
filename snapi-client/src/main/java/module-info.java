@@ -21,7 +21,6 @@ module raw.snapi.client {
   requires raw.client;
   requires raw.snapi.frontend;
 
-  uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.client.api.CompilerServiceBuilder;
 
   provides raw.client.api.CompilerServiceBuilder with

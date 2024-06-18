@@ -69,13 +69,13 @@ public class RawLanguageCache {
     // Create services on-demand.
     CredentialsService credentialsService =
         credentialsCache.computeIfAbsent(
-            rawSettings, k -> CredentialsServiceProvider.apply(classLoader, rawSettings));
+            rawSettings, k -> CredentialsServiceProvider.apply(rawSettings));
     return map.computeIfAbsent(
         user,
         k -> {
           SourceContext sourceContext =
               new SourceContext(user, credentialsService, rawSettings, new Some<>(classLoader));
-          InferrerService inferrer = InferrerServiceProvider.apply(classLoader, sourceContext);
+          InferrerService inferrer = InferrerServiceProvider.apply(sourceContext);
           CompilerContext compilerContext =
               new CompilerContext(
                   "rql2-truffle",

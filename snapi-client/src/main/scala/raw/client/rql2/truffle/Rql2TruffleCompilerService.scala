@@ -75,7 +75,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
 
   override def language: Set[String] = Rql2TruffleCompilerService.LANGUAGE
 
-  private val credentials = CredentialsServiceProvider(Some(originalClassLoader))
+  private val credentials = CredentialsServiceProvider()
 
   // Map of users to compiler context.
   private val compilerContextCaches = new mutable.HashMap[AuthenticatedUser, CompilerContext]
@@ -92,7 +92,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     implicit val sourceContext = new SourceContext(user, credentials, settings, Some(originalClassLoader))
 
     // Initialize inferrer
-    val inferrer = InferrerServiceProvider(Some(originalClassLoader))
+    val inferrer = InferrerServiceProvider()
 
     // Initialize compiler context
     new CompilerContext(language, user, inferrer, sourceContext, Some(originalClassLoader))
@@ -714,6 +714,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     environment.options.get("staged-compiler").foreach { stagedCompiler =>
       ctxBuilder.option("rql.staged-compiler", stagedCompiler)
     }
+    ctxBuilder.option("rql.settings", settings.renderAsString)
     // If the jars path is defined, create a custom class loader and set it as the host class loader.
     maybeTruffleClassLoader.map { classLoader =>
       // Set the module class loader as the Truffle runtime classloader.

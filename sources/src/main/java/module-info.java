@@ -60,7 +60,13 @@ module raw.sources {
   requires raw.utils;
   requires raw.client;
 
+  exports raw.auth.api;
+  exports raw.rest.client;
+  exports raw.rest.common;
   exports raw.creds.api;
+  exports raw.creds.client;
+  exports raw.creds.local;
+  exports raw.creds.protocol;
   exports raw.sources.api;
   exports raw.sources.bytestream.api;
   exports raw.sources.bytestream.github;
@@ -80,10 +86,13 @@ module raw.sources {
   exports raw.sources.jdbc.oracle;
   exports raw.sources.jdbc.teradata;
 
+  opens raw.auth.api to
+          com.fasterxml.jackson.databind;
+  opens raw.rest.common to
+          com.fasterxml.jackson.databind;
   opens raw.creds.api to
       com.fasterxml.jackson.databind;
 
-  uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
 
   provides raw.sources.bytestream.api.ByteStreamLocationBuilder with
