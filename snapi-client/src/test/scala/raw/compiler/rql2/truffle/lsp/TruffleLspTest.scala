@@ -17,12 +17,20 @@ import raw.testing.tags.TruffleTests
 import raw.compiler.rql2.tests.lsp._
 
 @TruffleTests class LspBrokenCodeTruffleTest extends TruffleWithLocalCredentialsTestContext with LspBrokenCodeTest
-@TruffleTests class LspCommentsFormatTruffleTest extends TruffleWithLocalCredentialsTestContext with LspCommentsFormatTest
+@TruffleTests class LspCommentsFormatTruffleTest
+    extends TruffleWithLocalCredentialsTestContext
+    with LspCommentsFormatTest
 @TruffleTests class LspDefinitionTruffleTest extends TruffleWithLocalCredentialsTestContext with LspDefinitionTest
-@TruffleTests class LspDotAutoCompleteTruffleTest extends TruffleWithLocalCredentialsTestContext with LspDotAutoCompleteTest
+@TruffleTests class LspDotAutoCompleteTruffleTest
+    extends TruffleWithLocalCredentialsTestContext
+    with LspDotAutoCompleteTest
 @TruffleTests class LspFormatCodeTruffleTest extends TruffleWithLocalCredentialsTestContext with LspFormatCodeTest
 @TruffleTests class LspHoverTruffleTest extends TruffleWithLocalCredentialsTestContext with LspHoverTest
 @TruffleTests class LspRenameTruffleTest extends TruffleWithLocalCredentialsTestContext with LspRenameTest
 @TruffleTests class LspValidateTruffleTest extends TruffleWithLocalCredentialsTestContext with LspValidateTest
-@TruffleTests class LspWordAutoCompleteTruffleTest extends TruffleWithLocalCredentialsTestContext with LspWordAutoCompleteTest
-@TruffleTests class LspCompilationMessagesTruffleTest extends TruffleWithLocalCredentialsTestContext with LspCompilationMessagesTest
+@TruffleTests class LspWordAutoCompleteTruffleTest
+    extends TruffleWithLocalCredentialsTestContext
+    with LspWordAutoCompleteTest
+@TruffleTests class LspCompilationMessagesTruffleTest
+    extends TruffleWithLocalCredentialsTestContext
+    with LspCompilationMessagesTest

@@ -46,7 +46,9 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class BinaryExpSubTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpSubTest
 @TruffleTests class LetTypeTruffleTest extends TruffleWithLocalCredentialsTestContext with LetTypeTest
 @TruffleTests class BinaryExpPlusTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpPlusTest
-@TruffleTests class BasicStagedCompilerTruffleTest extends TruffleWithLocalCredentialsTestContext with BasicStagedCompilerTest
+@TruffleTests class BasicStagedCompilerTruffleTest
+    extends TruffleWithLocalCredentialsTestContext
+    with BasicStagedCompilerTest
 @TruffleTests class BinaryExpLtTruffleTest extends TruffleWithLocalCredentialsTestContext with BinaryExpLtTest
 @TruffleTests class PackageNameTruffleTest extends TruffleWithLocalCredentialsTestContext with PackageNameTest
 

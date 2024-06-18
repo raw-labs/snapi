@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.builtin
 
 import java.util.Base64
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.{Rql2CompilerTestContext, FailAfterNServer}
+import raw.compiler.rql2.tests.{FailAfterNServer, Rql2CompilerTestContext}
 
 import java.nio.file.Path
 

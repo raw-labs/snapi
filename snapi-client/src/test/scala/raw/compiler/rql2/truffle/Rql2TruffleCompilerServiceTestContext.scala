@@ -31,8 +31,8 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
 
     // Create an isolated Truffle Engine
     val options = new java.util.HashMap[String, String]()
-    options.put("rql.settings", settings.renderAsString)
-//    //diagnostics
+
+    // Diagnostics-related settings
 //    options.put("engine.CompilationStatistics", "true")
 //    //    options.put("engine.CompilationStatisticDetails", "true")
 //    //    options.put("compiler.InstrumentBoundaries", "true")
@@ -45,12 +45,12 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
 //    options.put("engine.TraceCompilationPolymorphism", "true")
 //    options.put("engine.TraceSplittingSummary", "true")
 //    //    options.put("engine.TraceCompilationDetails", "true")
-////    options.put("engine.CompileImmediately", "true")
+//    //    options.put("engine.CompileImmediately", "true")
 //    options.put("engine.BackgroundCompilation", "false")
-    //    options.put("engine.SpecializationStatistics", "false")
+//    options.put("engine.SpecializationStatistics", "false")
 //    options.put("engine.OSR", "false")
 
-//    //    optimizations
+    //  Optimizations-related settings
 //    options.put("compiler.InlineAcrossTruffleBoundary", "true")
 //    options.put("engine.CompilerThreads", "24")
 //    options.put("engine.FirstTierCompilationThreshold", "100")
@@ -66,8 +66,8 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
 //    options.put("engine.Splitting", "false")
 //    options.put("compiler.FirstTierUseEconomy", "false")
 //    options.put("compiler.InliningExpansionBudget", "20000")
-    //    options.put("compiler.InliningInliningBudget", "20000")
-    //    options.put("compiler.InliningRecursionDepth", "10")
+//    options.put("compiler.InliningInliningBudget", "20000")
+//    options.put("compiler.InliningRecursionDepth", "10")
 //    options.put("engine.IsolateMemoryProtection", "false")
 
     engine = Engine

@@ -16,4 +16,6 @@ import raw.compiler.rql2.truffle.TruffleWithLocalCredentialsTestContext
 import raw.testing.tags.TruffleTests
 import raw.compiler.rql2.tests.hints._
 
-@TruffleTests class SemanticAnalyzerHintsTruffleTest extends TruffleWithLocalCredentialsTestContext with SemanticAnalyzerHintsTest
+@TruffleTests class SemanticAnalyzerHintsTruffleTest
+    extends TruffleWithLocalCredentialsTestContext
+    with SemanticAnalyzerHintsTest
