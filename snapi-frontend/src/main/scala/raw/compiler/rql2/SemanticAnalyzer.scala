@@ -500,12 +500,11 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                   // is a perfect match. For instance, if the user does String.IsNull instead of Nullable.IsNull,
                   // or Text.Split instead of String.Split. The criteria is that the entry name must be a perfect match
                   // but defined in a single other package.
-                  val packagesWithEntry =
-                    PackageExtensionProvider.packages.flatMap {
-                      case p => p.p.entries.collect {
-                          case e if badEntryName == e => p.p.name
-                        }
-                    }
+                  val packagesWithEntry = PackageExtensionProvider.packages.flatMap {
+                    case p => p.p.entries.collect {
+                        case e if badEntryName == e => p.p.name
+                      }
+                  }
                   if (packagesWithEntry.length == 1)
                     Seq(UnknownDecl(i, hint = Some(s"did you mean ${packagesWithEntry.head}.$badEntryName?")))
                   else Seq(UnknownDecl(i))
@@ -918,8 +917,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             .getOrElse(ErrorType())
         case _ => ErrorType()
       }
-    case PackageIdnExp(name) =>
-      PackageExtensionProvider.getPackage(name) match {
+    case PackageIdnExp(name) => PackageExtensionProvider.getPackage(name) match {
         case Some(_) => PackageType(name)
         case None => throw new AssertionError(s"Built-in package $name not found")
       }
@@ -1885,23 +1883,21 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
               return ExpectedType(ExpectedProjType(i))
             }
             val actualName = s"$name.$i"
-            val names =
-              PackageExtensionProvider.packages.flatMap { p =>
-                p.p.entries.collect {
-                  case e if levenshteinDistance(actualName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
-                }
+            val names = PackageExtensionProvider.packages.flatMap { p =>
+              p.p.entries.collect {
+                case e if levenshteinDistance(actualName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
               }
+            }
             if (names.isEmpty) {
               // No found based on levenshtein distance. Try to see if there is any entry name in another package that
               // is a perfect match. For instance, if the user does String.IsNull instead of Nullable.IsNull,
               // or Text.Split instead of String.Split. The criteria is that the entry name must be a perfect match
               // but defined in a single other package.
-              val packagesWithEntry =
-                PackageExtensionProvider.packages.flatMap {
-                  case p => p.p.entries.collect {
-                      case e if i == e => p.p.name
-                    }
-                }
+              val packagesWithEntry = PackageExtensionProvider.packages.flatMap {
+                case p => p.p.entries.collect {
+                    case e if i == e => p.p.name
+                  }
+              }
               if (packagesWithEntry.length == 1)
                 ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${packagesWithEntry.head}.$i?"))
               else ExpectedType(ExpectedProjType(i))

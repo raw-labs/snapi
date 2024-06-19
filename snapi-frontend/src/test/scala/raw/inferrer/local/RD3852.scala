@@ -14,11 +14,7 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.api.LocationDescription
-import raw.inferrer.api.{
-  AutoInferrerProperties,
-  CsvInputFormatDescriptor,
-  TextInputStreamFormatDescriptor
-}
+import raw.inferrer.api.{AutoInferrerProperties, CsvInputFormatDescriptor, TextInputStreamFormatDescriptor}
 import raw.sources.api.SourceContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}

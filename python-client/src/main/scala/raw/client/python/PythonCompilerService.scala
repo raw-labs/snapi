@@ -13,38 +13,7 @@
 package raw.client.python
 
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
-import raw.client.api.{
-  AutoCompleteResponse,
-  CompilerService,
-  CompilerServiceException,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  FormatCodeResponse,
-  GetProgramDescriptionResponse,
-  GoToDefinitionResponse,
-  HoverResponse,
-  Pos,
-  ProgramEnvironment,
-  RawBool,
-  RawByte,
-  RawDate,
-  RawDecimal,
-  RawDouble,
-  RawFloat,
-  RawInt,
-  RawInterval,
-  RawLong,
-  RawNull,
-  RawShort,
-  RawString,
-  RawTime,
-  RawTimestamp,
-  RawType,
-  RawValue,
-  RenameResponse,
-  ValidateResponse
-}
+import raw.client.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import raw.utils.{RawSettings, RawUtils}
 
@@ -309,19 +278,19 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
     ctx
   }
 
-  private def withTruffleContext[T](
-      environment: ProgramEnvironment,
-      f: Context => T
-  ): T = {
-    val ctx = buildTruffleContext(environment)
-    ctx.initialize("python")
-    ctx.enter()
-    try {
-      f(ctx)
-    } finally {
-      ctx.leave()
-      ctx.close()
-    }
-  }
+//  private def withTruffleContext[T](
+//      environment: ProgramEnvironment,
+//      f: Context => T
+//  ): T = {
+//    val ctx = buildTruffleContext(environment)
+//    ctx.initialize("python")
+//    ctx.enter()
+//    try {
+//      f(ctx)
+//    } finally {
+//      ctx.leave()
+//      ctx.close()
+//    }
+//  }
 
 }

@@ -53,7 +53,7 @@ class TestSqlCompilerServiceAirports
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    compilerService = new SqlCompilerService(None)
+    compilerService = new SqlCompilerService
   }
 
   private def asJson(params: Map[String, RawValue] = Map.empty): ProgramEnvironment = {
