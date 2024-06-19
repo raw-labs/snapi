@@ -25,8 +25,7 @@ import java.io.{IOException, OutputStream}
 import java.sql.ResultSet
 import scala.util.control.NonFatal
 
-class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
-    extends CompilerService {
+class SqlCompilerService()(implicit protected val settings: RawSettings) extends CompilerService {
 
   private val credentials = CredentialsServiceProvider()
 

@@ -76,7 +76,7 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
       .options(options)
       .build()
 
-    rql2TruffleCompilerService = new Rql2TruffleCompilerService((engine, false), None)
+    rql2TruffleCompilerService = new Rql2TruffleCompilerService((engine, false))
     setCompilerService(rql2TruffleCompilerService)
   }
 

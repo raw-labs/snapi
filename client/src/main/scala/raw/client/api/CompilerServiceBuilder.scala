@@ -19,5 +19,5 @@ trait CompilerServiceBuilder {
   // A compiler service can respond to more than one name.
   def language: Set[String]
 
-  def build(maybeClassLoader: Option[ClassLoader])(implicit settings: RawSettings): CompilerService
+  def build()(implicit settings: RawSettings): CompilerService
 }

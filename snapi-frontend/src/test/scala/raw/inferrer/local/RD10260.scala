@@ -28,7 +28,7 @@ class RD10260 extends RawTestSuite with SettingsTestContext with StrictLogging {
       | {"name": "Pont Neuf", "info": "48°51′24″N, 2°20′27″E"},
       | {"name": "Eiffel Tower",  "info": {"height": 300, "year": 1889}}
       |]""".stripMargin
-    implicit val sourceContext: SourceContext = new SourceContext(null, null, settings, None)
+    implicit val sourceContext: SourceContext = new SourceContext(null, null, settings)
     val inferrer = new JsonInferrer
     val reader = new StringReader(json)
     val JsonInputFormatDescriptor(tipe, _, _, _, _) = inferrer.infer(reader, None)

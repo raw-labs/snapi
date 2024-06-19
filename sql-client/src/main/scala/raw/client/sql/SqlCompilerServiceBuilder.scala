@@ -18,7 +18,7 @@ import raw.utils.RawSettings
 class SqlCompilerServiceBuilder extends CompilerServiceBuilder {
   override def language: Set[String] = Set("sql")
 
-  override def build(maybeClassLoader: Option[ClassLoader])(implicit settings: RawSettings): CompilerService = {
-    new SqlCompilerService(maybeClassLoader)
+  override def build()(implicit settings: RawSettings): CompilerService = {
+    new SqlCompilerService()
   }
 }

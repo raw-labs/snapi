@@ -17,7 +17,6 @@ import raw.client.api.LocationDescription
 import raw.inferrer.api.{
   AutoInferrerProperties,
   CsvInputFormatDescriptor,
-  LinesInputFormatDescriptor,
   TextInputStreamFormatDescriptor
 }
 import raw.sources.api.SourceContext
@@ -31,7 +30,7 @@ class RD3852 extends RawTestSuite with SettingsTestContext with StrictLogging wi
   // So inferring this a csv file means that the other inferrers threw  correctly
   // a LocalInferrerException  while trying to parse the file
   test("Auto inferring CSV") { _ =>
-    implicit val sourceContext = new SourceContext(null, null, settings, None)
+    implicit val sourceContext = new SourceContext(null, null, settings)
     val inferrer = new LocalInferrerService
     val p = RawUtils.getResource("data/students/students.csv")
     val l1 = new LocalPath(p)

@@ -44,13 +44,10 @@ object Rql2TruffleCompilerService {
   val JARS_PATH = "raw.client.rql2.jars-path"
 }
 
-class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader])(
-    implicit protected val settings: RawSettings
-) extends Rql2CompilerService
+class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
+    extends Rql2CompilerService
     with CustomClassAndModuleLoader
     with Rql2TypeUtils {
-
-  private val originalClassLoader = maybeClassLoader.getOrElse(Thread.currentThread().getContextClassLoader)
 
   private val maybeTruffleClassLoader: Option[ClassLoader] = {
     // If defined, contains the path used to create a classloader for the Truffle language runtime.
@@ -69,8 +66,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
   // Otherwise, we expect the external party - e.g. the test framework - to close it.
   // Refer to Rql2TruffleCompilerServiceTestContext to see the engine being created and released from the test
   // framework, so that every test suite instance has a fresh engine.
-  def this(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings) = {
-    this(CompilerService.getEngine, maybeClassLoader)
+  def this()(implicit settings: RawSettings) = {
+    this(CompilerService.getEngine)
   }
 
   override def language: Set[String] = Rql2TruffleCompilerService.LANGUAGE
@@ -89,13 +86,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
 
   private def createCompilerContext(user: AuthenticatedUser, language: String): CompilerContext = {
     // Initialize source context
-    implicit val sourceContext = new SourceContext(user, credentials, settings, Some(originalClassLoader))
+    implicit val sourceContext = new SourceContext(user, credentials, settings)
 
     // Initialize inferrer
     val inferrer = InferrerServiceProvider()
 
     // Initialize compiler context
-    new CompilerContext(language, user, inferrer, sourceContext, Some(originalClassLoader))
+    new CompilerContext(language, user, inferrer, sourceContext)
   }
 
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {

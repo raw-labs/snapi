@@ -53,9 +53,8 @@ import raw.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 
-class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader])(
-    implicit protected val settings: RawSettings
-) extends CompilerService {
+class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
+    extends CompilerService {
 
   private val (engine, initedEngine) = engineDefinition
 
@@ -66,8 +65,8 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
   // Otherwise, we expect the external party - e.g. the test framework - to close it.
   // Refer to Rql2TruffleCompilerServiceTestContext to see the engine being created and released from the test
   // framework, so that every test suite instance has a fresh engine.
-  def this(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings) = {
-    this(CompilerService.getEngine, maybeClassLoader)
+  def this()(implicit settings: RawSettings) = {
+    this(CompilerService.getEngine)
   }
 
   override def language: Set[String] = Set("python")
