@@ -11,6 +11,7 @@
  */
 
 package raw.client.sql
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import raw.creds.api.CredentialsService
@@ -24,10 +25,6 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
     extends RawService
     with StrictLogging {
 
-  // One pool of connections per DB (which means per user).
-  private val pools = mutable.Map.empty[String, HikariDataSource]
-  private val poolsLock = new Object
-
   private val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
   private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
   private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
@@ -37,58 +34,52 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
   private val maxLifetime = settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS)
   private val connectionTimeout = settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
 
-  @throws[SQLException]
-  def getConnection(user: AuthenticatedUser): java.sql.Connection = {
-    // Try to find a user DB in the config settings...
-    settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.db") match {
-      case Some(db) =>
-        logger.debug(s"Found database $db for user ${user.uid.uid} in settings.")
-        getConnection(db, settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.schema"))
-      case None =>
-        // None found, so check the credentials service.
-        val db = credentialsService.getUserDb(user)
-        logger.debug(s"Found database $db for user $user in credentials service.")
-        getConnection(db)
+  private val connectionCacheSize = settings.getInt("raw.client.sql.fdw-db-cache.size")
+  private val connectionCachePeriod = settings.getDuration("raw.client.sql.fdw-db-cache.period")
+
+  private val dbCacheLoader = new CacheLoader[AuthenticatedUser, HikariDataSource]() {
+    override def load(user: AuthenticatedUser): HikariDataSource = {
+
+      val (db, currentSchema) = settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.db") match {
+        case Some(db) => (db, settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.schema"))
+        case None => (credentialsService.getUserDb(user), None)
+      }
+
+      // Directly call the provisioning method on the client
+      logger.info(s"Creating a SQL connection pool for database $db")
+      val config = new HikariConfig()
+      val jdbcUrl = currentSchema match {
+        case Some(schema) => s"jdbc:postgresql://$dbHost:$dbPort/$db?currentSchema=$schema"
+        case None => s"jdbc:postgresql://$dbHost:$dbPort/$db"
+      }
+      config.setJdbcUrl(jdbcUrl)
+      config.setMaximumPoolSize(maxConnections)
+      config.setMinimumIdle(0)
+      config.setIdleTimeout(idleTimeout)
+      config.setMaxLifetime(maxLifetime)
+      config.setConnectionTimeout(connectionTimeout)
+      config.setUsername(readOnlyUser)
+      config.setPassword(password)
+      val pool = new HikariDataSource(config)
+      pool
     }
   }
 
+  private val dbCache: LoadingCache[AuthenticatedUser, HikariDataSource] = CacheBuilder
+    .newBuilder()
+    .maximumSize(connectionCacheSize)
+    .expireAfterAccess(connectionCachePeriod)
+    .build(dbCacheLoader)
+
   @throws[SQLException]
-  private def getConnection(db: String, currentSchema: Option[String] = None): java.sql.Connection = {
-    val pool = {
-      poolsLock.synchronized {
-        pools.get(db) match {
-          case Some(existingPool) => existingPool
-          case None =>
-            // Create a pool and store it in `pools`.
-            logger.info(s"Creating a SQL connection pool for database $db")
-            val config = new HikariConfig()
-            val jdbcUrl = currentSchema match {
-              case Some(schema) => s"jdbc:postgresql://$dbHost:$dbPort/$db?currentSchema=$schema"
-              case None => s"jdbc:postgresql://$dbHost:$dbPort/$db"
-            }
-            config.setJdbcUrl(jdbcUrl)
-            config.setMaximumPoolSize(maxConnections)
-            config.setMinimumIdle(0)
-            config.setIdleTimeout(idleTimeout)
-            config.setMaxLifetime(maxLifetime)
-            config.setConnectionTimeout(connectionTimeout)
-            config.setUsername(readOnlyUser)
-            config.setPassword(password)
-            val pool = new HikariDataSource(config)
-            pools.put(db, pool)
-            pool
-        }
-      }
-    }
-    pool.getConnection
+  def getConnection(user: AuthenticatedUser): java.sql.Connection = {
+    dbCache.get(user).getConnection()
   }
 
   override def doStop(): Unit = {
-    poolsLock.synchronized {
-      for ((db, pool) <- pools) {
-        logger.info(s"Shutting down SQL connection pool for database $db")
-        RawUtils.withSuppressNonFatalException(pool.close())
-      }
+    dbCache.asMap().values().forEach { pool =>
+      logger.info(s"Shutting down SQL connection pool for database ${pool.getJdbcUrl}")
+      RawUtils.withSuppressNonFatalException(pool.close())
     }
   }
 }
