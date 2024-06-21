@@ -19,7 +19,6 @@ import raw.utils.{AuthenticatedUser, RawService, RawSettings, RawUtils}
 
 import java.sql.SQLException
 import java.util.concurrent.TimeUnit
-import scala.collection.mutable
 
 class SqlConnectionPool(credentialsService: CredentialsService)(implicit settings: RawSettings)
     extends RawService
@@ -42,10 +41,10 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
 
       val (db, currentSchema) = settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.db") match {
         case Some(db) => (db, settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.schema"))
+        // Directly call the provisioning method on the client
         case None => (credentialsService.getUserDb(user), None)
       }
 
-      // Directly call the provisioning method on the client
       logger.info(s"Creating a SQL connection pool for database $db")
       val config = new HikariConfig()
       val jdbcUrl = currentSchema match {
