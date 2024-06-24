@@ -12,11 +12,13 @@
 
 package raw.sources.bytestream.api
 
-import raw.client.api.LocationDescription
+import raw.client.api.OptionValue
 import raw.sources.api.{LocationBuilder, SourceContext}
 
 trait ByteStreamLocationBuilder extends LocationBuilder {
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): ByteStreamLocation
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): ByteStreamLocation
 
 }

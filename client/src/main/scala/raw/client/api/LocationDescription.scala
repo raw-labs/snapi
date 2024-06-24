@@ -22,26 +22,35 @@ final case class LocationSettingKey(key: String)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
   Array(
-    new JsonType(value = classOf[LocationIntSetting], name = "int"),
-    new JsonType(value = classOf[LocationStringSetting], name = "string"),
-    new JsonType(value = classOf[LocationBinarySetting], name = "binary"),
-    new JsonType(value = classOf[LocationBooleanSetting], name = "boolean"),
-    new JsonType(value = classOf[LocationDurationSetting], name = "duration"),
-    new JsonType(value = classOf[LocationKVSetting], name = "kv"),
-    new JsonType(value = classOf[LocationIntArraySetting], name = "array-int")
+    new JsonType(value = classOf[IntOptionValue], name = "int"),
+    new JsonType(value = classOf[StringOptionValue], name = "string"),
+    new JsonType(value = classOf[BinaryOptionValue], name = "binary"),
+    new JsonType(value = classOf[BooleanOptionValue], name = "boolean"),
+    new JsonType(value = classOf[DurationOptionValue], name = "duration"),
+    new JsonType(value = classOf[MapOptionValue], name = "map"),
+    new JsonType(value = classOf[AraryOptionValue], name = "array")
   )
-) sealed trait LocationSettingValue
-final case class LocationIntSetting(value: Int) extends LocationSettingValue
-final case class LocationStringSetting(value: String) extends LocationSettingValue
-final case class LocationBinarySetting(value: Seq[Byte]) extends LocationSettingValue
-final case class LocationBooleanSetting(value: Boolean) extends LocationSettingValue
-final case class LocationDurationSetting(value: Duration) extends LocationSettingValue
-final case class LocationKVSetting(map: Seq[(String, String)]) extends LocationSettingValue
-final case class LocationIntArraySetting(value: Array[Int]) extends LocationSettingValue
+) sealed trait OptionValue
+final case class IntOptionValue(value: Int) extends OptionValue
+final case class StringOptionValue(value: String) extends OptionValue
+final case class BinaryOptionValue(value: Array[Byte]) extends OptionValue
+final case class BooleanOptionValue(value: Boolean) extends OptionValue
+final case class DurationOptionValue(value: Duration) extends OptionValue
+final case class MapOptionValue(map: Seq[(String, OptionValue)]) extends OptionValue
+final case class AraryOptionValue(value: Array[OptionValue]) extends OptionValue
+
+sealed trait OptionType
+case object IntOptionType extends OptionType
+case object StringOptionType extends OptionType
+case object BinaryOptionType extends OptionType
+case object BooleanOptionType extends OptionType
+case object DurationOptionType extends OptionType
+case object MapOptionType extends OptionType
+case object ArrayOptionType extends OptionType
 
 final case class LocationDescription(
     url: String,
-    settings: Map[LocationSettingKey, LocationSettingValue] = Map.empty
+    options: Map[String, OptionValue] = Map.empty
 ) {
 
   def getIntSetting(key: String): Option[Int] = {

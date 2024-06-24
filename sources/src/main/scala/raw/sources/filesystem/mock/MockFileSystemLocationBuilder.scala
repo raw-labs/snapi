@@ -16,39 +16,35 @@ import com.typesafe.config.{ConfigException, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder, FileSystemLocationProvider}
 import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.LocationDescription
+import raw.client.api.{LocationDescription, OptionType, OptionValue}
+
+import scala.util.matching.Regex
+
+object MockFileSystemLocationBuilder {
+  private val REGEX = "mock:(?://)?([^:]+):(.*)".r
+}
 
 class MockFileSystemLocationBuilder extends FileSystemLocationBuilder with StrictLogging {
+  import MockFileSystemLocationBuilder._
 
   override def schemes: Seq[String] = Seq("mock")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): FileSystemLocation = {
-    val url = location.url
-    if (url.startsWith("mock:")) {
-      val f = url.stripPrefix("mock:")
-      if (f.nonEmpty) {
-        val collonIdx = f.indexOf(":")
-        if (collonIdx == -1) {
-          throw new LocationException(s"not a mock location: $url: could not find properties section.")
-        }
-        val propertiesString = f.substring(0, collonIdx)
-        val delegateUri = f.substring(collonIdx + 1)
-        logger.debug(
-          s"Creating mock filesystem with configuration: $propertiesString and delegate filesystem: $delegateUri"
-        )
-        try {
-          val parser = ConfigFactory.parseString(propertiesString)
-          val delay = parser.getDuration("delay").toMillis
-          val delegate: FileSystemLocation = FileSystemLocationProvider.build(
-            LocationDescription(delegateUri, location.settings)
-          )
-          new MockPath(delay, delegate)
-        } catch {
-          case ex: ConfigException => throw new LocationException(s"not a mock location: $url", ex)
-        }
-      } else {
-        throw new LocationException(s"not a mock location: $url")
-      }
-    } else throw new LocationException(s"not a mock location: $url")
+  override def regex: Regex = REGEX
+
+  override def validOptions: Map[String, OptionType] = Map.empty
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): FileSystemLocation = {
+    val properties = groups(0)
+    val url = groups(1)
+    try {
+      val parser = ConfigFactory.parseString(properties)
+      val delay = parser.getDuration("delay").toMillis
+      val delegate = sourceContext.getFileSystem(url, options)
+      new MockPath(delay, delegate)
+    } catch {
+      case ex: ConfigException => throw new LocationException(s"not a mock location: $url", ex)
+    }
   }
 }

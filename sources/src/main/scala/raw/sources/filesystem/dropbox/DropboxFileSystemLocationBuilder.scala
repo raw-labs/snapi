@@ -12,55 +12,49 @@
 
 package raw.sources.filesystem.dropbox
 
-import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.LocationDescription
-import raw.creds.api.{BearerToken, DropboxToken}
-import raw.sources.filesystem.api.{FileSystemException, FileSystemLocation, FileSystemLocationBuilder}
+import raw.client.api.{OptionType, OptionValue, StringOptionType, StringOptionValue}
 import raw.sources.api.SourceContext
+import raw.sources.filesystem.api.{FileSystemException, FileSystemLocation, FileSystemLocationBuilder}
+
+import scala.util.matching.Regex
 
 object DropboxFileSystemLocationBuilder {
-  val dropboxRegex = "dropbox:(?://([^/]+)?)?(.*)".r
+  private val REGEX: Regex = "dropbox:(?://)?(.*)".r
+  private val OPTION_ACCESS_TOKEN = "access_token"
+  private val OPTION_USER = "user"
+  private val OPTION_PASSWORD = "password"
 }
-class DropboxFileSystemLocationBuilder extends FileSystemLocationBuilder with StrictLogging {
 
-  // Syntax: dropbox:/<path>
-  // user may be empty
+class DropboxFileSystemLocationBuilder extends FileSystemLocationBuilder {
+
+  import DropboxFileSystemLocationBuilder._
+
   override def schemes: Seq[String] = Seq("dropbox")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): FileSystemLocation = {
-    import DropboxFileSystemLocationBuilder._
+  override def regex: Regex = REGEX
 
-    location.url match {
-      case dropboxRegex(name, path) =>
-        if (name == null) {
-          sourceContext.credentialsService.getDropboxToken(sourceContext.user) match {
-            case Some(cred: DropboxToken) =>
-              val cli = new DropboxFileSystem(BearerToken(cred.accessToken, Map.empty))(sourceContext.settings)
-              new DropboxPath(
-                cli,
-                path,
-                location
-              )
-            case _ => throw new FileSystemException("no credential found for Dropbox")
-          }
-        } else {
-          logger.debug(s"location: $location, name: $name, path: $path")
-          sourceContext.credentialsService.getNewHttpAuth(sourceContext.user, name) match {
-            case Some(cred: BearerToken) =>
-              val cli = new DropboxFileSystem(cred, name)(sourceContext.settings)
-              new DropboxPath(
-                cli,
-                path,
-                location
-              )
-            case Some(crds @ _) =>
-              throw new FileSystemException(s"invalid credential type for Dropbox: ${crds.getClass}")
-            case _ => throw new FileSystemException("no credential found for Dropbox")
-          }
-        }
+  override def validOptions: Map[String, OptionType] = Map(
+    OPTION_ACCESS_TOKEN -> StringOptionType,
+    OPTION_USER -> StringOptionType,
+    OPTION_PASSWORD -> StringOptionType
+  )
 
-      case _ => throw new FileSystemException(s"not a Dropbox location: ${location.url}")
-    }
-
+  override def build(regexCaptures: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): FileSystemLocation = {
+    implicit val settings = sourceContext.settings
+    val path = regexCaptures(0)
+    val dropboxClient =
+      if (options.contains(OPTION_ACCESS_TOKEN)) {
+        val StringOptionValue(accessToken) = options(OPTION_ACCESS_TOKEN)
+        new DropboxFileSystem(accessToken)
+      } else if (options.contains(OPTION_USER) && options.contains(OPTION_PASSWORD)) {
+        val StringOptionValue(user) = options(OPTION_USER)
+        val StringOptionValue(password) = options(OPTION_PASSWORD)
+        new DropboxFileSystem(user, password)
+      } else {
+        throw new FileSystemException("missing options for Dropbox")
+      }
+    new DropboxPath(dropboxClient, path, options)
   }
 }

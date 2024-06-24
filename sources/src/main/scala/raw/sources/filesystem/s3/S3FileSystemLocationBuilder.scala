@@ -14,53 +14,42 @@ package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.creds.api.{AWSCredentials, S3Bucket}
-import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
+import raw.sources.filesystem.api.{FileSystemException, FileSystemLocation, FileSystemLocationBuilder}
 import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.LocationDescription
+import raw.client.api.{LocationDescription, OptionType, OptionValue, StringOptionType, StringOptionValue}
+
+object S3FileSystemLocationBuilder {
+  private val REGEX = """s3:(?://)?([a-z\d][-a-z\d.]*)(/.*)?""".r
+
+  private val OPTION_REGION = "region"
+  private val OPTION_ACCESS_KEY = "access_key"
+  private val OPTION_SECRET_KEY = "secret_key"
+}
 
 class S3FileSystemLocationBuilder extends FileSystemLocationBuilder with StrictLogging {
-
-  // TODO (msb): Maybe we should have it support 's3a' as well?
-  private val s3Regex = """s3://([a-z\d][-a-z\d.]*)(/.*)?""".r
+  import S3FileSystemLocationBuilder._
 
   override def schemes: Seq[String] = Seq("s3")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): FileSystemLocation = {
-    location.url match {
-      case s3Regex(bucket, key) =>
-        val nonNullKey =
-          if (key == null) {
-            ""
-          } else {
-            key
-          }
+  override def regex: scala.util.matching.Regex = REGEX
 
-        val region = location.getStringSetting("s3-region")
-        val credentials = for {
-          accessKey <- location.getStringSetting("s3-access-key")
-          secretKey <- location.getStringSetting("s3-secret-key")
-        } yield AWSCredentials(accessKey, secretKey)
-        // If credentials are not provided in the code, we try to get them from the credentials service
-        val s3Bucket = credentials match {
-          case Some(cred) => S3Bucket(bucket, region, Some(cred))
-          case None => sourceContext.credentialsService
-              .getS3Bucket(sourceContext.user, bucket)
-              .getOrElse(
-                S3Bucket(bucket, region, None)
-              )
-        }
+  override def validOptions: Map[String, OptionType] = Map(
+    OPTION_REGION -> StringOptionType,
+    OPTION_ACCESS_KEY -> StringOptionType,
+    OPTION_SECRET_KEY -> StringOptionType
+  )
 
-        val cli = new S3FileSystem(s3Bucket)(
-          sourceContext.settings
-        )
-        new S3Path(
-          cli,
-          nonNullKey,
-          location
-        )
-      case _ => throw new LocationException(s"not an S3 location")
-    }
-
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): FileSystemLocation = {
+    val bucket = groups(0)
+    val key = groups(1)
+    val nonNullKey = if (key == null) "" else key
+    val maybeRegion = options.get(OPTION_REGION).map(_.asInstanceOf[StringOptionValue].value)
+    val maybeAccessKey = options.get(OPTION_ACCESS_KEY).map(_.asInstanceOf[StringOptionValue].value)
+    val maybeSecretKey = options.get(OPTION_SECRET_KEY).map(_.asInstanceOf[StringOptionValue].value)
+    val cli = new S3FileSystem(bucket, maybeRegion, maybeAccessKey, maybeSecretKey)(sourceContext.settings)
+    new S3Path(cli, nonNullKey, options)
   }
 
 }

@@ -13,20 +13,31 @@
 package raw.sources.filesystem.local
 
 import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.LocationDescription
+import raw.client.api.{OptionType, OptionValue}
 import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
+import raw.utils.RawSettings
+
+import scala.util.matching.Regex
+
+object LocalFileSystemLocationBuilder {
+  private val REGEX: Regex = "file:(?://)?(.*)".r
+}
 
 class LocalFileSystemLocationBuilder extends FileSystemLocationBuilder {
 
   override def schemes: Seq[String] = Seq("file")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): FileSystemLocation = {
-    val url = location.url
-    if (url.startsWith("file:")) {
-      val f = url.stripPrefix("file:")
-      if (f.nonEmpty) new LocalPath(url.stripPrefix("file:"))
-      else throw new LocationException("not a local location")
-    } else throw new LocationException("not a local location")
+  override def regex: Regex = LocalFileSystemLocationBuilder.REGEX
+
+  override def validOptions: Map[String, OptionType] = Map.empty
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): FileSystemLocation = {
+    val url = groups(0)
+    val f = url.stripPrefix("file:")
+    if (f.nonEmpty) new LocalPath(url.stripPrefix("file:"))
+    else throw new LocationException("not a local location")
   }
 
 }

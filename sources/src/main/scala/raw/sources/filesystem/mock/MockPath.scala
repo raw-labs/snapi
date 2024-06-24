@@ -37,7 +37,7 @@ class MockPath(
     logger.info(s"Continuing")
   }
 
-  override def rawUri: String = s"mock:${delegate.rawUri}"
+  override def rawUri: String = s"mock://${delegate.rawUri}"
 
   override def testAccess(): Unit = {
     doDelay()

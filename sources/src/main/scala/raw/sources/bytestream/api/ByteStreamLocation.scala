@@ -25,7 +25,6 @@ import scala.util.control.NonFatal
 trait ByteStreamLocation extends Location {
 
   // This call uses the retry mechanism.
-  @throws[RawException]
   final def getInputStream: InputStream = {
     doGetInputStream()
   }
@@ -39,7 +38,6 @@ trait ByteStreamLocation extends Location {
 
   protected def doGetSeekableInputStream(): SeekableInputStream
 
-  @throws[RawException]
   final def getReader(encoding: Encoding): Reader = {
     val charset = encoding.charset
     val is = getInputStream
@@ -76,7 +74,11 @@ trait ByteStreamLocation extends Location {
     }
   }
 
-  // TODO (msb): This belongs to the file system location API (or shouldn't exist at all?)
+  /**
+   * Caches the content of the location in a local file and returns the path to it.
+   *
+   * @return the path to the local file
+   */
   def getLocalPath(): Path
 
 }

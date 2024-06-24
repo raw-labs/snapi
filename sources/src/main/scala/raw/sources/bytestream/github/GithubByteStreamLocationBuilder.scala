@@ -12,57 +12,77 @@
 
 package raw.sources.bytestream.github
 
-import com.typesafe.scalalogging.StrictLogging
 import raw.sources.bytestream.http.{HttpByteStreamLocationBuilder, HttpClientException}
 import raw.sources.bytestream.api.{ByteStreamLocation, ByteStreamLocationBuilder}
 import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.LocationDescription
+import raw.client.api.{LocationDescription, OptionType, OptionValue}
 
-class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder with StrictLogging {
+import scala.util.matching.Regex
 
-  // Github regex github://<username>/<repository>/<filename>[\[<branch>\]]
-  // branch is optional for example:
-  // github://torcato/test-repo/1/public/code.rql the same as github://torcato/test-repo/1/public/code.rql[main]
-  private val githubRegex = """github://([^/]+)/([^/]+)/(?:([^\[]+)\[(.*)\]|(.*))""".r
-  val httpBuilder = new HttpByteStreamLocationBuilder()
+object GithubByteStreamLocationBuilder {
+
+  /**
+   * Github location format:
+   *   github://<username>/<repository>/<filename>[\[<branch>\]]
+   *
+   * Note that the branch is optional.
+   *
+   * Example:
+   *   github://torcato/test-repo/1/public/code.rql
+   * ... is the same as ...
+   *   github://torcato/test-repo/1/public/code.rql[main]
+   */
+  private val REGEX = """github://([^/]+)/([^/]+)/(?:([^\[]+)\[(.*)\]|(.*))""".r
+}
+
+class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder {
+
+  import GithubByteStreamLocationBuilder._
+
+  private val httpBuilder = new HttpByteStreamLocationBuilder()
 
   override def schemes: Seq[String] = Seq("github")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): ByteStreamLocation = {
-    location.url match {
-      case githubRegex(username, repo, maybeNullFile, maybeNullBranch, maybeNullFileWithoutBranch) =>
-        val (file: String, branch: String) =
-          if (maybeNullBranch != null) {
-            (maybeNullFile, maybeNullBranch)
-          } else {
-            def testBranch(branch: String) = {
-              val url = s"https://github.com/$username/$repo/tree/$branch"
-              try {
-                val httpLocation = httpBuilder.build(LocationDescription(url, location.settings))
-                httpLocation.testAccess()
-                true
-              } catch {
-                case _: HttpClientException => false
-              }
-            }
-            // tried listing branches like this
-            // curl -H "Accept: application/vnd.github.v3+json"   https://api.github.com/repos/torcato/test-repo/branches
-            // but got the following after some tests
-            // {"message":"API rate limit exceeded for 84.226.22.197. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
-            val branch = Seq("main", "master")
-              .find(testBranch)
-              .getOrElse(
-                throw new LocationException(
-                  s"could not find default branch for ${location.url}, tried (main, master), is the github repository public?"
-                )
-              )
+  override def regex: Regex = REGEX
 
-            (maybeNullFileWithoutBranch, branch)
+  override def validOptions: Map[String, OptionType] = Map.empty
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): ByteStreamLocation = {
+    val List(username, repo, maybeNullFile, maybeNullBranch, maybeNullFileWithoutBranch) = groups
+    val (file: String, branch: String) =
+      if (maybeNullBranch != null) {
+        // Branch is defined, so use that.
+        (maybeNullFile, maybeNullBranch)
+      } else {
+        // Branch not defined, so let's find the default one.
+        def testBranch(branch: String) = {
+          val url = s"https://github.com/$username/$repo/tree/$branch"
+          try {
+            val httpLocation = httpBuilder.build(LocationDescription(url, options))
+            httpLocation.testAccess()
+            true
+          } catch {
+            case _: HttpClientException => false
           }
-        val url = s"https://raw.githubusercontent.com/$username/$repo/$branch/$file"
-        val httpLocation = httpBuilder.build(LocationDescription(url, location.settings))
-        new GithubByteStreamLocation(httpLocation, location.url)
-      case _ => throw new LocationException("not an Github location")
-    }
+        }
+        // Tried listing branches like this
+        //   curl -H "Accept: application/vnd.github.v3+json"   https://api.github.com/repos/torcato/test-repo/branches
+        // But got the following after some tests
+        //   {"message":"API rate limit exceeded for 84.226.22.197. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
+        val branch = Seq("main", "master")
+          .find(testBranch)
+          .getOrElse(
+            throw new LocationException(
+              s"could not find default branch after trying 'main' and 'master'; is the GitHub repository public?"
+            )
+          )
+        (maybeNullFileWithoutBranch, branch)
+      }
+    val url = s"https://raw.githubusercontent.com/$username/$repo/$branch/$file"
+    val httpLocation = httpBuilder.build(LocationDescription(url, options))
+    new GithubByteStreamLocation(httpLocation, username, repo, file, branch)
   }
+
 }

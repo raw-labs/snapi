@@ -12,11 +12,13 @@
 
 package raw.sources.jdbc.api
 
-import raw.client.api.LocationDescription
+import raw.client.api.OptionValue
 import raw.sources.api.{LocationBuilder, SourceContext}
 
 trait JdbcSchemaLocationBuilder extends LocationBuilder {
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcSchemaLocation
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcSchemaLocation
 
 }

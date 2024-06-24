@@ -20,7 +20,7 @@ class MySqlSchema(
     dbName: String
 ) extends JdbcSchemaLocation(cli, None) {
 
-  override def rawUri: String = s"mysql:$dbName/"
+  override def rawUri: String = s"mysql:${cli.host}:${cli.port}/$dbName"
 
   override def listTables(): Iterator[String] with Closeable = {
     new Iterator[String] with Closeable {

@@ -34,94 +34,94 @@ import scala.collection.mutable
 
 object HttpByteStreamLocationBuilder extends StrictLogging {
 
-  private val mapper = new ObjectMapper()
+//  private val mapper = new ObjectMapper()
+//
+//  private def getClientCredsToken(clientId: String, clientSecret: String, server: String, useBasicAuth: Boolean)(
+//      implicit settings: RawSettings
+//  ): String = {
+//    val response =
+//      try {
+//        // adding parameters
+//        val uriBuilder = new URIBuilder(server)
+//        if (useBasicAuth) {
+//          uriBuilder.addParameter("grant_type", "client_credentials")
+//        } else {
+//          Seq("grant_type" -> "client_credentials", "client_id" -> clientId, "client_secret" -> clientSecret).foreach(
+//            x => uriBuilder.addParameter(x._1, x._2)
+//          )
+//        }
+//        // Making the default a POST as most apis use that to renew the token.
+//        // TODO: Add more options for the token req (method, json body) or a big if then else per API (twitter, RTS, facebook)
+//        val request = new HttpPost(uriBuilder.build())
+//        if (useBasicAuth) {
+//          val bytesEncoded = Base64.getEncoder.encode(s"$clientId:$clientSecret".getBytes)
+//          request.setHeader(HttpHeaders.AUTHORIZATION, s"Basic ${new String(bytesEncoded)}")
+//        }
+//        request.setHeader(HttpHeaders.ACCEPT, "application/json")
+//        request.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache")
+//        val apacheHttpClient = ApacheRuntimeHttpClient.buildApacheHttpClient(settings)
+//        apacheHttpClient.httpClient.execute(request)
+//      } catch {
+//        case ex: MalformedURLException => throw new LocationException(s"invalid HTTP token URL '$server'", ex)
+//        case ex: URISyntaxException => throw new LocationException(s"invalid HTTP token URL '$server'", ex)
+//        case ex: java.net.UnknownHostException => throw new HttpClientException(s"host not found for $server", ex)
+//        case ex: IOException => throw new HttpClientException(s"error obtaining token with HTTP endpoint $server", ex)
+//      }
+//
+//    try {
+//      val respCode = response.getCode
+//      if (response.getCode == 200) {
+//        val is = response.getEntity.getContent
+//        val contents =
+//          try {
+//            IOUtils.toString(is, StandardCharsets.UTF_8)
+//          } finally {
+//            is.close()
+//          }
+//        val jsonNode = mapper.readTree(contents)
+//        val token = jsonNode.get("access_token")
+//        if (token == null) {
+//          throw new HttpClientException(
+//            s"""error obtaining token with HTTP endpoint $server: received json does not have 'access_token' field. Response: "$contents" """
+//          )
+//        }
+//        token.asText()
+//      } else {
+//        logger.warn(s"Error obtaining token for HTTP endpoint $server. Unexpected response code: $respCode")
+//        throw new HttpClientException(
+//          s"error obtaining token with HTTP endpoint $server, unexpected response code: $respCode",
+//          null
+//        )
+//      }
+//    } catch {
+//      case ex: IOException => throw new HttpClientException(s"error obtaining token with HTTP endpoint $server", ex)
+//      case ex: JsonProcessingException => throw new HttpClientException(
+//          s"error obtaining token with HTTP endpoint $server: error processing json response",
+//          ex
+//        )
+//    } finally {
+//      response.close()
+//    }
+//  }
 
-  private def getClientCredsToken(clientId: String, clientSecret: String, server: String, useBasicAuth: Boolean)(
-      implicit settings: RawSettings
-  ): String = {
-    val response =
-      try {
-        // adding parameters
-        val uriBuilder = new URIBuilder(server)
-        if (useBasicAuth) {
-          uriBuilder.addParameter("grant_type", "client_credentials")
-        } else {
-          Seq("grant_type" -> "client_credentials", "client_id" -> clientId, "client_secret" -> clientSecret).foreach(
-            x => uriBuilder.addParameter(x._1, x._2)
-          )
-        }
-        // Making the default a POST as most apis use that to renew the token.
-        // TODO: Add more options for the token req (method, json body) or a big if then else per API (twitter, RTS, facebook)
-        val request = new HttpPost(uriBuilder.build())
-        if (useBasicAuth) {
-          val bytesEncoded = Base64.getEncoder.encode(s"$clientId:$clientSecret".getBytes)
-          request.setHeader(HttpHeaders.AUTHORIZATION, s"Basic ${new String(bytesEncoded)}")
-        }
-        request.setHeader(HttpHeaders.ACCEPT, "application/json")
-        request.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache")
-        val apacheHttpClient = ApacheRuntimeHttpClient.buildApacheHttpClient(settings)
-        apacheHttpClient.httpClient.execute(request)
-      } catch {
-        case ex: MalformedURLException => throw new LocationException(s"invalid HTTP token URL '$server'", ex)
-        case ex: URISyntaxException => throw new LocationException(s"invalid HTTP token URL '$server'", ex)
-        case ex: java.net.UnknownHostException => throw new HttpClientException(s"host not found for $server", ex)
-        case ex: IOException => throw new HttpClientException(s"error obtaining token with HTTP endpoint $server", ex)
-      }
-
-    try {
-      val respCode = response.getCode
-      if (response.getCode == 200) {
-        val is = response.getEntity.getContent
-        val contents =
-          try {
-            IOUtils.toString(is, StandardCharsets.UTF_8)
-          } finally {
-            is.close()
-          }
-        val jsonNode = mapper.readTree(contents)
-        val token = jsonNode.get("access_token")
-        if (token == null) {
-          throw new HttpClientException(
-            s"""error obtaining token with HTTP endpoint $server: received json does not have 'access_token' field. Response: "$contents" """
-          )
-        }
-        token.asText()
-      } else {
-        logger.warn(s"Error obtaining token for HTTP endpoint $server. Unexpected response code: $respCode")
-        throw new HttpClientException(
-          s"error obtaining token with HTTP endpoint $server, unexpected response code: $respCode",
-          null
-        )
-      }
-    } catch {
-      case ex: IOException => throw new HttpClientException(s"error obtaining token with HTTP endpoint $server", ex)
-      case ex: JsonProcessingException => throw new HttpClientException(
-          s"error obtaining token with HTTP endpoint $server: error processing json response",
-          ex
-        )
-    } finally {
-      response.close()
-    }
-  }
-
-  private def getClientCredsTokenFromProvider(
-      clientId: String,
-      clientSecret: String,
-      provider: OAuth2Provider.Value,
-      options: Map[String, String]
-  )(
-      implicit settings: RawSettings
-  ): String = {
-    provider match {
-      case OAuth2Provider.Auth0 =>
-        val client = new Auth0OAuth2Client()
-        val token = client.newAccessTokenFromClientCredentials(clientId, clientSecret, options)
-        token.accessToken
-      case _ => throw new HttpClientException(
-          s"provider ${provider.toString.toLowerCase} no supported for client-id/client-secret credentials"
-        )
-    }
-  }
+//  private def getClientCredsTokenFromProvider(
+//      clientId: String,
+//      clientSecret: String,
+//      provider: OAuth2Provider.Value,
+//      options: Map[String, String]
+//  )(
+//      implicit settings: RawSettings
+//  ): String = {
+//    provider match {
+//      case OAuth2Provider.Auth0 =>
+//        val client = new Auth0OAuth2Client()
+//        val token = client.newAccessTokenFromClientCredentials(clientId, clientSecret, options)
+//        token.accessToken
+//      case _ => throw new HttpClientException(
+//          s"provider ${provider.toString.toLowerCase} no supported for client-id/client-secret credentials"
+//        )
+//    }
+//  }
 
 }
 
@@ -145,34 +145,33 @@ class HttpByteStreamLocationBuilder extends ByteStreamLocationBuilder with Stric
     } else if (location.getStringSetting("http-token").isDefined) {
       val token = location.getStringSetting("http-token").get
       Some(BearerToken(token, Map.empty))
-    } else if (location.getStringSetting("http-client-id").isDefined) {
-      val clientId = location.getStringSetting("http-client-id")
-      val clientSecret = location.getStringSetting("http-client-secret")
-      val authProvider = location.getStringSetting("http-auth-provider")
-      val tokenUrl = location.getStringSetting("http-token-url")
-      if (clientSecret.isEmpty) {
-        throw new LocationException(
-          "http client-id/client-secret credentials need http-client-id and http-client-secret"
-        )
-      }
-      if (authProvider.isDefined) {
-        val options = location.getKVSetting("http-auth-options").getOrElse(Array.empty).toMap
-        val token =
-          getClientCredsTokenFromProvider(clientId.get, clientSecret.get, OAuth2Provider(authProvider.get), options)(
-            sourceContext.settings
-          )
-        Some(BearerToken(token, Map.empty))
-      } else if (tokenUrl.isDefined) {
-        val useBasicAuth = location.getBooleanSetting("http-use-basic-auth").getOrElse(false)
-        val token =
-          getClientCredsToken(clientId.get, clientSecret.get, tokenUrl.get, useBasicAuth)(sourceContext.settings)
-        Some(BearerToken(token, Map.empty))
-      } else {
-        throw new LocationException(
-          "http client-id/secret credentials need one of: http-auth-provider or http-token-url property"
-        )
-      }
-
+//    } else if (location.getStringSetting("http-client-id").isDefined) {
+//      val clientId = location.getStringSetting("http-client-id")
+//      val clientSecret = location.getStringSetting("http-client-secret")
+//      val authProvider = location.getStringSetting("http-auth-provider")
+//      val tokenUrl = location.getStringSetting("http-token-url")
+//      if (clientSecret.isEmpty) {
+//        throw new LocationException(
+//          "http client-id/client-secret credentials need http-client-id and http-client-secret"
+//        )
+//      }
+//      if (authProvider.isDefined) {
+//        val options = location.getKVSetting("http-auth-options").getOrElse(Array.empty).toMap
+//        val token =
+//          getClientCredsTokenFromProvider(clientId.get, clientSecret.get, OAuth2Provider(authProvider.get), options)(
+//            sourceContext.settings
+//          )
+//        Some(BearerToken(token, Map.empty))
+//      } else if (tokenUrl.isDefined) {
+//        val useBasicAuth = location.getBooleanSetting("http-use-basic-auth").getOrElse(false)
+//        val token =
+//          getClientCredsToken(clientId.get, clientSecret.get, tokenUrl.get, useBasicAuth)(sourceContext.settings)
+//        Some(BearerToken(token, Map.empty))
+//      } else {
+//        throw new LocationException(
+//          "http client-id/secret credentials need one of: http-auth-provider or http-token-url property"
+//        )
+//      }
     } else if (location.getStringSetting("http-user-name").isDefined) {
       val userName = location.getStringSetting("http-user-name").get
       val password = location

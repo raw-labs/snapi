@@ -19,13 +19,9 @@ import raw.sources.filesystem.api._
 import java.io.InputStream
 import java.nio.file.Path
 
-class DropboxPath(
-    cli: DropboxFileSystem,
-    path: String,
-    locationDescription: LocationDescription
-) extends FileSystemLocation {
+class DropboxPath(cli: DropboxFileSystem, path: String, options: Map[String, OptionValue]) extends FileSystemLocation {
 
-  override def rawUri: String = s"dropbox://${cli.name}$path"
+  override def rawUri: String = s"dropbox://$path"
 
   override def testAccess(): Unit = {
     cli.testAccess(path)
@@ -50,13 +46,11 @@ class DropboxPath(
   override protected def doLs(): Iterator[FileSystemLocation] = {
     cli
       .listContents(path)
-      .map(npath => new DropboxPath(cli, npath, locationDescription))
+      .map(npath => new DropboxPath(cli, npath, options))
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    cli.listContentsWithMetadata(path).map {
-      case (npath, meta) => (new DropboxPath(cli, npath, locationDescription), meta)
-    }
+    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new DropboxPath(cli, npath, options), meta) }
   }
 
 }

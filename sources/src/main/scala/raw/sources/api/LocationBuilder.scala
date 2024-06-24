@@ -12,12 +12,18 @@
 
 package raw.sources.api
 
-import raw.client.api.LocationDescription
+import raw.client.api.{OptionType, OptionValue}
+
+import scala.util.matching.Regex
 
 trait LocationBuilder {
 
   def schemes: Seq[String]
 
-  def build(location: LocationDescription)(implicit sourceContext: SourceContext): Location
+  def regex: Regex
+
+  def validOptions: Map[String, OptionType]
+
+  def build(groups: List[String], options: Map[String, OptionValue])(implicit sourceContext: SourceContext): Location
 
 }

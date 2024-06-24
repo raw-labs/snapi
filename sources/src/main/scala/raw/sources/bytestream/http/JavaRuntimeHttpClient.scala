@@ -24,6 +24,7 @@ import java.net.http.HttpClient.Version
 import java.net.http.HttpRequest.{BodyPublisher, BodyPublishers}
 import java.net.http.HttpResponse.BodyHandlers
 import java.net.http.{HttpClient, HttpRequest, HttpResponse}
+import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
@@ -73,7 +74,27 @@ class JavaRuntimeHttpClient(
     .newBuilder()
     .timeout(Duration.ofMillis(httpReadTimeoutMillis))
 
+
   // This method is called by our runtime in a read so expects the status code to be 200
+  def getInputStream(url: String): InputStream
+
+  // This method is called by our 'http_request' intrinsic so does not check for the status code.
+  def getInputStreamWithStatus(url: String): HttpResult
+
+  def getSeekableInputStream(url: String): SeekableInputStream
+
+  private val ErrorResponseOutputMaxSize = 2048
+
+  protected def readOutputBounded(is: InputStream): String = {
+    val data = is.readNBytes(ErrorResponseOutputMaxSize)
+    val result = new String(data, StandardCharsets.UTF_8)
+    if (data.length == ErrorResponseOutputMaxSize && is.read() != -1) {
+      result + "..."
+    } else {
+      result
+    }
+  }
+  // This method is called by our runtime in a read so expects the status code to be 200.
   override def getInputStream(url: String): InputStream = {
     val response = openHTTPConnection(url)
     val responseCode = response.statusCode()

@@ -22,9 +22,28 @@ import java.io.InterruptedIOException
 class RawS3InputStream(s3ObjectInputStream: ResponseInputStream[GetObjectResponse]) extends InputStream {
 
   @throws[IOException]
-  override def read(): Int = {
+  override def read(): Int = withInterruptedCheck(s3ObjectInputStream.read())
+
+  @throws[IOException]
+  override def read(b: Array[Byte]): Int = withInterruptedCheck(s3ObjectInputStream.read(b))
+
+  @throws[IOException]
+  override def read(b: Array[Byte], off: Int, len: Int): Int =
+    withInterruptedCheck(s3ObjectInputStream.read(b, off, len))
+
+  @throws[IOException]
+  override def readAllBytes(): Array[Byte] = withInterruptedCheck(s3ObjectInputStream.readAllBytes())
+
+  @throws[IOException]
+  override def readNBytes(b: Array[Byte], off: Int, len: Int): Int =
+    withInterruptedCheck(s3ObjectInputStream.readNBytes(b, off, len))
+
+  @throws[IOException]
+  override def readNBytes(len: Int): Array[Byte] = withInterruptedCheck(s3ObjectInputStream.readNBytes(len))
+
+  private def withInterruptedCheck[T](f: => T): T = {
     try {
-      s3ObjectInputStream.read()
+      f
     } catch {
       case ex: InterruptedException =>
         // InterruptedException is thrown when a thread is interrupted during a blocking IO operation.
@@ -33,4 +52,5 @@ class RawS3InputStream(s3ObjectInputStream: ResponseInputStream[GetObjectRespons
         throw new InterruptedIOException(ex.getMessage)
     }
   }
+
 }

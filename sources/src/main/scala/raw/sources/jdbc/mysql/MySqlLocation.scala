@@ -20,7 +20,7 @@ class MySqlLocation(
     dbName: String
 ) extends JdbcLocation(cli, "mysql", dbName) {
 
-  override def rawUri: String = s"mysql:$dbName"
+  override def rawUri: String = s"mysql:${cli.host}:${cli.port}/$dbName"
 
   override def listSchemas(): Iterator[String] with Closeable = {
     throw new JdbcLocationException("no schemas in mysql")

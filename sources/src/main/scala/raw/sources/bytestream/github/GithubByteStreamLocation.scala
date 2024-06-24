@@ -20,17 +20,20 @@ import raw.sources.bytestream.api.{ByteStreamLocation, SeekableInputStream}
 
 class GithubByteStreamLocation(
     http: HttpByteStreamLocation,
-    url: String
+    username: String,
+    repo: String,
+    file: String,
+    branch: String
 ) extends ByteStreamLocation
     with StrictLogging {
+
+  override def rawUri: String = s"github://$username/$repo/$file[$branch]"
 
   override protected def doGetInputStream(): InputStream = http.getInputStream
 
   override protected def doGetSeekableInputStream(): SeekableInputStream = http.getSeekableInputStream
 
   override def getLocalPath(): Path = http.getLocalPath()
-
-  override def rawUri: String = url
 
   override def testAccess(): Unit = {
     http.testAccess()
