@@ -138,6 +138,18 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     }
   }
 
+  override def executeAsRawValue(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): EvalResponse = {
+    try {
+      ???
+    } catch {
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+    }
+  }
+
   override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
     try {
       ???
