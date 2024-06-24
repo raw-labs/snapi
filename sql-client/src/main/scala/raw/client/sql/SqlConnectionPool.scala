@@ -11,7 +11,7 @@
  */
 
 package raw.client.sql
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache, RemovalNotification}
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import raw.creds.api.CredentialsService
@@ -68,6 +68,10 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
     .newBuilder()
     .maximumSize(connectionCacheSize)
     .expireAfterAccess(connectionCachePeriod)
+    .removalListener((notification: RemovalNotification[AuthenticatedUser, HikariDataSource]) => {
+      logger.info(s"Shutting down SQL connection pool for database ${notification.getValue.getJdbcUrl}")
+      RawUtils.withSuppressNonFatalException(notification.getValue.close())
+    })
     .build(dbCacheLoader)
 
   @throws[SQLException]
