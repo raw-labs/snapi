@@ -21,8 +21,7 @@ import raw.sources.jdbc.api.{JdbcLocationBuilder, JdbcSchemaLocationBuilder, Jdb
 class SourceContext(
     val user: AuthenticatedUser,
     val credentialsService: CredentialsService,
-    val settings: RawSettings,
-    val maybeClassLoader: Option[ClassLoader]
+    val settings: RawSettings
 ) {
 
   val byteStreamLocationBuilderServices: Array[ByteStreamLocationBuilder] = Array(

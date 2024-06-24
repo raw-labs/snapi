@@ -42,7 +42,7 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
       out.write(s)
       out.close()
       val l1 = new LocalPath(f.toPath)
-      implicit val sourceContext = new SourceContext(null, null, settings, None)
+      implicit val sourceContext = new SourceContext(null, null, settings)
       val inferrer = new LocalInferrerService
       try {
         val TextInputStreamFormatDescriptor(detectedEncoding, _, LinesInputFormatDescriptor(_, _, _)) =
@@ -66,7 +66,7 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
 
     ex.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy)
 
-    implicit val sourceContext = new SourceContext(null, null, settings, None)
+    implicit val sourceContext = new SourceContext(null, null, settings)
     val inferrer = new LocalInferrerService
     try {
       for (i <- 0 to 100) {
@@ -159,7 +159,7 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
       ),
       false
     )
-    implicit val sourceContext = new SourceContext(null, null, settings, None)
+    implicit val sourceContext = new SourceContext(null, null, settings)
     val inferrer = new LocalInferrerService
     try {
       val result = inferrer.prettyPrint(tipe)

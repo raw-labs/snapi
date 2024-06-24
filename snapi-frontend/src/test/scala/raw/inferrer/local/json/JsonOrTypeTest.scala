@@ -37,8 +37,7 @@ class JsonOrTypeTest
     sourceContext = new SourceContext(
       InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com"),
       credentials,
-      settings,
-      None
+      settings
     )
     inferrer = new JsonInferrer()
   }

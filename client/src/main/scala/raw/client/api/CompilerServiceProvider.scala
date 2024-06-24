@@ -21,38 +21,15 @@ import scala.collection.mutable
 object CompilerServiceProvider {
 
   private val instanceLock = new Object
-  private val instanceMap = new mutable.HashMap[(Set[String], Option[ClassLoader]), CompilerService]
-
-  def apply(language: String, maybeClassLoader: Option[ClassLoader] = None)(
-      implicit settings: RawSettings
-  ): CompilerService = {
-    maybeClassLoader match {
-      case Some(cl) => apply(language, cl)
-      case None => apply(language)
-    }
-  }
+  private val instanceMap = new mutable.HashMap[(Set[String]), CompilerService]
 
   def apply(language: String)(implicit settings: RawSettings): CompilerService = {
     instanceLock.synchronized {
-      instanceMap.collectFirst { case ((l, None), i) if l.contains(language) => i } match {
+      instanceMap.collectFirst { case (l, i) if l.contains(language) => i } match {
         case Some(instance) => instance
         case None =>
           val instance = build(language)
-          instanceMap.put((instance.language, None), instance)
-          instance
-      }
-    }
-  }
-
-  def apply(language: String, classLoader: ClassLoader)(
-      implicit settings: RawSettings
-  ): CompilerService = {
-    instanceLock.synchronized {
-      instanceMap.collectFirst { case ((l, Some(cl)), i) if cl == classLoader && l.contains(language) => i } match {
-        case Some(instance) => instance
-        case None =>
-          val instance = build(language, Some(classLoader))
-          instanceMap.put((instance.language, Some(classLoader)), instance)
+          instanceMap.put((instance.language), instance)
           instance
       }
     }
@@ -63,31 +40,27 @@ object CompilerServiceProvider {
     instanceLock.synchronized {
       if (instance == null) {
         // Stop and remove entries that match the `language`, regardless the class loader.
-        instanceMap.filterKeys(_._1 == language).foreach {
+        instanceMap.filterKeys(_ == language).foreach {
           case (key, compiler) =>
             compiler.stop()
             instanceMap.remove(key)
         }
       } else {
-        instanceMap.put((language, None), instance)
+        instanceMap.put(language, instance)
       }
     }
   }
 
-  private def build(language: String, maybeClassLoader: Option[ClassLoader] = None)(
-      implicit settings: RawSettings
-  ): CompilerService = {
-    val services = maybeClassLoader match {
-      case Some(cl) => ServiceLoader.load(classOf[CompilerServiceBuilder], cl).asScala.toArray
-      case None => ServiceLoader.load(classOf[CompilerServiceBuilder]).asScala.toArray
-    }
+  private def build(language: String)(implicit settings: RawSettings): CompilerService = {
+    val services = ServiceLoader.load(classOf[CompilerServiceBuilder]).asScala.toArray
     if (services.isEmpty) {
       throw new CompilerException("no compiler service available")
     } else {
       services.find(p => p.language.contains(language)) match {
-        case Some(builder) => builder.build(maybeClassLoader)
+        case Some(builder) => builder.build
         case None => throw new CompilerException(s"cannot find compiler service: $language")
       }
     }
   }
+
 }

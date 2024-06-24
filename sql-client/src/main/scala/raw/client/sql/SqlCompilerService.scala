@@ -25,8 +25,7 @@ import java.io.{IOException, OutputStream}
 import java.sql.ResultSet
 import scala.util.control.NonFatal
 
-class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
-    extends CompilerService {
+class SqlCompilerService()(implicit protected val settings: RawSettings) extends CompilerService {
 
   private val credentials = CredentialsServiceProvider()
 
@@ -133,14 +132,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
             RawUtils.withSuppressNonFatalException(conn.close())
           }
       }
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
-    }
-  }
-
-  override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
-    try {
-      ???
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }

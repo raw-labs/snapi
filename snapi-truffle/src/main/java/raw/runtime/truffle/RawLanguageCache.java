@@ -25,7 +25,6 @@ import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
 import raw.utils.RawUtils;
-import scala.Some;
 import scala.runtime.BoxedUnit;
 
 public class RawLanguageCache {
@@ -73,17 +72,10 @@ public class RawLanguageCache {
     return map.computeIfAbsent(
         user,
         k -> {
-          SourceContext sourceContext =
-              new SourceContext(user, credentialsService, rawSettings, new Some<>(classLoader));
+          SourceContext sourceContext = new SourceContext(user, credentialsService, rawSettings);
           InferrerService inferrer = InferrerServiceProvider.apply(sourceContext);
           CompilerContext compilerContext =
-              new CompilerContext(
-                  "rql2-truffle",
-                  user,
-                  inferrer,
-                  sourceContext,
-                  new Some<>(classLoader),
-                  rawSettings);
+              new CompilerContext("rql2-truffle", user, inferrer, sourceContext, rawSettings);
           return new Value(compilerContext, sourceContext, inferrer);
         });
   }
