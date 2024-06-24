@@ -39,20 +39,20 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
   private val garbageCollectScheduller =
     Executors.newSingleThreadScheduledExecutor(RawUtils.newThreadFactory("sql-connection-pool-gc"))
 
+  // Periodically check for idle pools and close them
+  // If the hikari pool in the cache expires and still has active connections, we will move it to the poolsToDelete map
+  // Then we delete it later when the active connections are 0 (i.e. long queries are done and the pool is not needed anymore)
   garbageCollectScheduller.scheduleAtFixedRate(
     () => {
       val urlsToRemove = mutable.ArrayBuffer[String]()
       poolsToDelete.forEach((url, pool) => {
-        val active = pool.getHikariPoolMXBean.getActiveConnections
-        if (active == 0) {
+        if (pool.getHikariPoolMXBean.getActiveConnections == 0) {
+          logger.info(s"Shutting down SQL connection pool for database $url")
           RawUtils.withSuppressNonFatalException(pool.close())
           urlsToRemove += url
         }
       })
-      urlsToRemove.foreach { url =>
-        logger.info(s"Shutting down SQL connection pool for database $url")
-        poolsToDelete.remove(url)
-      }
+      urlsToRemove.foreach(url => poolsToDelete.remove(url))
     },
     poolGarbageCollectionPeriod.toMillis,
     poolGarbageCollectionPeriod.toMillis,
