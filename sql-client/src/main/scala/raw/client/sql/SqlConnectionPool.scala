@@ -18,7 +18,8 @@ import raw.creds.api.CredentialsService
 import raw.utils.{AuthenticatedUser, RawService, RawSettings, RawUtils}
 
 import java.sql.SQLException
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ConcurrentHashMap, Executors, TimeUnit}
+import scala.collection.mutable
 
 class SqlConnectionPool(credentialsService: CredentialsService)(implicit settings: RawSettings)
     extends RawService
@@ -33,25 +34,39 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
   private val maxLifetime = settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS)
   private val connectionTimeout = settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
 
+  private val poolGarbageCollectionPeriod = settings.getDuration("raw.client.sql.pool.gc-period")
+  private val poolsToDelete = new ConcurrentHashMap[String, HikariDataSource]()
+  private val garbageCollectScheduller =
+    Executors.newSingleThreadScheduledExecutor(RawUtils.newThreadFactory("sql-connection-pool-gc"))
+
+  garbageCollectScheduller.scheduleAtFixedRate(
+    () => {
+      val urlsToRemove = mutable.ArrayBuffer[String]()
+      poolsToDelete.forEach((url, pool) => {
+        val active = pool.getHikariPoolMXBean.getActiveConnections
+        if (active == 0) {
+          RawUtils.withSuppressNonFatalException(pool.close())
+          urlsToRemove += url
+        }
+      })
+      urlsToRemove.foreach { url =>
+        logger.info(s"Shutting down SQL connection pool for database $url")
+        poolsToDelete.remove(url)
+      }
+    },
+    poolGarbageCollectionPeriod.toMillis,
+    poolGarbageCollectionPeriod.toMillis,
+    TimeUnit.MILLISECONDS
+  )
+
   private val connectionCacheSize = settings.getInt("raw.client.sql.fdw-db-cache.size")
   private val connectionCachePeriod = settings.getDuration("raw.client.sql.fdw-db-cache.duration")
 
-  private val dbCacheLoader = new CacheLoader[AuthenticatedUser, HikariDataSource]() {
-    override def load(user: AuthenticatedUser): HikariDataSource = {
-
-      val (db, currentSchema) = settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.db") match {
-        case Some(db) => (db, settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.schema"))
-        // Directly call the provisioning method on the client
-        case None => (credentialsService.getUserDb(user), None)
-      }
-
-      logger.info(s"Creating a SQL connection pool for database $db")
+  private val dbCacheLoader = new CacheLoader[String, HikariDataSource]() {
+    override def load(url: String): HikariDataSource = {
+      logger.info(s"Creating a SQL connection pool for url $url")
       val config = new HikariConfig()
-      val jdbcUrl = currentSchema match {
-        case Some(schema) => s"jdbc:postgresql://$dbHost:$dbPort/$db?currentSchema=$schema"
-        case None => s"jdbc:postgresql://$dbHost:$dbPort/$db"
-      }
-      config.setJdbcUrl(jdbcUrl)
+      config.setJdbcUrl(url)
       config.setMaximumPoolSize(maxConnections)
       config.setMinimumIdle(0)
       config.setIdleTimeout(idleTimeout)
@@ -64,19 +79,32 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
     }
   }
 
-  private val dbCache: LoadingCache[AuthenticatedUser, HikariDataSource] = CacheBuilder
+  private val dbCache: LoadingCache[String, HikariDataSource] = CacheBuilder
     .newBuilder()
     .maximumSize(connectionCacheSize)
     .expireAfterAccess(connectionCachePeriod)
-    .removalListener((notification: RemovalNotification[AuthenticatedUser, HikariDataSource]) => {
-      logger.info(s"Shutting down SQL connection pool for database ${notification.getValue.getJdbcUrl}")
-      RawUtils.withSuppressNonFatalException(notification.getValue.close())
+    .removalListener((notification: RemovalNotification[String, HikariDataSource]) => {
+      val active = notification.getValue.getHikariPoolMXBean.getActiveConnections
+      if (active == 0) {
+        logger.info(s"Shutting down SQL connection pool for database ${notification.getValue.getJdbcUrl}")
+        RawUtils.withSuppressNonFatalException(notification.getValue.close())
+      } else {
+        poolsToDelete.put(notification.getKey, notification.getValue)
+      }
     })
     .build(dbCacheLoader)
 
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
-    dbCache.get(user).getConnection()
+    val db = settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.db").getOrElse(credentialsService.getUserDb(user))
+    val maybeSchema = settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.schema")
+
+    val url = maybeSchema match {
+      case Some(schema) => s"jdbc:postgresql://$dbHost:$dbPort/$db?currentSchema=$schema"
+      case None => s"jdbc:postgresql://$dbHost:$dbPort/$db"
+    }
+
+    dbCache.get(url).getConnection()
   }
 
   override def doStop(): Unit = {
@@ -84,5 +112,7 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
       logger.info(s"Shutting down SQL connection pool for database ${pool.getJdbcUrl}")
       RawUtils.withSuppressNonFatalException(pool.close())
     }
+    garbageCollectScheduller.shutdown()
+    garbageCollectScheduller.awaitTermination(5, TimeUnit.SECONDS)
   }
 }
