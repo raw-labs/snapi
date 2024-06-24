@@ -261,7 +261,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
 
   private def buildTruffleContext(
       environment: ProgramEnvironment,
-      maybeOutputStream: Option[OutputStream] = None
+      maybeOutputStream: Option[OutputStream]
   ): Context = {
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context

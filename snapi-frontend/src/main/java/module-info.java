@@ -60,5 +60,4 @@ module raw.snapi.frontend {
 
   opens raw.inferrer.api to
       com.fasterxml.jackson.databind;
-
 }
