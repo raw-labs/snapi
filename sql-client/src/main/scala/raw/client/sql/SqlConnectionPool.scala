@@ -34,7 +34,7 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
   private val connectionTimeout = settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
 
   private val connectionCacheSize = settings.getInt("raw.client.sql.fdw-db-cache.size")
-  private val connectionCachePeriod = settings.getDuration("raw.client.sql.fdw-db-cache.period")
+  private val connectionCachePeriod = settings.getDuration("raw.client.sql.fdw-db-cache.duration")
 
   private val dbCacheLoader = new CacheLoader[AuthenticatedUser, HikariDataSource]() {
     override def load(user: AuthenticatedUser): HikariDataSource = {
