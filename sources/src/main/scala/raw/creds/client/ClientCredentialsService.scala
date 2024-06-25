@@ -14,7 +14,7 @@ package raw.creds.client
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.creds.api._
-import raw.creds.client.ClientCredentialsService.{CACHE_FDW_EXPIRY, CACHE_FDW_SIZE, SERVER_ADDRESS}
+import raw.creds.client.ClientCredentialsService.SERVER_ADDRESS
 import raw.rest.client.APIException
 import raw.utils.{AuthenticatedUser, RawSettings}
 
@@ -22,8 +22,6 @@ import java.net.URI
 
 object ClientCredentialsService {
   private val SERVER_ADDRESS = "raw.creds.client.server-address"
-  private val CACHE_FDW_SIZE = "raw.creds.client.fdw-db-cache.size"
-  private val CACHE_FDW_EXPIRY = "raw.creds.client.fdw-db-cache.expiry"
 }
 
 class ClientCredentialsService(implicit settings: RawSettings) extends CredentialsService {
@@ -31,20 +29,6 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
   private val serverAddress = new URI(settings.getString(SERVER_ADDRESS))
 
   private val client = new ClientCredentials(serverAddress)
-
-  private val dbCacheLoader = new CacheLoader[AuthenticatedUser, String]() {
-    override def load(user: AuthenticatedUser): String = {
-      // Directly call the provisioning method on the client
-      logger.debug(s"Retrieving user database for $user from origin server")
-      client.getUserDb(user)
-    }
-  }
-
-  private val dbCache: LoadingCache[AuthenticatedUser, String] = CacheBuilder
-    .newBuilder()
-    .maximumSize(settings.getInt(CACHE_FDW_SIZE).toLong)
-    .expireAfterAccess(settings.getDuration(CACHE_FDW_EXPIRY))
-    .build(dbCacheLoader)
 
   /** S3 buckets */
 
@@ -300,9 +284,7 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
   }
 
   override def getUserDb(user: AuthenticatedUser): String = {
-    // Retrieve the database name from the cache, provisioning it if necessary
-    logger.debug(s"Retrieving user database for $user")
-    dbCache.get(user)
+    client.getUserDb(user)
   }
 
   override def doStop(): Unit = {
