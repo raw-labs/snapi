@@ -1048,4 +1048,109 @@ class TestSqlCompilerServiceAirports
         == """[{"trip_id":0,"departure_date":"2016-02-27","arrival_date":"2016-03-06"}]"""
     )
   }
+
+  test("""SELECT pg_typeof(NOW())""".stripMargin) { t =>
+    assume(password != "")
+    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    assert(errors.isEmpty)
+    val GetProgramDescriptionFailure(errors2) = compilerService.getProgramDescription(t.q, asJson())
+    errors2.map(_.message).contains("unsupported type: regtype")
+  }
+
+  test("""SELECT CAST(pg_typeof(NOW()) AS VARCHAR)""".stripMargin) { t =>
+    assume(password != "")
+    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    assert(errors.isEmpty)
+    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    val noParam = ProgramEnvironment(
+      user,
+      None,
+      Set.empty,
+      Map("output-format" -> "json")
+    )
+    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+    assert(baos.toString() == """[{"pg_typeof":"timestamp with time zone"}]""")
+
+  }
+
+  test("""SELECT NOW()""".stripMargin) { t =>
+    assume(password != "")
+    // NOW() is a timestamp with timezone. The one of the SQL connection. This test is to make sure
+    // it works (we cannot assert on the result).
+    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    assert(errors.isEmpty)
+    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    val noParam = ProgramEnvironment(
+      user,
+      None,
+      Set.empty,
+      Map("output-format" -> "json")
+    )
+    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+  }
+
+  test("""SELECT TIMESTAMP '2001-07-01 12:13:14.567' AS t""".stripMargin) { t =>
+    assume(password != "")
+    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    assert(errors.isEmpty)
+    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val baos = new ByteArrayOutputStream()
+    for (fmt <- Seq("json", "csv")) {
+      baos.reset()
+      val noParam = ProgramEnvironment(
+        user,
+        None,
+        Set.empty,
+        Map("output-format" -> fmt)
+      )
+      assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+      assert(baos.toString().contains("14.567"))
+    }
+  }
+
+  test("""SELECT TIME '12:13:14.567' AS t""".stripMargin) { t =>
+    assume(password != "")
+    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    assert(errors.isEmpty)
+    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    for (fmt <- Seq("json", "csv")) {
+      baos.reset()
+      val noParam = ProgramEnvironment(
+        user,
+        None,
+        Set.empty,
+        Map("output-format" -> fmt)
+      )
+      assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+      assert(baos.toString().contains("14.567"))
+    }
+  }
+
+  test("""-- @default t TIME '12:13:14.567'
+    |SELECT :t AS t""".stripMargin) { t =>
+    assume(password != "")
+    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    assert(errors.isEmpty)
+    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    for (fmt <- Seq("json", "csv")) {
+      baos.reset()
+      val noParam = ProgramEnvironment(
+        user,
+        None,
+        Set.empty,
+        Map("output-format" -> fmt)
+      )
+      assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+      assert(baos.toString().contains("14.567"))
+    }
+  }
+
 }
