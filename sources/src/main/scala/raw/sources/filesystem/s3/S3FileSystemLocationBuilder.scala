@@ -45,9 +45,9 @@ class S3FileSystemLocationBuilder extends FileSystemLocationBuilder with StrictL
     val bucket = groups(0)
     val key = groups(1)
     val nonNullKey = if (key == null) "" else key
-    val maybeRegion = options.get(OPTION_REGION).map(_.asInstanceOf[StringOptionValue].value)
-    val maybeAccessKey = options.get(OPTION_ACCESS_KEY).map(_.asInstanceOf[StringOptionValue].value)
-    val maybeSecretKey = options.get(OPTION_SECRET_KEY).map(_.asInstanceOf[StringOptionValue].value)
+    val maybeRegion = getStringOption(options, OPTION_REGION)
+    val maybeAccessKey = getStringOption(options, OPTION_ACCESS_KEY)
+    val maybeSecretKey = getStringOption(options, OPTION_SECRET_KEY)
     val cli = new S3FileSystem(bucket, maybeRegion, maybeAccessKey, maybeSecretKey)(sourceContext.settings)
     new S3Path(cli, nonNullKey, options)
   }

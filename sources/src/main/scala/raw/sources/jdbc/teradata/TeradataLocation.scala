@@ -12,7 +12,7 @@
 
 package raw.sources.jdbc.teradata
 
-import raw.sources.jdbc.api.JdbcLocation
+import raw.sources.jdbc.api.{JdbcLocation, JdbcSchemaLocation}
 
 import java.io.Closeable
 
@@ -21,15 +21,17 @@ class TeradataLocation(
     dbName: String
 ) extends JdbcLocation(cli, "teradata", dbName) {
 
-  override def rawUri: String = s"teradata:$dbName"
+  override def rawUri: String = s"teradata://${cli.hostname}:${cli.port}/$dbName"
 
-  override def listSchemas(): Iterator[String] with Closeable = {
-    new Iterator[String] with Closeable {
+  override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
+    new Iterator[JdbcSchemaLocation] with Closeable {
       private val it = cli.listSchemas
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): String = s"teradata:$dbName/${it.next()}"
+      override def next(): JdbcSchemaLocation = {
+        new TeradataSchema(cli, dbName, it.next())
+      }
 
       override def close(): Unit = it.close()
     }

@@ -21,6 +21,6 @@ class OracleTable(
     table: String
 ) extends JdbcTableLocation(cli, "oracle", dbName, table.toUpperCase, Some(schema.toUpperCase)) {
 
-  override def rawUri: String = s"oracle:$dbName/$schema/$table"
+  override def rawUri: String = s"oracle://${cli.hostname}:${cli.port}/$dbName/$schema/$table"
 
 }

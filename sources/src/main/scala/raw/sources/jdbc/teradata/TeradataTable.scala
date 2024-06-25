@@ -21,6 +21,6 @@ class TeradataTable(
     table: String
 ) extends JdbcTableLocation(cli, "teradata", dbName, table, Some(schema)) {
 
-  override def rawUri: String = s"teradata:$dbName/$schema/$table"
+  override def rawUri: String = s"teradata://${cli.hostname}:${cli.port}/$dbName/$schema/$table"
 
 }

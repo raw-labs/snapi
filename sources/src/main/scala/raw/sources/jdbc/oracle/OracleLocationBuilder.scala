@@ -12,23 +12,41 @@
 
 package raw.sources.jdbc.oracle
 
-import raw.client.api.LocationDescription
+import raw.client.api.{OptionType, OptionValue, StringOptionType, StringOptionValue}
 import raw.sources.api.{LocationException, SourceContext}
 import raw.sources.jdbc.api.{JdbcLocation, JdbcLocationBuilder}
 
+import scala.util.matching.Regex
+
+object OracleLocationBuilder {
+  private val REGEX = """oracle:(?://)?([^:/]+)(?::(\d+))?/([^/]+)""".r
+
+  private val CONFIG_USERNAME = "username"
+  private val CONFIG_PASSWORD = "password"
+}
+
 class OracleLocationBuilder extends JdbcLocationBuilder {
 
-  private val oracleDatabaseRegex = """oracle:(?://)?([^/]+)""".r
+  import OracleLocationBuilder._
 
   override def schemes: Seq[String] = Seq("oracle")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcLocation = {
-    location.url match {
-      case oracleDatabaseRegex(dbName) =>
-        val db = OracleClients.get(dbName, location)
-        new OracleLocation(db, db.database.get)
-      case _ => throw new LocationException("not an oracle database location")
-    }
+  override def regex: Regex = REGEX
+
+  override def validOptions: Map[String, OptionType] = Map(
+    CONFIG_USERNAME -> StringOptionType,
+    CONFIG_PASSWORD -> StringOptionType
+  )
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcLocation = {
+    val List(host, portOrNull, dbName) = groups
+    val username = getStringOption(options, CONFIG_USERNAME)
+    val password = getStringOption(options, CONFIG_PASSWORD)
+    val port = if (portOrNull == null) 1521 else portOrNull.toInt
+    val db = new OracleClient(host, port, dbName, username, password)(sourceContext.settings)
+    new OracleLocation(db, dbName)
   }
 
 }

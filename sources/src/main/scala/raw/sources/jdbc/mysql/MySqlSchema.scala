@@ -13,22 +13,24 @@
 package raw.sources.jdbc.mysql
 
 import java.io.Closeable
-import raw.sources.jdbc.api.JdbcSchemaLocation
+import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcTableLocation}
 
 class MySqlSchema(
     cli: MySqlClient,
     dbName: String
 ) extends JdbcSchemaLocation(cli, None) {
 
-  override def rawUri: String = s"mysql:${cli.host}:${cli.port}/$dbName"
+  override def rawUri: String = s"mysql://${cli.hostname}:${cli.port}/$dbName"
 
-  override def listTables(): Iterator[String] with Closeable = {
-    new Iterator[String] with Closeable {
-      private val it = cli.listTables("")
+  override def listTables(): Iterator[JdbcTableLocation] with Closeable = {
+    new Iterator[JdbcTableLocation] with Closeable {
+      private val it = cli.listTables("") // Schema is ignored for MySQL.
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): String = s"mysql:$dbName/${it.next()}"
+      override def next(): JdbcTableLocation = {
+        new MySqlTable(cli, dbName, it.next())
+      }
 
       override def close(): Unit = it.close()
     }

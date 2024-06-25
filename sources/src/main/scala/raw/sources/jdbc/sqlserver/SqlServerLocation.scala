@@ -20,15 +20,17 @@ class SqlServerLocation(
     dbName: String
 ) extends JdbcLocation(cli, "sqlserver", dbName) {
 
-  override def rawUri: String = s"sqlserver:$dbName"
+  override def rawUri: String = s"sqlserver://${cli.hostname}:${cli.port}/$dbName"
 
-  override def listSchemas(): Iterator[String] with Closeable = {
-    new Iterator[String] with Closeable {
+  override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
+    new Iterator[JdbcSchemaLocation] with Closeable {
       private val it = cli.listSchemas
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): String = s"sqlserver:$dbName/${it.next()}"
+      override def next(): JdbcSchemaLocation = {
+        new SqlServerSchema(cli, dbName, it.next())
+      }
 
       override def close(): Unit = it.close()
     }

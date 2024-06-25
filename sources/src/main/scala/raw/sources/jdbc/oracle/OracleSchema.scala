@@ -13,7 +13,7 @@
 package raw.sources.jdbc.oracle
 
 import java.io.Closeable
-import raw.sources.jdbc.api.JdbcSchemaLocation
+import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcTableLocation}
 
 class OracleSchema(
     cli: OracleClient,
@@ -21,15 +21,17 @@ class OracleSchema(
     schema: String
 ) extends JdbcSchemaLocation(cli, Some(schema)) {
 
-  override def rawUri: String = s"oracle:$dbName/$schema"
+  override def rawUri: String = s"oracle://${cli.hostname}:${cli.port}/$dbName/$schema"
 
-  override def listTables(): Iterator[String] with Closeable = {
-    new Iterator[String] with Closeable {
+  override def listTables(): Iterator[JdbcTableLocation] with Closeable = {
+    new Iterator[JdbcTableLocation] with Closeable {
       private val it = cli.listTables(schema)
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): String = s"oracle:$dbName/$schema/${it.next()}"
+      override def next(): JdbcTableLocation = {
+        new OracleTable(cli, dbName, schema, it.next())
+      }
 
       override def close(): Unit = it.close()
     }

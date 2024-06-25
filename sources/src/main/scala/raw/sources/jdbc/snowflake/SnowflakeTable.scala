@@ -21,6 +21,6 @@ class SnowflakeTable(
     table: String
 ) extends JdbcTableLocation(cli, "snowflake", dbName, table.toUpperCase, Some(schema.toUpperCase)) {
 
-  override def rawUri: String = s"snowflake:$dbName/$schema/$table"
+  override def rawUri: String = s"snowflake://${cli.hostname}/$dbName/$schema/$table"
 
 }

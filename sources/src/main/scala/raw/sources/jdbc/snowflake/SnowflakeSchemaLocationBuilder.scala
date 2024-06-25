@@ -12,21 +12,44 @@
 
 package raw.sources.jdbc.snowflake
 
-import raw.client.api.LocationDescription
-import raw.sources.api.{LocationException, SourceContext}
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
+import raw.sources.api.SourceContext
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
 
+import scala.util.matching.Regex
+
+object SnowflakeSchemaLocationBuilder {
+  private val REGEX = """snowflake:(?://)?([^/]+)/([^/]+)""".r
+
+  private val CONFIG_USERNAME = "username"
+  private val CONFIG_PASSWORD = "password"
+  private val CONFIG_ACCOUNT_IDENTIFIER = "accountIdentifier"
+  private val CONFIG_PARAMETERS = "parameters"
+}
+
 class SnowflakeSchemaLocationBuilder extends JdbcSchemaLocationBuilder {
+
+  import SnowflakeSchemaLocationBuilder._
+
   override def schemes: Seq[String] = Seq("snowflake")
 
-  private val schemaRegex = """snowflake:(?://)?([^/]+)/([^/]+)""".r
+  override def regex: Regex = REGEX
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcSchemaLocation = {
-    location.url match {
-      case schemaRegex(dbName, schema) =>
-        val db = SnowflakeClients.get(dbName, location)
-        new SnowflakeSchema(db, db.database.get, schema)
-      case _ => throw new LocationException("not an snowflake schema location")
-    }
+  override def validOptions: Map[String, OptionType] = Map(
+    CONFIG_USERNAME -> StringOptionType,
+    CONFIG_PASSWORD -> StringOptionType
+  )
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcSchemaLocation = {
+    val List(host, dbName, schema) = groups
+    val username = getStringOption(options, CONFIG_USERNAME)
+    val password = getStringOption(options, CONFIG_PASSWORD)
+    val accountIdentifier = getStringOption(options, CONFIG_ACCOUNT_IDENTIFIER)
+    val parameters = getMapStringToStringOption(options, CONFIG_PARAMETERS)
+    val db =
+      new SnowflakeClient(host, dbName, username, password, accountIdentifier, parameters)(sourceContext.settings)
+    new SnowflakeSchema(db, dbName, schema)
   }
 }

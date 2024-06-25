@@ -20,15 +20,17 @@ class SnowflakeLocation(
     dbName: String
 ) extends JdbcLocation(cli, "snowflake", dbName) {
 
-  override def rawUri: String = s"snowflake:$dbName"
+  override def rawUri: String = s"snowflake://${cli.hostname}/$dbName"
 
-  override def listSchemas(): Iterator[String] with Closeable = {
-    new Iterator[String] with Closeable {
+  override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
+    new Iterator[JdbcSchemaLocation] with Closeable {
       private val it = cli.listSchemas
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): String = s"snowflake:$dbName/${it.next()}"
+      override def next(): JdbcSchemaLocation = {
+        new SnowflakeSchema(cli, dbName, it.next())
+      }
 
       override def close(): Unit = it.close()
     }

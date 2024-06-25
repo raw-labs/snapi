@@ -22,6 +22,6 @@ class SqliteTable(
 
   private val path = cli.sqlitePath.toString
 
-  override def rawUri: String = s"sqlite:$table:$path"
+  override def rawUri: String = s"sqlite://$path?db=$dbName&table=$table"
 
 }

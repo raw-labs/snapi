@@ -15,7 +15,6 @@ package raw.sources.jdbc.mysql
 import com.mysql.cj.exceptions.CJCommunicationsException
 
 import java.util.concurrent.TimeUnit
-import raw.creds.api.MySqlCredential
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
@@ -23,7 +22,7 @@ import java.net.{SocketTimeoutException, UnknownHostException}
 import java.sql.SQLException
 import scala.util.control.NonFatal
 
-class MySqlClient(val host: String, val port: Int, val dbName: String, username: String, password: String)(
+class MySqlClient(val hostname: String, val port: Int, dbName: String, username: String, password: String)(
     implicit settings: RawSettings
 ) extends JdbcClient {
 
@@ -33,16 +32,16 @@ class MySqlClient(val host: String, val port: Int, val dbName: String, username:
   private val readTimeout = getReadTimeout(TimeUnit.MILLISECONDS)
 
   override val vendor: String = "mysql"
+
+  override val maybeDatabase: Option[String] = Some(dbName)
+
+  override val maybeUsername: Option[String] = Some(username)
+
+  override val maybePassword: Option[String] = Some(password)
+
   override val connectionString: String = {
-    val maybePort = db.port.map(p => ":" + p).getOrElse("")
-    s"jdbc:$vendor://${db.host}$maybePort/${db.database}?connectTimeout=$connectTimeout&socketTimeout=$readTimeout"
+    s"jdbc:$vendor://$hostname:$port/$dbName?connectTimeout=$connectTimeout&socketTimeout=$readTimeout"
   }
-  override val username: Option[String] = db.username
-  override val password: Option[String] = db.password
-
-  override val hostname: String = db.host
-
-  override val database: Option[String] = Some(db.database)
 
   override def wrapSQLException[T](f: => T): T = {
     try {
@@ -51,7 +50,7 @@ class MySqlClient(val host: String, val port: Int, val dbName: String, username:
       case ex: SQLException => ex.getCause match {
           case _: UnknownHostException => throw new RDBMSUnknownHostException(hostname, ex)
           case _: SocketTimeoutException => throw new RDBMSConnectTimeoutException(hostname, ex)
-          case int: InterruptedException => throw int
+          case ex: InterruptedException => throw ex
           case _ =>
             // Some more codes here (DB2 Universal Messages manual), various databases have varying degrees of compliance
             //https://www.ibm.com/support/knowledgecenter/en/SS6NHC/com.ibm.swg.im.dashdb.messages.doc/doc/rdb2stt.html
@@ -78,9 +77,8 @@ class MySqlClient(val host: String, val port: Int, val dbName: String, username:
             }
         }
       case ex: JdbcLocationException => throw ex
-      case NonFatal(t) =>
-        logger.warn("Unexpected SQL error.", t)
-        throw new JdbcLocationException(s"unexpected database error", t)
+      case ex: InterruptedException => throw ex
+      case NonFatal(t) => throw new JdbcLocationException(s"unexpected database error", t)
     }
   }
 

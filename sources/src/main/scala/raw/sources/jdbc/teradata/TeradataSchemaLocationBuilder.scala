@@ -12,22 +12,43 @@
 
 package raw.sources.jdbc.teradata
 
-import raw.client.api.LocationDescription
-import raw.sources.api.{LocationException, SourceContext}
+import raw.client.api.{MapOptionType, OptionType, OptionValue, StringOptionType}
+import raw.sources.api.SourceContext
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
+
+import scala.util.matching.Regex
+
+object TeradataSchemaLocationBuilder {
+  private val REGEX = """teradata:(?://)?([^:/]+)(?::(\d+))?/([^/]+)/([^/]+)""".r
+
+  private val CONFIG_USERNAME = "username"
+  private val CONFIG_PASSWORD = "password"
+  private val CONFIG_PARAMETERS = "parameters"
+}
 
 class TeradataSchemaLocationBuilder extends JdbcSchemaLocationBuilder {
 
-  private val schemaRegex = """teradata:(?://)?([^/]+)/([^/]+)""".r
+  import TeradataSchemaLocationBuilder._
 
   override def schemes: Seq[String] = Seq("teradata")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcSchemaLocation = {
-    location.url match {
-      case schemaRegex(dbName, schema) =>
-        val db = TeradataClients.get(dbName)
-        new TeradataSchema(db, dbName, schema)
-      case _ => throw new LocationException("not a teradata schema location")
-    }
+  override def regex: Regex = REGEX
+
+  override def validOptions: Map[String, OptionType] = Map(
+    CONFIG_USERNAME -> StringOptionType,
+    CONFIG_PASSWORD -> StringOptionType,
+    CONFIG_PARAMETERS -> MapOptionType(StringOptionType, StringOptionType)
+  )
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcSchemaLocation = {
+    val List(host, portOrNull, dbName, schema) = groups
+    val username = getStringOption(options, CONFIG_USERNAME)
+    val password = getStringOption(options, CONFIG_PASSWORD)
+    val parameters = getMapStringToStringOption(options, CONFIG_PARAMETERS)
+    val port = if (portOrNull == null) 1025 else portOrNull.toInt
+    val db = new TeradataClient(host, port, dbName, username, password, parameters)(sourceContext.settings)
+    new TeradataSchema(db, dbName, schema)
   }
 }

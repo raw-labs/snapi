@@ -22,7 +22,9 @@ import raw.utils.RawSettings
 import java.net.{SocketTimeoutException, UnknownHostException}
 import scala.util.control.NonFatal
 
-class PostgresqlClient(db: PostgresqlCredential)(implicit settings: RawSettings) extends JdbcClient {
+class PostgresqlClient(val hostname: String, val port: Int, dbName: String, username: String, password: String)(
+    implicit settings: RawSettings
+) extends JdbcClient {
 
   Class.forName("org.postgresql.Driver")
 
@@ -31,23 +33,16 @@ class PostgresqlClient(db: PostgresqlCredential)(implicit settings: RawSettings)
   private val readTimeout = getReadTimeout(TimeUnit.SECONDS)
 
   override val vendor: String = "postgresql"
+
+  override val maybeDatabase: Option[String] = Some(dbName)
+
+  override val maybeUsername: Option[String] = Some(username)
+
+  override val maybePassword: Option[String] = Some(password)
+
   override val connectionString: String = {
-    val maybePort = db.port.map(p => ":" + p).getOrElse("")
-    s"jdbc:$vendor://${db.host}$maybePort/${db.database}?connectTimeout=$connectTimeout&socketTimeout=$readTimeout"
+    s"jdbc:$vendor://$hostname:$port/$dbName?connectTimeout=$connectTimeout&socketTimeout=$readTimeout"
   }
-  override val username: Option[String] = db.username
-  override val password: Option[String] = db.password
-
-  override val hostname: String = db.host
-
-  override val database: Option[String] = Some(db.database)
-  //  override val datasource: DataSource = {
-  //    val pgDatasource = new PGSimpleDataSource()
-  //    pgDatasource.setURL(connectionString)
-  //    pgDatasource.setUser(username.orNull)
-  //    pgDatasource.setPassword(password.orNull)
-  //    pgDatasource
-  //  }
 
   override def wrapSQLException[T](f: => T): T = {
     try {
@@ -56,7 +51,7 @@ class PostgresqlClient(db: PostgresqlCredential)(implicit settings: RawSettings)
       case ex: PSQLException => ex.getCause match {
           case _: UnknownHostException => throw new RDBMSUnknownHostException(hostname, ex)
           case _: SocketTimeoutException => throw new RDBMSConnectTimeoutException(hostname, ex)
-          case int: InterruptedException => throw int
+          case ex: InterruptedException => throw ex
           case _ =>
             // Some more codes here (DB2 Universal Messages manual), various databases have varying degrees of compliance
             //https://www.ibm.com/support/knowledgecenter/en/SS6NHC/com.ibm.swg.im.dashdb.messages.doc/doc/rdb2stt.html
@@ -76,9 +71,8 @@ class PostgresqlClient(db: PostgresqlCredential)(implicit settings: RawSettings)
             }
         }
       case ex: JdbcLocationException => throw ex
-      case NonFatal(t) =>
-        logger.warn("Unexpected SQL error.", t)
-        throw new JdbcLocationException(s"unexpected database error", t)
+      case ex: InterruptedException => throw ex
+      case NonFatal(t) => throw new JdbcLocationException(s"unexpected database error", t)
     }
   }
 

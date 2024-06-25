@@ -12,23 +12,45 @@
 
 package raw.sources.jdbc.snowflake
 
-import raw.client.api.LocationDescription
-import raw.sources.api.{LocationException, SourceContext}
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
+import raw.sources.api.SourceContext
 import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
+
+import scala.util.matching.Regex
+
+object SnowflakeTableLocationBuilder {
+  private val REGEX = """snowflake:(?://)?([^/]+)/([^/]+)/([^/]+)""".r
+
+  private val CONFIG_USERNAME = "username"
+  private val CONFIG_PASSWORD = "password"
+  private val CONFIG_ACCOUNT_IDENTIFIER = "accountIdentifier"
+  private val CONFIG_PARAMETERS = "parameters"
+}
 
 class SnowflakeTableLocationBuilder extends JdbcTableLocationBuilder {
 
-  private val snowflakeTableRegex = """snowflake:(?://)?([^/]+)/([^/]+)/([^/]+)""".r
+  import SnowflakeTableLocationBuilder._
 
   override def schemes: Seq[String] = Seq("snowflake")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcTableLocation = {
-    location.url match {
-      case snowflakeTableRegex(dbName, schema, table) =>
-        val db = SnowflakeClients.get(dbName, location)
-        new SnowflakeTable(db, db.database.get, schema, table)
-      case _ => throw new LocationException("not an snowflake table location")
-    }
+  override def regex: Regex = REGEX
+
+  override def validOptions: Map[String, OptionType] = Map(
+    CONFIG_USERNAME -> StringOptionType,
+    CONFIG_PASSWORD -> StringOptionType
+  )
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcTableLocation = {
+    val List(host, dbName, schema, table) = groups
+    val username = getStringOption(options, CONFIG_USERNAME)
+    val password = getStringOption(options, CONFIG_PASSWORD)
+    val accountIdentifier = getStringOption(options, CONFIG_ACCOUNT_IDENTIFIER)
+    val parameters = getMapStringToStringOption(options, CONFIG_PARAMETERS)
+    val db =
+      new SnowflakeClient(host, dbName, username, password, accountIdentifier, parameters)(sourceContext.settings)
+    new SnowflakeTable(db, dbName, schema, table)
   }
 
 }

@@ -13,25 +13,25 @@
 package raw.sources.jdbc.teradata
 
 import java.io.Closeable
-import raw.sources.jdbc.api.JdbcSchemaLocation
+import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcTableLocation}
 
-// This might be misleading, this is a Teradata database but works in a similar way to a Oracle schema
-// so just remember that like oracle users are also 'databases/schemas'
 class TeradataSchema(
     cli: TeradataClient,
     dbName: String,
     schema: String
 ) extends JdbcSchemaLocation(cli, Some(schema)) {
 
-  override def rawUri: String = s"teradata:$dbName/$schema"
+  override def rawUri: String = s"teradata://${cli.hostname}:${cli.port}/$dbName/$schema"
 
-  override def listTables(): Iterator[String] with Closeable = {
-    new Iterator[String] with Closeable {
+  override def listTables(): Iterator[JdbcTableLocation] with Closeable = {
+    new Iterator[JdbcTableLocation] with Closeable {
       private val it = cli.listTables(schema)
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): String = s"teradata:$dbName/$schema/${it.next()}"
+      override def next(): JdbcTableLocation = {
+        new TeradataTable(cli, dbName, schema, it.next())
+      }
 
       override def close(): Unit = it.close()
     }

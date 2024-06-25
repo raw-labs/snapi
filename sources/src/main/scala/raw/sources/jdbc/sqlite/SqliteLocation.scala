@@ -22,9 +22,9 @@ class SqliteLocation(
 
   private val path = cli.sqlitePath.toString
 
-  override def rawUri: String = s"sqlite:$path"
+  override def rawUri: String = s"sqlite://$path?db=$dbName"
 
-  override def listSchemas(): Iterator[String] with Closeable = {
+  override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
     throw new JdbcLocationException("no schemas in sqlite")
   }
 

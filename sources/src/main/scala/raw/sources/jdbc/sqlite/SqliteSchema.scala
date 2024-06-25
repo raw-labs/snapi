@@ -13,23 +13,26 @@
 package raw.sources.jdbc.sqlite
 
 import java.io.Closeable
-import raw.sources.jdbc.api.JdbcSchemaLocation
+import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcTableLocation}
 
 class SqliteSchema(
-    cli: SqliteClient
+    cli: SqliteClient,
+    dbName: String
 ) extends JdbcSchemaLocation(cli, None) {
 
   private val path = cli.sqlitePath.toString
 
-  override def rawUri: String = s"sqlite:$path"
+  override def rawUri: String = s"sqlite://$path?db=$dbName"
 
-  override def listTables(): Iterator[String] with Closeable = {
-    new Iterator[String] with Closeable {
+  override def listTables(): Iterator[JdbcTableLocation] with Closeable = {
+    new Iterator[JdbcTableLocation] with Closeable {
       private val it = cli.listTables("")
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): String = s"sqlite:${it.next()}:file:$path"
+      override def next(): JdbcTableLocation = {
+        new SqliteTable(cli, dbName, it.next())
+      }
 
       override def close(): Unit = it.close()
     }

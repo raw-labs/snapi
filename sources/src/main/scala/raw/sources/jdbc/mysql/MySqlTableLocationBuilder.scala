@@ -13,22 +13,40 @@
 package raw.sources.jdbc.mysql
 
 import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.LocationDescription
+import raw.client.api.{LocationDescription, OptionType, OptionValue, StringOptionType, StringOptionValue}
 import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
+
+import scala.util.matching.Regex
+
+object MySqlTableLocationBuilder {
+  private val REGEX = """mysql:(?://)?([^:/]+)(?::(\d+))?/([^/]+)/([^/]+)""".r
+
+  private val CONFIG_USERNAME = "username"
+  private val CONFIG_PASSWORD = "password"
+}
 
 class MySqlTableLocationBuilder extends JdbcTableLocationBuilder {
 
-  private val mysqlTableRegex = """mysql:(?://)?([^/]+)/([^/]+)""".r
+  import MySqlTableLocationBuilder._
 
   override def schemes: Seq[String] = Seq("mysql")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcTableLocation = {
-    location.url match {
-      case mysqlTableRegex(dbName, table) =>
-        val db = MySqlClients.get(dbName, location)
-        new MySqlTable(db, db.database.get, table)
-      case _ => throw new LocationException("not a mysql table location")
-    }
+  override def regex: Regex = REGEX
+
+  override def validOptions: Map[String, OptionType] = Map(
+    CONFIG_USERNAME -> StringOptionType,
+    CONFIG_PASSWORD -> StringOptionType
+  )
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcTableLocation = {
+    val List(host, portOrNull, dbName, table) = groups
+    val username = getStringOption(options, CONFIG_USERNAME)
+    val password = getStringOption(options, CONFIG_PASSWORD)
+    val port = if (portOrNull == null) 3306 else portOrNull.toInt
+    val db = new MySqlClient(host, port, dbName, username, password)(sourceContext.settings)
+    new MySqlTable(db, dbName, table)
   }
 
 }

@@ -12,23 +12,44 @@
 
 package raw.sources.jdbc.teradata
 
-import raw.client.api.LocationDescription
-import raw.sources.api.{LocationException, SourceContext}
+import raw.client.api.{MapOptionType, OptionType, OptionValue, StringOptionType}
+import raw.sources.api.SourceContext
 import raw.sources.jdbc.api.{JdbcLocation, JdbcLocationBuilder}
+
+import scala.util.matching.Regex
+
+object TeradataLocationBuilder {
+  private val REGEX = """teradata:(?://)?([^:/]+)(?::(\d+))?/([^/]+)""".r
+
+  private val CONFIG_USERNAME = "username"
+  private val CONFIG_PASSWORD = "password"
+  private val CONFIG_PARAMETERS = "parameters"
+}
 
 class TeradataLocationBuilder extends JdbcLocationBuilder {
 
-  private val teradataDbRegex = """teradata:(?://)?([^/]+)""".r
+  import TeradataLocationBuilder._
 
   override def schemes: Seq[String] = Seq("teradata")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcLocation = {
-    location.url match {
-      case teradataDbRegex(dbName) =>
-        val db = TeradataClients.get(dbName)
-        new TeradataLocation(db, dbName)
-      case _ => throw new LocationException("not a teradata database location")
-    }
+  override def regex: Regex = REGEX
+
+  override def validOptions: Map[String, OptionType] = Map(
+    CONFIG_USERNAME -> StringOptionType,
+    CONFIG_PASSWORD -> StringOptionType,
+    CONFIG_PARAMETERS -> MapOptionType(StringOptionType, StringOptionType)
+  )
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcLocation = {
+    val List(host, portOrNull, dbName) = groups
+    val username = getStringOption(options, CONFIG_USERNAME)
+    val password = getStringOption(options, CONFIG_PASSWORD)
+    val parameters = getMapStringToStringOption(options, CONFIG_PARAMETERS)
+    val port = if (portOrNull == null) 1025 else portOrNull.toInt
+    val db = new TeradataClient(host, port, dbName, username, password, parameters)(sourceContext.settings)
+    new TeradataLocation(db, dbName)
   }
 
 }

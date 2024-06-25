@@ -20,6 +20,6 @@ class MySqlTable(
     table: String
 ) extends JdbcTableLocation(cli, "mysql", dbName, table, None) {
 
-  override def rawUri: String = s"mysql:$dbName/$table"
+  override def rawUri: String = s"mysql://${cli.hostname}:${cli.port}/$dbName/$table"
 
 }

@@ -22,7 +22,9 @@ import raw.utils.RawSettings
 import java.net.{SocketTimeoutException, UnknownHostException}
 import scala.util.control.NonFatal
 
-class SqlServerClient(protected val db: SqlServerCredential)(implicit settings: RawSettings) extends JdbcClient {
+class SqlServerClient(val hostname: String, val port: Int, dbName: String, username: String, password: String)(
+    implicit settings: RawSettings
+) extends JdbcClient {
 
   Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
 
@@ -33,16 +35,18 @@ class SqlServerClient(protected val db: SqlServerCredential)(implicit settings: 
   private val readTimeout = getReadTimeout(TimeUnit.MILLISECONDS)
 
   override val vendor: String = "sqlserver"
-  override val connectionString: String = {
-    val maybePort = db.port.map(p => ":" + p).getOrElse("")
-    // explicit sendTimeAsDatetime=false to support time JDBC parameters (https://github.com/microsoft/mssql-jdbc/issues/559)
-    s"jdbc:$vendor://${db.host}$maybePort;databaseName=${db.database};loginTimeout=$connectTimeout;socketTimeout=$readTimeout;sendTimeAsDatetime=false"
-  }
-  override val username: Option[String] = db.username
-  override val password: Option[String] = db.password
 
-  override val hostname: String = db.host
-  override val database: Option[String] = Some(db.database)
+  override val maybeDatabase: Option[String] = Some(dbName)
+
+  override val maybeUsername: Option[String] = Some(username)
+
+  override val maybePassword: Option[String] = Some(password)
+
+  override val connectionString: String = {
+    // Explicit sendTimeAsDatetime=false to support time JDBC parameters (https://github.com/microsoft/mssql-jdbc/issues/559)
+    s"jdbc:$vendor://$hostname:$port;databaseName=$dbName;loginTimeout=$connectTimeout;socketTimeout=$readTimeout;sendTimeAsDatetime=false"
+  }
+
   override def wrapSQLException[T](f: => T): T = {
     try {
       f
@@ -51,7 +55,7 @@ class SqlServerClient(protected val db: SqlServerCredential)(implicit settings: 
       case ex: SQLServerException => ex.getCause match {
           case _: UnknownHostException => throw new RDBMSUnknownHostException(hostname, ex)
           case _: SocketTimeoutException => throw new RDBMSConnectTimeoutException(hostname, ex)
-          case int: InterruptedException => throw int
+          case ex: InterruptedException => throw ex
           case _ =>
             // Some more codes here (DB2 Universal Messages manual), various databases have varying degrees of compliance
             //https://www.ibm.com/support/knowledgecenter/en/SS6NHC/com.ibm.swg.im.dashdb.messages.doc/doc/rdb2stt.html
@@ -71,9 +75,8 @@ class SqlServerClient(protected val db: SqlServerCredential)(implicit settings: 
             }
         }
       case ex: JdbcLocationException => throw ex
-      case NonFatal(t) =>
-        logger.warn("Unexpected SQL error.", t)
-        throw new JdbcLocationException(s"unexpected database error", t)
+      case ex: InterruptedException => throw ex
+      case NonFatal(t) => throw new JdbcLocationException(s"unexpected database error", t)
     }
   }
 

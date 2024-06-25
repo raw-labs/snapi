@@ -45,7 +45,7 @@ case object StringOptionType extends OptionType
 case object BinaryOptionType extends OptionType
 case object BooleanOptionType extends OptionType
 case object DurationOptionType extends OptionType
-case object MapOptionType extends OptionType
+final case class MapOptionType(k: OptionType, v: OptionType) extends OptionType
 case object ArrayOptionType extends OptionType
 
 final case class LocationDescription(

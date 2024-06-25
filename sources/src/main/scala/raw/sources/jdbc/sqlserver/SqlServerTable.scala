@@ -21,6 +21,6 @@ class SqlServerTable(
     table: String
 ) extends JdbcTableLocation(cli, "sqlserver", dbName, table, Some(schema)) {
 
-  override def rawUri: String = s"sqlserver:$dbName/$schema/$table"
+  override def rawUri: String = s"sqlserver://${cli.hostname}:${cli.port}/$dbName/$schema/$table"
 
 }

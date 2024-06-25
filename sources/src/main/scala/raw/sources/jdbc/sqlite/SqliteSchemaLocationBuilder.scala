@@ -13,22 +13,38 @@
 package raw.sources.jdbc.sqlite
 
 import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.LocationDescription
-import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
+import raw.client.api.{LocationDescription, OptionType, OptionValue}
+import raw.sources.jdbc.api.{JdbcLocation, JdbcSchemaLocation, JdbcSchemaLocationBuilder}
+
+import java.nio.file.{InvalidPathException, Paths}
+import scala.util.matching.Regex
+
+object SqliteSchemaLocationBuilder {
+  private val REGEX = """mysql:(?://)?([^?]+)\?db=([^&]+)""".r
+}
 
 class SqliteSchemaLocationBuilder extends JdbcSchemaLocationBuilder {
 
-  private val sqliteRegex = """sqlite:(?://)?(.+)""".r
+  import SqliteSchemaLocationBuilder._
 
   override def schemes: Seq[String] = Seq("sqlite")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcSchemaLocation = {
-    location.url match {
-      case sqliteRegex(locationUrl) =>
-        val db = SqliteClients.get(locationUrl)
-        new SqliteSchema(db)
-      case _ => throw new LocationException("not a sqlite schema location")
-    }
+  override def regex: Regex = REGEX
+
+  override def validOptions: Map[String, OptionType] = Map.empty
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcSchemaLocation = {
+    val List(path, dbName) = groups
+    val localPath =
+      try {
+        Paths.get(path)
+      } catch {
+        case _: InvalidPathException => throw new LocationException("invalid path")
+      }
+    val cli = new SqliteClient(localPath)(sourceContext.settings)
+    new SqliteSchema(cli, dbName)
   }
 
 }

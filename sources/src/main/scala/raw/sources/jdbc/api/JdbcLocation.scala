@@ -22,7 +22,7 @@ abstract class JdbcLocation(val jdbcClient: JdbcClient, val vendor: String, val 
     extends Location
     with StrictLogging {
 
-  def listSchemas(): Iterator[String] with Closeable
+  def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable
 
   final def getJdbcConnection(): Connection = {
     jdbcClient.getConnection

@@ -12,24 +12,41 @@
 
 package raw.sources.jdbc.pgsql
 
-import raw.client.api.LocationDescription
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
 import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
-import raw.sources.api.{LocationException, SourceContext}
+import raw.sources.api.SourceContext
+
+import scala.util.matching.Regex
+
+object PostgresqlTableLocationBuilder {
+  private val REGEX = """pgsql:(?://)?([^:/]+)(?::(\d+))?/([^/]+)/([^/]+)/([^/]+)""".r
+
+  private val CONFIG_USERNAME = "username"
+  private val CONFIG_PASSWORD = "password"
+}
 
 class PostgresqlTableLocationBuilder extends JdbcTableLocationBuilder {
 
-  private val postgresqlTableRegex = """pgsql:(?://)?([^/]+)/([^/]+)/([^/]+)""".r
+  import PostgresqlTableLocationBuilder._
 
   override def schemes: Seq[String] = Seq("pgsql")
 
-  override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcTableLocation = {
-    location.url match {
-      case postgresqlTableRegex(dbName, schema, table) =>
-        val db = PostgresqlClients.get(dbName, location)
-        new PostgresqlTable(db, db.database.get, schema, table)
-      case _ => throw new LocationException("not a postgresql location")
-    }
+  override def regex: Regex = REGEX
 
+  override def validOptions: Map[String, OptionType] = Map(
+    CONFIG_USERNAME -> StringOptionType,
+    CONFIG_PASSWORD -> StringOptionType
+  )
+
+  override def build(groups: List[String], options: Map[String, OptionValue])(
+      implicit sourceContext: SourceContext
+  ): JdbcTableLocation = {
+    val List(host, portOrNull, dbName, schema, table) = groups
+    val username = getStringOption(options, CONFIG_USERNAME)
+    val password = getStringOption(options, CONFIG_PASSWORD)
+    val port = if (portOrNull == null) 5432 else portOrNull.toInt
+    val db = new PostgresqlClient(host, port, dbName, username, password)(sourceContext.settings)
+    new PostgresqlTable(db, dbName, schema, table)
   }
 
 }
