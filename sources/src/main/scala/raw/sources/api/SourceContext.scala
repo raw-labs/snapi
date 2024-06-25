@@ -26,7 +26,11 @@ import raw.sources.jdbc.api.{
   JdbcTableLocationBuilder
 }
 
-object SourceContext {
+class SourceContext(
+    val user: AuthenticatedUser,
+    val credentialsService: CredentialsService,
+    val settings: RawSettings
+) {
 
   private val fileSystemLocationBuilderServices: Array[FileSystemLocationBuilder] = Array(
     new raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
