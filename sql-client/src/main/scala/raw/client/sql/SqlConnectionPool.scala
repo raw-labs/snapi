@@ -14,21 +14,14 @@ package raw.client.sql
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache, RemovalNotification}
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import raw.creds.api.CredentialsService
-import raw.utils.{AuthenticatedUser, RawService, RawSettings, RawUtils}
+import raw.utils.{RawService, RawSettings, RawUtils}
 
 import java.sql.SQLException
 import java.util.concurrent.{ConcurrentHashMap, Executors, TimeUnit}
 import scala.collection.mutable
 
-class SqlConnectionPool(credentialsService: CredentialsService)(implicit settings: RawSettings)
-    extends RawService
-    with StrictLogging {
+class SqlConnectionPool()(implicit settings: RawSettings) extends RawService with StrictLogging {
 
-  private val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
-  private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
-  private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
-  private val password = settings.getString("raw.creds.jdbc.fdw.password")
   private val maxConnections = settings.getInt("raw.client.sql.pool.max-connections")
   private val idleTimeout = settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS)
   private val maxLifetime = settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS)
@@ -36,13 +29,13 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
 
   private val poolGarbageCollectionPeriod = settings.getDuration("raw.client.sql.pool.gc-period")
   private val poolsToDelete = new ConcurrentHashMap[String, HikariDataSource]()
-  private val garbageCollectScheduller =
+  private val garbageCollectScheduler =
     Executors.newSingleThreadScheduledExecutor(RawUtils.newThreadFactory("sql-connection-pool-gc"))
 
   // Periodically check for idle pools and close them
   // If the hikari pool in the cache expires and still has active connections, we will move it to the poolsToDelete map
   // Then we delete it later when the active connections are 0 (i.e. long queries are done and the pool is not needed anymore)
-  garbageCollectScheduller.scheduleAtFixedRate(
+  garbageCollectScheduler.scheduleAtFixedRate(
     () => {
       val urlsToRemove = mutable.ArrayBuffer[String]()
       poolsToDelete.forEach((url, pool) => {
@@ -72,8 +65,6 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
       config.setIdleTimeout(idleTimeout)
       config.setMaxLifetime(maxLifetime)
       config.setConnectionTimeout(connectionTimeout)
-      config.setUsername(readOnlyUser)
-      config.setPassword(password)
       val pool = new HikariDataSource(config)
       pool
     }
@@ -95,16 +86,8 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
     .build(dbCacheLoader)
 
   @throws[SQLException]
-  def getConnection(user: AuthenticatedUser): java.sql.Connection = {
-    val db = settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.db").getOrElse(credentialsService.getUserDb(user))
-    val maybeSchema = settings.getStringOpt(s"raw.creds.jdbc.${user.uid.uid}.schema")
-
-    val url = maybeSchema match {
-      case Some(schema) => s"jdbc:postgresql://$dbHost:$dbPort/$db?currentSchema=$schema"
-      case None => s"jdbc:postgresql://$dbHost:$dbPort/$db"
-    }
-
-    dbCache.get(url).getConnection()
+  def getConnection(jdbcUrl: String): java.sql.Connection = {
+    dbCache.get(jdbcUrl).getConnection()
   }
 
   override def doStop(): Unit = {
@@ -112,7 +95,7 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
       logger.info(s"Shutting down SQL connection pool for database ${pool.getJdbcUrl}")
       RawUtils.withSuppressNonFatalException(pool.close())
     }
-    garbageCollectScheduller.shutdown()
-    garbageCollectScheduller.awaitTermination(5, TimeUnit.SECONDS)
+    garbageCollectScheduler.shutdown()
+    garbageCollectScheduler.awaitTermination(5, TimeUnit.SECONDS)
   }
 }

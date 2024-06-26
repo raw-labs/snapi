@@ -19,5 +19,6 @@ final case class ProgramEnvironment(
     maybeArguments: Option[Array[(String, RawValue)]],
     scopes: Set[String],
     options: Map[String, String],
-    maybeTraceId: Option[String] = None
+    maybeTraceId: Option[String] = None,
+    jdbcUrl: Option[String] = None
 )

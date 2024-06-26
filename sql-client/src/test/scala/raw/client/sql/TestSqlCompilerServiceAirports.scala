@@ -21,48 +21,60 @@
 
 package raw.client.sql
 
+import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
+import org.testcontainers.utility.DockerImageName
 import raw.client.api._
 import raw.creds.api.CredentialsTestContext
 import raw.creds.local.LocalCredentialsTestContext
 import raw.utils._
 
 import java.io.ByteArrayOutputStream
+import java.sql.DriverManager
+import scala.io.Source
 
 class TestSqlCompilerServiceAirports
     extends RawTestSuite
+    with ForAllTestContainer
     with SettingsTestContext
     with TrainingWheelsContext
     with CredentialsTestContext
     with LocalCredentialsTestContext {
 
+  override val container: PostgreSQLContainer = PostgreSQLContainer(
+    dockerImageNameOverride = DockerImageName.parse("postgres:15-alpine")
+  )
+  Class.forName("org.postgresql.Driver")
+
   private var compilerService: CompilerService = _
-
-  private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
-  private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
-  private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
-  private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
-  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
-
-  property("raw.creds.jdbc.fdw.host", hostname)
-  property("raw.creds.jdbc.fdw.port", port)
-  property("raw.creds.jdbc.fdw.user", username)
-  property("raw.creds.jdbc.fdw.password", password)
+  private var jdbcUrl: String = _
 
   // Username equals the database
-  private val user = InteractiveUser(Uid(database), "fdw user", "email", Seq.empty)
+  private var user: InteractiveUser = _
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    compilerService = new SqlCompilerService
-  }
+    val conn = DriverManager.getConnection(container.jdbcUrl, container.username, container.password);
+    val resource = Source.fromResource("example.sql")
+    val sql =
+      try { resource.mkString }
+      finally { resource.close() }
 
-  private def asJson(params: Map[String, RawValue] = Map.empty): ProgramEnvironment = {
-    if (params.isEmpty) ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    else ProgramEnvironment(user, Some(params.toArray), Set.empty, Map("output-format" -> "json"))
-  }
-  private def asCsv(params: Seq[(String, RawValue)]): ProgramEnvironment = {
-    if (params.isEmpty) ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "csv"))
-    else ProgramEnvironment(user, Some(params.toArray), Set.empty, Map("output-format" -> "csv"))
+    val stmt = conn.createStatement()
+    stmt.execute(sql)
+
+    user = InteractiveUser(Uid(container.databaseName), "fdw user", "email", Seq.empty)
+
+    jdbcUrl = {
+      val dbPort = container.mappedPort(5432).toString
+      val dbName = container.databaseName
+      val user = container.username
+      val password = container.password
+      s"jdbc:postgresql://localhost:$dbPort/$dbName?user=$user&password=$password"
+    }
+
+    compilerService = {
+      new SqlCompilerService()
+    }
   }
 
   override def afterAll(): Unit = {
@@ -70,15 +82,33 @@ class TestSqlCompilerServiceAirports
       compilerService.stop()
       compilerService = null
     }
+    container.stop()
     super.afterAll()
+  }
+
+  private def asJson(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): ProgramEnvironment = {
+    ProgramEnvironment(
+      user,
+      if (params.isEmpty) None else Some(params.toArray),
+      scopes,
+      Map("output-format" -> "json"),
+      jdbcUrl = Some(jdbcUrl)
+    )
+  }
+  private def asCsv(params: Map[String, RawValue], scopes: Set[String] = Set.empty): ProgramEnvironment = {
+    ProgramEnvironment(
+      user,
+      if (params.isEmpty) None else Some(params.toArray),
+      scopes,
+      Map("output-format" -> "csv"),
+      jdbcUrl = Some(jdbcUrl)
+    )
   }
 
   test("""SELECT COUNT(*) FROM example.airports
     |WHERE :city::json IS NULL
     |   OR :city::integer != 3
     |   OR :city::xml IS NULL""".stripMargin) { t =>
-    assume(password != "")
-
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.size == 2)
     assert(v.messages(0).positions(0).begin.line == 2) // first error is about json (one position, the :city::json)
@@ -88,8 +118,6 @@ class TestSqlCompilerServiceAirports
 
   test("""-- @type v double precisionw
     |SELECT :v FROM example.airports where city = :city""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(2, 48))
     // the typo in type declaration doesn't block hover info about a correct one
     assert(hover.completion.contains(TypeCompletion("city", "varchar")))
@@ -99,7 +127,6 @@ class TestSqlCompilerServiceAirports
 
   // Quoted value
   test("""select * from exam""".stripMargin) { t =>
-    assume(password != "")
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(1, 19))
     assert(
       completion.completions.toSet === Set(LetBindCompletion("example", "schema"))
@@ -108,7 +135,6 @@ class TestSqlCompilerServiceAirports
 
   // Quoted value
   ignore("""do something to see if a schema has the same name as a column and it still works""") { t =>
-    assume(password != "")
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(1, 19)) // right after 'm'
     assert(
       completion.completions.toSet === Set(LetBindCompletion("example", "schema"))
@@ -117,7 +143,6 @@ class TestSqlCompilerServiceAirports
 
   // Quoted value
   test("""select * from "example"."airp""".stripMargin) { t =>
-    assume(password != "")
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(1, 30))
     assert(
       completion.completions.toSet === Set(LetBindCompletion("airports", "table"))
@@ -127,7 +152,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE airports.c
     |""".stripMargin) { t =>
-    assume(password != "")
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(2, 17))
     assert(
       completion.completions.toSet === Set(
@@ -141,7 +165,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE airports."c
     |""".stripMargin) { t =>
-    assume(password != "")
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(2, 18))
     assert(
       completion.completions.toSet === Set(
@@ -156,8 +179,6 @@ class TestSqlCompilerServiceAirports
     |WHERE ai.
     |AND   airports.
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 9))
@@ -178,8 +199,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE ai.
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 9))
@@ -195,8 +214,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE airports.
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
@@ -210,8 +227,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE example.airports.
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 17))
@@ -232,8 +247,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM "example"."airports"
     |WHERE "ai
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 17))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 10))
@@ -249,8 +262,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM "example"."airports"
     |WHERE "airports".
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 17))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
@@ -277,8 +288,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM EXAMPLE.AIRPORTS
     |WHERE AIRPORTS.
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
@@ -305,8 +314,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM EXAMPLE.AIRPORTS
     |WHERE AI.
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 9))
@@ -323,8 +330,6 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM "EXAMPLE"."AIRPORTS"
     |WHERE "AIRPORTS".
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
     assert(hover.completion.isEmpty)
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 9))
@@ -339,8 +344,6 @@ class TestSqlCompilerServiceAirports
     |WHERE airports.city = 'Porto'
     |AND airports.country = 'Portugal'
     |""".stripMargin) { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     val completion = compilerService.wordAutoComplete(t.q, asJson(), "exa", Pos(1, 18))
@@ -357,8 +360,6 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = 'Braganca'") { t =>
-    assume(password != "")
-
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
@@ -398,9 +399,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = :city") { t =>
-    assume(password != "")
-
-    val environment = asCsv(Seq("city" -> RawString("Braganca")))
+    val environment = asCsv(Map("city" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
@@ -433,14 +432,7 @@ class TestSqlCompilerServiceAirports
 
   test("""-- a query with no default, called without the parameter
     |SELECT * FROM example.airports WHERE city = :city""".stripMargin) { t =>
-    assume(password != "")
-
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array(("city", RawNull()))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val environment = asJson(Map("city" -> RawNull()))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
@@ -468,14 +460,7 @@ class TestSqlCompilerServiceAirports
   test("""-- a query with a default, called without the parameter
     |-- @default city 'Athens'
     |SELECT COUNT(*) AS n FROM example.airports WHERE city = :city""".stripMargin) { t =>
-    assume(password != "")
-
-    val environment = ProgramEnvironment(
-      user,
-      None,
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val environment = asJson()
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
@@ -511,14 +496,7 @@ class TestSqlCompilerServiceAirports
     |-- @default age 'tralala
     |-- @param whatever an unknown parameter
     |SELECT COUNT(*) FROM example.airports WHERE :city = city""".stripMargin) { t =>
-    assume(password != "")
-
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array.empty),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val environment = asJson(Map.empty)
     val v = compilerService.validate(t.q, environment)
     val expectedErrors = List(
       1 -> "unsupported type intger",
@@ -539,14 +517,8 @@ class TestSqlCompilerServiceAirports
     |-- @default age 'tralala'
     |-- @param whatever an unknown parameter
     |SELECT COUNT(*) FROM example.airports WHERE :age = city""".stripMargin) { t =>
-    assume(password != "")
+    val environment = asJson(Map.empty)
 
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array.empty),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
     val v = compilerService.validate(t.q, environment)
     val expectedErrors = List(
       2 -> "invalid input syntax for type integer",
@@ -564,14 +536,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = :param and airport_id = :param") { t =>
-    assume(password != "")
-
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array(("param", RawString("Braganca")))),
-      Set.empty,
-      Map("output-format" -> "csv")
-    )
+    val environment = asCsv(Map("param" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.nonEmpty)
     val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, environment)
@@ -585,8 +550,6 @@ class TestSqlCompilerServiceAirports
 
   test("""SELECT *
     |FROM""".stripMargin) { t =>
-    assume(password != "")
-
     val expectedError = "syntax error at end of input"
     val validation = compilerService.validate(t.q, asJson())
     assert(validation.messages.exists(_.message.contains(expectedError)))
@@ -598,8 +561,6 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM inexistent-table") { t =>
-    assume(password != "")
-
     val expectedError = "syntax error at or near \"-\""
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.exists(_.message.contains(expectedError)))
@@ -611,8 +572,6 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM inexistent_table") { t =>
-    assume(password != "")
-
     val expectedErrors = Set("relation \"inexistent_table\" does not exist", "Did you forget to add credentials?")
     val v = compilerService.validate(t.q, asJson())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
@@ -627,7 +586,6 @@ class TestSqlCompilerServiceAirports
   test("""-- @default a 1234
     |-- @type a date
     |SELECT LENGTH(:a)""".stripMargin) { t =>
-    assume(password != "")
     val expectedErrors = Set("cannot cast type integer to date", "function length(date) does not exist")
     val v = compilerService.validate(t.q, asJson())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
@@ -641,7 +599,6 @@ class TestSqlCompilerServiceAirports
 
   test("""/* @default a 1 + 1 */
     |SELECT :a + :a AS v""".stripMargin) { t =>
-    assume(password != "")
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty, v.messages.mkString(","))
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
@@ -653,8 +610,6 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM wrong.relation") { t =>
-    assume(password != "")
-
     val expectedErrors = Set("relation \"wrong.relation\" does not exist", "Did you forget to add credentials?")
     val v = compilerService.validate(t.q, asJson())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
@@ -692,26 +647,9 @@ class TestSqlCompilerServiceAirports
   test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = :name OR country = :name""".stripMargin) { t =>
-    assume(password != "")
-
-    val withCity = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawString("Braganca")))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
-    val withCountry = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawString("Portugal")))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
-    val withNull = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawNull()))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val withCity = asJson(Map("name" -> RawString("Braganca")))
+    val withCountry = asJson(Map("name" -> RawString("Portugal")))
+    val withNull = asJson(Map("name" -> RawNull()))
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
@@ -744,20 +682,8 @@ class TestSqlCompilerServiceAirports
   test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = COALESCE(:name, 'Lyon')""".stripMargin) { t =>
-    assume(password != "")
-
-    val withCity = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawString("Braganca")))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
-    val withNull = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawNull()))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val withCity = asJson(Map("name" -> RawString("Braganca")))
+    val withNull = asJson(Map("name" -> RawNull()))
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
@@ -786,8 +712,6 @@ class TestSqlCompilerServiceAirports
 
   test("""-- @param s just an int
     |SELECT DATE '2002-01-01' - :s::int AS x -- RD-10538""".stripMargin) { t =>
-    assume(password != "")
-
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
@@ -824,8 +748,6 @@ class TestSqlCompilerServiceAirports
 
   test("""-- @default s CAST(null AS INTEGER)
     |SELECT DATE '2002-01-01' - :s AS x -- RD-10538""".stripMargin) { t =>
-    assume(password != "")
-
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
@@ -885,15 +807,9 @@ class TestSqlCompilerServiceAirports
   )
 
   test("""SELECT COUNT(*) FROM example.airports;""") { t =>
-    assume(password != "")
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = ProgramEnvironment(
-      user,
-      None,
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val noParam = asJson()
     assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
     assert(baos.toString() == """[{"count":8107}]""")
   }
@@ -903,15 +819,9 @@ class TestSqlCompilerServiceAirports
       |-- nothing here
       |""".stripMargin
   ) { t =>
-    assume(password != "")
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = ProgramEnvironment(
-      user,
-      None,
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val noParam = asJson()
     assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
     assert(baos.toString() == """[{"count":8107}]""")
   }
@@ -923,15 +833,9 @@ class TestSqlCompilerServiceAirports
       |-- @param name Name of the client.
       |""".stripMargin
   ) { t =>
-    assume(password != "")
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = ProgramEnvironment(
-      user,
-      None,
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val noParam = asJson()
     assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
     assert(baos.toString() == """[{"count":8107}]""")
   }
@@ -941,15 +845,12 @@ class TestSqlCompilerServiceAirports
   // However, because of the function SqlCodeUtils.identifiers right now it returns an identifier with an empty string.
   // The state machine in that function bails out because it finds the ':' at the start of the string.
   test("SELECT :v > 12 AS column") { t =>
-    assume(password != "")
-
     val hover = compilerService.hover(t.q, asJson(), Pos(1, 10))
     assert(hover.completion.contains(TypeCompletion("v", "integer"))) // postgres type
 
   }
 
   test("SELECT :city > 12, city FROM example.airports WHERE airport_id = :city LIMIT 2 ") { t =>
-    assume(password != "")
     val hover1 = compilerService.hover(t.q, asJson(), Pos(1, 11))
     assert(hover1.completion.contains(TypeCompletion("city", "integer"))) // has to be the Postgres type
     val hover2 = compilerService.hover(t.q, asJson(), Pos(1, 20))
@@ -958,13 +859,11 @@ class TestSqlCompilerServiceAirports
 
   // RD-10865 (mistakenly passing snapi code)
   test("""[{a: 12}, null]""".stripMargin) { t =>
-    assume(password != "")
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.exists(_.message contains "the input does not form a valid statement or expression"))
   }
 
   test("""RD-10948+10961""") { _ =>
-    assume(password != "")
     val q = """:
       |""".stripMargin
     val ValidateResponse(errors) = compilerService.validate(q, asJson())
@@ -972,7 +871,6 @@ class TestSqlCompilerServiceAirports
   }
 
   test("""RD-10948""") { _ =>
-    assume(password != "")
     val q = """SELECT * FROM
       |(VALUES
       |  (1, 'janedoe', 'janedoe@raw-labs.com', '123'),
@@ -985,7 +883,6 @@ class TestSqlCompilerServiceAirports
   }
 
   test("""RD-10961""") { _ =>
-    assume(password != "")
     val q = """-- @default id 1
       |
       |SELECT * FROM
@@ -1000,15 +897,9 @@ class TestSqlCompilerServiceAirports
   }
 
   test("""scopes work""") { _ =>
-    assume(password != "")
     val baos = new ByteArrayOutputStream()
     def runWith(q: String, scopes: Set[String]): String = {
-      val env = ProgramEnvironment(
-        user,
-        None,
-        scopes,
-        Map("output-format" -> "json")
-      )
+      val env = asJson(scopes = scopes)
       assert(compilerService.validate(q, env).messages.isEmpty)
       val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(q, env)
       baos.reset()
