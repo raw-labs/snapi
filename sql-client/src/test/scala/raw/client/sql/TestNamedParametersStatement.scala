@@ -12,7 +12,9 @@
 
 package raw.client.sql
 
+import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import org.bitbucket.inkytonik.kiama.util.Positions
+import org.testcontainers.utility.DockerImageName
 import raw.client.api.{RawInt, RawString}
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
 import raw.creds.api.CredentialsTestContext
@@ -21,57 +23,50 @@ import raw.utils._
 
 class TestNamedParametersStatement
     extends RawTestSuite
+    with ForAllTestContainer
     with SettingsTestContext
     with TrainingWheelsContext
     with CredentialsTestContext
     with LocalCredentialsTestContext {
 
-  private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
-  private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
-  private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
-  private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
-  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
-
-  property("raw.creds.jdbc.fdw.host", hostname)
-  property("raw.creds.jdbc.fdw.port", port)
-  property("raw.creds.jdbc.fdw.user", username)
-  property("raw.creds.jdbc.fdw.password", password)
-
-  // Username equals the database
-  private val user = InteractiveUser(Uid(database), "fdw user", "email", Seq.empty)
-
+  override val container: PostgreSQLContainer = PostgreSQLContainer(
+    dockerImageNameOverride = DockerImageName.parse("postgres:15-alpine")
+  )
   private var connectionPool: SqlConnectionPool = _
-  private var con: java.sql.Connection = _
+  private var jdbcUrl: String = _
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    if (password != "") {
-      connectionPool = new SqlConnectionPool(credentials)
-      con = connectionPool.getConnection(user)
-    }
+    val dbPort = container.mappedPort(5432).toString
+    property("raw.creds.jdbc.fdw.user", container.username)
+    property("raw.creds.jdbc.fdw.password", container.password)
+    connectionPool = new SqlConnectionPool()
+    jdbcUrl = s"jdbc:postgresql://localhost:$dbPort/" + container.databaseName
   }
 
+  private def mkPreparedStatement(code: String) =
+    new NamedParametersPreparedStatement(connectionPool.getConnection(jdbcUrl), parse(code))
+
   override def afterAll(): Unit = {
-    if (connectionPool != null) connectionPool.stop()
+    if (connectionPool != null) {
+      connectionPool.stop()
+      connectionPool = null
+    }
     super.afterAll()
   }
 
   test("single parameter") { _ =>
-    assume(password != "")
-
     val code = "SELECT :v1 as arg"
 
-    val statement = new NamedParametersPreparedStatement(con, parse(code))
+    val statement = mkPreparedStatement(code)
     val rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
     rs.next()
     assert(rs.getString("arg") == "Hello!")
   }
 
   test("SELECT :v::varchar AS greeting;") { _ =>
-    assume(password != "")
-
     val code = "SELECT :v::varchar AS greeting;"
-    val statement = new NamedParametersPreparedStatement(con, parse(code))
+    val statement = mkPreparedStatement(code)
     val rs = statement.executeWith(Seq("v" -> RawString("Hello!"))).right.get
 
     rs.next()
@@ -80,10 +75,8 @@ class TestNamedParametersStatement
   }
 
   test("several parameters") { _ =>
-    assume(password != "")
-
-    val code = "SELECT :v1,:v2, city FROM example.airports WHERE city = :v1"
-    val statement = new NamedParametersPreparedStatement(con, parse(code))
+    val code = "SELECT :v1::varchar,:v2::int,:v1"
+    val statement = mkPreparedStatement(code)
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("v1", "v2"))
 
@@ -95,13 +88,11 @@ class TestNamedParametersStatement
   }
 
   test("skip parameters in comments") { _ =>
-    assume(password != "")
-
     val code = """/* this should not be a parameter
       | :foo
       |*/
       |SELECT :v1 as arg  -- neither this one :bar """.stripMargin
-    val statement = new NamedParametersPreparedStatement(con, parse(code))
+    val statement = mkPreparedStatement(code)
     val rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
 
     rs.next()
@@ -109,10 +100,8 @@ class TestNamedParametersStatement
   }
 
   test("skip parameter in string") { _ =>
-    assume(password != "")
-
     val code = """SELECT ':foo' as v1, :bar as v2""".stripMargin
-    val statement = new NamedParametersPreparedStatement(con, parse(code))
+    val statement = mkPreparedStatement(code)
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("bar"))
     val rs = statement.executeWith(Seq("bar" -> RawString("Hello!"))).right.get
@@ -123,10 +112,8 @@ class TestNamedParametersStatement
   }
 
   test("RD-10681 SQL fails to validate string with json ") { _ =>
-    assume(password != "")
-
     val code = """ SELECT '[1, 2, "3", {"a": "Hello"}]' as arg""".stripMargin
-    val statement = new NamedParametersPreparedStatement(con, parse(code))
+    val statement = mkPreparedStatement(code)
     val metadata = statement.queryMetadata
     assert(metadata.isRight)
     assert(metadata.right.get.parameters.isEmpty)

@@ -18,23 +18,50 @@ import raw.client.api._
 import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
 import raw.client.sql.metadata.UserMetadataCache
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
-import raw.creds.api.CredentialsServiceProvider
+import raw.creds.api.{CredentialsService, CredentialsServiceProvider}
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet
 import scala.util.control.NonFatal
 
-class SqlCompilerService()(implicit protected val settings: RawSettings) extends CompilerService {
+/**
+ * A CompilerService implementation for the SQL (Postgres) language.
+ *
+ * @param userDbJdbc An optional function that returns the JDBC string for an authenticated user. If not provided,
+ *                   a ClientCredentialsService instance will be created and its getUserDb method will be utilized.
+ * @param settings The configuration settings for the SQL compiler. These settings should include the necessary
+ *                 credentials configuration items required to generate the JDBC strings if credentials are being used.
+ */
+class SqlCompilerService(userDbJdbc: Option[AuthenticatedUser => String] = None)(
+    implicit protected val settings: RawSettings
+) extends CompilerService {
 
-  private val credentials = CredentialsServiceProvider()
+  /**
+   * An internal [[CredentialsService]] client is created only if no [[userDbJdbc]] was provided,
+   * and user databases are resolved through the credentials API.
+   */
+  private var credentials: CredentialsService = _
 
-  private val connectionPool = new SqlConnectionPool(credentials)
+  private val getUserJdbc = userDbJdbc match {
+    case Some(f) => f
+    case None =>
+      /* No resolver provided. Allocate a [[CredentialsService]] and use its [[getUserDb]] method */
+      val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
+      val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
+      credentials = CredentialsServiceProvider()
+      (user: AuthenticatedUser) => s"jdbc:postgresql://$dbHost:$dbPort/" + credentials.getUserDb(user)
+  }
+  private val connectionPool = new SqlConnectionPool()
 
   private val metadataBrowsers = {
-    val loader = new CacheLoader[AuthenticatedUser, UserMetadataCache] {
-      override def load(user: AuthenticatedUser): UserMetadataCache =
-        new UserMetadataCache(user, connectionPool, settings)
+    val loader = new CacheLoader[String, UserMetadataCache] {
+      override def load(jdbcUrl: String): UserMetadataCache = new UserMetadataCache(
+        jdbcUrl,
+        connectionPool,
+        maxSize = settings.getInt("raw.client.sql.metadata-cache.max-matches"),
+        expiry = settings.getDuration("raw.client.sql.metadata-cache.match-validity")
+      )
     }
     CacheBuilder
       .newBuilder()
@@ -77,7 +104,8 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       safeParse(source) match {
         case Left(errors) => GetProgramDescriptionFailure(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.user)
+          val jdbcUrl = getUserJdbc(environment.user)
+          val conn = connectionPool.getConnection(jdbcUrl)
           try {
             val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
             val description = stmt.queryMetadata match {
@@ -148,7 +176,8 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       safeParse(source) match {
         case Left(errors) => ExecutionValidationFailure(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.user)
+          val jdbcUrl = getUserJdbc(environment.user)
+          val conn = connectionPool.getConnection(jdbcUrl)
           try {
             val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
             try {
@@ -245,7 +274,8 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       // So we call the identifier with +1 column
       analyzer.identifierUnder(Pos(position.line, position.column + 1)) match {
         case Some(idn: SqlIdnNode) =>
-          val metadataBrowser = metadataBrowsers.get(environment.user)
+          val jdbcUrl = getUserJdbc(environment.user)
+          val metadataBrowser = metadataBrowsers.get(jdbcUrl)
           val matches = metadataBrowser.getDotCompletionMatches(idn)
           val collectedValues = matches.collect {
             case (idns, tipe) =>
@@ -278,7 +308,8 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       logger.debug(s"idn $item")
       val matches: Seq[Completion] = item match {
         case Some(idn: SqlIdnNode) =>
-          val metadataBrowser = metadataBrowsers.get(environment.user)
+          val jdbcUrl = getUserJdbc(environment.user)
+          val metadataBrowser = metadataBrowsers.get(jdbcUrl)
           val matches = metadataBrowser.getWordCompletionMatches(idn)
           matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
         case Some(use: SqlParamUseNode) => tree.params.collect {
@@ -302,13 +333,15 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         .identifierUnder(position)
         .map {
           case identifier: SqlIdnNode =>
-            val metadataBrowser = metadataBrowsers.get(environment.user)
+            val jdbcUrl = getUserJdbc(environment.user)
+            val metadataBrowser = metadataBrowsers.get(jdbcUrl)
             val matches = metadataBrowser.getWordCompletionMatches(identifier)
             matches.headOption
               .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
               .getOrElse(HoverResponse(None))
           case use: SqlParamUseNode =>
-            val conn = connectionPool.getConnection(environment.user)
+            val jdbcUrl = getUserJdbc(environment.user)
+            val conn = connectionPool.getConnection(jdbcUrl)
             try {
               val pstmt = new NamedParametersPreparedStatement(conn, tree)
               try {
@@ -361,7 +394,8 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       safeParse(source) match {
         case Left(errors) => ValidateResponse(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.user)
+          val jdbcUrl = getUserJdbc(environment.user)
+          val conn = connectionPool.getConnection(jdbcUrl)
           try {
             val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
             try {
@@ -395,7 +429,10 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
 
   override def doStop(): Unit = {
     connectionPool.stop()
-    credentials.stop()
+    if (credentials != null) {
+      credentials.stop()
+      credentials = null
+    }
   }
 
   private def pgRowTypeToIterableType(rowType: PostgresRowType): Either[Seq[String], RawIterableType] = {
