@@ -16,7 +16,8 @@ import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.sql.antlr4.{SqlIdentifierNode, SqlIdnNode, SqlProjNode}
 import raw.client.sql.{SqlConnectionPool, SqlIdentifier}
-import raw.utils.{AuthenticatedUser, RawSettings}
+
+import java.time.Duration
 
 case class IdentifierInfo(name: Seq[SqlIdentifier], tipe: String)
 
@@ -28,13 +29,13 @@ case class IdentifierInfo(name: Seq[SqlIdentifier], tipe: String)
  * Entries in these two caches are fairly short-lived. They get deleted (and recomputed if needed) after a few seconds
  * so that the user can see new schemas, tables or columns that have been created in the database.
  */
-class UserMetadataCache(user: AuthenticatedUser, connectionPool: SqlConnectionPool, settings: RawSettings)
+class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxSize: Int, expiry: Duration)
     extends StrictLogging {
 
   private val wordCompletionCache = {
     val loader = new CacheLoader[Seq[SqlIdentifier], Seq[IdentifierInfo]]() {
       override def load(idns: Seq[SqlIdentifier]): Seq[IdentifierInfo] = {
-        val con = connectionPool.getConnection(user)
+        val con = connectionPool.getConnection(jdbcUrl)
         try {
           val query = idns.size match {
             case 3 => WordSearchWithThreeItems
@@ -50,8 +51,8 @@ class UserMetadataCache(user: AuthenticatedUser, connectionPool: SqlConnectionPo
     }
     CacheBuilder
       .newBuilder()
-      .maximumSize(settings.getInt("raw.client.sql.metadata-cache.max-matches"))
-      .expireAfterWrite(settings.getDuration("raw.client.sql.metadata-cache.match-validity"))
+      .maximumSize(maxSize)
+      .expireAfterWrite(expiry)
       .build(loader)
   }
 
@@ -100,7 +101,7 @@ class UserMetadataCache(user: AuthenticatedUser, connectionPool: SqlConnectionPo
   private val dotCompletionCache = {
     val loader = new CacheLoader[Seq[SqlIdentifier], Seq[IdentifierInfo]]() {
       override def load(idns: Seq[SqlIdentifier]): Seq[IdentifierInfo] = {
-        val con = connectionPool.getConnection(user)
+        val con = connectionPool.getConnection(jdbcUrl)
         try {
           val query = idns.size match {
             case 2 => DotSearchWithTwoItems
@@ -115,8 +116,8 @@ class UserMetadataCache(user: AuthenticatedUser, connectionPool: SqlConnectionPo
     }
     CacheBuilder
       .newBuilder()
-      .maximumSize(settings.getInt("raw.client.sql.metadata-cache.max-matches"))
-      .expireAfterWrite(settings.getDuration("raw.client.sql.metadata-cache.match-validity"))
+      .maximumSize(maxSize)
+      .expireAfterWrite(expiry)
       .build(loader)
   }
 
