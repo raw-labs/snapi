@@ -97,7 +97,7 @@ public final class RawContext {
     // Arguments are unused by the runtime in case of Truffle.
     Option<Tuple2<String, RawValue>[]> maybeArguments = Option.empty();
     this.programEnvironment =
-        new ProgramEnvironment(this.user, maybeArguments, scalaScopes, scalaOptions, maybeTraceId);
+        new ProgramEnvironment(this.user, maybeArguments, scalaScopes, scalaOptions, maybeTraceId, Option.empty());
 
     // The function registry holds snapi methods (top level functions). It is the data
     // structure that is used to extract a ref to a function from a piece of execute snapi.
