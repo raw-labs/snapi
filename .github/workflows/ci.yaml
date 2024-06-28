@@ -56,6 +56,6 @@ jobs:
         with:
           annotate_only: true
           check_name: JUnit ${{ matrix.component }} report
-          report_paths: ${{ matrix.component }}/target/**/*.xml
+          report_paths: ${{ matrix.component }}/target/test-reports/*.xml
           detailed_summary: true
           require_tests: true
