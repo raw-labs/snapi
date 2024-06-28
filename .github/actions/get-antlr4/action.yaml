@@ -11,24 +11,20 @@ inputs:
     description: 'Base URL for downloading the JAR'
     required: false
     default: 'https://raw.githubusercontent.com/antlr/website-antlr4/gh-pages/download'
-  shared_location:
-    description: 'Shared location to check for the JAR'
-    required: false
-    default: '/usr/local/share'
 
 runs:
   using: "composite"
   steps:
     - name: Check if ANTLR JAR is present and download if not
       run: |
-        if [ ! -f "$SHARED_LOCATION/$JAR_FILE" ]; then
+        if [ ! -f "$HOME/$JAR_FILE" ]; then
           echo "ANTLR JAR not found. Attempting to download..."
-          if ! curl -o "$SHARED_LOCATION/$JAR_FILE" --retry 5 --retry-delay 10 --fail "$BASE_URL/$JAR_FILE"; then
+          if ! curl -o "$HOME/$JAR_FILE" --retry 5 --retry-delay 10 --fail "$BASE_URL/$JAR_FILE"; then
             echo "Failed to download ANTLR JAR after multiple attempts."
             exit 1
           fi
         fi
-        cp "$SHARED_LOCATION/$JAR_FILE" "$GITHUB_WORKSPACE"
+        cp "$HOME/$JAR_FILE" "$GITHUB_WORKSPACE"
       shell: bash
       env:
         SHARED_LOCATION: ${{ inputs.shared_location }}
