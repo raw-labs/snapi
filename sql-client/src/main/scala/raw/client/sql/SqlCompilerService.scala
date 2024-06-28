@@ -21,7 +21,7 @@ import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter
 import raw.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
-import java.sql.ResultSet
+import java.sql.{Connection, ResultSet}
 import scala.util.control.NonFatal
 
 /**
@@ -77,6 +77,26 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     messages.map(message => ErrorMessage(message, List(ErrorRange(startPosition, endPosition)), ErrorCode.SqlErrorCode))
   }
 
+  private def connectAnd[T](environment: ProgramEnvironment)(what: Connection => T): T = {
+    var i = 0;
+    val jdbcUrl = environment.jdbcUrl.get
+    var throwable: Throwable = null
+    while(i < 3) {
+      i += 1
+      try {
+        val conn = connectionPool.getConnection(jdbcUrl)
+        try {
+          return what(conn)
+        } finally {
+          conn.close()
+        }
+      } catch {
+        case t: Throwable => throwable = t
+      }
+    }
+    throw new CompilerServiceException(throwable, environment)
+  }
+
   override def getProgramDescription(
       source: String,
       environment: ProgramEnvironment
@@ -86,7 +106,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       safeParse(source) match {
         case Left(errors) => GetProgramDescriptionFailure(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+          connectAnd(environment){ conn =>
           try {
             val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
             val description = stmt.queryMetadata match {
@@ -139,7 +159,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
             case e: NamedParametersPreparedStatementException => GetProgramDescriptionFailure(e.errors)
           } finally {
             RawUtils.withSuppressNonFatalException(conn.close())
-          }
+          }}
       }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
