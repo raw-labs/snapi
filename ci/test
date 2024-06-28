@@ -4,7 +4,7 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 SNAPI_HOME="$(cd "${SCRIPT_HOME}/.."; pwd)"
 cd "${SNAPI_HOME}"
 
-find . -type d -name "target" -exec rm -r {} \; || true
+find . -type d -name "target" -exec rm -rf {} + || true
 
 JAVA_VERSION="21.0.1-graalce"
 
