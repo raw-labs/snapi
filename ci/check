@@ -31,4 +31,4 @@ if ! sdk list java | grep -q "$JAVA_VERSION"; then
 fi
 sdk use java "$JAVA_VERSION"
 
-sbt "${1}"
+sbt clean "${1}"
