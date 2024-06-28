@@ -48,7 +48,7 @@ docker run \
   -v "$(pwd)/.env:/root/workdir/.env:ro" \
   -e "GITHUB_TOKEN=${GITHUB_TOKEN}" \
   ${IMAGE_NAME}:latest \
-  "sbt clean ${1}/test"
+  "java --version; pwd; ls -al"
 
 DOCKER_RUN_RESULT=$?
 if [ $DOCKER_RUN_RESULT -eq 0 ]; then
