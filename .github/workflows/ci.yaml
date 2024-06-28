@@ -31,11 +31,10 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - run: pwd
-      - run: check headerCheckAll
-      - run: check scalafmtCheckAll
-      - run: check javafmtCheckAll
-      - run: check doc
+      - run: ./check headerCheckAll
+      - run: ./check scalafmtCheckAll
+      - run: ./check javafmtCheckAll
+      - run: ./check doc
   tests:
     strategy:
       fail-fast: false
@@ -52,7 +51,7 @@ jobs:
         with:
           secrets: ${{ toJSON(secrets) }}
       - run: env > ../.env
-      - run: test ${{ matrix.component }}/test
+      - run: ./test ${{ matrix.component }}
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
