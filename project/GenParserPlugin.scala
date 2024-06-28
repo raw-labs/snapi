@@ -48,6 +48,17 @@ object GenParserPlugin extends AutoPlugin {
         }
       }
 
+      // Java setup handling
+      val javaHome = sys.env.getOrElse("JAVA_HOME", sys.props.getOrElse("java.home", ""))
+      val javaBin = if (javaHome.nonEmpty) s"$javaHome/bin/java" else "java"
+
+      s.log.info(s"JAVA_HOME: $javaHome")
+      s.log.info(s"Using Java binary: $javaBin")
+
+      if (!new File(javaBin).exists) {
+        sys.error(s"Java binary not found at $javaBin")
+      }
+
       parsers.foreach(parser => {
         val outputPath = parser._1
         val file = new File(outputPath)
@@ -55,7 +66,7 @@ object GenParserPlugin extends AutoPlugin {
           deleteRecursively(file)
         }
         val packageName: String = parser._2
-        val command: String = s"java -jar ${antlrJarPath} -visitor -package $packageName -o $outputPath"
+        val command: String = s"$javaBin -jar ${antlrJarPath} -visitor -package $packageName -o $outputPath"
         val output = new StringBuilder
         val logger = ProcessLogger(
           (o: String) => output.append(o + "\n"), // for standard output
