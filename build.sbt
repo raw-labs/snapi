@@ -195,7 +195,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
       println("Running Java annotation processor")
 
       val javaHomeDir = javaHome.value.getOrElse(sys.error("JAVA_HOME is not set"))
-      val javacExecutable = javaHomeDir / "bin" / "java"
+      val javacExecutable = javaHomeDir / "bin" / "javac"
       val annotationProcessorJar = baseDirectory.value / "truffle-dsl-processor-23.1.0.jar"
 
       val javaSources = baseDirectory.value / "src" / "main" / "java"
