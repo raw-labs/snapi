@@ -20,7 +20,6 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ./ci
 
 env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
@@ -31,46 +30,32 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - run: ./check headerCheckAll
-      - run: ./check scalafmtCheckAll
-      - run: ./check javafmtCheckAll
-      - run: ./check doc
+      - run: ./ci/check headerCheckAll
+      - run: ./ci/check scalafmtCheckAll
+      - run: ./ci/check javafmtCheckAll
+      - run: ./ci/check doc
   tests:
     strategy:
       fail-fast: false
       matrix:
         component:
-          - snapiFrontend
-          - snapiClient
-          - sqlClient
-          - pythonClient
+          - snapi-frontend
+          - snapi-client
+          - sql-client
+          - python-client
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - uses: oNaiPs/secrets-to-env-action@v1.5
         with:
           secrets: ${{ toJSON(secrets) }}
-      - run: env > ../.env
-      - run: ./test ${{ matrix.component }}
+      - run: env > .env
+      - run: ./ci/test ${{ matrix.component }}
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
           annotate_only: true
           check_name: JUnit ${{ github.job }}  ${{ matrix.component }} report
-          report_paths: ${{ env.REPORTS_DIR }}/*.xml
+          report_paths: ${{ matrix.component }}/target/**/*.xml
           detailed_summary: true
           require_tests: true
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: ${{ github.job }}-${{ github.run_number}}-${{ matrix.component }}-logs
-          path: ${{ env.LOGS_DIR }}/${{ env.WD }}-logs
-          retention-days: 7
-          if-no-files-found: ignore
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: ${{ github.job }}-${{ github.run_number}}-${{ matrix.component }}-heap-dumps
-          path: ${{ env.LOGS_DIR }}/${{ env.WD }}-logs
-          retention-days: 7
-          if-no-files-found: ignore
