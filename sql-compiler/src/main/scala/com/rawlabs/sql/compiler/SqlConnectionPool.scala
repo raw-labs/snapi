@@ -273,6 +273,28 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
     }
   }
 
+  @throws[CompilerServiceException]
+  def connectAnd[T](jdbcUrl: String)(what: Connection => T): T = {
+    var i = 0;
+    var throwable: Throwable = null
+    while (i < 9) {
+      i += 1
+      try {
+        val conn = getConnection(jdbcUrl)
+        try {
+          return what(conn)
+        } finally {
+          conn.close()
+        }
+      } catch {
+        case t: Throwable =>
+          Thread.sleep(500)
+          throwable = t
+      }
+    }
+    throw throwable
+  }
+
   override def doStop(): Unit = {
     connectionPoolLock.synchronized {
       connectionCache.clear()
