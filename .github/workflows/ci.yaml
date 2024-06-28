@@ -33,6 +33,11 @@ jobs:
       - run: ./ci/check headerCheckAll
       - run: ./ci/check scalafmtCheckAll
       - run: ./ci/check javafmtCheckAll
+  doc:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      -
       - run: ./ci/check doc
   tests:
     strategy:
@@ -50,6 +55,8 @@ jobs:
         with:
           secrets: ${{ toJSON(secrets) }}
       - run: env > .env
+      - name: Ensure ANTLR JAR is present
+        uses: ./.github/actions/get-antlr4
       - run: ./ci/test ${{ matrix.component }}
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()

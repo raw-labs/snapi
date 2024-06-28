@@ -1,0 +1,36 @@
+name: Get ANTLR4 JAR
+
+description: Checks if a file is present in a shared location, downloads if not.
+
+inputs:
+  version:
+    description: 'Version in X.y.z format'
+    required: false
+    default: '4.12.0'
+  base_url:
+    description: 'Base URL for downloading the JAR'
+    required: false
+    default: 'https://github.com/antlr/website-antlr4/raw/gh-pages/download'
+  shared_location:
+    description: 'Shared location to check for the JAR'
+    required: false
+    default: '/usr/local/share'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check if ANTLR JAR is present and download if not
+      run: |
+        if [ ! -f "$SHARED_LOCATION/$JAR_FILE" ]; then
+          echo "ANTLR JAR not found. Attempting to download..."
+          if ! curl -o "$SHARED_LOCATION/$JAR_FILE" --retry 5 --retry-delay 10 --fail "$BASE_URL/$JAR_FILE"; then
+            echo "Failed to download ANTLR JAR after multiple attempts."
+            exit 1
+          fi
+        fi
+        cp "$SHARED_LOCATION/$JAR_FILE" "$GITHUB_WORKSPACE"
+      shell: bash
+      env:
+        SHARED_LOCATION: ${{ inputs.shared_location }}
+        JAR_FILE: antlr-${{ inputs.version }}-complete.jar
+        BASE_URL: ${{ inputs.base_url }}
