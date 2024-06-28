@@ -80,6 +80,7 @@ object GenParserPlugin extends AutoPlugin {
         } else {
           s.log.error("Lexer code generation failed with exit code " + lexerResult)
           s.log.error("Output:\n" + output.toString)
+          throw new RuntimeException("Lexer code generation failed.")
         }
         val parserResult = s"$command $grammarPath/${grammarName}Parser.g4".!(logger)
         if (parserResult == 0) {
@@ -87,6 +88,7 @@ object GenParserPlugin extends AutoPlugin {
         } else {
           s.log.error("Parser code generation failed with exit code " + lexerResult)
           s.log.error("Output:\n" + output.toString)
+          throw new RuntimeException("Parser code generation failed.")
         }
       })
     },
