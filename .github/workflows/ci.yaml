@@ -55,7 +55,7 @@ jobs:
         if: success() || failure()
         with:
           annotate_only: true
-          check_name: JUnit ${{ github.job }}  ${{ matrix.component }} report
+          check_name: JUnit ${{ github.job }}  ${{ matrix.component }} report - (run)${{ github.run_number}} (attempt)${{ github.run_attempt}}
           report_paths: ${{ matrix.component }}/target/**/*.xml
           detailed_summary: true
           require_tests: true
