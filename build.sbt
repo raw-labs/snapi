@@ -273,7 +273,6 @@ lazy val sqlClient = (project in file("sql-client"))
   .dependsOn(
     client % "compile->compile;test->test",
     sqlParser % "compile->compile;test->test",
-    sources % "compile->compile;test->test",
   )
   .settings(
     commonSettings,
