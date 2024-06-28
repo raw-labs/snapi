@@ -10,7 +10,7 @@ inputs:
   base_url:
     description: 'Base URL for downloading the JAR'
     required: false
-    default: 'https://github.com/antlr/website-antlr4/raw/gh-pages/download'
+    default: 'https://raw.githubusercontent.com/antlr/website-antlr4/gh-pages/download'
   shared_location:
     description: 'Shared location to check for the JAR'
     required: false
