@@ -48,6 +48,17 @@ object GenParserPlugin extends AutoPlugin {
         }
       }
 
+      // Java setup handling
+      val javaHome = sys.env.getOrElse("JAVA_HOME", sys.props.getOrElse("java.home", ""))
+      val javaBin = if (javaHome.nonEmpty) s"$javaHome/bin/java" else "java"
+
+      s.log.info(s"JAVA_HOME: $javaHome")
+      s.log.info(s"Using Java binary: $javaBin")
+
+      if (!new File(javaBin).exists) {
+        sys.error(s"Java binary not found at $javaBin")
+      }
+
       parsers.foreach(parser => {
         val outputPath = parser._1
         val file = new File(outputPath)
@@ -55,7 +66,7 @@ object GenParserPlugin extends AutoPlugin {
           deleteRecursively(file)
         }
         val packageName: String = parser._2
-        val command: String = s"java -jar ${antlrJarPath} -visitor -package $packageName -o $outputPath"
+        val command: String = s"$javaBin -jar ${antlrJarPath} -visitor -package $packageName -o $outputPath"
         val output = new StringBuilder
         val logger = ProcessLogger(
           (o: String) => output.append(o + "\n"), // for standard output
@@ -97,7 +108,7 @@ object GenParserPlugin extends AutoPlugin {
         for (attempt <- 1 to maxRetries) {
           try {
             s.log.info(s"Attempt $attempt: Downloading $jarName...")
-            new URI(url).toURL() #> jarFile !!
+            new URL(url) #> jarFile !!
 
             if (verifyChecksum(jarFile, expectedChecksum)) {
               s.log.info("JAR downloaded and checksum verified successfully.")
@@ -120,17 +131,17 @@ object GenParserPlugin extends AutoPlugin {
     }
   }
 
-    def verifyChecksum(file: File, expectedChecksum: String): Boolean = {
-      val buffer = new Array[Byte](64)
-      val sha256 = MessageDigest.getInstance("SHA-256")
-      val fis = new FileInputStream(file)
+  def verifyChecksum(file: File, expectedChecksum: String): Boolean = {
+    val buffer = new Array
+    val sha256 = MessageDigest.getInstance("SHA-256")
+    val fis = new FileInputStream(file)
 
-      Stream.continually(fis.read(buffer)).takeWhile(_ != -1).foreach { read =>
-        sha256.update(buffer, 0, read)
-      }
-      fis.close()
-
-      val fileChecksum = sha256.digest().map("%02x".format(_)).mkString
-      fileChecksum.equalsIgnoreCase(expectedChecksum)
+    Stream.continually(fis.read(buffer)).takeWhile(_ != -1).foreach { read =>
+      sha256.update(buffer, 0, read)
     }
+    fis.close()
+
+    val fileChecksum = sha256.digest().map("%02x".format(_)).mkString
+    fileChecksum.equalsIgnoreCase(expectedChecksum)
+  }
 }
