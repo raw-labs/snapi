@@ -17,6 +17,11 @@ on:
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ./ci
+
 env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
   GITHUB_TOKEN: ${{ secrets.READ_PACKAGES }}
@@ -26,14 +31,10 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - name: headers
-        run: ./ci/check headerCheckAll
-      - name: scala fmt
-        run: ./ci/check scalafmtCheckAll
-      - name: java fmt
-        run: ./ci/check javafmtCheckAll
-      - name: doc
-        run: ./ci/check doc
+      - run: check headerCheckAll
+      - run: check scalafmtCheckAll
+      - run: check javafmtCheckAll
+      - run: check doc
   tests:
     strategy:
       fail-fast: false
@@ -49,9 +50,8 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1.5
         with:
           secrets: ${{ toJSON(secrets) }}
-      - run: env > .env
-      - name: test
-        run: ./ci/test ${{ matrix.component }}/test
+      - run: env > ../.env
+      - run: test ${{ matrix.component }}/test
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
