@@ -1,60 +1,31 @@
-#!/bin/bash -exu
-usage() {
-  echo "Usage: $0 <snapi_component>"
-  echo "Allowed components are: ${ALLOWED_COMPONENTS[*]}"
-  exit 1
-}
-
-to_kebab_case() {
-  echo "$1" | sed -E 's/([a-z])([A-Z])/\1-\2/g' | tr '[:upper:]' '[:lower:]'
-}
-
-ALLOWED_COMPONENTS=("snapiFrontend" "snapiClient" "sqlClient" "pythonClient")
-FOLDER_COMPONENT=$(to_kebab_case $1)
-if [ "$#" -ne 1 ]; then
-  usage
-fi
-if [[ ! " ${ALLOWED_COMPONENTS[@]} " =~ " ${1} " ]]; then
-  echo "Error: Invalid command '${1}'"
-  usage
-fi
+#!/bin/bash -e
 
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 SNAPI_HOME="$(cd "${SCRIPT_HOME}/.."; pwd)"
 cd "${SNAPI_HOME}"
-IMAGE_NAME="$(basename "${SNAPI_HOME}")-env"
-export REPORTS_DIR=$(mktemp -d)
-export LOGS_DIR=$(mktemp -d)
-chmod 777 ${REPORTS_DIR}
-chmod 777 ${LOGS_DIR}
 
-: "${CI:=false}"
-if [ "$CI" == "true" ]
-then
-  echo "REPORTS_DIR=${REPORTS_DIR}" >> $GITHUB_ENV
-  echo "LOGS_DIR=${LOGS_DIR}" >> $GITHUB_ENV
+JAVA_VERSION="21.0.1-graalce"
+
+# Needed to pull private deps from main repo
+if [ -z "$GITHUB_TOKEN" ]; then
+  echo "Error: GITHUB_TOKEN is not set. Exiting..."
+  exit 1
+fi
+export GITHUB_TOKEN
+
+# Install SDKMAN! if not present
+if [ ! -s "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+  echo "Installing SDKMAN!..."
+  curl -s "https://get.sdkman.io" | bash || { echo "SDKMAN installation failed"; exit 1; }
+fi
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# Install Java through SDKMAN!
+if ! sdk list java | grep -q "$JAVA_VERSION"; then
+  echo "Installing Java version $JAVA_VERSION..."
+  yes | sdk install java "$JAVA_VERSION" || { echo "Java installation failed"; exit 1; }
+  sdk default java "$JAVA_VERSION"
+  echo "Java version $JAVA_VERSION installation complete and set as default."
 fi
 
-docker build \
-  -f ci/Dockerfile . \
-  --tag ${IMAGE_NAME}:latest
-
-docker run \
-  --network host \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v /usr/bin/docker:/usr/bin/docker \
-  -v "${REPORTS_DIR}:/root/workdir/${FOLDER_COMPONENT}/target/test-reports" \
-  -v "${LOGS_DIR}:/root/workdir/target/test-results" \
-  -v "$(pwd)/.env:/root/workdir/.env:ro" \
-  -e "GITHUB_TOKEN=${GITHUB_TOKEN}" \
-  ${IMAGE_NAME}:latest \
-  "java --version; pwd; ls -al"
-
-DOCKER_RUN_RESULT=$?
-if [ $DOCKER_RUN_RESULT -eq 0 ]; then
-    echo -e "\e[32mTests reports are available in ${REPORTS_DIR}\e[0m"
-    echo -e "\e[32mTests logs are available in ${LOGS_DIR}\e[0m"
-else
-    echo -e "\e[31mTests failed. Check the reports in ${REPORTS_DIR}\e[0m"
-    echo -e "\e[31mTests logs are available in ${LOGS_DIR}\e[0m"
-fi
+sbt clean "${1}"/test

@@ -1,28 +1,31 @@
-#!/bin/bash -eux
-usage() {
-  echo "Usage: $0 <sbt_command>"
-  echo "Allowed commands are: ${ALLOWED_COMMANDS[*]}"
-  exit 1
-}
-ALLOWED_COMMANDS=("headerCheckAll" "scalafmtCheckAll" "javafmtCheckAll" "doc")
-if [ "$#" -ne 1 ]; then
-  usage
-fi
-if [[ ! " ${ALLOWED_COMMANDS[@]} " =~ " ${1} " ]]; then
-  echo "Error: Invalid command '${1}'"
-  usage
-fi
+#!/bin/bash -e
 
-SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
-SNAPI_HOME="$(cd "${SCRIPT_HOME}/.." && pwd)"
+SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
+SNAPI_HOME="$(cd "${SCRIPT_HOME}/.."; pwd)"
 cd "${SNAPI_HOME}"
-IMAGE_NAME="$(basename "${SNAPI_HOME}")-env"
 
-docker build \
-  -f ci/Dockerfile . \
-  --tag "${IMAGE_NAME}:latest"
+JAVA_VERSION="21.0.1-graalce"
 
-docker run \
-  -e "GITHUB_TOKEN=${GITHUB_TOKEN}" \
-  "${IMAGE_NAME}:latest" \
-  "sbt ${1}"
+# Needed to pull private deps from main repo
+if [ -z "$GITHUB_TOKEN" ]; then
+  echo "Error: GITHUB_TOKEN is not set. Exiting..."
+  exit 1
+fi
+export GITHUB_TOKEN
+
+# Install SDKMAN! if not present
+if [ ! -s "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+  echo "Installing SDKMAN!..."
+  curl -s "https://get.sdkman.io" | bash || { echo "SDKMAN installation failed"; exit 1; }
+fi
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# Install Java through SDKMAN!
+if ! sdk list java | grep -q "$JAVA_VERSION"; then
+  echo "Installing Java version $JAVA_VERSION..."
+  yes | sdk install java "$JAVA_VERSION" || { echo "Java installation failed"; exit 1; }
+  sdk default java "$JAVA_VERSION"
+  echo "Java version $JAVA_VERSION installation complete and set as default."
+fi
+
+sbt "${1}"
