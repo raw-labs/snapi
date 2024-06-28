@@ -46,6 +46,7 @@ class TestSqlCompilerServiceAirports
   Class.forName("org.postgresql.Driver")
 
   private var compilerService: CompilerService = _
+  private var jdbcUrl: String = _
 
   // Username equals the database
   private var user: InteractiveUser = _
@@ -61,22 +62,38 @@ class TestSqlCompilerServiceAirports
     val stmt = conn.createStatement()
     stmt.execute(sql)
 
-    val dbPort = container.mappedPort(5432).toString
-    property("raw.creds.jdbc.fdw.user", container.username)
-    property("raw.creds.jdbc.fdw.password", container.password)
     user = InteractiveUser(Uid(container.databaseName), "fdw user", "email", Seq.empty)
 
-    compilerService =
-      new SqlCompilerService(Some(_ => s"jdbc:postgresql://localhost:$dbPort/" + container.databaseName))
+    jdbcUrl = {
+      val dbPort = container.mappedPort(5432).toString
+      val dbName = container.databaseName
+      val user = container.username
+      val password = container.password
+      s"jdbc:postgresql://localhost:$dbPort/$dbName?user=$user&password=$password"
+    }
+
+    compilerService = {
+      new SqlCompilerService()
+    }
   }
 
-  private def asJson(params: Map[String, RawValue] = Map.empty): ProgramEnvironment = {
-    if (params.isEmpty) ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    else ProgramEnvironment(user, Some(params.toArray), Set.empty, Map("output-format" -> "json"))
+  private def asJson(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): ProgramEnvironment = {
+    ProgramEnvironment(
+      user,
+      if (params.isEmpty) None else Some(params.toArray),
+      scopes,
+      Map("output-format" -> "json"),
+      jdbcUrl = Some(jdbcUrl)
+    )
   }
-  private def asCsv(params: Seq[(String, RawValue)]): ProgramEnvironment = {
-    if (params.isEmpty) ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "csv"))
-    else ProgramEnvironment(user, Some(params.toArray), Set.empty, Map("output-format" -> "csv"))
+  private def asCsv(params: Map[String, RawValue], scopes: Set[String] = Set.empty): ProgramEnvironment = {
+    ProgramEnvironment(
+      user,
+      if (params.isEmpty) None else Some(params.toArray),
+      scopes,
+      Map("output-format" -> "csv"),
+      jdbcUrl = Some(jdbcUrl)
+    )
   }
 
   override def afterAll(): Unit = {
@@ -382,7 +399,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = :city") { t =>
-    val environment = asCsv(Seq("city" -> RawString("Braganca")))
+    val environment = asCsv(Map("city" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
@@ -415,12 +432,7 @@ class TestSqlCompilerServiceAirports
 
   test("""-- a query with no default, called without the parameter
     |SELECT * FROM example.airports WHERE city = :city""".stripMargin) { t =>
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array(("city", RawNull()))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val environment = asJson(Map("city" -> RawNull()))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
@@ -448,12 +460,7 @@ class TestSqlCompilerServiceAirports
   test("""-- a query with a default, called without the parameter
     |-- @default city 'Athens'
     |SELECT COUNT(*) AS n FROM example.airports WHERE city = :city""".stripMargin) { t =>
-    val environment = ProgramEnvironment(
-      user,
-      None,
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val environment = asJson()
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
@@ -489,12 +496,7 @@ class TestSqlCompilerServiceAirports
     |-- @default age 'tralala
     |-- @param whatever an unknown parameter
     |SELECT COUNT(*) FROM example.airports WHERE :city = city""".stripMargin) { t =>
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array.empty),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val environment = asJson(Map.empty)
     val v = compilerService.validate(t.q, environment)
     val expectedErrors = List(
       1 -> "unsupported type intger",
@@ -515,12 +517,8 @@ class TestSqlCompilerServiceAirports
     |-- @default age 'tralala'
     |-- @param whatever an unknown parameter
     |SELECT COUNT(*) FROM example.airports WHERE :age = city""".stripMargin) { t =>
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array.empty),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val environment = asJson(Map.empty)
+
     val v = compilerService.validate(t.q, environment)
     val expectedErrors = List(
       2 -> "invalid input syntax for type integer",
@@ -538,12 +536,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = :param and airport_id = :param") { t =>
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array(("param", RawString("Braganca")))),
-      Set.empty,
-      Map("output-format" -> "csv")
-    )
+    val environment = asCsv(Map("param" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.nonEmpty)
     val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, environment)
@@ -654,24 +647,9 @@ class TestSqlCompilerServiceAirports
   test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = :name OR country = :name""".stripMargin) { t =>
-    val withCity = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawString("Braganca")))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
-    val withCountry = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawString("Portugal")))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
-    val withNull = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawNull()))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val withCity = asJson(Map("name" -> RawString("Braganca")))
+    val withCountry = asJson(Map("name" -> RawString("Portugal")))
+    val withNull = asJson(Map("name" -> RawNull()))
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
@@ -704,18 +682,8 @@ class TestSqlCompilerServiceAirports
   test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = COALESCE(:name, 'Lyon')""".stripMargin) { t =>
-    val withCity = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawString("Braganca")))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
-    val withNull = ProgramEnvironment(
-      user,
-      Some(Array(("name", RawNull()))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val withCity = asJson(Map("name" -> RawString("Braganca")))
+    val withNull = asJson(Map("name" -> RawNull()))
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
@@ -841,12 +809,7 @@ class TestSqlCompilerServiceAirports
   test("""SELECT COUNT(*) FROM example.airports;""") { t =>
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = ProgramEnvironment(
-      user,
-      None,
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val noParam = asJson()
     assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
     assert(baos.toString() == """[{"count":8107}]""")
   }
@@ -858,12 +821,7 @@ class TestSqlCompilerServiceAirports
   ) { t =>
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = ProgramEnvironment(
-      user,
-      None,
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val noParam = asJson()
     assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
     assert(baos.toString() == """[{"count":8107}]""")
   }
@@ -877,12 +835,7 @@ class TestSqlCompilerServiceAirports
   ) { t =>
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = ProgramEnvironment(
-      user,
-      None,
-      Set.empty,
-      Map("output-format" -> "json")
-    )
+    val noParam = asJson()
     assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
     assert(baos.toString() == """[{"count":8107}]""")
   }
@@ -946,12 +899,7 @@ class TestSqlCompilerServiceAirports
   test("""scopes work""") { _ =>
     val baos = new ByteArrayOutputStream()
     def runWith(q: String, scopes: Set[String]): String = {
-      val env = ProgramEnvironment(
-        user,
-        None,
-        scopes,
-        Map("output-format" -> "json")
-      )
+      val env = asJson(scopes = scopes)
       assert(compilerService.validate(q, env).messages.isEmpty)
       val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(q, env)
       baos.reset()

@@ -38,10 +38,11 @@ class TestNamedParametersStatement
   override def beforeAll(): Unit = {
     super.beforeAll()
     val dbPort = container.mappedPort(5432).toString
-    property("raw.creds.jdbc.fdw.user", container.username)
-    property("raw.creds.jdbc.fdw.password", container.password)
+    val dbName = container.databaseName
+    val user = container.username
+    val password = container.password
     connectionPool = new SqlConnectionPool()
-    jdbcUrl = s"jdbc:postgresql://localhost:$dbPort/" + container.databaseName
+    jdbcUrl = s"jdbc:postgresql://localhost:$dbPort/$dbName?user=$user&password=$password"
   }
 
   private def mkPreparedStatement(code: String) =
