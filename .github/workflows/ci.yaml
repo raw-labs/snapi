@@ -27,13 +27,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: headers
-        run: ./ci/checks headerCheckAll
+        run: ./ci/check headerCheckAll
       - name: scala fmt
-        run: ./ci/checks scalafmtCheckAll
+        run: ./ci/check scalafmtCheckAll
       - name: java fmt
-        run: ./ci/checks javafmtCheckAll
+        run: ./ci/check javafmtCheckAll
       - name: doc
-        run: ./ci/checks doc
+        run: ./ci/check doc
   tests:
     strategy:
       fail-fast: false
@@ -51,7 +51,7 @@ jobs:
           secrets: ${{ toJSON(secrets) }}
       - run: env > .env
       - name: test
-        run: sbt ${{ matrix.component }}/test
+        run: ./ci/test ${{ matrix.component }}/test
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:

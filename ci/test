@@ -40,6 +40,7 @@ docker build \
   --tag ${IMAGE_NAME}:latest
 
 docker run \
+  --network host \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /usr/bin/docker:/usr/bin/docker \
   -v "${REPORTS_DIR}:/root/workdir/${FOLDER_COMPONENT}/target/test-reports" \
