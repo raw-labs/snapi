@@ -28,7 +28,7 @@ trait LocationBuilder {
 
   protected def getStringOption(options: Map[String, OptionValue], key: String): String = {
     options.get(key) match {
-      case Some(StringOptionValue(value)) => key
+      case Some(StringOptionValue(value)) => value
       case Some(_) => throw new LocationException(s"$key must be a string")
       case None => throw new LocationException(s"$key is required")
     }

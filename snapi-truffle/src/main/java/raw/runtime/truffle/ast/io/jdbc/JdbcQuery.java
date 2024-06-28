@@ -26,7 +26,6 @@ import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.sources.api.SourceContext;
-import raw.sources.jdbc.api.JdbcLocationProvider;
 import raw.utils.RawException;
 
 public class JdbcQuery {
@@ -40,14 +39,14 @@ public class JdbcQuery {
   public JdbcQuery(
       LocationDescription locationDescription,
       String query,
-      SourceContext context,
+      SourceContext sourceContext,
       JdbcExceptionHandler exceptionHandler) {
     this.exceptionHandler = exceptionHandler;
     this.url = locationDescription.url();
     try {
-      connection = JdbcLocationProvider.build(locationDescription, context).getJdbcConnection();
+      connection = sourceContext.getJdbcLocation(locationDescription.url(), locationDescription.options(), sourceContext).getJdbcConnection();
       PreparedStatement stmt;
-      int fetchSize = context.settings().getInt("raw.runtime.rdbms.fetch-size");
+      int fetchSize = sourceContext.settings().getInt("raw.runtime.rdbms.fetch-size");
       try {
         stmt = connection.prepareStatement(query);
         stmt.setFetchSize(fetchSize);

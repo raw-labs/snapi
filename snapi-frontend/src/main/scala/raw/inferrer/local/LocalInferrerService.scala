@@ -24,9 +24,7 @@ import raw.inferrer.local.json.JsonInferrer
 import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.{XmlInferrer, XmlMergeTypes}
 import raw.sources.api._
-import raw.sources.bytestream.api.{ByteStreamLocation, ByteStreamLocationProvider}
-import raw.sources.filesystem.api.FileSystemLocationProvider
-import raw.sources.jdbc.api.{JdbcLocationProvider, JdbcTableLocationProvider}
+import raw.sources.bytestream.api.ByteStreamLocation
 
 import scala.util.control.NonFatal
 
@@ -70,15 +68,15 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     try {
       properties match {
         case tbl: SqlTableInferrerProperties =>
-          val location = JdbcTableLocationProvider.build(tbl.location)
+          val location = sourceContext.getJdbcTableLocation(tbl.location.url, tbl.location.options)
           val tipe = jdbcInferrer.getTableType(location)
           SqlTableInputFormatDescriptor(location.vendor, location.dbName, location.maybeSchema, location.table, tipe)
         case query: SqlQueryInferrerProperties =>
-          val location = JdbcLocationProvider.build(query.location)
+          val location = sourceContext.getJdbcLocation(query.location.url, query.location.options)
           val tipe = jdbcInferrer.getQueryType(location, query.sql)
           SqlQueryInputFormatDescriptor(location.vendor, location.dbName, tipe)
         case csv: CsvInferrerProperties =>
-          val location = ByteStreamLocationProvider.build(csv.location)
+          val location = sourceContext.getByteStream(csv.location.url, csv.location.options)
           val is = textInputStream(location)
           try {
             csvInferrer.infer(
@@ -97,7 +95,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             is.close()
           }
         case csv: ManyCsvInferrerProperties =>
-          val location = FileSystemLocationProvider.build(csv.location)
+          val location = sourceContext.getFileSystem(csv.location.url, csv.location.options)
           val files = location.ls()
           readMany(
             files,
@@ -123,7 +121,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             }
           )
         case hjson: HjsonInferrerProperties =>
-          val location = ByteStreamLocationProvider.build(hjson.location)
+          val location = sourceContext.getByteStream(hjson.location.url, hjson.location.options)
           val is = textInputStream(location)
           try {
             hjsonInferrer.infer(is, hjson.maybeEncoding, hjson.maybeSampleSize)
@@ -131,7 +129,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             is.close()
           }
         case hjson: ManyHjsonInferrerProperties =>
-          val location = FileSystemLocationProvider.build(hjson.location)
+          val location = sourceContext.getFileSystem(hjson.location.url, hjson.location.options)
           val files = location.ls()
           readMany(
             files,
@@ -146,7 +144,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             }
           )
         case json: JsonInferrerProperties =>
-          val location = ByteStreamLocationProvider.build(json.location)
+          val location = sourceContext.getByteStream(json.location.url, json.location.options)
           val is = textInputStream(location)
           try {
             jsonInferrer.infer(is, json.maybeEncoding, json.maybeSampleSize)
@@ -154,7 +152,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             is.close()
           }
         case json: ManyJsonInferrerProperties =>
-          val location = FileSystemLocationProvider.build(json.location)
+          val location = sourceContext.getFileSystem(json.location.url, json.location.options)
           val files = location.ls()
           readMany(
             files,
@@ -169,7 +167,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             }
           )
         case xml: XmlInferrerProperties =>
-          val location = ByteStreamLocationProvider.build(xml.location)
+          val location = sourceContext.getByteStream(xml.location.url, xml.location.options)
           val is = textInputStream(location)
           try {
             xmlInferrer.infer(is, xml.maybeEncoding, xml.maybeSampleSize)
@@ -177,7 +175,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             is.close()
           }
         case xml: ManyXmlInferrerProperties =>
-          val location = FileSystemLocationProvider.build(xml.location)
+          val location = sourceContext.getFileSystem(xml.location.url, xml.location.options)
           val files = location.ls()
           readMany(
             files,
@@ -203,7 +201,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             throw new LocalInferrerException("unsupported location for auto inference")
           }
         case auto: ManyAutoInferrerProperties =>
-          val location = FileSystemLocationProvider.build(auto.location)
+          val location = sourceContext.getFileSystem(auto.location.url, auto.location.options)
           val files = location.ls()
           readMany(files, auto.maybeSampleFiles, file => autoInferrer.infer(file, auto.maybeSampleSize))
       }

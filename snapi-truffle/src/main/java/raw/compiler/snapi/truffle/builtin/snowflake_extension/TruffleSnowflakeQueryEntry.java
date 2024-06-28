@@ -61,7 +61,11 @@ public class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry
             .map(a -> (Rql2TypeWithProperties) a.type())
             .toArray(Rql2TypeWithProperties[]::new);
 
+    if host not defined
+    assume db is a cred name and get the host from there
+
     LocationBuildNode location =
+            build the host-based url
         new LocationBuildNode(new PlusNode(new StringNode("snowflake:"), db), keys, values, types);
 
     return Jdbc.query(

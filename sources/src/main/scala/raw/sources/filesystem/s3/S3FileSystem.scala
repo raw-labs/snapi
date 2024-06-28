@@ -19,7 +19,6 @@ import software.amazon.awssdk.services.s3.S3Configuration
 import java.net.ConnectException
 import com.google.common.collect.AbstractIterator
 import org.springframework.util.AntPathMatcher
-import raw.creds.api.{AWSCredentials, S3Bucket}
 import raw.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
 import raw.sources.filesystem.api._
 import raw.utils._

@@ -15,7 +15,6 @@ package raw.sources.jdbc.sqlserver
 import com.microsoft.sqlserver.jdbc.SQLServerException
 
 import java.util.concurrent.TimeUnit
-import raw.creds.api.SqlServerCredential
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 

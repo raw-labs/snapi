@@ -40,11 +40,11 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
           case _: Rql2StringType => Right(x)
           case _: Rql2BoolType => Right(x)
           case _: Rql2NumberType => Right(x)
-          // intervals are not supported so we cannot  match temporals here
           case _: Rql2DateType => Right(x)
           case _: Rql2TimeType => Right(x)
           case _: Rql2TimestampType => Right(x)
           case _: Rql2BinaryType => Right(x)
+          // intervals are not supported, so we cannot match temporal types here.
           case _ => Left(Seq(UnsupportedType(x.tipe, x.tipe, None)))
         }
       }
@@ -59,9 +59,11 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
       optionalArgs: Seq[(String, Arg)],
       vendor: SqlVendor
   ): Either[String, SqlTableInferrerProperties] = {
-
     val tablePath = mandatoryArgs.map { case ValueArg(StringValue(v), _) => v }.mkString("/")
     val url = vendorToUrl(vendor) + ":" + tablePath
+
+    this builds the entire table path
+
     val locationDesc = getLocation(url, optionalArgs.toMap)
     Right(SqlTableInferrerProperties(locationDesc, None))
   }
@@ -71,15 +73,17 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
       optionalArgs: Seq[(String, Arg)],
       vendor: SqlVendor
   ): Either[String, SqlQueryInferrerProperties] = {
-
-    val db = getStringValue(mandatoryArgs.head)
+    val db = getStringValue(mandatoryArgs(0))
     val query = getStringValue(mandatoryArgs(1))
-    val url = vendorToUrl(vendor) + ":" + db
-    val locationDesc = getLocation(url, optionalArgs.toMap)
+
+    if optional args include host ... do stuff
+
+
+    val locationDesc = getLocation(vendor, db, optionalArgs.toMap)
     Right(SqlQueryInferrerProperties(locationDesc, query, None))
   }
 
-  private def getLocation(url: String, optionalArgs: Map[String, Arg]): LocationDescription = {
+  private def getLocation(vendor: SqlVendor, db: String, optionalArgs: Map[String, Arg]): LocationDescription = {
     val locationSettings = mutable.HashMap[LocationSettingKey, LocationSettingValue]()
 
     Seq(
@@ -96,7 +100,7 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
         locationSettings += LocationSettingKey(name) -> LocationKVSetting(value)
       case (_, None) =>
     }
-
+resolve cred here
     LocationDescription(url, locationSettings.toMap)
   }
 

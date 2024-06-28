@@ -13,10 +13,9 @@
 package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.creds.api.{AWSCredentials, S3Bucket}
-import raw.sources.filesystem.api.{FileSystemException, FileSystemLocation, FileSystemLocationBuilder}
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{LocationDescription, OptionType, OptionValue, StringOptionType, StringOptionValue}
+import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
+import raw.sources.api.SourceContext
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
 
 object S3FileSystemLocationBuilder {
   private val REGEX = """s3:(?://)?([a-z\d][-a-z\d.]*)(/.*)?""".r

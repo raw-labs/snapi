@@ -57,6 +57,25 @@ public class TruffleMySQLQueryEntry extends MySQLQueryEntry
             .map(a -> (Rql2TypeWithProperties) a.type())
             .toArray(Rql2TypeWithProperties[]::new);
 
+    fix to resolve
+
+     LocatioDescription locationDescription =       sourceContext.getMySQLLocation(db, host(args), port(args), username(args), password(args))
+                    this will return a full URL and its options. handles if host and port are null
+            locationDescription.url()
+                    no..
+    because even db is an ExpressionNode
+            it is NOT the url
+
+
+              maybe review how we build credentials once more?
+      ie allow the location to build itself? or do it inside the getLocation method of source context?
+      allow build node with mysql: or some other syntax
+              "mysql@dbName"
+                      vs
+                              "mysql://"
+
+
+
     LocationBuildNode location =
         new LocationBuildNode(new PlusNode(new StringNode("mysql:"), db), keys, values, types);
 

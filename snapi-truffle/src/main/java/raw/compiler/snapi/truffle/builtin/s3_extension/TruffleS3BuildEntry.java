@@ -53,6 +53,8 @@ public class TruffleS3BuildEntry extends S3BuildEntry implements TruffleEntryExt
             .filter(arg -> arg.identifier() != null)
             .map(arg -> (Rql2TypeWithProperties) arg.type())
             .toArray(Rql2TypeWithProperties[]::new);
+    wrong
+            all the guys at truffle time that build new LocationBuildNode have to be reviewed
     return new LocationBuildNode(url, keys, values, types);
   }
 }

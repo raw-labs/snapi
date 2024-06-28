@@ -14,9 +14,9 @@ package raw.sources.filesystem.mock
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
-import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder, FileSystemLocationProvider}
+import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
 import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{LocationDescription, OptionType, OptionValue}
+import raw.client.api.{OptionType, OptionValue}
 
 import scala.util.matching.Regex
 

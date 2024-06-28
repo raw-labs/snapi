@@ -12,23 +12,14 @@
 
 package raw.sources.bytestream.http
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.typesafe.scalalogging.StrictLogging
-import org.apache.commons.io.IOUtils
-import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.core5.http.HttpHeaders
-import org.apache.hc.core5.net.URIBuilder
 import raw.client.api.LocationDescription
 import raw.creds.api._
-import raw.creds.oauth2.auth0.Auth0OAuth2Client
 import raw.sources.api.{LocationException, SourceContext}
 import raw.sources.bytestream.api.ByteStreamLocationBuilder
-import raw.utils.RawSettings
 
-import java.io.IOException
 import java.net.{HttpURLConnection, MalformedURLException, URISyntaxException}
-import java.nio.charset.StandardCharsets
 import java.util.Base64
 import scala.collection.mutable
 

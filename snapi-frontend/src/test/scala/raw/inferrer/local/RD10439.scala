@@ -13,12 +13,8 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{LocationDescription, LocationSettingKey, LocationStringSetting}
-import raw.creds.api.MySqlCredential
 import raw.inferrer.api._
 import raw.inferrer.local.jdbc.JdbcInferrer
-import raw.sources.api.SourceContext
-import raw.sources.jdbc.api.JdbcTableLocationProvider
 import raw.sources.jdbc.mysql.{MySqlClient, MySqlTable}
 import raw.utils.{RawTestSuite, SettingsTestContext}
 
@@ -30,9 +26,8 @@ class RD10439 extends RawTestSuite with SettingsTestContext with StrictLogging {
   val mysqlPassword: String = sys.env("RAW_MYSQL_TEST_PASSWORD")
 
   test("infer mysql table which is repeated in another database") { _ =>
-    val mysqlCreds = MySqlCredential(mysqlHostname, None, mysqlDb, Some(mysqlUsername), Some(mysqlPassword))
     val inferrer = new JdbcInferrer()
-    val client = new MySqlClient(mysqlCreds)
+    val client = new MySqlClient(mysqlHostname, 3306, mysqlDb, mysqlUsername, mysqlPassword)
     val location = new MySqlTable(client, mysqlDb, "rd10439")
     val tipe = inferrer.getTableType(location)
     logger.info(s"tipe: $tipe")

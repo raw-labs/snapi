@@ -15,22 +15,23 @@ package raw.runtime.truffle.utils;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.InputStream;
 import java.io.Reader;
+
+import raw.client.api.LocationDescription;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Encoding;
 import raw.sources.api.SourceContext;
 import raw.sources.bytestream.api.ByteStreamLocation;
-import raw.sources.bytestream.api.ByteStreamLocationProvider;
 import raw.utils.RawException;
 import scala.util.Either;
 
 public class TruffleInputStream {
   private final LocationObject locationObject;
 
-  private final SourceContext context;
+  private final SourceContext sourceContext;
 
   public TruffleInputStream(LocationObject locationObject, SourceContext context) {
-    this.context = context;
+    this.sourceContext = context;
     this.locationObject = locationObject;
   }
 
@@ -41,8 +42,9 @@ public class TruffleInputStream {
 
   @TruffleBoundary
   public ByteStreamLocation getLocation() {
+    LocationDescription locationDescription = locationObject.getLocationDescription();
     try {
-      return ByteStreamLocationProvider.build(locationObject.getLocationDescription(), context);
+      return sourceContext.getByteStream(locationDescription.url(), locationDescription.options(), sourceContext);
     } catch (RawException ex) {
       throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
     }

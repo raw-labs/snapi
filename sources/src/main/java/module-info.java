@@ -71,7 +71,6 @@ module raw.sources {
   exports raw.sources.bytestream.api;
   exports raw.sources.bytestream.github;
   exports raw.sources.bytestream.http;
-  exports raw.sources.bytestream.in_memory;
   exports raw.sources.filesystem.api;
   exports raw.sources.filesystem.dropbox;
   exports raw.sources.filesystem.local;
