@@ -8,6 +8,27 @@ find . -type d -name "target" -exec rm -r {} \; || true
 
 JAVA_VERSION="21.0.1-graalce"
 
+toCamel() {
+  local input=$1
+  local camel=""
+  local i=0
+  local len=${#input}
+
+  while [ $i -lt $len ]; do
+    char=${input:$i:1}
+    if [ "$char" == "-" ]; then
+      ((i++))
+      char=${input:$i:1}
+      camel+=$(echo "$char" | tr '[:lower:]' '[:upper:]')
+    else
+      camel+=$char
+    fi
+    ((i++))
+  done
+
+  echo "$camel"
+}
+camelComponent=$(toCamel "${1}")
 # Needed to pull private deps from main repo
 if [ -z "$GITHUB_TOKEN" ]; then
   echo "Error: GITHUB_TOKEN is not set. Exiting..."
@@ -29,28 +50,6 @@ if ! sdk list java | grep -q "$JAVA_VERSION"; then
   sdk default java "$JAVA_VERSION"
   echo "Java version $JAVA_VERSION installation complete and set as default."
 fi
-
-toCamel() {
-  local input=$1
-  local camel=""
-  local i=0
-  local len=${#input}
-
-  while [ $i -lt $len ]; do
-    char=${input:$i:1}
-    if [ "$char" == "-" ]; then
-      ((i++))
-      char=${input:$i:1}
-      camel+=$(echo "$char" | tr '[:lower:]' '[:upper:]')
-    else
-      camel+=$char
-    fi
-    ((i++))
-  done
-
-  echo "$camel"
-}
-
-camelComponent=$(toCamel "${1}")
+sdk use java "$JAVA_VERSION"
 
 sbt clean "${camelComponent}"/test

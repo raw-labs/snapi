@@ -29,5 +29,6 @@ if ! sdk list java | grep -q "$JAVA_VERSION"; then
   sdk default java "$JAVA_VERSION"
   echo "Java version $JAVA_VERSION installation complete and set as default."
 fi
+sdk use java "$JAVA_VERSION"
 
 sbt "${1}"
