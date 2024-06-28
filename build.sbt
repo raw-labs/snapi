@@ -26,6 +26,12 @@ ThisBuild / credentials += Credentials(
 )
 ThisBuild/ resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/raw-labs/raw"
 
+ThisBuild / javaHome := {
+  val javaHomePath = sys.env.getOrElse("JAVA_HOME", sys.props("java.home"))
+  println(s"Using Java Home: $javaHomePath")
+  Some(file(javaHomePath))
+}
+
 val writeVersionToFile = taskKey[Unit]("Writes the project version to a file at the root.")
 
 writeVersionToFile := {
@@ -188,6 +194,8 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     runJavaAnnotationProcessor := {
       println("Running Java annotation processor")
 
+      val javaHomeDir = javaHome.value.getOrElse(sys.error("JAVA_HOME is not set"))
+      val javacExecutable = javaHomeDir / "bin" / "javac"
       val annotationProcessorJar = baseDirectory.value / "truffle-dsl-processor-23.1.0.jar"
 
       val javaSources = baseDirectory.value / "src" / "main" / "java"
@@ -196,7 +204,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
       val projectClasspath = calculateClasspath.value.mkString(":")
 
       val javacOptions = Seq(
-        "javac",
+        javacExecutable.absolutePath,
         "-source",
         "21",
         "-target",
