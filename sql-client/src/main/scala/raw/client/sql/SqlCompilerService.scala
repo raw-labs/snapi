@@ -35,12 +35,14 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
 
   // A short lived database metadata (schema/table/column names) indexed by JDBC URL.
   private val metadataBrowsers = {
+    val maxSize = settings.getInt("raw.client.sql.metadata-cache.max-matches")
+    val expiry = settings.getDuration("raw.client.sql.metadata-cache.match-validity")
     val loader = new CacheLoader[String, UserMetadataCache] {
       override def load(jdbcUrl: String): UserMetadataCache = new UserMetadataCache(
         jdbcUrl,
         connectionPool,
-        maxSize = settings.getInt("raw.client.sql.metadata-cache.max-matches"),
-        expiry = settings.getDuration("raw.client.sql.metadata-cache.match-validity")
+        maxSize = maxSize,
+        expiry = expiry
       )
     }
     CacheBuilder
