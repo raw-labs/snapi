@@ -29,7 +29,7 @@ ThisBuild/ resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/
 ThisBuild / javaHome := {
   val javaHomePath = sys.env.getOrElse("JAVA_HOME", sys.props("java.home"))
   println(s"Using Java Home: $javaHomePath")
-  file(javaHomePath)
+  Some(file(javaHomePath))
 }
 
 val writeVersionToFile = taskKey[Unit]("Writes the project version to a file at the root.")
