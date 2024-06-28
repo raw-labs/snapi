@@ -24,8 +24,6 @@ package raw.client.sql
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import org.testcontainers.utility.DockerImageName
 import raw.client.api._
-import raw.creds.api.CredentialsTestContext
-import raw.creds.local.LocalCredentialsTestContext
 import raw.utils._
 
 import java.io.ByteArrayOutputStream
@@ -36,9 +34,7 @@ class TestSqlCompilerServiceAirports
     extends RawTestSuite
     with ForAllTestContainer
     with SettingsTestContext
-    with TrainingWheelsContext
-    with CredentialsTestContext
-    with LocalCredentialsTestContext {
+    with TrainingWheelsContext {
 
   override val container: PostgreSQLContainer = PostgreSQLContainer(
     dockerImageNameOverride = DockerImageName.parse("postgres:15-alpine")

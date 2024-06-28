@@ -17,17 +17,13 @@ import org.bitbucket.inkytonik.kiama.util.Positions
 import org.testcontainers.utility.DockerImageName
 import raw.client.api.{RawInt, RawString}
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
-import raw.creds.api.CredentialsTestContext
-import raw.creds.local.LocalCredentialsTestContext
 import raw.utils._
 
 class TestNamedParametersStatement
     extends RawTestSuite
     with ForAllTestContainer
     with SettingsTestContext
-    with TrainingWheelsContext
-    with CredentialsTestContext
-    with LocalCredentialsTestContext {
+    with TrainingWheelsContext {
 
   override val container: PostgreSQLContainer = PostgreSQLContainer(
     dockerImageNameOverride = DockerImageName.parse("postgres:15-alpine")
