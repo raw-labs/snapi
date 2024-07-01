@@ -272,9 +272,7 @@ lazy val sqlParser = (project in file("sql-parser"))
 lazy val sqlClient = (project in file("sql-client"))
   .dependsOn(
     client % "compile->compile;test->test",
-    snapiFrontend % "compile->compile;test->test",
     sqlParser % "compile->compile;test->test",
-    sources % "compile->compile;test->test",
   )
   .settings(
     commonSettings,
@@ -283,7 +281,9 @@ lazy val sqlClient = (project in file("sql-client"))
     libraryDependencies ++= Seq(
       kiama,
       postgresqlDeps,
-      hikariCP
+      hikariCP,
+      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.41.3" % Test,
+      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.41.3" % Test
     )
   )
 

@@ -12,7 +12,6 @@
 
 package raw.creds.client
 
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.creds.api._
 import raw.creds.client.ClientCredentialsService.SERVER_ADDRESS
 import raw.rest.client.APIException
