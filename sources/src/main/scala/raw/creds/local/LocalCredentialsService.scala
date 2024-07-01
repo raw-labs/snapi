@@ -146,7 +146,11 @@ class LocalCredentialsService extends CredentialsService {
   }
 
   override def getUserDb(user: AuthenticatedUser): String = {
-    sys.env.getOrElse("FDW_DATABASE", "raw")
+    ???
+  }
+
+  override def getUserJdbc(user: AuthenticatedUser): String = {
+    ???
   }
 
   override def doStop(): Unit = {}

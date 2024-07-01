@@ -286,6 +286,10 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
     client.getUserDb(user)
   }
 
+  override def getUserJdbc(user: AuthenticatedUser): String = {
+    client.getUserJdbc(user)
+  }
+
   override def doStop(): Unit = {
     client.close()
   }
