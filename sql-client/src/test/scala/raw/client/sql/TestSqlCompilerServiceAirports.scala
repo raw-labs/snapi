@@ -935,4 +935,14 @@ class TestSqlCompilerServiceAirports
         == """[{"trip_id":0,"departure_date":"2016-02-27","arrival_date":"2016-03-06"}]"""
     )
   }
+
+  test(
+    """-- @param p
+      |-- @type p integer
+      |-- SELECT :p + 10;
+      |""".stripMargin) { t =>
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.size == 1)
+    assert(v.messages(0).message == "non-executable code")
+  }
 }
