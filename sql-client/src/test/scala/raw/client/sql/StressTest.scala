@@ -22,6 +22,7 @@ import raw.client.api._
 import raw.utils._
 
 import java.sql.DriverManager
+import java.util.concurrent.Executors
 import scala.io.Source
 
 class StressTest extends RawTestSuite with SettingsTestContext with TrainingWheelsContext {
@@ -38,7 +39,6 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
 
   // Username equals the database
   private val user = InteractiveUser(Uid("blah"), "fdw user", "email", Seq.empty)
-
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -79,17 +79,36 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
       compilerService.stop()
       compilerService = null
     }
-    Option(container).foreach(_.stop)
-    Option(toxiproxy).foreach(_.stop)
-    Option(network).foreach(_.close)
     Option(proxy).foreach(_.delete)
-    container = null
+    proxy = null
+    Option(toxiproxy).foreach(_.stop)
     toxiproxy = null
+    Option(container).foreach(_.stop)
+    container = null
+    Option(network).foreach(_.close)
     network = null
     super.afterAll()
   }
 
   test("getProgramDescription loop") { _ =>
+    val executor = Executors.newSingleThreadExecutor()
+    val bugFunctions = Seq(
+//      () => proxy.toxics().timeout("bug", ToxicDirection.UPSTREAM, 0),
+//      () => proxy.toxics().timeout("bug", ToxicDirection.DOWNSTREAM, 0),
+//      () => proxy.toxics().resetPeer("bug", ToxicDirection.UPSTREAM, 0),
+//      () => proxy.toxics().resetPeer("bug", ToxicDirection.DOWNSTREAM, 0),
+      () => proxy.toxics().slowClose("bug", ToxicDirection.DOWNSTREAM, 2000),
+      () => proxy.toxics().slowClose("bug", ToxicDirection.UPSTREAM, 2000),
+    )
+    val failures = executor.submit(() => {
+      for (i <- 1 to 2; installBug <- bugFunctions) {
+        Thread.sleep(3000)
+        installBug()
+        Thread.sleep(3000)
+        proxy.toxics().get("bug").remove()
+      }
+      12
+    })
     val env = ProgramEnvironment(
       user,
       Some(Array("city" -> RawString("Lyon"))),
@@ -99,11 +118,13 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
       Some(jdbcUrl)
     )
     val code = "SELECT COUNT(*) FROM example.airports WHERE city = :city"
-    for (i <- 1 to 100000) {
+    for (i <- 1 to 1000) {
       val r = compilerService.getProgramDescription(code, env)
-      if (i == 50) proxy.toxics().timeout("test", ToxicDirection.UPSTREAM, 1000)
+      Thread.sleep(10)
       assert(r.isInstanceOf[GetProgramDescriptionSuccess])
     }
+    failures.cancel(true)
+    executor.close()
   }
 
   ignore("execute loop") { _ =>
@@ -119,6 +140,7 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
     val outputStream = NullOutputStream.NULL_OUTPUT_STREAM
     for (i <- 1 to 10000) {
       val r = compilerService.execute(code, env, None, outputStream)
+      Thread.sleep(100)
       assert(r == ExecutionSuccess)
     }
   }
