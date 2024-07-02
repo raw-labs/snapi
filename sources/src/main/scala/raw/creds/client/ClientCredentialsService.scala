@@ -12,7 +12,6 @@
 
 package raw.creds.client
 
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.creds.api._
 import raw.creds.client.ClientCredentialsService.SERVER_ADDRESS
 import raw.rest.client.APIException
@@ -285,6 +284,10 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
 
   override def getUserDb(user: AuthenticatedUser): String = {
     client.getUserDb(user)
+  }
+
+  override def getUserJdbc(user: AuthenticatedUser): String = {
+    client.getUserJdbc(user)
   }
 
   override def doStop(): Unit = {

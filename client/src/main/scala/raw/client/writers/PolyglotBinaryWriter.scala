@@ -16,9 +16,9 @@ import org.graalvm.polyglot.Value
 
 import java.io.{BufferedOutputStream, IOException, OutputStream}
 
-class PolyglotBinaryWriter(os: OutputStream) {
+final class PolyglotBinaryWriter(os: OutputStream) {
 
-  def writeValue(v: Value): Unit = {
+  def writeAndFlush(v: Value): Unit = {
     if (v.isException) {
       v.throwException()
     } else if (v.isNull) {} else if (v.hasBufferElements) {
