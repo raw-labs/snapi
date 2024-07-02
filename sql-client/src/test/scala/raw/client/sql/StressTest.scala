@@ -15,7 +15,7 @@ package raw.client.sql
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import eu.rekawek.toxiproxy.model.ToxicDirection
 import eu.rekawek.toxiproxy.{Proxy, ToxiproxyClient}
-import org.apache.commons.io.output.NullOutputStream
+import org.scalatest.matchers.must.Matchers.{be, noException}
 import org.testcontainers.containers.{Network, ToxiproxyContainer}
 import org.testcontainers.utility.DockerImageName
 import raw.client.api._
@@ -52,8 +52,11 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
     val conn = DriverManager.getConnection(container.jdbcUrl, container.username, container.password);
     val resource = Source.fromResource("example.sql")
     val sql =
-      try { resource.mkString }
-      finally { resource.close() }
+      try {
+        resource.mkString
+      } finally {
+        resource.close()
+      }
 
     val stmt = conn.createStatement()
     stmt.execute(sql)
@@ -72,6 +75,14 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
     compilerService = {
       new SqlCompilerService()
     }
+    env = ProgramEnvironment(
+      user,
+      Some(Array("city" -> RawString("Lyon"))),
+      Set.empty,
+      Map("output-format" -> "json"),
+      None,
+      Some(jdbcUrl)
+    )
   }
 
   override def afterAll(): Unit = {
@@ -90,58 +101,75 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
     super.afterAll()
   }
 
-  test("getProgramDescription loop") { _ =>
+  private def withFailures(what: () => Unit) = {
     val executor = Executors.newSingleThreadExecutor()
     val bugFunctions = Seq(
-//      () => proxy.toxics().timeout("bug", ToxicDirection.UPSTREAM, 0),
-//      () => proxy.toxics().timeout("bug", ToxicDirection.DOWNSTREAM, 0),
-//      () => proxy.toxics().resetPeer("bug", ToxicDirection.UPSTREAM, 0),
-//      () => proxy.toxics().resetPeer("bug", ToxicDirection.DOWNSTREAM, 0),
-      () => proxy.toxics().slowClose("bug", ToxicDirection.DOWNSTREAM, 2000),
-      () => proxy.toxics().slowClose("bug", ToxicDirection.UPSTREAM, 2000),
+      () => proxy.toxics().timeout("bug", ToxicDirection.UPSTREAM, 0),
+      () => proxy.toxics().timeout("bug", ToxicDirection.DOWNSTREAM, 0),
+      () => proxy.toxics().resetPeer("bug", ToxicDirection.UPSTREAM, 0),
+      () => proxy.toxics().resetPeer("bug", ToxicDirection.DOWNSTREAM, 0)
     )
     val failures = executor.submit(() => {
       for (i <- 1 to 2; installBug <- bugFunctions) {
-        Thread.sleep(3000)
+        Thread.sleep(2000)
         installBug()
+        logger.warn("enable bug")
         Thread.sleep(3000)
         proxy.toxics().get("bug").remove()
+        logger.warn("disable bug")
       }
       12
     })
-    val env = ProgramEnvironment(
-      user,
-      Some(Array("city" -> RawString("Lyon"))),
-      Set.empty,
-      Map("output-format" -> "json"),
-      None,
-      Some(jdbcUrl)
-    )
-    val code = "SELECT COUNT(*) FROM example.airports WHERE city = :city"
-    for (i <- 1 to 1000) {
-      val r = compilerService.getProgramDescription(code, env)
-      Thread.sleep(10)
-      assert(r.isInstanceOf[GetProgramDescriptionSuccess])
+    try {
+      for (i <- 1 to 500) {
+        logger.debug(s"#$i")
+        noException should be thrownBy what()
+      }
+    } finally {
+      failures.cancel(true)
+      executor.close()
     }
-    failures.cancel(true)
-    executor.close()
   }
 
-  ignore("execute loop") { _ =>
-    val env = ProgramEnvironment(
-      user,
-      Some(Array("city" -> RawString("Lyon"))),
-      Set.empty,
-      Map("output-format" -> "json"),
-      None,
-      Some(jdbcUrl)
-    )
-    val code = "SELECT COUNT(*) FROM example.airports WHERE city = :city"
-    val outputStream = NullOutputStream.NULL_OUTPUT_STREAM
-    for (i <- 1 to 10000) {
-      val r = compilerService.execute(code, env, None, outputStream)
-      Thread.sleep(100)
-      assert(r == ExecutionSuccess)
+  private var env: ProgramEnvironment = _
+  private val code = "SELECT COUNT(*) FROM example.airports WHERE city = :city"
+
+  test("getProgramDescription") { _ =>
+    withFailures { () =>
+      val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(code, env)
+      Thread.sleep(10)
+    }
+  }
+
+  test("dotAutoComplete") { _ =>
+    withFailures { () =>
+      val AutoCompleteResponse(r) = compilerService.dotAutoComplete(code, env, Pos(1, 30))
+      assert(r.nonEmpty) // example.airports columns
+      Thread.sleep(10)
+    }
+  }
+
+  test("wordAutoComplete") { _ =>
+    withFailures { () =>
+      val AutoCompleteResponse(r) = compilerService.wordAutoComplete(code, env, "ex", Pos(1, 24))
+      assert(r.nonEmpty) // example.airports columns
+      Thread.sleep(10)
+    }
+  }
+
+  test("hover") { _ =>
+    withFailures { () =>
+      val HoverResponse(r) = compilerService.hover(code, env, Pos(1, 2))
+      assert(r.nonEmpty)
+      Thread.sleep(10)
+    }
+  }
+
+  test("validate") { _ =>
+    withFailures { () =>
+      val ValidateResponse(r) = compilerService.validate(code, env)
+      assert(r.isEmpty)
+      Thread.sleep(10)
     }
   }
 
