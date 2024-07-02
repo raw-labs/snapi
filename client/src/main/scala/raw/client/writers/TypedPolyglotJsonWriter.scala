@@ -17,7 +17,7 @@ import org.graalvm.polyglot.Value
 import raw.client.api._
 import raw.client.utils.RecordFieldsNaming
 
-import java.io.{IOException, OutputStream}
+import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.util.control.NonFatal
@@ -32,7 +32,7 @@ object TypedPolyglotJsonWriter {
 
 }
 
-class TypedPolyglotJsonWriter(os: OutputStream) {
+class TypedPolyglotJsonWriter(os: OutputStream) extends Closeable {
 
   final private val gen =
     try {
@@ -165,7 +165,11 @@ class TypedPolyglotJsonWriter(os: OutputStream) {
     }
   }
 
-  def close(): Unit = {
+  def flush(): Unit = {
+    gen.flush()
+  }
+
+  override def close(): Unit = {
     gen.close()
   }
 }

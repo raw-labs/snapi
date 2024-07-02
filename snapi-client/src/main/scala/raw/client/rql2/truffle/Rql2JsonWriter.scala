@@ -18,12 +18,12 @@ import raw.client.utils.RecordFieldsNaming
 import raw.compiler.rql2.Rql2TypeUtils
 import raw.compiler.rql2.source._
 
-import java.io.{IOException, OutputStream}
+import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.util.control.NonFatal
 
-class Rql2JsonWriter(os: OutputStream) {
+final class Rql2JsonWriter(os: OutputStream) extends Closeable {
 
   final private val gen =
     try {
@@ -145,7 +145,11 @@ class Rql2JsonWriter(os: OutputStream) {
     }
   }
 
-  def close(): Unit = {
+  def flush(): Unit = {
+    gen.flush()
+  }
+
+  override def close(): Unit = {
     gen.close()
   }
 }

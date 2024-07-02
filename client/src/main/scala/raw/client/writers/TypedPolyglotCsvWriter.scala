@@ -19,7 +19,7 @@ import org.graalvm.polyglot.Value
 import raw.client.api._
 import raw.client.utils.RecordFieldsNaming
 
-import java.io.{IOException, OutputStream}
+import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.annotation.tailrec
@@ -35,7 +35,7 @@ object TypedPolyglotCsvWriter {
 
 }
 
-class TypedPolyglotCsvWriter(os: OutputStream, lineSeparator: String) {
+class TypedPolyglotCsvWriter(os: OutputStream, lineSeparator: String) extends Closeable {
 
   final private val gen =
     try {
@@ -188,7 +188,11 @@ class TypedPolyglotCsvWriter(os: OutputStream, lineSeparator: String) {
     }
   }
 
-  def close(): Unit = {
+  def flush(): Unit = {
+    gen.flush()
+  }
+
+  override def close(): Unit = {
     gen.close()
   }
 }

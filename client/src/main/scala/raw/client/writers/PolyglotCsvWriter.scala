@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.util.control.NonFatal
 
-class PolyglotCsvWriter(os: OutputStream) extends Closeable {
+final class PolyglotCsvWriter(os: OutputStream) extends Closeable {
 
   private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
   private val zonedDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-ddOOOO")
@@ -37,7 +37,7 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
     factory.createGenerator(os, JsonEncoding.UTF8)
   }
 
-  def writeValue(v: Value): Unit = {
+  def write(v: Value): Unit = {
     if (v.isException) {
       try {
         v.throwException()
@@ -128,11 +128,11 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
         gen.writeString(s.toString())
       } else if (v.hasIterator) {
         val v1 = v.getIterator
-        writeValue(v1)
+        write(v1)
       } else if (v.isIterator) {
         while (v.hasIteratorNextElement) {
           val v1 = v.getIteratorNextElement
-          writeValue(v1)
+          write(v1)
         }
         if (v.canInvokeMember("close")) {
           v.invokeMember("close")
@@ -140,14 +140,14 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
       } else if (v.hasArrayElements) {
         for (i <- 0L until v.getArraySize) {
           val v1 = v.getArrayElement(i)
-          writeValue(v1)
+          write(v1)
         }
       } else if (v.hasMembers) {
         gen.writeStartObject()
         v.getMemberKeys.forEach { key =>
           gen.writeFieldName(key)
           val value = v.getMember(key)
-          writeValue(value)
+          write(value)
         }
         gen.writeEndObject()
       } else {
@@ -156,10 +156,12 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
     }
   }
 
+  def flush(): Unit = {
+    gen.flush()
+  }
+
   override def close(): Unit = {
-    if (gen != null) {
-      gen.close()
-    }
+    gen.close()
   }
 
 }

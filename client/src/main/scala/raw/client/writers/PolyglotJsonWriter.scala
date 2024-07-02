@@ -20,7 +20,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Base64
 
-class PolyglotJsonWriter(os: OutputStream) extends Closeable {
+final class PolyglotJsonWriter(os: OutputStream) extends Closeable {
 
   private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
   private val zonedDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-ddOOOO")
@@ -179,10 +179,12 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
     }
   }
 
+  def flush(): Unit = {
+    gen.flush()
+  }
+
   override def close(): Unit = {
-    if (gen != null) {
-      gen.close()
-    }
+    gen.close()
   }
 
 }

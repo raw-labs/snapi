@@ -135,19 +135,21 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
 //            case Some("true") => true
 //            case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
 //          }
-          val csvWriter = new PolyglotCsvWriter(outputStream)
+          val w = new PolyglotCsvWriter(outputStream)
           try {
-            csvWriter.writeValue(v)
+            w.write(v)
+            w.flush()
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            RawUtils.withSuppressNonFatalException(csvWriter.close())
+            RawUtils.withSuppressNonFatalException(w.close())
           }
         case Some("json") =>
           val w = new PolyglotJsonWriter(outputStream)
           try {
             w.write(v)
+            w.flush()
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
@@ -157,7 +159,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
         case Some("text") =>
           val w = new PolyglotTextWriter(outputStream)
           try {
-            w.writeValue(v)
+            w.writeAndFlush(v)
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
@@ -165,7 +167,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
         case Some("binary") =>
           val w = new PolyglotBinaryWriter(outputStream)
           try {
-            w.writeValue(v)
+            w.writeAndFlush(v)
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)

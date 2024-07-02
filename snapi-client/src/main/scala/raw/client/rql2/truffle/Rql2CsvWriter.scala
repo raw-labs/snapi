@@ -41,14 +41,13 @@ import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
 import raw.client.utils.RecordFieldsNaming
 
-import java.io.IOException
-import java.io.OutputStream
+import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
-class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
+final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Closeable {
 
   final private val gen =
     try {
@@ -191,7 +190,12 @@ class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
     }
   }
 
+  def flush(): Unit = {
+    gen.flush()
+  }
+
   def close(): Unit = {
     gen.close()
   }
+
 }
