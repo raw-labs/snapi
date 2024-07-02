@@ -72,7 +72,13 @@ public class TruffleMySQLQueryEntry extends MySQLQueryEntry
       allow build node with mysql: or some other syntax
               "mysql@dbName"
                       vs
-                              "mysql://"
+                              "mysql://" + host + ":" + port + "/" + dbName
+
+username/pass as options
+
+
+              concentrate everytging in locationbuildnode for now
+              leave rest unchanged
 
 
 
