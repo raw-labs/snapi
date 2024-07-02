@@ -279,14 +279,15 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
             case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
           }
           val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-          val csvWriter = new Rql2CsvWriter(outputStream, lineSeparator)
+          val w = new Rql2CsvWriter(outputStream, lineSeparator)
           try {
-            csvWriter.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
+            w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
+            w.flush()
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            RawUtils.withSuppressNonFatalException(csvWriter.close())
+            RawUtils.withSuppressNonFatalException(w.close())
           }
         case Some("json") =>
           if (!JsonPackage.outputWriteSupport(tipe)) {
@@ -295,6 +296,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           val w = new Rql2JsonWriter(outputStream)
           try {
             w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
+            w.flush()
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
@@ -307,7 +309,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           }
           val w = new PolyglotTextWriter(outputStream)
           try {
-            w.writeValue(v)
+            w.writeAndFlush(v)
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
@@ -318,7 +320,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           }
           val w = new PolyglotBinaryWriter(outputStream)
           try {
-            w.writeValue(v)
+            w.writeAndFlush(v)
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)

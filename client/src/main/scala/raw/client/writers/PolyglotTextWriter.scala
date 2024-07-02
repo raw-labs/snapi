@@ -17,14 +17,15 @@ import org.graalvm.polyglot.Value
 import java.io.{IOException, OutputStream}
 import java.nio.charset.Charset
 
-class PolyglotTextWriter(os: OutputStream) {
+final class PolyglotTextWriter(os: OutputStream) {
 
-  def writeValue(v: Value): Unit = {
+  def writeAndFlush(v: Value): Unit = {
     if (v.isException) {
       v.throwException()
     } else if (v.isNull) {} else if (v.isString) {
       val s = v.asString()
       os.write(s.getBytes(Charset.forName("UTF-8")))
+      os.flush()
     } else {
       throw new IOException("unsupported type")
     }
