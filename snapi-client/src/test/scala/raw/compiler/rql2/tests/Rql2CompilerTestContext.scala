@@ -640,7 +640,7 @@ trait Rql2CompilerTestContext
       ) match {
         case ExecutionValidationFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
         case ExecutionRuntimeFailure(err) => Left(err)
-        case ExecutionSuccess => Right(Path.of(outputStream.toString))
+        case ExecutionSuccess(_) => Right(Path.of(outputStream.toString))
       }
     } finally {
       outputStream.close()
@@ -689,7 +689,7 @@ trait Rql2CompilerTestContext
       compilerService.execute(query, getQueryEnvironment(maybeArgs, scopes, options), maybeDecl, outputStream) match {
         case ExecutionValidationFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
         case ExecutionRuntimeFailure(err) => Left(err)
-        case ExecutionSuccess => Right(path)
+        case ExecutionSuccess(_) => Right(path)
       }
     } finally {
       outputStream.close()

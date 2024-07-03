@@ -139,7 +139,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           try {
             w.write(v)
             w.flush()
-            ExecutionSuccess
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
@@ -150,7 +150,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           try {
             w.write(v)
             w.flush()
-            ExecutionSuccess
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
@@ -160,7 +160,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           val w = new PolyglotTextWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
@@ -168,7 +168,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           val w = new PolyglotBinaryWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }

@@ -300,7 +300,7 @@ final case class GetProgramDescriptionSuccess(programDescription: ProgramDescrip
     extends GetProgramDescriptionResponse
 
 sealed trait ExecutionResponse
-case object ExecutionSuccess extends ExecutionResponse
+final case class ExecutionSuccess(complete: Boolean) extends ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 

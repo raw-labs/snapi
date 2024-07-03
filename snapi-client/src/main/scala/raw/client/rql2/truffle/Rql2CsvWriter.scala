@@ -73,6 +73,10 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
   final private val tryable = Rql2IsTryableTypeProperty()
   final private val nullable = Rql2IsNullableTypeProperty()
 
+  private var maxRowsReached = false
+
+  def complete: Boolean = !maxRowsReached
+
   @throws[IOException]
   def write(v: Value, t: Rql2TypeWithProperties): Unit = {
     if (t.props.contains(tryable)) {
@@ -88,7 +92,6 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
         write(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties])
       }
     } else {
-      var rowsWritten = 0L
       t match {
         case Rql2IterableType(recordType: Rql2RecordType, _) =>
           val columnNames = recordType.atts.map(_.idn)
@@ -98,13 +101,14 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
           gen.setSchema(schemaBuilder.build)
           gen.enable(STRICT_CHECK_FOR_QUOTING)
           val iterator = v.getIterator
-          while (iterator.hasIteratorNextElement) {
-            val next = iterator.getIteratorNextElement
-            writeColumns(next, recordType)
-            rowsWritten += 1
-            // If maxRows is defined and we have written enough rows, stop writing.
-            if (maxRows.exists(rowsWritten >= _)) {
-              return
+          var rowsWritten = 0L
+          while (iterator.hasIteratorNextElement && !maxRowsReached) {
+            if (maxRows.isDefined && rowsWritten >= maxRows.get) {
+              maxRowsReached = true
+            } else {
+              val next = iterator.getIteratorNextElement
+              writeColumns(next, recordType)
+              rowsWritten += 1
             }
           }
         case Rql2ListType(recordType: Rql2RecordType, _) =>
@@ -115,15 +119,12 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
           gen.setSchema(schemaBuilder.build)
           gen.enable(STRICT_CHECK_FOR_QUOTING)
           val size = v.getArraySize
-          for (i <- 0L until size) {
+          for (i <- 0L until Math.min(size, maxRows.getOrElse(Long.MaxValue))) {
             val next = v.getArrayElement(i)
             writeColumns(next, recordType)
-            rowsWritten += 1
-            // If maxRows is defined and we have written enough rows, stop writing.
-            if (maxRows.exists(rowsWritten >= _)) {
-              return
-            }
           }
+          // Check if maxRows is reached.
+          maxRows.foreach(max => maxRowsReached = size > max)
         case _ => throw new IOException("unsupported type")
       }
     }

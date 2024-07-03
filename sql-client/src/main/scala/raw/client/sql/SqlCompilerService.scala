@@ -206,23 +206,23 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           case _ => false //settings.config.getBoolean("raw.compiler.windows-line-ending")
         }
         val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-        val csvWriter = new TypedResultSetCsvWriter(outputStream, lineSeparator)
+        val w = new TypedResultSetCsvWriter(outputStream, lineSeparator, environment.maxRows)
         try {
-          csvWriter.write(v, tipe)
-          ExecutionSuccess
+          w.write(v, tipe)
+          ExecutionSuccess(w.complete)
         } catch {
           case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
         } finally {
-          RawUtils.withSuppressNonFatalException(csvWriter.close())
+          RawUtils.withSuppressNonFatalException(w.close())
         }
       case Some("json") =>
         if (!TypedResultSetJsonWriter.outputWriteSupport(tipe)) {
           ExecutionRuntimeFailure("unsupported type")
         }
-        val w = new TypedResultSetJsonWriter(outputStream)
+        val w = new TypedResultSetJsonWriter(outputStream, environment.maxRows)
         try {
           w.write(v, tipe)
-          ExecutionSuccess
+          ExecutionSuccess(w.complete)
         } catch {
           case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
         } finally {

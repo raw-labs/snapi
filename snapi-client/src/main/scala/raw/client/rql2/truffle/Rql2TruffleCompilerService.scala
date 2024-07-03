@@ -283,7 +283,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           try {
             w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             w.flush()
-            ExecutionSuccess
+            ExecutionSuccess(w.complete)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
@@ -297,7 +297,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           try {
             w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             w.flush()
-            ExecutionSuccess
+            ExecutionSuccess(w.complete)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
@@ -310,7 +310,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           val w = new PolyglotTextWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
@@ -321,7 +321,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           val w = new PolyglotBinaryWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
