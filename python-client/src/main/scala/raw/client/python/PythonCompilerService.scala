@@ -104,7 +104,8 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long]
   ): ExecutionResponse = {
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
     ctx.initialize("python")

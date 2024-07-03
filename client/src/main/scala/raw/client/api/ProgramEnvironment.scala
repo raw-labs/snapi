@@ -20,6 +20,5 @@ final case class ProgramEnvironment(
     scopes: Set[String],
     options: Map[String, String],
     maybeTraceId: Option[String] = None,
-    jdbcUrl: Option[String] = None,
-    maxRows: Option[Long] = None
+    jdbcUrl: Option[String] = None
 )

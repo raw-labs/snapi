@@ -241,7 +241,8 @@ trait CompilerService extends RawService {
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long] = None
   ): ExecutionResponse
 
   // Format a source program.
