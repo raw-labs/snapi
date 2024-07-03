@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.teradata
 
-import raw.client.api.{LocationDescription, MapOptionType, OptionType, OptionValue, StringOptionType}
-import raw.sources.api.{LocationException, SourceContext}
+import raw.client.api.{MapOptionType, OptionType, OptionValue, StringOptionType}
+import raw.sources.api.SourceContext
 import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
 
 import scala.util.matching.Regex

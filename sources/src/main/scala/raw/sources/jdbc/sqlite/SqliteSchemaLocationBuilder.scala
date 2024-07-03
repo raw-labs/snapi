@@ -13,8 +13,8 @@
 package raw.sources.jdbc.sqlite
 
 import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{LocationDescription, OptionType, OptionValue}
-import raw.sources.jdbc.api.{JdbcLocation, JdbcSchemaLocation, JdbcSchemaLocationBuilder}
+import raw.client.api.{OptionType, OptionValue}
+import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
 
 import java.nio.file.{InvalidPathException, Paths}
 import scala.util.matching.Regex

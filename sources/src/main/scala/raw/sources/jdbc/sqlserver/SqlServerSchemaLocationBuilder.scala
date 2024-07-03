@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.sqlserver
 
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{LocationDescription, OptionType, OptionValue, StringOptionType}
+import raw.sources.api.SourceContext
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
 
 import scala.util.matching.Regex

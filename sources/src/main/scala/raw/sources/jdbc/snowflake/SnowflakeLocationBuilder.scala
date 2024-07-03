@@ -12,16 +12,8 @@
 
 package raw.sources.jdbc.snowflake
 
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{
-  LocationDescription,
-  MapOptionType,
-  MapOptionValue,
-  OptionType,
-  OptionValue,
-  StringOptionType,
-  StringOptionValue
-}
+import raw.sources.api.SourceContext
+import raw.client.api.{MapOptionType, OptionType, OptionValue, StringOptionType}
 import raw.sources.jdbc.api.{JdbcLocation, JdbcLocationBuilder}
 
 import scala.util.matching.Regex

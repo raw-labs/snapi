@@ -15,7 +15,6 @@ package raw.sources.filesystem.local
 import raw.sources.api.{LocationException, SourceContext}
 import raw.client.api.{OptionType, OptionValue}
 import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
-import raw.utils.RawSettings
 
 import scala.util.matching.Regex
 

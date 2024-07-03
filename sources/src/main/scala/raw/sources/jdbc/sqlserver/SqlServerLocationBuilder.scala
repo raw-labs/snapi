@@ -12,10 +12,9 @@
 
 package raw.sources.jdbc.sqlserver
 
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{LocationDescription, OptionType, OptionValue, StringOptionType}
+import raw.sources.api.SourceContext
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
 import raw.sources.jdbc.api.{JdbcLocation, JdbcLocationBuilder}
-import raw.sources.jdbc.pgsql.PostgresqlLocationBuilder.{CONFIG_PASSWORD, CONFIG_USERNAME}
 
 import scala.util.matching.Regex
 

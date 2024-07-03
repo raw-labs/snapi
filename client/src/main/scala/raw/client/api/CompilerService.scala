@@ -174,23 +174,23 @@ object CompilerService {
           val url = v.asString
           assert(v.hasMembers);
           val members = v.getMemberKeys
-          val settings = mutable.Map.empty[LocationSettingKey, LocationSettingValue]
+          val settings = mutable.Map.empty[String, OptionValue]
           val keys = members.iterator()
           while (keys.hasNext) {
             val key = keys.next()
             val tv = v.getMember(key)
             val value =
-              if (tv.isNumber) LocationIntSetting(tv.asInt)
-              else if (tv.isBoolean) LocationBooleanSetting(tv.asBoolean)
-              else if (tv.isString) LocationStringSetting(tv.asString)
+              if (tv.isNumber) IntOptionValue(tv.asInt)
+              else if (tv.isBoolean) BooleanOptionValue(tv.asBoolean)
+              else if (tv.isString) StringOptionValue(tv.asString)
               else if (tv.hasBufferElements) {
                 val bufferSize = tv.getBufferSize.toInt
                 val byteArray = new Array[Byte](bufferSize)
                 for (i <- 0 until bufferSize) {
                   byteArray(i) = tv.readBufferByte(i)
                 }
-                LocationBinarySetting(byteArray)
-              } else if (tv.isDuration) LocationDurationSetting(tv.asDuration())
+                BinaryOptionValue(byteArray)
+              } else if (tv.isDuration) DurationOptionValue(tv.asDuration())
               else if (tv.hasArrayElements) {
                 // in the context of a location, it's int-array for sure
                 val size = tv.getArraySize
@@ -198,22 +198,22 @@ object CompilerService {
                 for (i <- 0L until size) {
                   array(i.toInt) = tv.getArrayElement(i).asInt
                 }
-                LocationIntArraySetting(array)
+                ArrayOptionValue(array.map(IntOptionValue))
               } else if (tv.hasHashEntries) {
                 // kv settings
                 val iterator = tv.getHashEntriesIterator
-                val keyValues = mutable.ArrayBuffer.empty[(String, String)]
+                val keyValues = Map.newBuilder[OptionValue, OptionValue]
                 while (iterator.hasIteratorNextElement) {
                   val kv = iterator.getIteratorNextElement // array with two elements: key and value
                   val key = kv.getArrayElement(0).asString
                   val value = kv.getArrayElement(1).asString
-                  keyValues += ((key, value))
+                  keyValues += ((StringOptionValue(key), StringOptionValue(value)))
                 }
-                LocationKVSetting(keyValues)
+                MapOptionValue(keyValues.result())
               } else {
                 throw new AssertionError("Unexpected value type: " + tv)
               }
-            settings.put(LocationSettingKey(key), value)
+            settings.put(key, value)
           }
           RawLocation(LocationDescription(url, settings.toMap))
       }

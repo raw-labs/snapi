@@ -405,7 +405,7 @@ class S3FileSystem(
 
       case ex: SdkServiceException => throw new PathNotFoundException(bucket, ex)
 
-      case ex: SdkClientException => throw new FileSystemUnavailableException(s"s3://${bucket.name}", ex)
+      case ex: SdkClientException => throw new FileSystemUnavailableException(s"s3://$bucket", ex)
     }
   }
 

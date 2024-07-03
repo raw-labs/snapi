@@ -12,10 +12,9 @@
 
 package raw.sources.jdbc.mysql
 
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{LocationDescription, OptionType, OptionValue, StringOptionType, StringOptionValue}
+import raw.sources.api.SourceContext
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
-import raw.sources.jdbc.mysql.MySqlLocationBuilder.{CONFIG_PASSWORD, CONFIG_USERNAME, REGEX}
 
 import scala.util.matching.Regex
 

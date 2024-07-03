@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.oracle
 
-import raw.client.api.{OptionType, OptionValue, StringOptionType, StringOptionValue}
-import raw.sources.api.{LocationException, SourceContext}
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
+import raw.sources.api.SourceContext
 import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
 
 import scala.util.matching.Regex

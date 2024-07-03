@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.hc.core5.net.URIBuilder
 import raw.creds.api.CredentialsException
 import raw.creds.oauth2.api.{OAuth2Client, RenewedAccessToken}
-import raw.sources.bytestream.http.HttpClientException
+import raw.sources.bytestream.http.HttpByteStreamException
 import raw.utils.RawSettings
 
 import java.io.IOException
@@ -89,8 +89,8 @@ class TwitterOAuth2Client(implicit settings: RawSettings) extends OAuth2Client w
         throw new CredentialsException(s"unexpected response: ${response.statusCode()}. Error: ${response.body()}")
       }
     } catch {
-      case ex: IOException => throw new HttpClientException("HTTP error obtaining token from twitter", ex)
-      case ex: JsonProcessingException => throw new HttpClientException(
+      case ex: IOException => throw new HttpByteStreamException("HTTP error obtaining token from twitter", ex)
+      case ex: JsonProcessingException => throw new HttpByteStreamException(
           "error processing json response while getting token from twitter",
           ex
         )

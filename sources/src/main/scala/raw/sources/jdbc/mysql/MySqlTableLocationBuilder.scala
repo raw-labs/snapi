@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.mysql
 
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{LocationDescription, OptionType, OptionValue, StringOptionType, StringOptionValue}
+import raw.sources.api.SourceContext
+import raw.client.api.{OptionType, OptionValue, StringOptionType}
 import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
 
 import scala.util.matching.Regex

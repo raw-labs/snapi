@@ -12,7 +12,7 @@
 
 package raw.sources.bytestream.github
 
-import raw.sources.bytestream.http.{HttpByteStreamLocationBuilder, HttpClientException}
+import raw.sources.bytestream.http.{HttpByteStreamException, HttpByteStreamLocationBuilder}
 import raw.sources.bytestream.api.{ByteStreamLocation, ByteStreamLocationBuilder}
 import raw.sources.api.{LocationException, SourceContext}
 import raw.client.api.{LocationDescription, OptionType, OptionValue}
@@ -64,7 +64,7 @@ class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder {
             httpLocation.testAccess()
             true
           } catch {
-            case _: HttpClientException => false
+            case _: HttpByteStreamException => false
           }
         }
         // Tried listing branches like this
