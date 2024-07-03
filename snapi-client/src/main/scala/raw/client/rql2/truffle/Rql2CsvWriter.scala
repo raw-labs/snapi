@@ -47,7 +47,7 @@ import java.util.Base64
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
-final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Closeable {
+final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Option[Long]) extends Closeable {
 
   final private val gen =
     try {
@@ -88,6 +88,7 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Close
         write(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties])
       }
     } else {
+      var rowsWritten = 0L
       t match {
         case Rql2IterableType(recordType: Rql2RecordType, _) =>
           val columnNames = recordType.atts.map(_.idn)
@@ -100,6 +101,11 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Close
           while (iterator.hasIteratorNextElement) {
             val next = iterator.getIteratorNextElement
             writeColumns(next, recordType)
+            rowsWritten += 1
+            // If maxRows is defined and we have written enough rows, stop writing.
+            if (maxRows.exists(rowsWritten >= _)) {
+              return
+            }
           }
         case Rql2ListType(recordType: Rql2RecordType, _) =>
           val columnNames = recordType.atts.map(_.idn)
@@ -112,6 +118,11 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Close
           for (i <- 0L until size) {
             val next = v.getArrayElement(i)
             writeColumns(next, recordType)
+            rowsWritten += 1
+            // If maxRows is defined and we have written enough rows, stop writing.
+            if (maxRows.exists(rowsWritten >= _)) {
+              return
+            }
           }
         case _ => throw new IOException("unsupported type")
       }

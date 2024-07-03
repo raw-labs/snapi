@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.util.control.NonFatal
 
-final class Rql2JsonWriter(os: OutputStream) extends Closeable {
+final class Rql2JsonWriter(os: OutputStream, maxRows: Option[Long]) extends Closeable {
 
   final private val gen =
     try {
@@ -45,15 +45,15 @@ final class Rql2JsonWriter(os: OutputStream) extends Closeable {
       if (v.isException) {
         v.throwException()
       } else {
-        writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties])
+        writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties], maxRows)
       }
     } else {
-      writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties])
+      writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties], maxRows)
     }
   }
 
   @throws[IOException]
-  private def writeValue(v: Value, t: Rql2TypeWithProperties): Unit = {
+  private def writeValue(v: Value, t: Rql2TypeWithProperties, maxRows: Option[Long]): Unit = {
     if (t.props.contains(tryable)) {
       if (v.isException) {
         try {
@@ -61,10 +61,10 @@ final class Rql2JsonWriter(os: OutputStream) extends Closeable {
         } catch {
           case NonFatal(ex) => gen.writeString(ex.getMessage)
         }
-      } else writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties])
+      } else writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties], maxRows = None)
     } else if (t.props.contains(nullable)) {
       if (v.isNull) gen.writeNull()
-      else writeValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties])
+      else writeValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties], maxRows = None)
     } else t match {
       case _: Rql2BinaryType =>
         val bytes = (0L until v.getBufferSize).map(v.readBufferByte)
@@ -112,34 +112,46 @@ final class Rql2JsonWriter(os: OutputStream) extends Closeable {
           val field = distincted.get(i)
           gen.writeFieldName(field)
           val a = v.getMember(field)
-          writeValue(a, atts(i).tipe.asInstanceOf[Rql2TypeWithProperties])
+          writeValue(a, atts(i).tipe.asInstanceOf[Rql2TypeWithProperties], maxRows = None)
         }
         gen.writeEndObject()
       case Rql2IterableType(innerType, _) =>
+        var rowsWritten = 0L
         val iterator = v.getIterator
         gen.writeStartArray()
         while (iterator.hasIteratorNextElement) {
           val next = iterator.getIteratorNextElement
-          writeValue(next, innerType.asInstanceOf[Rql2TypeWithProperties])
+          writeValue(next, innerType.asInstanceOf[Rql2TypeWithProperties], maxRows = None)
+          rowsWritten += 1
+          // If maxRows is defined and we have written enough rows, stop writing.
+          if (maxRows.exists(rowsWritten >= _)) {
+            return
+          }
         }
         gen.writeEndArray()
       case Rql2ListType(innerType, _) =>
+        var rowsWritten = 0L
         val size = v.getArraySize
         gen.writeStartArray()
         for (i <- 0L until size) {
           val next = v.getArrayElement(i)
-          writeValue(next, innerType.asInstanceOf[Rql2TypeWithProperties])
+          writeValue(next, innerType.asInstanceOf[Rql2TypeWithProperties], maxRows = None)
+          rowsWritten += 1
+          // If maxRows is defined and we have written enough rows, stop writing.
+          if (maxRows.exists(rowsWritten >= _)) {
+            return
+          }
         }
         gen.writeEndArray()
       case Rql2OrType(tipes, _) if tipes.exists(Rql2TypeUtils.getProps(_).nonEmpty) =>
         // A trick to make sur inner types do not have properties
         val inners = tipes.map { case inner: Rql2TypeWithProperties => Rql2TypeUtils.resetProps(inner, Set.empty) }
         val orProps = tipes.flatMap { case inner: Rql2TypeWithProperties => inner.props }.toSet
-        writeValue(v, Rql2OrType(inners, orProps))
+        writeValue(v, Rql2OrType(inners, orProps), maxRows = None)
       case Rql2OrType(tipes, _) =>
         val index = v.invokeMember("getIndex").asInt()
         val actualValue = v.invokeMember("getValue")
-        writeValue(actualValue, tipes(index).asInstanceOf[Rql2TypeWithProperties])
+        writeValue(actualValue, tipes(index).asInstanceOf[Rql2TypeWithProperties], maxRows = None)
 
       case _ => throw new RuntimeException("unsupported type")
     }
