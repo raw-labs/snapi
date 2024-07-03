@@ -197,7 +197,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long]
   ): ExecutionResponse = {
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
     ctx.initialize("rql")
@@ -279,11 +280,11 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
             case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
           }
           val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-          val w = new Rql2CsvWriter(outputStream, lineSeparator)
+          val w = new Rql2CsvWriter(outputStream, lineSeparator, maxRows)
           try {
             w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             w.flush()
-            ExecutionSuccess
+            ExecutionSuccess(w.complete)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
@@ -293,11 +294,11 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           if (!JsonPackage.outputWriteSupport(tipe)) {
             return ExecutionRuntimeFailure("unsupported type")
           }
-          val w = new Rql2JsonWriter(outputStream)
+          val w = new Rql2JsonWriter(outputStream, maxRows)
           try {
             w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             w.flush()
-            ExecutionSuccess
+            ExecutionSuccess(w.complete)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
@@ -310,7 +311,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           val w = new PolyglotTextWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
@@ -321,7 +322,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           val w = new PolyglotBinaryWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }

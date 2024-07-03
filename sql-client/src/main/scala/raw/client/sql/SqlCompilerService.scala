@@ -150,7 +150,8 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long]
   ): ExecutionResponse = {
     try {
       logger.debug(s"Executing: $source")
@@ -166,7 +167,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                     case Right(tipe) =>
                       val arguments = environment.maybeArguments.getOrElse(Array.empty)
                       pstmt.executeWith(arguments) match {
-                        case Right(r) => render(environment, tipe, r, outputStream)
+                        case Right(r) => render(environment, tipe, r, outputStream, maxRows)
                         case Left(error) => ExecutionRuntimeFailure(error)
                       }
                     case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
@@ -192,7 +193,8 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       environment: ProgramEnvironment,
       tipe: RawType,
       v: ResultSet,
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long]
   ): ExecutionResponse = {
     environment.options
       .get("output-format")
@@ -206,23 +208,23 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           case _ => false //settings.config.getBoolean("raw.compiler.windows-line-ending")
         }
         val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-        val csvWriter = new TypedResultSetCsvWriter(outputStream, lineSeparator)
+        val w = new TypedResultSetCsvWriter(outputStream, lineSeparator, maxRows)
         try {
-          csvWriter.write(v, tipe)
-          ExecutionSuccess
+          w.write(v, tipe)
+          ExecutionSuccess(w.complete)
         } catch {
           case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
         } finally {
-          RawUtils.withSuppressNonFatalException(csvWriter.close())
+          RawUtils.withSuppressNonFatalException(w.close())
         }
       case Some("json") =>
         if (!TypedResultSetJsonWriter.outputWriteSupport(tipe)) {
           ExecutionRuntimeFailure("unsupported type")
         }
-        val w = new TypedResultSetJsonWriter(outputStream)
+        val w = new TypedResultSetJsonWriter(outputStream, maxRows)
         try {
           w.write(v, tipe)
-          ExecutionSuccess
+          ExecutionSuccess(w.complete)
         } catch {
           case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
         } finally {
