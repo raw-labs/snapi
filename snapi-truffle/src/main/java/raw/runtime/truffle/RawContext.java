@@ -98,7 +98,13 @@ public final class RawContext {
     Option<Tuple2<String, RawValue>[]> maybeArguments = Option.empty();
     this.programEnvironment =
         new ProgramEnvironment(
-            this.user, maybeArguments, scalaScopes, scalaOptions, maybeTraceId, Option.empty(), Option.empty());
+            this.user,
+            maybeArguments,
+            scalaScopes,
+            scalaOptions,
+            maybeTraceId,
+            Option.empty(),
+            Option.empty());
 
     // The function registry holds snapi methods (top level functions). It is the data
     // structure that is used to extract a ref to a function from a piece of execute snapi.
