@@ -31,7 +31,6 @@ import raw.compiler.rql2.lsp.CompilerLspService
 import raw.compiler.rql2.source._
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
-import raw.runtime._
 import raw.sources.api.SourceContext
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
@@ -40,13 +39,23 @@ import scala.collection.mutable
 import scala.util.control.NonFatal
 
 object Rql2TruffleCompilerService {
-  val language: Set[String] = Set("rql2", "rql2-truffle", "snapi")
+  val LANGUAGE: Set[String] = Set("rql2", "rql2-truffle", "snapi")
+
+  val JARS_PATH = "raw.client.rql2.jars-path"
 }
 
-class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader])(
-    implicit protected val settings: RawSettings
-) extends Rql2CompilerService
+class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
+    extends Rql2CompilerService
+    with CustomClassAndModuleLoader
     with Rql2TypeUtils {
+
+  private val maybeTruffleClassLoader: Option[ClassLoader] = {
+    // If defined, contains the path used to create a classloader for the Truffle language runtime.
+    val maybeJarsPath = settings.getStringOpt(Rql2TruffleCompilerService.JARS_PATH)
+
+    // If the jars path is defined, create a custom class loader.
+    maybeJarsPath.map(jarsPath => createCustomClassAndModuleLoader(jarsPath))
+  }
 
   private val (engine, initedEngine) = engineDefinition
 
@@ -57,13 +66,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
   // Otherwise, we expect the external party - e.g. the test framework - to close it.
   // Refer to Rql2TruffleCompilerServiceTestContext to see the engine being created and released from the test
   // framework, so that every test suite instance has a fresh engine.
-  def this(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings) = {
-    this(CompilerService.getEngine, maybeClassLoader)
+  def this()(implicit settings: RawSettings) = {
+    this(CompilerService.getEngine)
   }
 
-  override def language: Set[String] = Rql2TruffleCompilerService.language
+  override def language: Set[String] = Rql2TruffleCompilerService.LANGUAGE
 
-  private val credentials = CredentialsServiceProvider(maybeClassLoader)
+  private val credentials = CredentialsServiceProvider()
 
   // Map of users to compiler context.
   private val compilerContextCaches = new mutable.HashMap[AuthenticatedUser, CompilerContext]
@@ -77,19 +86,18 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
 
   private def createCompilerContext(user: AuthenticatedUser, language: String): CompilerContext = {
     // Initialize source context
-    implicit val sourceContext = new SourceContext(user, credentials, settings, maybeClassLoader)
+    implicit val sourceContext = new SourceContext(user, credentials, settings)
 
     // Initialize inferrer
-    val inferrer = InferrerServiceProvider(maybeClassLoader)
+    val inferrer = InferrerServiceProvider()
 
     // Initialize compiler context
-    new CompilerContext(language, user, inferrer, sourceContext, maybeClassLoader)
+    new CompilerContext(language, user, inferrer, sourceContext)
   }
 
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {
     val compilerContext = getCompilerContext(user)
-    val runtimeContext = new RuntimeContext(compilerContext.sourceContext, environment)
-    new Rql2ProgramContext(runtimeContext, compilerContext)
+    new Rql2ProgramContext(environment, compilerContext)
   }
 
   override def prettyPrint(node: BaseNode, user: AuthenticatedUser): String = {
@@ -185,66 +193,12 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     )
   }
 
-  override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
-    withTruffleContext(
-      environment,
-      ctx =>
-        try {
-          val truffleSource = Source
-            .newBuilder("rql", source, "unnamed")
-            .cached(false) // Disable code caching because of the inferrer.
-            .build()
-          val polyglotValue = ctx.eval(truffleSource)
-          val rawValue = polyglotValueToRawValue(polyglotValue, tipe)
-          EvalSuccess(rawValue)
-        } catch {
-          case ex: PolyglotException =>
-            // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
-            // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
-            // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
-            // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
-            // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
-            // and which must handle interruption as well.
-            if (ex.isInterrupted) {
-              throw new InterruptedException()
-            } else if (ex.getCause.isInstanceOf[InterruptedException]) {
-              throw ex.getCause
-            } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
-              throw new InterruptedException()
-            } else if (ex.isGuestException) {
-              val err = ex.getGuestObject
-              if (err != null && err.hasMembers && err.hasMember("errors")) {
-                val errorsValue = err.getMember("errors")
-                val errors = (0L until errorsValue.getArraySize).map { i =>
-                  val errorValue = errorsValue.getArrayElement(i)
-                  val message = errorValue.asString
-                  val positions = (0L until errorValue.getArraySize).map { j =>
-                    val posValue = errorValue.getArrayElement(j)
-                    val beginValue = posValue.getMember("begin")
-                    val endValue = posValue.getMember("end")
-                    val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
-                    val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
-                    ErrorRange(begin, end)
-                  }
-                  ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
-                }
-                EvalValidationFailure(errors.to)
-              } else {
-                EvalRuntimeFailure(ex.getMessage)
-              }
-            } else {
-              // Unexpected error. For now we throw the PolyglotException.
-              throw ex
-            }
-        }
-    )
-  }
-
   override def execute(
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long]
   ): ExecutionResponse = {
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
     ctx.initialize("rql")
@@ -326,23 +280,25 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
             case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
           }
           val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-          val csvWriter = new Rql2CsvWriter(outputStream, lineSeparator)
+          val w = new Rql2CsvWriter(outputStream, lineSeparator, maxRows)
           try {
-            csvWriter.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
-            ExecutionSuccess
+            w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
+            w.flush()
+            ExecutionSuccess(w.complete)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            RawUtils.withSuppressNonFatalException(csvWriter.close())
+            RawUtils.withSuppressNonFatalException(w.close())
           }
         case Some("json") =>
           if (!JsonPackage.outputWriteSupport(tipe)) {
             return ExecutionRuntimeFailure("unsupported type")
           }
-          val w = new Rql2JsonWriter(outputStream)
+          val w = new Rql2JsonWriter(outputStream, maxRows)
           try {
             w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
-            ExecutionSuccess
+            w.flush()
+            ExecutionSuccess(w.complete)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
@@ -354,8 +310,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
           }
           val w = new PolyglotTextWriter(outputStream)
           try {
-            w.writeValue(v)
-            ExecutionSuccess
+            w.writeAndFlush(v)
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
@@ -365,8 +321,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
           }
           val w = new PolyglotBinaryWriter(outputStream)
           try {
-            w.writeValue(v)
-            ExecutionSuccess
+            w.writeAndFlush(v)
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
@@ -703,6 +659,14 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
     environment.options.get("staged-compiler").foreach { stagedCompiler =>
       ctxBuilder.option("rql.staged-compiler", stagedCompiler)
     }
+    ctxBuilder.option("rql.settings", settings.renderAsString)
+    // If the jars path is defined, create a custom class loader and set it as the host class loader.
+    maybeTruffleClassLoader.map { classLoader =>
+      // Set the module class loader as the Truffle runtime classloader.
+      // This enables the Truffle language runtime to be fully isolated from the rest of the application.
+      ctxBuilder.hostClassLoader(classLoader)
+    }
+
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
     val ctx = ctxBuilder.build()
     ctx

@@ -14,9 +14,9 @@ package raw.compiler.rql2.tests.spec
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait UnaryExpNegTest extends CompilerTestContext with TableDrivenPropertyChecks {
+trait UnaryExpNegTest extends Rql2CompilerTestContext with TableDrivenPropertyChecks {
 
   test("- 1") { it =>
     it should typeAs("int")

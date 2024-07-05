@@ -13,9 +13,6 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils.RawException
-
-import scala.util.control.NonFatal
 
 trait InferrerErrorHandler extends StrictLogging {
 

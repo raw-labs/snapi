@@ -13,12 +13,12 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
 import java.nio.file.Path
 
-trait LocationPackageTest extends CompilerTestContext with LocalLocationsTestContext {
+trait LocationPackageTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   test(s"""
     |let

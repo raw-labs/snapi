@@ -13,12 +13,12 @@
 package raw.compiler.rql2.tests.regressions
 
 import org.scalatest.BeforeAndAfterEach
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.utils._
 
 import java.nio.file.Files
 
-trait RD7974Test extends CompilerTestContext with BeforeAndAfterEach {
+trait RD7974Test extends Rql2CompilerTestContext with BeforeAndAfterEach {
 
   private val tmpFile = Files.createTempFile("csv-output-test", ".csv")
 

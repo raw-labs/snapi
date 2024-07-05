@@ -21,23 +21,12 @@ import raw.compiler.rql2.{PackageEntity, ProgramContext, Rql2TypeUtils}
 import raw.client.api._
 import raw.sources.api._
 
-import java.util.ServiceLoader
 import scala.annotation.nowarn
-import scala.collection.JavaConverters._
 import scala.collection.immutable.ListMap
-import scala.collection.mutable
 
 abstract class PackageExtension {
 
-  protected var entryExtensions: Array[EntryExtension] = _
-
-  def init(maybeClassLoader: Option[ClassLoader]): Unit = {
-    val es = maybeClassLoader match {
-      case Some(cl) => ServiceLoader.load(classOf[EntryExtension], cl).asScala.toArray
-      case None => ServiceLoader.load(classOf[EntryExtension]).asScala.toArray
-    }
-    entryExtensions = es.filter(_.packageName == name)
-  }
+  private val entryExtensions = EntryExtensionProvider.getEntries(name)
 
   /**
    * Name of the package.
@@ -59,10 +48,6 @@ abstract class PackageExtension {
    */
   final def getEntry(name: String): EntryExtension = {
     entryExtensions.find(_.entryName == name).get
-  }
-
-  final def getEntries(name: String): Seq[EntryExtension] = {
-    entryExtensions.collect { case e if e.entryName == name => e }
   }
 
   def existsEntry(name: String): Boolean = entries.contains(name)
@@ -335,47 +320,5 @@ abstract class SugarEntryExtension extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp
-
-}
-
-object PackageExtensionProvider {
-
-  // (msb) This probably should move to the CompilerContext, but we cannot do so while we have the legacy compiler.
-  private val packageExtensions = new mutable.HashMap[Option[ClassLoader], Array[PackageExtension]]
-  private val packageExtensionsLock = new Object
-
-  private def build(maybeClassLoader: Option[ClassLoader]): Unit = {
-    packageExtensionsLock.synchronized {
-      if (!packageExtensions.contains(maybeClassLoader) || packageExtensions.get(maybeClassLoader) == null) {
-        packageExtensions(maybeClassLoader) = maybeClassLoader match {
-          case Some(cl) => ServiceLoader.load(classOf[PackageExtension], cl).asScala.toArray
-          case None => ServiceLoader.load(classOf[PackageExtension]).asScala.toArray
-        }
-        packageExtensions(maybeClassLoader).foreach(_.init(maybeClassLoader))
-        val names = packageExtensions(maybeClassLoader).map(_.name)
-        assert(names.toSet.size == names.length, "Duplicate package names found!")
-      }
-    }
-  }
-
-  def services(maybeClassLoader: Option[ClassLoader]): Array[PackageExtension] = {
-    build(maybeClassLoader)
-    packageExtensions(maybeClassLoader)
-  }
-
-  def names(maybeClassLoader: Option[ClassLoader]): Array[String] = {
-    build(maybeClassLoader)
-    packageExtensions(maybeClassLoader).map(_.name)
-  }
-
-  def packages(maybeClassLoader: Option[ClassLoader]): Array[PackageEntity] = {
-    build(maybeClassLoader)
-    packageExtensions(maybeClassLoader).map(s => new PackageEntity(s))
-  }
-
-  def getPackage(name: String, maybeClassLoader: Option[ClassLoader]): Option[PackageExtension] = {
-    build(maybeClassLoader)
-    packageExtensions(maybeClassLoader).collectFirst { case p if p.name == name => p }
-  }
 
 }

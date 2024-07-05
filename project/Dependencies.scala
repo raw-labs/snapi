@@ -36,8 +36,7 @@ object Dependencies {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.15.2",
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.15.2",
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.15.2",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2-rawlabs",
-    "com.fasterxml.jackson.jakarta.rs" % "jackson-jakarta-rs-json-provider" % "2.15.2"
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2-rawlabs"
   )
 
   // Required while we are on Scala 2.12. It's built into Scala 2.13.
@@ -52,10 +51,8 @@ object Dependencies {
   val antlr4Runtime = "org.antlr" % "antlr4-runtime" % "4.12.0"
 
   // from snapi-frontend
-  val kiamaVersion = IO.read(new File("./deps/kiama/version")).trim
-  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
-
-  val aws = "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
+  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.1-rawlabs"
+  val aws = "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // we use slf4j
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
   val commonsLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
@@ -65,27 +62,20 @@ object Dependencies {
   val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0-rawlabs"
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
   val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33"
+  val oracleDeps = "com.oracle.database.jdbc" % "ojdbc10" % "19.23.0.0-rawlabs"
+  val teradataDeps = "com.teradata.jdbc" % "terajdbc" % "20.00.00.24"
   val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
-  val poiDeps = Seq(
-    "org.apache.poi" % "poi" % "5.2.3",
-    "org.apache.poi" % "poi-ooxml" % "5.2.3",
-    "org.apache.poi" % "poi-ooxml-lite" % "5.2.3"
-  )
   val jwtApi = "io.jsonwebtoken" % "jjwt-api" % "0.11.5"
   val jwtImpl = "io.jsonwebtoken" % "jjwt-impl" % "0.11.5"
   val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4-rawlabs"
-  val springCore = "org.springframework" % "spring-core" % "5.3.13"
+  val springCore =
+    "org.springframework" % "spring-core" % "5.3.13" exclude ("org.springframework", "spring-jcl") // we use jcl-over-slf4j
   val truffleCompiler = Seq(
-    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
     "org.graalvm.truffle" % "truffle-api" % "23.1.0",
     "org.graalvm.truffle" % "truffle-compiler" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi-libffi" % "23.1.0",
     "org.graalvm.truffle" % "truffle-runtime" % "23.1.0"
-  )
-  val scalaCompiler = Seq(
-    "org.scala-lang" % "scala-compiler" % "2.12.18",
-    "org.scala-lang" % "scala-reflect" % "2.12.18"
   )
 
   // from sql-client

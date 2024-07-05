@@ -241,11 +241,20 @@ trait CredentialsService extends RawService {
   def unregisterSecret(user: AuthenticatedUser, name: String): Boolean
 
   /**
-   * Returns a PostgreSQL FDW database for the given user. If that database does not exist, then it should be
-   * automatically generated. This call is meant to be used by the SQL compiler in order to execute user-defined SQL queries.
+   * Returns a PostgreSQL FDW database for the given user, creating the database
+   * if it does not already exist.
    *
-   * @param user the Authenticated User which corresponds to the combination of RAW Organization and Repository
-   * @return the database name the corresponds to the given user.
+   * @param user the AuthenticatedUser which corresponds to the combination of RAW Organization and Repository
+   * @return the database name that corresponds to the given user.
    */
   def getUserDb(user: AuthenticatedUser): String
+
+  /**
+   * Returns a JDBC connection string for the specified user, creating the corresponding database
+   * if it does not already exist.
+   *
+   * @param user the AuthenticatedUser we need the JDBC connection string for
+   * @return the JDBC connection string for the specified user
+   */
+  def getUserJdbc(user: AuthenticatedUser): String
 }

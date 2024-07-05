@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.client.api._
 
-trait RD5851Test extends CompilerTestContext {
+trait RD5851Test extends Rql2CompilerTestContext {
 
   def autoCompleteNames(entries: Array[Completion]): Seq[String] = {
     entries.map {

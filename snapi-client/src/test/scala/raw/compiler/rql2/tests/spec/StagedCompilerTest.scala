@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait StagedCompilerTest extends CompilerTestContext {
+trait StagedCompilerTest extends Rql2CompilerTestContext {
 
   val data = tempFile("""
     |[

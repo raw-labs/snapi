@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.offheap
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait OffHeapDatasets extends CompilerTestContext {
+trait OffHeapDatasets extends Rql2CompilerTestContext {
 
   protected val N = 100
 

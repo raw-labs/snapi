@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.builtin.collection
 
 import raw.compiler.rql2.errors.ItemsNotComparable
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait CollectionMinMaxTest extends CompilerTestContext {
+trait CollectionMinMaxTest extends Rql2CompilerTestContext {
 
   // Date
   test("""

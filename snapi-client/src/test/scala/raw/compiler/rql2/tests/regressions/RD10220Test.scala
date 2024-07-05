@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD10220Test extends CompilerTestContext {
+trait RD10220Test extends Rql2CompilerTestContext {
 
   test("""Csv.InferAndParse("stringData")""")(
     _ should (typeAs("collection(record(stringData: undefined))") and evaluateTo("[]"))

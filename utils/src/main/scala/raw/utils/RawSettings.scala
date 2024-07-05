@@ -17,16 +17,14 @@ import com.typesafe.scalalogging.StrictLogging
 
 import java.time.Duration
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 class SettingsException(message: String, cause: Throwable = null) extends RawException(message, cause)
 
 object RawSettings extends StrictLogging {
+
   private val alreadyLogged = new mutable.HashSet[(String, Any)]()
-  private val trainingWheelsLogged = new AtomicBoolean(false)
-  private val syntaxCheckingLogged = new AtomicBoolean(false)
 
   private def logOneTime(key: String, value: Any, propertyType: String): Unit = {
     if (alreadyLogged.add((key, value))) {
@@ -296,6 +294,23 @@ class RawSettings(
     )
   }
 
+  def getBooleanOpt(property: String): Option[Boolean] = {
+    withLogConfigException(
+      property,
+      () => {
+        try {
+          val v = config.getBoolean(property)
+          logOneTime(property, v, s"boolean")
+          Some(v)
+        } catch {
+          case _: ConfigException.Missing =>
+            logOneTime(property, None, s"boolean")
+            None
+        }
+      }
+    )
+  }
+
   def getDuration(property: String): Duration = {
     withLogConfigException(
       property,
@@ -363,31 +378,6 @@ class RawSettings(
     )
   }
 
-  /** This is a val to display the warning once at start-up. */
-  val onTrainingWheels: Boolean = {
-    withLogConfigException(
-      "raw.training-wheels",
-      () => {
-        val v = config.getBoolean("raw.training-wheels")
-        if (v && !RawSettings.trainingWheelsLogged.getAndSet(true)) {
-          logger.warn("RAW is on TRAINING WHEELS!!! This leads to slower performance.")
-        }
-        v
-      }
-    )
-  }
+  val onTrainingWheels: Boolean = getBooleanOpt("raw.training-wheels").getOrElse(false)
 
-  /** This is a val to display the warning once at start-up. */
-  val checkSyntaxAnalyzers: Boolean = {
-    withLogConfigException(
-      "raw.check-syntax-analyzers",
-      () => {
-        val v = config.getBoolean("raw.check-syntax-analyzers")
-        if (v && !RawSettings.syntaxCheckingLogged.getAndSet(true)) {
-          logger.warn("RAW is CHECKING SYNTAX ANALYZERS!!! This leads to slower performance.")
-        }
-        v
-      }
-    )
-  }
 }

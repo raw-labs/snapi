@@ -14,10 +14,10 @@ package raw.compiler.rql2.tests.builtin.list
 
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable}
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
-trait ListOrderByTest extends CompilerTestContext with LocalLocationsTestContext {
+trait ListOrderByTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   // using String.ReadLines
   test(snapi"""let regions = List.From(Collection.Transform(

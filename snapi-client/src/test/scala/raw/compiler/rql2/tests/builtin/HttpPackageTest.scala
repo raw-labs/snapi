@@ -15,12 +15,12 @@ import com.sun.net.httpserver.{BasicAuthenticator, HttpExchange, HttpServer}
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.BeforeAndAfterAll
 import raw.creds.dropbox.DropboxTestCreds
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
 import java.net.InetSocketAddress
 import scala.collection.JavaConverters._
 
-trait HttpPackageTest extends CompilerTestContext with DropboxTestCreds with BeforeAndAfterAll {
+trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with BeforeAndAfterAll {
 
   val expectedUser = "user"
   val expectedPassword = "passwd"

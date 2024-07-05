@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.parser
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RecordSugarTest extends CompilerTestContext {
+trait RecordSugarTest extends Rql2CompilerTestContext {
 
   test("""{a: 1, b: "2"}""") { it =>
     it should typeAs("record(a: int, b: string)")

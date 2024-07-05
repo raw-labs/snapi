@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD9616Test extends CompilerTestContext {
+trait RD9616Test extends Rql2CompilerTestContext {
 
   test(
     """let

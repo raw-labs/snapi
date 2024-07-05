@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.compiler.utils._
 
-trait RD5784Test extends CompilerTestContext {
+trait RD5784Test extends Rql2CompilerTestContext {
 
   private val xmlFile = tempFile("""<?xml version="1.0"?>
     |<r>

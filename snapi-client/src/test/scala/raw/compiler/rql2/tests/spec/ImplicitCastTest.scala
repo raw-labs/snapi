@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait ImplicitCastTest extends CompilerTestContext {
+trait ImplicitCastTest extends Rql2CompilerTestContext {
 
   // compatible options as function param
   test(s"""let f = (x: int) -> Record.Build(o = x)

@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.parser
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {
+trait FrontendSyntaxAnalyzerTest extends Rql2CompilerTestContext {
 
   // Internal node, not visible to the user parser.
   test(s"""$$package("Collection")""".stripMargin)(it => it shouldNot parse)

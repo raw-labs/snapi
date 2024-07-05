@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait BasicStagedCompilerTest extends CompilerTestContext {
+trait BasicStagedCompilerTest extends Rql2CompilerTestContext {
 
   test("""TestPackage.ByteValueArg(22b)""")(_ should evaluateTo("{arg: 22b}"))
   test("""TestPackage.ShortValueArg(22s)""")(_ should evaluateTo("{arg: 22s}"))

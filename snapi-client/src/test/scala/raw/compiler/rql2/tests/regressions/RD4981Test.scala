@@ -13,10 +13,10 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
-trait RD4981Test extends CompilerTestContext with LocalLocationsTestContext {
+trait RD4981Test extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   test(snapi"""let
     |    data = Csv.InferAndRead("$airportsLocal"),

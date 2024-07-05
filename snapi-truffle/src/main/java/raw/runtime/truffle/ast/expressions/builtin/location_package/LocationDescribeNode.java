@@ -63,17 +63,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       Map<String, String> properties = new HashMap<>();
       boolean sampled = false;
 
-      if (descriptor instanceof ExcelInputFormatDescriptor) {
-        ExcelInputFormatDescriptor excelDescriptor = (ExcelInputFormatDescriptor) descriptor;
-        format = "excel";
-        comment = "";
-        tipe = excelDescriptor.tipe();
-        properties.put("sheet", excelDescriptor.sheet());
-        properties.put("x0", String.valueOf(excelDescriptor.x0()));
-        properties.put("y0", String.valueOf(excelDescriptor.y0()));
-        properties.put("x1", String.valueOf(excelDescriptor.x1()));
-        properties.put("y1", String.valueOf(excelDescriptor.y1()));
-      } else if (descriptor instanceof SqlTableInputFormatDescriptor) {
+      if (descriptor instanceof SqlTableInputFormatDescriptor) {
         SqlTableInputFormatDescriptor sqlTableDescriptor =
             (SqlTableInputFormatDescriptor) descriptor;
         format = "relational table";

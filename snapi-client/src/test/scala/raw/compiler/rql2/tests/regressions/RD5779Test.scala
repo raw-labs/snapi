@@ -13,11 +13,11 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
 import java.nio.file.Path
 
-trait RD5779Test extends CompilerTestContext {
+trait RD5779Test extends Rql2CompilerTestContext {
   val data: Path = tempFile("""[
     |  {"a": 1, "b": 10}
     |]""".stripMargin)

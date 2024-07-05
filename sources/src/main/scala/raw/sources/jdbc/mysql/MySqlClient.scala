@@ -25,6 +25,8 @@ import scala.util.control.NonFatal
 
 class MySqlClient(db: MySqlCredential)(implicit settings: RawSettings) extends JdbcClient {
 
+  Class.forName("com.mysql.cj.jdbc.Driver")
+
   private val connectTimeout = getConnectTimeout(TimeUnit.MILLISECONDS)
   private val readTimeout = getReadTimeout(TimeUnit.MILLISECONDS)
 

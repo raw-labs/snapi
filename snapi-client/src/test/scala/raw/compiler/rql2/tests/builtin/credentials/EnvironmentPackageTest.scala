@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.creds.api.CredentialsTestContext
 
-trait EnvironmentPackageTest extends CompilerTestContext with CredentialsTestContext {
+trait EnvironmentPackageTest extends Rql2CompilerTestContext with CredentialsTestContext {
 
   secret(authorizedUser, "my-secret", "my-secret-value")
 

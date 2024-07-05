@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait BinaryExpDivTest extends CompilerTestContext with CombinationSpecTestHelper {
+trait BinaryExpDivTest extends Rql2CompilerTestContext with CombinationSpecTestHelper {
 
   test("""4 / 2""") { it =>
     it should typeAs("int")

@@ -18,41 +18,57 @@ import raw.sources.bytestream.api.ByteStreamLocationBuilder
 import raw.sources.filesystem.api.FileSystemLocationBuilder
 import raw.sources.jdbc.api.{JdbcLocationBuilder, JdbcSchemaLocationBuilder, JdbcTableLocationBuilder}
 
-import scala.collection.JavaConverters._
-import java.util.ServiceLoader
-
 class SourceContext(
     val user: AuthenticatedUser,
     val credentialsService: CredentialsService,
-    val settings: RawSettings,
-    val maybeClassLoader: Option[ClassLoader]
+    val settings: RawSettings
 ) {
 
-  val byteStreamLocationBuilderServices: Array[ByteStreamLocationBuilder] = {
-    maybeClassLoader match {
-      case Some(cl) => ServiceLoader.load(classOf[ByteStreamLocationBuilder], cl).asScala.toArray
-      case None => ServiceLoader.load(classOf[ByteStreamLocationBuilder]).asScala.toArray
-    }
-  }
+  val byteStreamLocationBuilderServices: Array[ByteStreamLocationBuilder] = Array(
+    new raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
+    new raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
+    new raw.sources.bytestream.github.GithubByteStreamLocationBuilder,
+    new raw.sources.bytestream.http.HttpByteStreamLocationBuilder,
+    new raw.sources.bytestream.in_memory.InMemoryByteStreamLocationBuilder,
+    new raw.sources.filesystem.mock.MockFileSystemLocationBuilder,
+    new raw.sources.filesystem.s3.S3FileSystemLocationBuilder
+  )
 
-  val fileSystemLocationBuilderServices: Array[FileSystemLocationBuilder] = maybeClassLoader match {
-    case Some(cl) => ServiceLoader.load(classOf[FileSystemLocationBuilder], cl).asScala.toArray
-    case None => ServiceLoader.load(classOf[FileSystemLocationBuilder]).asScala.toArray
-  }
+  val fileSystemLocationBuilderServices: Array[FileSystemLocationBuilder] = Array(
+    new raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
+    new raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
+    new raw.sources.filesystem.mock.MockFileSystemLocationBuilder,
+    new raw.sources.filesystem.s3.S3FileSystemLocationBuilder
+  )
 
-  val jdbcLocationBuilderServices: Array[JdbcLocationBuilder] = maybeClassLoader match {
-    case Some(cl) => ServiceLoader.load(classOf[JdbcLocationBuilder], cl).asScala.toArray
-    case None => ServiceLoader.load(classOf[JdbcLocationBuilder]).asScala.toArray
-  }
+  val jdbcLocationBuilderServices: Array[JdbcLocationBuilder] = Array(
+    new raw.sources.jdbc.sqlite.SqliteLocationBuilder,
+    new raw.sources.jdbc.snowflake.SnowflakeLocationBuilder,
+    new raw.sources.jdbc.pgsql.PostgresqlLocationBuilder,
+    new raw.sources.jdbc.mysql.MySqlLocationBuilder,
+    new raw.sources.jdbc.sqlserver.SqlServerLocationBuilder,
+    new raw.sources.jdbc.oracle.OracleLocationBuilder,
+    new raw.sources.jdbc.teradata.TeradataLocationBuilder
+  )
 
-  val jdbcSchemaLocationBuilderServices: Array[JdbcSchemaLocationBuilder] = maybeClassLoader match {
-    case Some(cl) => ServiceLoader.load(classOf[JdbcSchemaLocationBuilder], cl).asScala.toArray
-    case None => ServiceLoader.load(classOf[JdbcSchemaLocationBuilder]).asScala.toArray
-  }
+  val jdbcSchemaLocationBuilderServices: Array[JdbcSchemaLocationBuilder] = Array(
+    new raw.sources.jdbc.sqlite.SqliteSchemaLocationBuilder,
+    new raw.sources.jdbc.snowflake.SnowflakeSchemaLocationBuilder,
+    new raw.sources.jdbc.pgsql.PostgresqlSchemaLocationBuilder,
+    new raw.sources.jdbc.mysql.MySqlSchemaLocationBuilder,
+    new raw.sources.jdbc.sqlserver.SqlServerSchemaLocationBuilder,
+    new raw.sources.jdbc.oracle.OracleSchemaLocationBuilder,
+    new raw.sources.jdbc.teradata.TeradataSchemaLocationBuilder
+  )
 
-  val jdbcTableLocationBuilderServices: Array[JdbcTableLocationBuilder] = maybeClassLoader match {
-    case Some(cl) => ServiceLoader.load(classOf[JdbcTableLocationBuilder], cl).asScala.toArray
-    case None => ServiceLoader.load(classOf[JdbcTableLocationBuilder]).asScala.toArray
-  }
+  val jdbcTableLocationBuilderServices: Array[JdbcTableLocationBuilder] = Array(
+    new raw.sources.jdbc.sqlite.SqliteTableLocationBuilder,
+    new raw.sources.jdbc.snowflake.SnowflakeTableLocationBuilder,
+    new raw.sources.jdbc.pgsql.PostgresqlTableLocationBuilder,
+    new raw.sources.jdbc.mysql.MySqlTableLocationBuilder,
+    new raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder,
+    new raw.sources.jdbc.oracle.OracleTableLocationBuilder,
+    new raw.sources.jdbc.teradata.TeradataTableLocationBuilder
+  )
 
 }

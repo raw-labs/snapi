@@ -12,13 +12,13 @@
 
 package raw.compiler.rql2.tests.output
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.compiler.utils._
 import raw.utils._
 
 import java.nio.file.Files
 
-trait CsvOutputTest extends CompilerTestContext {
+trait CsvOutputTest extends Rql2CompilerTestContext {
 
   option("output-format", "csv")
 

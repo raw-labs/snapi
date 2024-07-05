@@ -12,47 +12,20 @@
 
 package raw.creds.api
 
+import raw.creds.client.ClientCredentialsService
+import raw.creds.local.LocalCredentialsService
 import raw.utils.RawSettings
-
-import java.util.ServiceLoader
-import scala.collection.JavaConverters._
 
 object CredentialsServiceProvider {
 
   private val CREDS_IMPL = "raw.creds.impl"
 
-  def apply(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings): CredentialsService = {
-    maybeClassLoader match {
-      case Some(cl) => apply(cl)
-      case None => apply()
-    }
-  }
-
   def apply()(implicit settings: RawSettings): CredentialsService = {
-    build()
-  }
-
-  def apply(classLoader: ClassLoader)(implicit settings: RawSettings): CredentialsService = {
-    build(Some(classLoader))
-  }
-
-  private def build(
-      maybeClassLoader: Option[ClassLoader] = None
-  )(implicit settings: RawSettings): CredentialsService = {
-    val services = maybeClassLoader match {
-      case Some(cl) => ServiceLoader.load(classOf[CredentialsServiceBuilder], cl).asScala.toArray
-      case None => ServiceLoader.load(classOf[CredentialsServiceBuilder]).asScala.toArray
-    }
-    if (services.isEmpty) {
-      throw new CredentialsException("no credentials service available")
-    } else if (services.size > 1) {
-      val implClassName = settings.getString(CREDS_IMPL)
-      services.find(p => p.name == implClassName) match {
-        case Some(builder) => builder.build
-        case None => throw new CredentialsException(s"cannot find credentials service: $implClassName")
-      }
-    } else {
-      services.head.build
+    settings.getStringOpt(CREDS_IMPL) match {
+      case Some("client") => new ClientCredentialsService
+      case Some("local") => new LocalCredentialsService
+      case Some(impl) => throw new CredentialsException(s"cannot find credentials service: $impl")
+      case None => throw new CredentialsException("no credentials service defined")
     }
   }
 

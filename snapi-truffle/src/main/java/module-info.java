@@ -39,7 +39,6 @@ module raw.snapi.truffle {
   requires java.net.http;
   requires com.ibm.icu;
   requires spring.core;
-  requires spring.jcl;
   requires com.esotericsoftware.kryo;
   requires com.esotericsoftware.minlog;
   requires com.esotericsoftware.reflectasm;
@@ -50,7 +49,6 @@ module raw.snapi.truffle {
   requires com.google.common;
   requires jul.to.slf4j;
 
-  uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.compiler.rql2.api.EntryExtension;
   uses raw.sources.jdbc.api.JdbcTableLocationBuilder;
   uses raw.compiler.rql2.api.PackageExtension;
@@ -58,7 +56,6 @@ module raw.snapi.truffle {
   uses raw.sources.filesystem.api.FileSystemLocationBuilder;
   uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
   uses raw.sources.jdbc.api.JdbcLocationBuilder;
-  uses raw.inferrer.api.InferrerServiceBuilder;
   uses raw.sources.jdbc.api.JdbcSchemaLocationBuilder;
 
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with

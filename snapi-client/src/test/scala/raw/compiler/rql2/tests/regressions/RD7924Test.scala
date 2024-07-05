@@ -13,11 +13,11 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
 import java.nio.file.Path
 
-trait RD7924Test extends CompilerTestContext {
+trait RD7924Test extends Rql2CompilerTestContext {
 
   val string: Path = tempFile("""  "Hello!" """)
 

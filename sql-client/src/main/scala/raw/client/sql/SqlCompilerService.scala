@@ -18,24 +18,32 @@ import raw.client.api._
 import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
 import raw.client.sql.metadata.UserMetadataCache
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
-import raw.creds.api.CredentialsServiceProvider
-import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
+import raw.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet
 import scala.util.control.NonFatal
 
-class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
-    extends CompilerService {
+/**
+ * A CompilerService implementation for the SQL (Postgres) language.
+ *
+ * @param settings The configuration settings for the SQL compiler.
+ */
+class SqlCompilerService()(implicit protected val settings: RawSettings) extends CompilerService {
 
-  private val credentials = CredentialsServiceProvider(maybeClassLoader)
+  private val connectionPool = new SqlConnectionPool()
 
-  private val connectionPool = new SqlConnectionPool(credentials)
-
+  // A short lived database metadata (schema/table/column names) indexed by JDBC URL.
   private val metadataBrowsers = {
-    val loader = new CacheLoader[AuthenticatedUser, UserMetadataCache] {
-      override def load(user: AuthenticatedUser): UserMetadataCache =
-        new UserMetadataCache(user, connectionPool, settings)
+    val maxSize = settings.getInt("raw.client.sql.metadata-cache.max-matches")
+    val expiry = settings.getDuration("raw.client.sql.metadata-cache.match-validity")
+    val loader = new CacheLoader[String, UserMetadataCache] {
+      override def load(jdbcUrl: String): UserMetadataCache = new UserMetadataCache(
+        jdbcUrl,
+        connectionPool,
+        maxSize = maxSize,
+        expiry = expiry
+      )
     }
     CacheBuilder
       .newBuilder()
@@ -61,10 +69,10 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     syntaxAnalyzer.parse(prog)
   }
 
-  private def treeErrors(tree: ParseProgramResult, messages: Seq[String]): Seq[ErrorMessage] = {
-    val start = tree.positions.getStart(tree).get
+  private def treeErrors(program: ParseProgramResult, messages: Seq[String]): Seq[ErrorMessage] = {
+    val start = program.positions.getStart(program.tree).get
     val startPosition = ErrorPosition(start.line, start.column)
-    val end = tree.positions.getFinish(tree).get
+    val end = program.positions.getFinish(program.tree).get
     val endPosition = ErrorPosition(end.line, end.column)
     messages.map(message => ErrorMessage(message, List(ErrorRange(startPosition, endPosition)), ErrorCode.SqlErrorCode))
   }
@@ -78,7 +86,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       safeParse(source) match {
         case Left(errors) => GetProgramDescriptionFailure(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.user)
+          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
             val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
             val description = stmt.queryMetadata match {
@@ -138,35 +146,28 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     }
   }
 
-  override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
-    try {
-      ???
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
-    }
-  }
-
   override def execute(
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long]
   ): ExecutionResponse = {
     try {
       logger.debug(s"Executing: $source")
       safeParse(source) match {
         case Left(errors) => ExecutionValidationFailure(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.user)
+          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
-            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree)
+            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
             try {
               pstmt.queryMetadata match {
                 case Right(info) => pgRowTypeToIterableType(info.outputType) match {
                     case Right(tipe) =>
                       val arguments = environment.maybeArguments.getOrElse(Array.empty)
                       pstmt.executeWith(arguments) match {
-                        case Right(r) => render(environment, tipe, r, outputStream)
+                        case Right(r) => render(environment, tipe, r, outputStream, maxRows)
                         case Left(error) => ExecutionRuntimeFailure(error)
                       }
                     case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
@@ -192,7 +193,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       environment: ProgramEnvironment,
       tipe: RawType,
       v: ResultSet,
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long]
   ): ExecutionResponse = {
     environment.options
       .get("output-format")
@@ -206,23 +208,23 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           case _ => false //settings.config.getBoolean("raw.compiler.windows-line-ending")
         }
         val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-        val csvWriter = new TypedResultSetCsvWriter(outputStream, lineSeparator)
+        val w = new TypedResultSetCsvWriter(outputStream, lineSeparator, maxRows)
         try {
-          csvWriter.write(v, tipe)
-          ExecutionSuccess
+          w.write(v, tipe)
+          ExecutionSuccess(w.complete)
         } catch {
           case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
         } finally {
-          RawUtils.withSuppressNonFatalException(csvWriter.close())
+          RawUtils.withSuppressNonFatalException(w.close())
         }
       case Some("json") =>
         if (!TypedResultSetJsonWriter.outputWriteSupport(tipe)) {
           ExecutionRuntimeFailure("unsupported type")
         }
-        val w = new TypedResultSetJsonWriter(outputStream)
+        val w = new TypedResultSetJsonWriter(outputStream, maxRows)
         try {
           w.write(v, tipe)
-          ExecutionSuccess
+          ExecutionSuccess(w.complete)
         } catch {
           case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
         } finally {
@@ -254,7 +256,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       // So we call the identifier with +1 column
       analyzer.identifierUnder(Pos(position.line, position.column + 1)) match {
         case Some(idn: SqlIdnNode) =>
-          val metadataBrowser = metadataBrowsers.get(environment.user)
+          val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
           val matches = metadataBrowser.getDotCompletionMatches(idn)
           val collectedValues = matches.collect {
             case (idns, tipe) =>
@@ -287,7 +289,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       logger.debug(s"idn $item")
       val matches: Seq[Completion] = item match {
         case Some(idn: SqlIdnNode) =>
-          val metadataBrowser = metadataBrowsers.get(environment.user)
+          val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
           val matches = metadataBrowser.getWordCompletionMatches(idn)
           matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
         case Some(use: SqlParamUseNode) => tree.params.collect {
@@ -311,13 +313,13 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         .identifierUnder(position)
         .map {
           case identifier: SqlIdnNode =>
-            val metadataBrowser = metadataBrowsers.get(environment.user)
+            val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
             val matches = metadataBrowser.getWordCompletionMatches(identifier)
             matches.headOption
               .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
               .getOrElse(HoverResponse(None))
           case use: SqlParamUseNode =>
-            val conn = connectionPool.getConnection(environment.user)
+            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
             try {
               val pstmt = new NamedParametersPreparedStatement(conn, tree)
               try {
@@ -370,7 +372,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       safeParse(source) match {
         case Left(errors) => ValidateResponse(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.user)
+          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
             val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
             try {
@@ -404,7 +406,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
 
   override def doStop(): Unit = {
     connectionPool.stop()
-    credentials.stop()
   }
 
   private def pgRowTypeToIterableType(rowType: PostgresRowType): Either[Seq[String], RawIterableType] = {

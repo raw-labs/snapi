@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD9554Test extends CompilerTestContext {
+trait RD9554Test extends Rql2CompilerTestContext {
 
   test("""let range = Int.Range(0,5)
     |in Collection.Union(range, range)""".stripMargin) { it =>

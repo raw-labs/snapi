@@ -1,5 +1,0 @@
-raw.sources.jdbc.sqlite.SqliteLocationBuilder
-raw.sources.jdbc.snowflake.SnowflakeLocationBuilder
-raw.sources.jdbc.pgsql.PostgresqlLocationBuilder
-raw.sources.jdbc.mysql.MySqlLocationBuilder
-raw.sources.jdbc.sqlserver.SqlServerLocationBuilder

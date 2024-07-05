@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD9229Test extends CompilerTestContext {
+trait RD9229Test extends Rql2CompilerTestContext {
 
   test(s"""[{a: "binary", b: [1,2,3,4]}]""") { it =>
     option("output-format", "binary")

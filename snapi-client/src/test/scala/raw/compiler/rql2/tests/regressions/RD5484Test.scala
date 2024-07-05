@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait RD5484Test extends CompilerTestContext {
+trait RD5484Test extends Rql2CompilerTestContext {
 
   // top-level and correct.
   test("""Timestamp.Build(2015, 1, 4, 22, 0)""")(_ should run)

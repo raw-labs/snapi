@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2.tests.output
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
 import java.nio.file.Files
 
-trait TextOutputTest extends CompilerTestContext {
+trait TextOutputTest extends Rql2CompilerTestContext {
 
   option("output-format", "text")
 

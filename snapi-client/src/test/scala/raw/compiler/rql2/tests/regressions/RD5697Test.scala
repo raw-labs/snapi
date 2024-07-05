@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.compiler.utils._
 
-trait RD5697Test extends CompilerTestContext {
+trait RD5697Test extends Rql2CompilerTestContext {
 
   private val jsonFile = tempFile("""{"a": 12, "b": 14}""")
 

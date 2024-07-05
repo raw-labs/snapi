@@ -459,19 +459,20 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
 class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext: ProgramContext)
     extends CommonSemanticAnalyzer(tree)
     with ExpectedTypes
+    with StagedCompiler
     with Rql2TypeUtils {
 
   // This function checks if the semantic analysis is being run with the staged compiler
   // We need it to prevent infinite recursion in the getValue function
   private def isStagedCompiler: Boolean = {
     // comes from scala
-    (programContext.runtimeContext.environment.options.contains(
+    (programContext.programEnvironment.options.contains(
       "staged-compiler"
-    ) && programContext.runtimeContext.environment.options("staged-compiler") == "true") ||
+    ) && programContext.programEnvironment.options("staged-compiler") == "true") ||
     // Comes from truffle language
-    (programContext.runtimeContext.environment.options.contains(
+    (programContext.programEnvironment.options.contains(
       "rql.staged-compiler"
-    ) && programContext.runtimeContext.environment.options("rql.staged-compiler") == "true")
+    ) && programContext.programEnvironment.options("rql.staged-compiler") == "true")
   }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -489,7 +490,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
               case tree.parent(Proj(_, badEntryName))
                   if badPackageName.nonEmpty && badPackageName.head.isUpper && badEntryName.nonEmpty && badEntryName.head.isUpper =>
                 val badName = s"$badPackageName.$badEntryName"
-                val names = PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap {
+                val names = PackageExtensionProvider.packages.flatMap {
                   case p => p.p.entries.collect {
                       case e if levenshteinDistance(badName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
                     }
@@ -499,12 +500,11 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                   // is a perfect match. For instance, if the user does String.IsNull instead of Nullable.IsNull,
                   // or Text.Split instead of String.Split. The criteria is that the entry name must be a perfect match
                   // but defined in a single other package.
-                  val packagesWithEntry =
-                    PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap {
-                      case p => p.p.entries.collect {
-                          case e if badEntryName == e => p.p.name
-                        }
-                    }
+                  val packagesWithEntry = PackageExtensionProvider.packages.flatMap {
+                    case p => p.p.entries.collect {
+                        case e if badEntryName == e => p.p.name
+                      }
+                  }
                   if (packagesWithEntry.length == 1)
                     Seq(UnknownDecl(i, hint = Some(s"did you mean ${packagesWithEntry.head}.$badEntryName?")))
                   else Seq(UnknownDecl(i))
@@ -669,7 +669,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   ///////////////////////////////////////////////////////////////////////////
 
   override protected lazy val defenv: Environment = rootenv(
-    PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).map(p => p.p.name -> p): _*
+    PackageExtensionProvider.packages.map(p => p.p.name -> p): _*
   )
 
   override protected def envin(in: SourceNode => Environment): SourceNode ==> Environment =
@@ -917,8 +917,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             .getOrElse(ErrorType())
         case _ => ErrorType()
       }
-    case PackageIdnExp(name) =>
-      PackageExtensionProvider.getPackage(name, programContext.compilerContext.maybeClassLoader) match {
+    case PackageIdnExp(name) => PackageExtensionProvider.getPackage(name) match {
         case Some(_) => PackageType(name)
         case None => throw new AssertionError(s"Built-in package $name not found")
       }
@@ -1572,7 +1571,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
           case p: PackageEntity =>
             // Nothing to do since these are always available.
             assert(
-              PackageExtensionProvider.names(programContext.compilerContext.maybeClassLoader).contains(p.p.name),
+              PackageExtensionProvider.names.contains(p.p.name),
               "Non-built-in package found! This must be handled here!!!"
             )
             recurseEntities(queue, done)
@@ -1610,9 +1609,9 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
         val rawType = rql2TypeToRawType(expected).get
-        val stagedCompilerEnvironment = programContext.runtimeContext.environment
+        val stagedCompilerEnvironment = programContext.programEnvironment
           .copy(
-            options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"),
+            options = programContext.programEnvironment.options + ("staged-compiler" -> "true"),
             maybeArguments = None
           )
 
@@ -1620,15 +1619,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         logger.trace("Pretty printed staged compiler type is:\n" + rawType)
 
         try {
-          CompilerServiceProvider(
-            programContext.compilerContext.language,
-            programContext.compilerContext.maybeClassLoader
-          )(programContext.settings).eval(
-            prettyPrinterProgram,
-            rawType,
-            stagedCompilerEnvironment
-          ) match {
-            case EvalSuccess(v) =>
+          eval(prettyPrinterProgram, rawType, stagedCompilerEnvironment)(programContext.settings) match {
+            case StagedCompilerSuccess(v) =>
               var stagedCompilerResult = rawValueToRql2Value(v, rawType)
               // Remove extraProps
               if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
@@ -1646,13 +1638,13 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                 stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
               }
               Right(stagedCompilerResult)
-            case EvalValidationFailure(errs) =>
+            case StagedCompilerValidationFailure(errs) =>
               logger.warn(s"""Staged compilation of expression failed to validate with semantic errors:
 -                |Expected type: $expected
 -                |Expression: $e
 -                |Errors: $errs""".stripMargin)
               Left(FailedToEvaluate(e))
-            case EvalRuntimeFailure(err) =>
+            case StagedCompilerRuntimeFailure(err) =>
               logger.warn(s"""Staged compilation of expression failed at runtime with errors:
                 |Expected type: $expected
                 |Expression: $e
@@ -1885,29 +1877,27 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         actualType(e) match {
           case PackageType(name) =>
             for (
-              p <- PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader);
+              p <- PackageExtensionProvider.packages;
               if p.p.name == name; e <- p.p.entries; if e == i
             ) {
               return ExpectedType(ExpectedProjType(i))
             }
             val actualName = s"$name.$i"
-            val names =
-              PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap { p =>
-                p.p.entries.collect {
-                  case e if levenshteinDistance(actualName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
-                }
+            val names = PackageExtensionProvider.packages.flatMap { p =>
+              p.p.entries.collect {
+                case e if levenshteinDistance(actualName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
               }
+            }
             if (names.isEmpty) {
               // No found based on levenshtein distance. Try to see if there is any entry name in another package that
               // is a perfect match. For instance, if the user does String.IsNull instead of Nullable.IsNull,
               // or Text.Split instead of String.Split. The criteria is that the entry name must be a perfect match
               // but defined in a single other package.
-              val packagesWithEntry =
-                PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap {
-                  case p => p.p.entries.collect {
-                      case e if i == e => p.p.name
-                    }
-                }
+              val packagesWithEntry = PackageExtensionProvider.packages.flatMap {
+                case p => p.p.entries.collect {
+                    case e if i == e => p.p.name
+                  }
+              }
               if (packagesWithEntry.length == 1)
                 ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${packagesWithEntry.head}.$i?"))
               else ExpectedType(ExpectedProjType(i))

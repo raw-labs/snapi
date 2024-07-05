@@ -25,9 +25,12 @@ import raw.compiler.common.source.Exp;
 import raw.compiler.common.source.IdnExp;
 import raw.compiler.common.source.SourceNode;
 import raw.compiler.rql2.*;
+import raw.compiler.rql2.api.EntryExtension;
 import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleEmitter;
+import raw.compiler.snapi.truffle.TruffleEntryExtension;
+import raw.compiler.snapi.truffle.builtin.test_extension.TruffleVarNullableStringExpTestEntry;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
@@ -69,6 +72,253 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
     private int funcCounter = 0;
     private final HashMap<Entity, String> funcMap = new HashMap<>();
     private final HashMap<Entity, Integer> entityDepth = new HashMap<>();
+
+    private static final EntryExtension[] entries = {
+            new raw.compiler.snapi.truffle.builtin.aws_extension.TruffleAwsV4SignedRequestEntry(),
+            new raw.compiler.snapi.truffle.builtin.byte_extension.TruffleByteFromEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleEmptyCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleBuildCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleFilterCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleOrderByCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleTransformCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleDistinctCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleCountCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleTupleAvgCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleMinCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleMaxCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleSumCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleFirstCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleLastCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleTakeCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleUnnestCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleFromCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleGroupCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleInternalJoinCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleInternalEquiJoinCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleUnionCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleExistsCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleZipCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.collection_extension.TruffleMkStringCollectionEntry(),
+            new raw.compiler.snapi.truffle.builtin.csv_extension.TruffleCsvReadEntry(),
+            new raw.compiler.snapi.truffle.builtin.csv_extension.TruffleCsvParseEntry(),
+            new raw.compiler.snapi.truffle.builtin.decimal_extension.TruffleDecimalFromEntry(),
+            new raw.compiler.snapi.truffle.builtin.double_extension.TruffleDoubleFromEntry(),
+            new raw.compiler.snapi.truffle.builtin.environment_extension.TruffleEnvironmentParameterEntry(),
+            new raw.compiler.snapi.truffle.builtin.error_extension.TruffleErrorBuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.error_extension.TruffleErrorBuildWithTypeEntry(),
+            new raw.compiler.snapi.truffle.builtin.error_extension.TruffleErrorGetEntry(),
+            new raw.compiler.snapi.truffle.builtin.float_extension.TruffleFloatFromEntry(),
+            new raw.compiler.snapi.truffle.builtin.function_extension.TruffleFunctionInvokeAfterEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleBuildIntervalEntry(),
+            new raw.compiler.snapi.truffle.builtin.int_extension.TruffleIntFromEntry(),
+            new raw.compiler.snapi.truffle.builtin.int_extension.TruffleIntRangeEntry(),
+            new raw.compiler.snapi.truffle.builtin.json_extension.TruffleReadJsonEntry(),
+            new raw.compiler.snapi.truffle.builtin.json_extension.TruffleParseJsonEntry(),
+            new raw.compiler.snapi.truffle.builtin.json_extension.TrufflePrintJsonEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleEmptyListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleBuildListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleGetListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleFilterListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleTransformListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleTakeListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleSumListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleMaxListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleMinListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleFirstListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleLastListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleCountListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleFromListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleUnsafeFromListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleGroupListEntry(),
+            new raw.compiler.snapi.truffle.builtin.list_extension.TruffleExistsListEntry(),
+            new raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationBuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationDescribeEntry(),
+            new raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationLsEntry(),
+            new raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationLlEntry(),
+            new raw.compiler.snapi.truffle.builtin.long_extension.TruffleLongFromEntry(),
+            new raw.compiler.snapi.truffle.builtin.long_extension.TruffleLongRangeEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathAbsEntry(),
+            new raw.compiler.snapi.truffle.builtin.mysql_extension.TruffleMySQLQueryEntry(),
+            new raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableEmptyEntry(),
+            new raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableBuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableIsNullEntry(),
+            new raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableUnsafeGetEntry(),
+            new raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableTransformEntry(),
+            new raw.compiler.snapi.truffle.builtin.nullable_tryable_extension.TruffleFlatMapNullableTryableEntry(),
+            new raw.compiler.snapi.truffle.builtin.oracle_extension.TruffleOracleQueryEntry(),
+            new raw.compiler.snapi.truffle.builtin.postgresql_extension.TrufflePostgreSQLQueryEntry(),
+            new raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordBuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordConcatEntry(),
+            new raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordFieldsEntry(),
+            new raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordAddFieldEntry(),
+            new raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordRemoveFieldEntry(),
+            new raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordGetFieldByIndexEntry(),
+            new raw.compiler.snapi.truffle.builtin.snowflake_extension.TruffleSnowflakeQueryEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateBuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateFromEpochDayEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateFromTimestampEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateParseEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateNowEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateYearEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateMonthEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateDayEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateSubtractEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateAddIntervalEntry(),
+            new raw.compiler.snapi.truffle.builtin.date_extension.TruffleDateSubtractIntervalEntry(),
+            new raw.compiler.snapi.truffle.builtin.decimal_extension.TruffleDecimalRoundEntry(),
+            new raw.compiler.snapi.truffle.builtin.environment_extension.TruffleEnvironmentSecretEntry(),
+            new raw.compiler.snapi.truffle.builtin.environment_extension.TruffleEnvironmentScopesEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalToMillisEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalFromMillisEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalParseEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalYearsEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalMonthsEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalWeeksEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalDaysEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalHoursEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalMinutesEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalSecondsEntry(),
+            new raw.compiler.snapi.truffle.builtin.interval_extension.TruffleIntervalMillisEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathPiEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathRandomEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathPowerEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathAtn2Entry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathAcosEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathAsinEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathAtanEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathCeilingEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathCosEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathCotEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathDegreesEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathExpEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathLogEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathLog10Entry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathRadiansEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathSignEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathSinEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathSqrtEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathTanEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathSquareEntry(),
+            new raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathFloorEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpReadEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpGetEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpPostEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpPutEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpDeleteEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpHeadEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpPatchEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpOptionsEntry(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpUrlEncode(),
+            new raw.compiler.snapi.truffle.builtin.http_extension.TruffleHttpUrlDecode(),
+            new raw.compiler.snapi.truffle.builtin.xml_extension.TruffleReadXmlEntry(),
+            new raw.compiler.snapi.truffle.builtin.xml_extension.TruffleParseXmlEntry(),
+            new raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeCastEntry(),
+            new raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeEmptyEntry(),
+            new raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeMatchEntry(),
+            new raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeProtectCastEntry(),
+            new raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryBase64Entry(),
+            new raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryReadEntry(),
+            new raw.compiler.snapi.truffle.builtin.binary_extension.TruffleFromStringBinaryEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampBuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampFromDateEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampParseEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampNowEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampRangeEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampYearEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampMonthEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampDayEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampHourEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampMinuteEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampSecondEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampMillisEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampFromUnixTimestampEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampToUnixTimestampEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampTimeBucketEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampSubtractEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampAddIntervalEntry(),
+            new raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampSubtractIntervalEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeBuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeParseEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeNowEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeHourEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeMinuteEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSecondEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeMillisEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeAddIntervalEntry(),
+            new raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractIntervalEntry(),
+            new raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryFlatMapEntry(),
+            new raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryUnsafeGetEntry(),
+            new raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryIsErrorEntry(),
+            new raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryIsSuccessEntry(),
+            new raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryTransformEntry(),
+            new raw.compiler.snapi.truffle.builtin.success_extension.TruffleSuccessBuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringFromEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringReadEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringContainsEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringTrimEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringLTrimEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringRTrimEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringReplaceEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringReverseEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringReplicateEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringUpperEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringLowerEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringSplitEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringLengthEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringSubStringEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringCountSubStringEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringStartsWithEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringEmptyEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleBase64EntryExtension(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringEncodeEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringDecodeEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringLevenshteinDistanceEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringReadLinesEntry(),
+            new raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringCapitalizeEntry(),
+            new raw.compiler.snapi.truffle.builtin.sqlserver_extension.TruffleSQLServerQueryEntry(),
+            new raw.compiler.snapi.truffle.builtin.short_extension.TruffleShortFromEntry(),
+            new raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexReplaceEntry(),
+            new raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexMatchesEntry(),
+            new raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexFirstMatchInEntry(),
+            new raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexGroupsEntry(),
+            new raw.compiler.snapi.truffle.builtin.s3_extension.TruffleS3BuildEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleByteValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleBoolValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleDateValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleDoubleValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleFloatValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleIntervalValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleIntValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleListValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleLongValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleMandatoryExpArgsEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleMandatoryValueArgsEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleOptionalExpArgsTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleOptionalValueArgsTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleRecordValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleShortValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleStrictArgsColPassThroughTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleStrictArgsTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleStringValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleTimestampValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleTimeValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleVarExpArgsTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleVarNullableStringExpTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleVarNullableStringValueTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleVarValueArgsTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.kryo_extension.TruffleKryoDecodeEntry(),
+            new raw.compiler.snapi.truffle.builtin.kryo_extension.TruffleKryoEncodeEntry()
+    };
+
+    private static TruffleEntryExtension getEntry(String pkgName, String entName) {
+        for (EntryExtension entry : entries) {
+            if (entry.packageName().equals(pkgName) && entry.entryName().equals(entName)) {
+                return (TruffleEntryExtension) entry;
+            }
+        }
+        throw new RawTruffleInternalErrorException("Could not find entry for " + pkgName + "." + entName);
+    }
 
     public SnapiTruffleEmitter(Tree tree, RawLanguage rawLanguage, ProgramContext programContext) {
         this.tree = tree;
@@ -220,7 +470,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
 
                 ExpressionNode node;
                 // If the function has free variables it is a Closure
-                if (hasFreeVars){
+                if (hasFreeVars) {
                     node = new ClosureNode(f, defaultArgs);
                 }
                 // If the function has optional arguments it is a Method
@@ -325,7 +575,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                     case MethodEntity b -> {
                         SlotLocation slotLocation = findSlot(b);
                         yield slotLocation.depth() == 0 ? ReadLocalVariableNodeGen.create(slotLocation.slot(), null) :
-                            ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), null);
+                                ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), null);
                     }
                     case LetBindEntity b -> {
                         SlotLocation slotLocation = findSlot(b);
@@ -382,7 +632,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                         .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                         .toArray(ExpressionNode[]::new);
                 // If the function has free variables it is a Closure
-                if (hasFreeVars){
+                if (hasFreeVars) {
                     yield new ClosureNode(f, defaultArgs);
                 }
                 // If the function has optional arguments it is a Method
@@ -393,17 +643,12 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             case FunApp fa when tipe(fa.f()) instanceof PackageEntryType -> {
                 Type t = tipe(fa);
                 PackageEntryType pet = (PackageEntryType) tipe(fa.f());
-                yield JavaConverters.asJavaCollection(programContext.getPackage(pet.pkgName()).get().getEntries(pet.entName()))
-                        .stream()
-                        .filter(e -> e instanceof raw.compiler.snapi.truffle.TruffleEntryExtension)
-                        .map(e -> (raw.compiler.snapi.truffle.TruffleEntryExtension) e)
-                        .map(e -> e.toTruffle(
-                                t,
-                                JavaConverters.asJavaCollection(fa.args()).stream().map(a -> new Rql2Arg(a.e(), tipe(a.e()), a.idn())).toList(),
-                                this
-                        ))
-                        .findFirst()
-                        .orElseThrow(() -> new RawTruffleInternalErrorException("Could not find entry"));
+                TruffleEntryExtension e = getEntry(pet.pkgName(), pet.entName());
+                yield e.toTruffle(
+                        t,
+                        JavaConverters.asJavaCollection(fa.args()).stream().map(a -> new Rql2Arg(a.e(), tipe(a.e()), a.idn())).toList(),
+                        this
+                );
             }
             case FunApp fa -> {
                 String[] argNames = JavaConverters.asJavaCollection(fa.args()).stream().map(a -> a.idn().isDefined() ? a.idn().get() : null).toArray(String[]::new);

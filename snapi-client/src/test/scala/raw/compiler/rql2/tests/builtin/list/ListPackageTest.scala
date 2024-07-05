@@ -14,11 +14,11 @@ package raw.compiler.rql2.tests.builtin.list
 
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.ItemsNotComparable
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
 import java.nio.file.Path
 
-trait ListPackageTest extends CompilerTestContext {
+trait ListPackageTest extends Rql2CompilerTestContext {
 
   test("""["Hello", Error.Build("Argh!!"), null]""") {
     _ should evaluateTo("""["Hello", Error.Build("Argh!!"), null]""")

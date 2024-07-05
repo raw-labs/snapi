@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.client.api._
 
-trait LspValidateTest extends CompilerTestContext {
+trait LspValidateTest extends Rql2CompilerTestContext {
 
   test("validate simple code test") { _ =>
     val code = """String.Lower("Hello")""".stripMargin

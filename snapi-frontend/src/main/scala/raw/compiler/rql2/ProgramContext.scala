@@ -37,7 +37,7 @@ trait ProgramContext extends raw.compiler.base.ProgramContext {
   }
 
   def getPackage(name: String): Option[PackageExtension] = {
-    dynamicPackageCache.get(name).orElse(PackageExtensionProvider.getPackage(name, compilerContext.maybeClassLoader))
+    dynamicPackageCache.get(name).orElse(PackageExtensionProvider.getPackage(name))
   }
 
   def addPackage(pkg: PackageExtension): Unit = {

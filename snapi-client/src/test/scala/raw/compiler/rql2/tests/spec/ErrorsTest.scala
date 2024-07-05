@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait ErrorsTest extends CompilerTestContext {
+trait ErrorsTest extends Rql2CompilerTestContext {
 
   test("""Collection.Count("a")""")(_ shouldNot tipe)
   test("""Collection.Count(Collection.Count("a"))""")(_ shouldNot tipe)

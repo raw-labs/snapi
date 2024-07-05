@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
-trait RD5691Test extends CompilerTestContext with LocalLocationsTestContext {
+trait RD5691Test extends Rql2CompilerTestContext with LocalLocationsTestContext {
 
   test(s"""
     |let issueType = type record(

@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait LetBindTest extends CompilerTestContext with CombinationSpecTestHelper {
+trait LetBindTest extends Rql2CompilerTestContext with CombinationSpecTestHelper {
 
   test("""let x = 1
     |in x

@@ -89,85 +89,7 @@ object CompilerService {
     )
   }
 
-}
-
-trait CompilerService extends RawService {
-
-  implicit protected def settings: RawSettings
-
-  def language: Set[String]
-
-  // Get the description of a source program.
-  @throws[CompilerServiceException]
-  def getProgramDescription(
-      source: String,
-      environment: ProgramEnvironment
-  ): GetProgramDescriptionResponse
-
-  // Evaluate a source program and return the result as a RawValue.
-  @throws[CompilerServiceException]
-  def eval(
-      source: String,
-      tipe: RawType,
-      environment: ProgramEnvironment
-  ): EvalResponse
-
-  // Execute a source program and write the results to the output stream.
-  @throws[CompilerServiceException]
-  def execute(
-      source: String,
-      environment: ProgramEnvironment,
-      maybeDecl: Option[String],
-      outputStream: OutputStream
-  ): ExecutionResponse
-
-  // Format a source program.
-  @throws[CompilerServiceException]
-  def formatCode(
-      source: String,
-      environment: ProgramEnvironment,
-      maybeIndent: Option[Int] = None,
-      maybeWidth: Option[Int] = None
-  ): FormatCodeResponse
-
-  // Auto-complete a source program.
-  @throws[CompilerServiceException]
-  def dotAutoComplete(
-      source: String,
-      environment: ProgramEnvironment,
-      position: Pos
-  ): AutoCompleteResponse
-
-  // Auto-complete a word in a source program.
-  @throws[CompilerServiceException]
-  def wordAutoComplete(
-      source: String,
-      environment: ProgramEnvironment,
-      prefix: String,
-      position: Pos
-  ): AutoCompleteResponse
-
-  // Get the hover information for a source program.
-  @throws[CompilerServiceException]
-  def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse
-
-  // Rename an identifier in a source program.
-  @throws[CompilerServiceException]
-  def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse
-
-  // Go to definition of an identifier in a source program.
-  @throws[CompilerServiceException]
-  def goToDefinition(source: String, environment: ProgramEnvironment, position: Pos): GoToDefinitionResponse
-
-  // Validate a source program.
-  @throws[CompilerServiceException]
-  def validate(source: String, environment: ProgramEnvironment): ValidateResponse
-
-  // Validate a source program for the AI service.
-  @throws[CompilerServiceException]
-  def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse
-
-  protected def polyglotValueToRawValue(v: Value, t: RawType): RawValue = {
+  def polyglotValueToRawValue(v: Value, t: RawType): RawValue = {
     if (t.triable) {
       if (v.isException) {
         try {
@@ -300,6 +222,77 @@ trait CompilerService extends RawService {
 
 }
 
+trait CompilerService extends RawService {
+
+  implicit protected def settings: RawSettings
+
+  def language: Set[String]
+
+  // Get the description of a source program.
+  @throws[CompilerServiceException]
+  def getProgramDescription(
+      source: String,
+      environment: ProgramEnvironment
+  ): GetProgramDescriptionResponse
+
+  // Execute a source program and write the results to the output stream.
+  @throws[CompilerServiceException]
+  def execute(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String],
+      outputStream: OutputStream,
+      maxRows: Option[Long] = None
+  ): ExecutionResponse
+
+  // Format a source program.
+  @throws[CompilerServiceException]
+  def formatCode(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeIndent: Option[Int] = None,
+      maybeWidth: Option[Int] = None
+  ): FormatCodeResponse
+
+  // Auto-complete a source program.
+  @throws[CompilerServiceException]
+  def dotAutoComplete(
+      source: String,
+      environment: ProgramEnvironment,
+      position: Pos
+  ): AutoCompleteResponse
+
+  // Auto-complete a word in a source program.
+  @throws[CompilerServiceException]
+  def wordAutoComplete(
+      source: String,
+      environment: ProgramEnvironment,
+      prefix: String,
+      position: Pos
+  ): AutoCompleteResponse
+
+  // Get the hover information for a source program.
+  @throws[CompilerServiceException]
+  def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse
+
+  // Rename an identifier in a source program.
+  @throws[CompilerServiceException]
+  def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse
+
+  // Go to definition of an identifier in a source program.
+  @throws[CompilerServiceException]
+  def goToDefinition(source: String, environment: ProgramEnvironment, position: Pos): GoToDefinitionResponse
+
+  // Validate a source program.
+  @throws[CompilerServiceException]
+  def validate(source: String, environment: ProgramEnvironment): ValidateResponse
+
+  // Validate a source program for the AI service.
+  @throws[CompilerServiceException]
+  def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse
+
+}
+
 final case class Pos(line: Int, column: Int)
 
 sealed trait GetProgramDescriptionResponse
@@ -307,13 +300,8 @@ final case class GetProgramDescriptionFailure(errors: List[ErrorMessage]) extend
 final case class GetProgramDescriptionSuccess(programDescription: ProgramDescription)
     extends GetProgramDescriptionResponse
 
-sealed trait EvalResponse
-final case class EvalSuccess(v: RawValue) extends EvalResponse
-final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
-final case class EvalRuntimeFailure(error: String) extends EvalResponse
-
 sealed trait ExecutionResponse
-case object ExecutionSuccess extends ExecutionResponse
+final case class ExecutionSuccess(complete: Boolean) extends ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 

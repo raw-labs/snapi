@@ -13,49 +13,14 @@
 package raw.client.python
 
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
-import raw.client.api.{
-  AutoCompleteResponse,
-  CompilerService,
-  CompilerServiceException,
-  EvalResponse,
-  EvalRuntimeFailure,
-  EvalSuccess,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  FormatCodeResponse,
-  GetProgramDescriptionResponse,
-  GoToDefinitionResponse,
-  HoverResponse,
-  Pos,
-  ProgramEnvironment,
-  RawBool,
-  RawByte,
-  RawDate,
-  RawDecimal,
-  RawDouble,
-  RawFloat,
-  RawInt,
-  RawInterval,
-  RawLong,
-  RawNull,
-  RawShort,
-  RawString,
-  RawTime,
-  RawTimestamp,
-  RawType,
-  RawValue,
-  RenameResponse,
-  ValidateResponse
-}
+import raw.client.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import raw.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 
-class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader])(
-    implicit protected val settings: RawSettings
-) extends CompilerService {
+class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
+    extends CompilerService {
 
   private val (engine, initedEngine) = engineDefinition
 
@@ -66,8 +31,8 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
   // Otherwise, we expect the external party - e.g. the test framework - to close it.
   // Refer to Rql2TruffleCompilerServiceTestContext to see the engine being created and released from the test
   // framework, so that every test suite instance has a fresh engine.
-  def this(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings) = {
-    this(CompilerService.getEngine, maybeClassLoader)
+  def this()(implicit settings: RawSettings) = {
+    this(CompilerService.getEngine)
   }
 
   override def language: Set[String] = Set("python")
@@ -135,31 +100,12 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
 //    )
   }
 
-  override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
-    withTruffleContext(
-      environment,
-      ctx =>
-        try {
-          val truffleSource = Source.newBuilder("python", source, "unnamed").build()
-          val polyglotValue = ctx.eval(truffleSource)
-          val rawValue = polyglotValueToRawValue(polyglotValue, tipe)
-          EvalSuccess(rawValue)
-        } catch {
-          case ex: PolyglotException =>
-            if (ex.isInterrupted) {
-              throw new InterruptedException()
-            } else {
-              EvalRuntimeFailure(ex.getMessage)
-            }
-        }
-    )
-  }
-
   override def execute(
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
-      outputStream: OutputStream
+      outputStream: OutputStream,
+      maxRows: Option[Long]
   ): ExecutionResponse = {
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
     ctx.initialize("python")
@@ -190,20 +136,22 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
 //            case Some("true") => true
 //            case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
 //          }
-          val csvWriter = new PolyglotCsvWriter(outputStream)
+          val w = new PolyglotCsvWriter(outputStream)
           try {
-            csvWriter.writeValue(v)
-            ExecutionSuccess
+            w.write(v)
+            w.flush()
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            RawUtils.withSuppressNonFatalException(csvWriter.close())
+            RawUtils.withSuppressNonFatalException(w.close())
           }
         case Some("json") =>
           val w = new PolyglotJsonWriter(outputStream)
           try {
             w.write(v)
-            ExecutionSuccess
+            w.flush()
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
@@ -212,16 +160,16 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
         case Some("text") =>
           val w = new PolyglotTextWriter(outputStream)
           try {
-            w.writeValue(v)
-            ExecutionSuccess
+            w.writeAndFlush(v)
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
         case Some("binary") =>
           val w = new PolyglotBinaryWriter(outputStream)
           try {
-            w.writeValue(v)
-            ExecutionSuccess
+            w.writeAndFlush(v)
+            ExecutionSuccess(complete = true)
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
@@ -316,7 +264,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
 
   private def buildTruffleContext(
       environment: ProgramEnvironment,
-      maybeOutputStream: Option[OutputStream] = None
+      maybeOutputStream: Option[OutputStream]
   ): Context = {
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
@@ -333,19 +281,19 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoade
     ctx
   }
 
-  private def withTruffleContext[T](
-      environment: ProgramEnvironment,
-      f: Context => T
-  ): T = {
-    val ctx = buildTruffleContext(environment)
-    ctx.initialize("python")
-    ctx.enter()
-    try {
-      f(ctx)
-    } finally {
-      ctx.leave()
-      ctx.close()
-    }
-  }
+//  private def withTruffleContext[T](
+//      environment: ProgramEnvironment,
+//      f: Context => T
+//  ): T = {
+//    val ctx = buildTruffleContext(environment)
+//    ctx.initialize("python")
+//    ctx.enter()
+//    try {
+//      f(ctx)
+//    } finally {
+//      ctx.leave()
+//      ctx.close()
+//    }
+//  }
 
 }

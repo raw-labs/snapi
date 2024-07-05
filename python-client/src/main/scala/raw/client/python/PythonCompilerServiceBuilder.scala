@@ -18,7 +18,7 @@ import raw.utils.RawSettings
 class PythonCompilerServiceBuilder extends CompilerServiceBuilder {
   override def language: Set[String] = Set("python")
 
-  override def build(maybeClassLoader: Option[ClassLoader])(implicit settings: RawSettings): CompilerService = {
-    new PythonCompilerService(maybeClassLoader)
+  override def build()(implicit settings: RawSettings): CompilerService = {
+    new PythonCompilerService
   }
 }

@@ -16,9 +16,9 @@ import raw.client.api.{CompilerService, CompilerServiceBuilder}
 import raw.utils.RawSettings
 
 class Rql2TruffleCompilerServiceBuilder extends CompilerServiceBuilder {
-  override def language: Set[String] = Rql2TruffleCompilerService.language
+  override def language: Set[String] = Rql2TruffleCompilerService.LANGUAGE
 
-  override def build(maybeClassLoader: Option[ClassLoader])(implicit settings: RawSettings): CompilerService = {
-    new Rql2TruffleCompilerService(maybeClassLoader)
+  override def build()(implicit settings: RawSettings): CompilerService = {
+    new Rql2TruffleCompilerService
   }
 }

@@ -13,11 +13,11 @@
 package raw.compiler.rql2.tests.builtin
 
 import com.google.common.collect.HashMultiset
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
 import scala.collection.JavaConverters._
 
-trait EnvironmentPackageTest extends CompilerTestContext {
+trait EnvironmentPackageTest extends Rql2CompilerTestContext {
 
   test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("could not find secret my-typo"))
 

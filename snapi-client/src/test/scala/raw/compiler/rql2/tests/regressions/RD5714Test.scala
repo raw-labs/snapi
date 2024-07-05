@@ -13,11 +13,11 @@
 package raw.compiler.rql2.tests.regressions
 
 import java.nio.file.Files
-import raw.compiler.rql2.tests.CompilerTestContext
+import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
 import scala.io.Source
 
-trait RD5714Test extends CompilerTestContext {
+trait RD5714Test extends Rql2CompilerTestContext {
 
   test("""let colA = [{id: 1, name: "john"}],
     |    colB = [{id: 2, firstName: "john"}],
