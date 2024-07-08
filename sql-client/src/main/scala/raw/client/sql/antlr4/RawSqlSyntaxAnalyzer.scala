@@ -26,7 +26,7 @@ class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     val source = StringSource(s)
     val rawErrorListener = new RawSqlErrorListener()
 
-    val striped = s.stripTrailing().stripSuffix("\r\n").stripSuffix("\n").stripSuffix("\r")
+    val striped = s.stripTrailing()
     val lexer = new PsqlLexer(CharStreams.fromString(striped))
     lexer.removeErrorListeners()
     lexer.addErrorListener(rawErrorListener)
