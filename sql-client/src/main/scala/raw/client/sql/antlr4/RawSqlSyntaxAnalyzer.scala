@@ -26,7 +26,8 @@ class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     val source = StringSource(s)
     val rawErrorListener = new RawSqlErrorListener()
 
-    val lexer = new PsqlLexer(CharStreams.fromString(s))
+    val striped = s.stripTrailing()
+    val lexer = new PsqlLexer(CharStreams.fromString(striped))
     lexer.removeErrorListeners()
     lexer.addErrorListener(rawErrorListener)
 
