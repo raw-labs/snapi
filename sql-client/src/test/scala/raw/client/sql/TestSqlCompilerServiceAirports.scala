@@ -936,11 +936,22 @@ class TestSqlCompilerServiceAirports
     )
   }
 
-  test(
-    """-- @param p
-      |-- @type p integer
-      |-- SELECT :p + 10;
-      |""".stripMargin) { t =>
+  test("""-- @param p
+    |-- @type p integer
+    |-- SELECT :p + 10;
+    |""".stripMargin) { t =>
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.size == 1)
+    assert(v.messages(0).message == "non-executable code")
+  }
+
+  test("""CREATE TABLE Persons (
+    |    ID int NOT NULL,
+    |    LastName varchar(255) NOT NULL,
+    |    FirstName varchar(255),
+    |    Age int,
+    |    PRIMARY KEY (ID)
+    |);""".stripMargin) { t =>
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.size == 1)
     assert(v.messages(0).message == "non-executable code")
