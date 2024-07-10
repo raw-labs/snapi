@@ -367,20 +367,23 @@ class NamedParametersPreparedStatement(
   }
 
   // The query output type is obtained using JDBC's `metadata`
-  private val queryOutputType: PostgresRowType = {
+  private val queryOutputType: Either[String, PostgresRowType] = {
     val metadata = stmt.getMetaData // SQLException at that point would be a bug.
-    val columns = (1 to metadata.getColumnCount).map { i =>
-      val name = metadata.getColumnName(i)
-      val tipe = metadata.getColumnType(i)
-      val typeName = metadata.getColumnTypeName(i)
-      val nullability = metadata.isNullable(i)
-      val nullable = {
-        // report nullable if it's advertised as such, or unknown (when unknown it can be nullable).
-        nullability == ResultSetMetaData.columnNullable || nullability == ResultSetMetaData.columnNullableUnknown
+    if (metadata == null) Left("non-executable code")
+    else {
+      val columns = (1 to metadata.getColumnCount).map { i =>
+        val name = metadata.getColumnName(i)
+        val tipe = metadata.getColumnType(i)
+        val typeName = metadata.getColumnTypeName(i)
+        val nullability = metadata.isNullable(i)
+        val nullable = {
+          // report nullable if it's advertised as such, or unknown (when unknown it can be nullable).
+          nullability == ResultSetMetaData.columnNullable || nullability == ResultSetMetaData.columnNullableUnknown
+        }
+        PostgresColumn(name, PostgresType(tipe, nullable, typeName))
       }
-      PostgresColumn(name, PostgresType(tipe, nullable, typeName))
+      Right(PostgresRowType(columns))
     }
-    PostgresRowType(columns)
   }
 
   // helper for 'hover'
@@ -395,7 +398,12 @@ class NamedParametersPreparedStatement(
     if (errors.nonEmpty) Left(errors.flatten)
     else {
       val typeInfo = declaredTypeInfo.mapValues(_.right.get).toMap
-      Right(QueryInfo(typeInfo, queryOutputType))
+      queryOutputType.left
+        .map(highlightError(parsedTree.tree))
+        .left
+        .map(List(_))
+        .right
+        .map(outputType => QueryInfo(typeInfo, outputType))
     }
   }
 
