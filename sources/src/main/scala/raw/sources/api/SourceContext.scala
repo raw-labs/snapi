@@ -36,7 +36,7 @@ class SourceContext(
   def getLocation(url: String, options: Map[String, OptionValue])(
       implicit sourceContext: SourceContext
   ): Location = {
-    get[LocationBuilder](
+    get[LocationBuilder, Location](
       byteStreamLocationBuilderServices ++ fileSystemLocationBuilderServices ++ jdbcLocationBuilderServices ++ jdbcSchemaLocationBuilderServices ++ jdbcTableLocationBuilderServices,
       url,
       options
@@ -46,19 +46,23 @@ class SourceContext(
   def getByteStream(url: String, options: Map[String, OptionValue])(
       implicit sourceContext: SourceContext
   ): ByteStreamLocation = {
-    get[ByteStreamLocationBuilder](byteStreamLocationBuilderServices ++ fileSystemLocationBuilderServices, url, options)
+    get[ByteStreamLocationBuilder, ByteStreamLocation](
+      byteStreamLocationBuilderServices ++ fileSystemLocationBuilderServices,
+      url,
+      options
+    )
   }
 
   def getFileSystem(url: String, options: Map[String, OptionValue])(
       implicit sourceContext: SourceContext
   ): FileSystemLocation = {
-    get[FileSystemLocationBuilder](fileSystemLocationBuilderServices, url, options)
+    get[FileSystemLocationBuilder, FileSystemLocation](fileSystemLocationBuilderServices, url, options)
   }
 
   def getJdbcLocation(url: String, options: Map[String, OptionValue])(
       implicit sourceContext: SourceContext
   ): JdbcLocation = {
-    get[JdbcLocationBuilder](
+    get[JdbcLocationBuilder, JdbcLocation](
       jdbcLocationBuilderServices ++ jdbcSchemaLocationBuilderServices ++ jdbcTableLocationBuilderServices,
       url,
       options
@@ -68,18 +72,22 @@ class SourceContext(
   def getJdbcSchemaLocation(url: String, options: Map[String, OptionValue])(
       implicit sourceContext: SourceContext
   ): JdbcSchemaLocation = {
-    get[JdbcSchemaLocationBuilder](jdbcSchemaLocationBuilderServices, url, options)
+    get[JdbcSchemaLocationBuilder, JdbcSchemaLocation](jdbcSchemaLocationBuilderServices, url, options)
   }
 
   def getJdbcTableLocation(url: String, options: Map[String, OptionValue])(
       implicit sourceContext: SourceContext
   ): JdbcTableLocation = {
-    get[JdbcTableLocationBuilder](jdbcTableLocationBuilderServices, url, options)
+    get[JdbcTableLocationBuilder, JdbcTableLocation](jdbcTableLocationBuilderServices, url, options)
   }
 
-  private def get[T <: LocationBuilder](builders: Seq[T], url: String, options: Map[String, OptionValue])(
+  private def get[T <: LocationBuilder, L <: Location](
+      builders: Seq[T],
+      url: String,
+      options: Map[String, OptionValue]
+  )(
       implicit sourceContext: SourceContext
-  ): T = {
+  ): L = {
     val scheme = getScheme(url)
     builders
       .filter(builder =>
