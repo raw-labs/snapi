@@ -46,6 +46,9 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
 
   private val healthCheckPeriod = settings.getDuration("raw.client.sql.pool.health-check-period", TimeUnit.MILLISECONDS)
 
+  // The JDBC isValid(<seconds>) value to use.
+  private val isValidSeconds = settings.getInt("raw.client.sql.pool.is-valid-seconds")
+
   private val connectionPoolLock = new Object
   // Holds the connections available for each location.
   private val connectionCache = mutable.HashMap[String, Set[SqlConnection]]()
@@ -85,7 +88,7 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
           logger.debug(s"Checking the connection health for $conn (state: ${connectionUrls(conn)})")
           // Found one connection to check.
           try {
-            if (conn.isValid(5)) {
+            if (conn.isValid(isValidSeconds)) {
               logger.debug(s"Connection $conn is healthy")
               // All good, so release borrow.
               // This will update the last check is alive time.
