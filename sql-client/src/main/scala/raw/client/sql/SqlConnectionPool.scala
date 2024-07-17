@@ -11,91 +11,172 @@
  */
 
 package raw.client.sql
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache, RemovalNotification}
 import com.typesafe.scalalogging.StrictLogging
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import raw.utils.{RawService, RawSettings, RawUtils}
 
-import java.sql.SQLException
-import java.util.concurrent.{ConcurrentHashMap, Executors, TimeUnit}
+import java.sql.{Connection, SQLException}
+import java.time.Instant
+import java.util.concurrent.TimeUnit
 import scala.collection.mutable
+import scala.util.control.NonFatal
 
+final private case class ConnectionState(borrowed: Boolean, lastAccess: Instant)
+
+/**
+ * Implements a connection pool that is designed specifically for the needs of FDW and Steampipe.
+ * This connection pool tries to keep connections active/alive for as long as possible; this ensures that Steampipe
+ * caches, which are per connection, stay alive for as long as possible.
+ * The connection pool has a total global limit on the number of connections. If a new connection needs to be
+ * established, it will synchronously try to remove the oldest connection that isn't currently borrowed by anyone.
+ * In addition, it keeps a limit on the number of active connections to a single database - this is done to prevent a
+ * single "user" from taking over all available slots.
+ */
 class SqlConnectionPool()(implicit settings: RawSettings) extends RawService with StrictLogging {
 
+  // Total max connections to the FDW database (across all users).
   private val maxConnections = settings.getInt("raw.client.sql.pool.max-connections")
+  // Max connections per user
+  private val maxConnectionsPerDb = settings.getInt("raw.client.sql.pool.max-connections-per-db")
+  // Time in milliseconds after which a connection may be released (if not borrowed).
   private val idleTimeout = settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS)
-  private val maxLifetime = settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS)
-  private val connectionTimeout = settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
 
-  private val poolGarbageCollectionPeriod = settings.getDuration("raw.client.sql.pool.gc-period")
-  private val poolsToDelete = new ConcurrentHashMap[String, HikariDataSource]()
-  private val garbageCollectScheduler =
-    Executors.newSingleThreadScheduledExecutor(RawUtils.newThreadFactory("sql-connection-pool-gc"))
+  private val connectionPoolLock = new Object
+  // Holds the connections available for each location.
+  private val connectionCache = mutable.HashMap[String, Set[SqlConnection]]()
+  // Holds the state of each connection: if it is borrowed, last access time.
+  private val connectionState = mutable.HashMap[SqlConnection, ConnectionState]()
+  // Holds the JDBC URL Of each connection.
+  private val connectionUrls = mutable.HashMap[SqlConnection, String]()
 
-  // Periodically check for idle pools and close them
-  // If the hikari pool in the cache expires and still has active connections, we will move it to the poolsToDelete map
-  // Then we delete it later when the active connections are 0 (i.e. long queries are done and the pool is not needed anymore)
-  garbageCollectScheduler.scheduleAtFixedRate(
-    () => {
-      val urlsToRemove = mutable.ArrayBuffer[String]()
-      poolsToDelete.forEach((url, pool) => {
-        if (pool.getHikariPoolMXBean.getActiveConnections == 0) {
-          logger.info(s"Shutting down SQL connection pool for database $url")
-          RawUtils.withSuppressNonFatalException(pool.close())
-          urlsToRemove += url
+  // Create a connection and wrap it in our helper, which takes care of 'releasing the borrow' when the connection
+  // is closed.
+  private def createConnection(url: String): SqlConnection = {
+    val conn = java.sql.DriverManager.getConnection(url)
+    new SqlConnection(this, conn)
+  }
+
+  @throws[SQLException]
+  def getConnection(jdbcUrl: String): Connection = {
+    connectionPoolLock.synchronized {
+      // See if there is any connection available in the cache for this location.
+      connectionCache.get(jdbcUrl).foreach { conns =>
+        // Check if we have an available connection for the db location.
+        val maybeConn = conns.collectFirst {
+          case conn if !connectionState(conn).borrowed =>
+            // We found one connection that is not borrowed, so let's reuse it!
+            connectionState.put(conn, ConnectionState(borrowed = true, lastAccess = Instant.now()))
+            return conn
         }
-      })
-      urlsToRemove.foreach(url => poolsToDelete.remove(url))
-    },
-    poolGarbageCollectionPeriod.toMillis,
-    poolGarbageCollectionPeriod.toMillis,
-    TimeUnit.MILLISECONDS
-  )
 
-  private val connectionCacheSize = settings.getInt("raw.client.sql.fdw-db-cache.size")
-  private val connectionCachePeriod = settings.getDuration("raw.client.sql.fdw-db-cache.duration")
+        // If no connection is currently available, just check if this specific db location is maxed out.
+        if (maybeConn.isEmpty && conns.size >= maxConnectionsPerDb) {
+          // No connection was available to borrow, and too many being used for this db location, so we cannot open
+          // any more!
+          throw new SQLException("too many connections active")
+        }
+      }
 
-  private val dbCacheLoader = new CacheLoader[String, HikariDataSource]() {
-    override def load(url: String): HikariDataSource = {
-      logger.info(s"Creating a SQL connection pool for url $url")
-      val config = new HikariConfig()
-      config.setJdbcUrl(url)
-      config.setMaximumPoolSize(maxConnections)
-      config.setMinimumIdle(0)
-      config.setIdleTimeout(idleTimeout)
-      config.setMaxLifetime(maxLifetime)
-      config.setConnectionTimeout(connectionTimeout)
-      val pool = new HikariDataSource(config)
-      pool
+      // No connection available...
+
+      // Check if we must release connections to make space.
+      var retries = 10
+      while (getTotalActiveConnections() >= maxConnections && retries >= 0) {
+        if (!releaseOldestConnection()) {
+          logger.warn(s"Could not release oldest connection; retry #$retries")
+        }
+        retries -= 1
+        // (msb) Why do I do this? I don't know; I'm assuming by sleeping we increase the change of successful release.
+        Thread.sleep(10)
+      }
+
+      // We could not successfully release any connection, so bail out.
+      if (getTotalActiveConnections() >= maxConnections) {
+        throw new SQLException("no connections available")
+      }
+
+      // Create a new connection.
+      val conn = createConnection(jdbcUrl)
+      connectionCache.get(jdbcUrl) match {
+        case Some(conns) => connectionCache.put(jdbcUrl, conns + conn)
+        case None => connectionCache.put(jdbcUrl, Set(conn))
+      }
+      connectionState.put(conn, ConnectionState(borrowed = true, lastAccess = Instant.now()))
+      connectionUrls.put(conn, jdbcUrl)
+      conn
     }
   }
 
-  private val dbCache: LoadingCache[String, HikariDataSource] = CacheBuilder
-    .newBuilder()
-    .maximumSize(connectionCacheSize)
-    .expireAfterAccess(connectionCachePeriod)
-    .removalListener((notification: RemovalNotification[String, HikariDataSource]) => {
-      val active = notification.getValue.getHikariPoolMXBean.getActiveConnections
-      if (active == 0) {
-        logger.info(s"Shutting down SQL connection pool for database ${notification.getValue.getJdbcUrl}")
-        RawUtils.withSuppressNonFatalException(notification.getValue.close())
-      } else {
-        poolsToDelete.put(notification.getKey, notification.getValue)
-      }
-    })
-    .build(dbCacheLoader)
+  private def getTotalActiveConnections(): Int = {
+    connectionPoolLock.synchronized {
+      connectionState.size
+    }
+  }
 
-  @throws[SQLException]
-  def getConnection(jdbcUrl: String): java.sql.Connection = {
-    dbCache.get(jdbcUrl).getConnection()
+  private def releaseOldestConnection(): Boolean = {
+    connectionPoolLock.synchronized {
+      // Find the oldest connection that is not borrowed/active.
+      var oldestConnection: SqlConnection = null
+      var oldestConnectionLastAccess: Instant = null
+      connectionState.foreach {
+        case (conn, state) =>
+          if (!state.borrowed && (oldestConnection == null || state.lastAccess.isBefore(oldestConnectionLastAccess))) {
+            oldestConnection = conn
+            oldestConnectionLastAccess = state.lastAccess
+          }
+      }
+
+      if (oldestConnection == null) {
+        // No connection available to release, so cannot proceed.
+        return false
+      }
+
+      // Release the oldest connection we found, but only if it is older than the idle timeout.
+      // This prevents very "new" connections from being released.
+      val oldestInstant = connectionState(oldestConnection).lastAccess
+      if (oldestInstant.isAfter(Instant.now().minusMillis(idleTimeout))) {
+        // Connection is "too new" to release.
+        false
+      } else {
+        // Release the connection.
+        val jdbcUrl = connectionUrls(oldestConnection)
+        try {
+          // First try to actually close the connection (note the use of actuallyClose), then clean up all the state.
+          oldestConnection.actuallyClose()
+          connectionState.remove(oldestConnection)
+          connectionUrls.remove(oldestConnection)
+          connectionCache.get(jdbcUrl) match {
+            case Some(conns) =>
+              val nconns = conns - oldestConnection
+              if (nconns.isEmpty) connectionCache.remove(jdbcUrl)
+              else connectionCache.put(jdbcUrl, nconns)
+            case None => // Nothing to do.
+          }
+          true
+        } catch {
+          case NonFatal(t) =>
+            // We failed to release the connection.
+            // (Not sure why that could happen but coping with that case nonetheless...)
+            logger.warn("Failed to release oldest connection", t)
+            false
+        }
+      }
+    }
+  }
+
+  // This does not actually close the underlying connection; just makes it available for 'borrow' by future requests.
+  def releaseConnection(conn: SqlConnection): Unit = {
+    connectionPoolLock.synchronized {
+      connectionState.put(conn, ConnectionState(borrowed = false, lastAccess = Instant.now()))
+    }
   }
 
   override def doStop(): Unit = {
-    dbCache.asMap().values().forEach { pool =>
-      logger.info(s"Shutting down SQL connection pool for database ${pool.getJdbcUrl}")
-      RawUtils.withSuppressNonFatalException(pool.close())
+    connectionPoolLock.synchronized {
+      connectionCache.clear()
+      connectionState.keys.foreach(conn => RawUtils.withSuppressNonFatalException(conn.close()))
+      connectionState.clear()
+      connectionUrls.clear()
     }
-    garbageCollectScheduler.shutdown()
-    garbageCollectScheduler.awaitTermination(5, TimeUnit.SECONDS)
   }
+
 }
