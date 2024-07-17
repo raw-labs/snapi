@@ -16,11 +16,15 @@ import raw.utils.{RawService, RawSettings, RawUtils}
 
 import java.sql.{Connection, SQLException}
 import java.time.Instant
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{Executors, TimeUnit}
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
-final private case class ConnectionState(borrowed: Boolean, lastAccess: Instant)
+final private case class ConnectionState(
+    borrowed: Boolean, // True if the connection is currently borrowed (i.e. being used) by a client
+    lastBorrowed: Instant, // When was the connection last borrowed by a client
+    lastCheckIsAlive: Instant // When was the connection last checked if it is alive
+)
 
 /**
  * Implements a connection pool that is designed specifically for the needs of FDW and Steampipe.
@@ -40,6 +44,8 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
   // Time in milliseconds after which a connection may be released (if not borrowed).
   private val idleTimeout = settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS)
 
+  private val healthCheckPeriod = settings.getDuration("raw.client.sql.pool.health-check-period", TimeUnit.MILLISECONDS)
+
   private val connectionPoolLock = new Object
   // Holds the connections available for each location.
   private val connectionCache = mutable.HashMap[String, Set[SqlConnection]]()
@@ -47,6 +53,62 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
   private val connectionState = mutable.HashMap[SqlConnection, ConnectionState]()
   // Holds the JDBC URL Of each connection.
   private val connectionUrls = mutable.HashMap[SqlConnection, String]()
+
+  private val healthChecker =
+    Executors.newSingleThreadScheduledExecutor(RawUtils.newThreadFactory("sql-connection-pool-health"))
+
+  // This connection pool checker borrows one connection that has been idle and checks if it's healthy.
+  // If it is, puts it back in the pool, with a new 'last access time'. Otherwise, it removes it from the pool.
+  // Because it borrows and checks a single connection at a time, this task should run rather frequently, so that it
+  // has time to cycle over all idle connections before the 'first one' is idle once more.
+  healthChecker.scheduleAtFixedRate(
+    () => {
+      // Finds ONE connection to check. That is a connection not in use and not used recently.
+      val maybeConnToCheck = connectionPoolLock.synchronized {
+        connectionState.collectFirst {
+          case (conn, state)
+              if !state.borrowed && state.lastCheckIsAlive.isBefore(Instant.now().minusMillis(idleTimeout)) =>
+            connectionState.put(
+              conn,
+              ConnectionState(
+                borrowed = true, // Mark the connection as borrowed.
+                lastBorrowed =
+                  connectionState(conn).lastBorrowed, // Don't update since it's not a client asking for it.
+                lastCheckIsAlive = connectionState(conn).lastCheckIsAlive // Haven't checked yet if it is alive.
+              )
+            )
+            conn
+        }
+      }
+      maybeConnToCheck match {
+        case Some(conn) =>
+          logger.debug(s"Checking the connection health for $conn (state: ${connectionUrls(conn)})")
+          // Found one connection to check.
+          try {
+            if (conn.isValid(5)) {
+              logger.debug(s"Connection $conn is healthy")
+              // All good, so release borrow.
+              // This will update the last check is alive time.
+              releaseConnection(conn)
+            } else {
+              logger.debug(s"Connection $conn is not healthy; removing it.")
+              // Did not validate, so remove it from list.
+              actuallyRemoveConnection(conn)
+            }
+          } catch {
+            case NonFatal(t) =>
+              // Failed to validate, so also remove from list.
+              logger.warn(s"Connection isValid check failed for $conn; removing it.", t)
+              actuallyRemoveConnection(conn)
+          }
+        case None =>
+        // No connection to check.
+      }
+    },
+    healthCheckPeriod,
+    healthCheckPeriod,
+    TimeUnit.MILLISECONDS
+  )
 
   // Create a connection and wrap it in our helper, which takes care of 'releasing the borrow' when the connection
   // is closed.
@@ -64,7 +126,14 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
         val maybeConn = conns.collectFirst {
           case conn if !connectionState(conn).borrowed =>
             // We found one connection that is not borrowed, so let's reuse it!
-            connectionState.put(conn, ConnectionState(borrowed = true, lastAccess = Instant.now()))
+            connectionState.put(
+              conn,
+              ConnectionState(
+                borrowed = true, // Mark the connection as borrowed.
+                lastBorrowed = Instant.now(), // Update the last borrowed time.
+                lastCheckIsAlive = connectionState(conn).lastCheckIsAlive // We haven't really checked its state yet.
+              )
+            )
             return conn
         }
 
@@ -100,7 +169,14 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
         case Some(conns) => connectionCache.put(jdbcUrl, conns + conn)
         case None => connectionCache.put(jdbcUrl, Set(conn))
       }
-      connectionState.put(conn, ConnectionState(borrowed = true, lastAccess = Instant.now()))
+      connectionState.put(
+        conn,
+        ConnectionState(
+          borrowed = true, // Mark the connection as borrowed.
+          lastBorrowed = Instant.now(), // Set the borrowed time.
+          lastCheckIsAlive = Instant.now() // We just created it, so we know it is working.
+        )
+      )
       connectionUrls.put(conn, jdbcUrl)
       conn
     }
@@ -116,12 +192,14 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
     connectionPoolLock.synchronized {
       // Find the oldest connection that is not borrowed/active.
       var oldestConnection: SqlConnection = null
-      var oldestConnectionLastAccess: Instant = null
+      var oldestConnectionLastBorrow: Instant = null
       connectionState.foreach {
         case (conn, state) =>
-          if (!state.borrowed && (oldestConnection == null || state.lastAccess.isBefore(oldestConnectionLastAccess))) {
+          if (
+            !state.borrowed && (oldestConnection == null || state.lastBorrowed.isBefore(oldestConnectionLastBorrow))
+          ) {
             oldestConnection = conn
-            oldestConnectionLastAccess = state.lastAccess
+            oldestConnectionLastBorrow = state.lastBorrowed
           }
       }
 
@@ -132,33 +210,38 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
 
       // Release the oldest connection we found, but only if it is older than the idle timeout.
       // This prevents very "new" connections from being released.
-      val oldestInstant = connectionState(oldestConnection).lastAccess
-      if (oldestInstant.isAfter(Instant.now().minusMillis(idleTimeout))) {
+      if (oldestConnectionLastBorrow.isAfter(Instant.now().minusMillis(idleTimeout))) {
         // Connection is "too new" to release.
         false
       } else {
         // Release the connection.
-        val jdbcUrl = connectionUrls(oldestConnection)
-        try {
-          // First try to actually close the connection (note the use of actuallyClose), then clean up all the state.
-          oldestConnection.actuallyClose()
-          connectionState.remove(oldestConnection)
-          connectionUrls.remove(oldestConnection)
-          connectionCache.get(jdbcUrl) match {
-            case Some(conns) =>
-              val nconns = conns - oldestConnection
-              if (nconns.isEmpty) connectionCache.remove(jdbcUrl)
-              else connectionCache.put(jdbcUrl, nconns)
-            case None => // Nothing to do.
-          }
-          true
-        } catch {
-          case NonFatal(t) =>
-            // We failed to release the connection.
-            // (Not sure why that could happen but coping with that case nonetheless...)
-            logger.warn("Failed to release oldest connection", t)
-            false
+        actuallyRemoveConnection(oldestConnection)
+      }
+    }
+  }
+
+  private def actuallyRemoveConnection(conn: SqlConnection): Boolean = {
+    logger.debug(s"Actually removing connection $conn")
+    connectionPoolLock.synchronized {
+      val jdbcUrl = connectionUrls(conn)
+      try {
+        // First try to actually close the connection (note the use of actuallyClose), then clean up all the state.
+        conn.actuallyClose()
+        connectionState.remove(conn)
+        connectionUrls.remove(conn)
+        connectionCache.get(jdbcUrl) match {
+          case Some(conns) =>
+            val nconns = conns - conn
+            if (nconns.isEmpty) connectionCache.remove(jdbcUrl)
+            else connectionCache.put(jdbcUrl, nconns)
+          case None => // Nothing to do.
         }
+        true
+      } catch {
+        case NonFatal(t) =>
+          // We failed to actually close the connection.
+          logger.warn(s"Failed to actually close the connection $conn", t)
+          false
       }
     }
   }
@@ -166,7 +249,14 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
   // This does not actually close the underlying connection; just makes it available for 'borrow' by future requests.
   def releaseConnection(conn: SqlConnection): Unit = {
     connectionPoolLock.synchronized {
-      connectionState.put(conn, ConnectionState(borrowed = false, lastAccess = Instant.now()))
+      connectionState.put(
+        conn,
+        ConnectionState(
+          borrowed = false, // Release the borrow.
+          lastBorrowed = connectionState(conn).lastBorrowed, // No update to borrow time since it wasn't borrowed now.
+          lastCheckIsAlive = Instant.now() // Since the connection was just used, we know it is working.
+        )
+      )
     }
   }
 
