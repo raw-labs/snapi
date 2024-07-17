@@ -34,6 +34,8 @@ final private case class ConnectionState(
  * established, it will synchronously try to remove the oldest connection that isn't currently borrowed by anyone.
  * In addition, it keeps a limit on the number of active connections to a single database - this is done to prevent a
  * single "user" from taking over all available slots.
+ * Finally, it has a background thread that checks the health state of connections in the pool; this picks up one
+ * connection at a time (that is not used recently), and uses the JDBC isValid(...) method to check its validity.
  */
 class SqlConnectionPool()(implicit settings: RawSettings) extends RawService with StrictLogging {
 
