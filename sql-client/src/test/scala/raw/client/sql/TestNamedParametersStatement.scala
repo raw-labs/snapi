@@ -19,6 +19,8 @@ import raw.client.api.{RawInt, RawString}
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
 import raw.utils._
 
+import java.sql.{Connection, ResultSet}
+
 class TestNamedParametersStatement
     extends RawTestSuite
     with ForAllTestContainer
@@ -28,6 +30,7 @@ class TestNamedParametersStatement
   override val container: PostgreSQLContainer = PostgreSQLContainer(
     dockerImageNameOverride = DockerImageName.parse("postgres:15-alpine")
   )
+
   private var connectionPool: SqlConnectionPool = _
   private var jdbcUrl: String = _
 
@@ -41,9 +44,6 @@ class TestNamedParametersStatement
     jdbcUrl = s"jdbc:postgresql://localhost:$dbPort/$dbName?user=$user&password=$password"
   }
 
-  private def mkPreparedStatement(code: String) =
-    new NamedParametersPreparedStatement(connectionPool.getConnection(jdbcUrl), parse(code))
-
   override def afterAll(): Unit = {
     if (connectionPool != null) {
       connectionPool.stop()
@@ -55,33 +55,59 @@ class TestNamedParametersStatement
   test("single parameter") { _ =>
     val code = "SELECT :v1 as arg"
 
-    val statement = mkPreparedStatement(code)
-    val rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
-    rs.next()
-    assert(rs.getString("arg") == "Hello!")
+    val conn = connectionPool.getConnection(jdbcUrl)
+    var statement: NamedParametersPreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      statement = mkPreparedStatement(conn, code)
+      rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
+      rs.next()
+      assert(rs.getString("arg") == "Hello!")
+    } finally {
+      if (rs != null) rs.close()
+      if (statement != null) statement.close()
+      conn.close()
+    }
   }
 
   test("SELECT :v::varchar AS greeting;") { _ =>
     val code = "SELECT :v::varchar AS greeting;"
-    val statement = mkPreparedStatement(code)
-    val rs = statement.executeWith(Seq("v" -> RawString("Hello!"))).right.get
+    val conn = connectionPool.getConnection(jdbcUrl)
+    var statement: NamedParametersPreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      statement = mkPreparedStatement(conn, code)
+      rs = statement.executeWith(Seq("v" -> RawString("Hello!"))).right.get
 
-    rs.next()
-    assert(rs.getString("greeting") == "Hello!")
-
+      rs.next()
+      assert(rs.getString("greeting") == "Hello!")
+    } finally {
+      if (rs != null) rs.close()
+      if (statement != null) statement.close()
+      conn.close()
+    }
   }
 
   test("several parameters") { _ =>
     val code = "SELECT :v1::varchar,:v2::int,:v1"
-    val statement = mkPreparedStatement(code)
-    val metadata = statement.queryMetadata.right.get
-    assert(metadata.parameters.keys == Set("v1", "v2"))
+    val conn = connectionPool.getConnection(jdbcUrl)
+    var statement: NamedParametersPreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      statement = mkPreparedStatement(conn, code)
+      val metadata = statement.queryMetadata.right.get
+      assert(metadata.parameters.keys == Set("v1", "v2"))
 
-    val rs = statement.executeWith(Seq("v1" -> RawString("Lisbon"), "v2" -> RawInt(1))).right.get
-    rs.next()
-    assert(rs.getString(1) == "Lisbon")
-    assert(rs.getInt(2) == 1)
-    assert(rs.getString(3) == "Lisbon")
+      rs = statement.executeWith(Seq("v1" -> RawString("Lisbon"), "v2" -> RawInt(1))).right.get
+      rs.next()
+      assert(rs.getString(1) == "Lisbon")
+      assert(rs.getInt(2) == 1)
+      assert(rs.getString(3) == "Lisbon")
+    } finally {
+      if (rs != null) rs.close()
+      if (statement != null) statement.close()
+      conn.close()
+    }
   }
 
   test("skip parameters in comments") { _ =>
@@ -89,35 +115,65 @@ class TestNamedParametersStatement
       | :foo
       |*/
       |SELECT :v1 as arg  -- neither this one :bar """.stripMargin
-    val statement = mkPreparedStatement(code)
-    val rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
-
-    rs.next()
-    assert(rs.getString("arg") == "Hello!")
+    val conn = connectionPool.getConnection(jdbcUrl)
+    var statement: NamedParametersPreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      statement = mkPreparedStatement(conn, code)
+      rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
+      rs.next()
+      assert(rs.getString("arg") == "Hello!")
+    } finally {
+      if (rs != null) rs.close()
+      if (statement != null) statement.close()
+      conn.close()
+    }
   }
 
   test("skip parameter in string") { _ =>
     val code = """SELECT ':foo' as v1, :bar as v2""".stripMargin
-    val statement = mkPreparedStatement(code)
-    val metadata = statement.queryMetadata.right.get
-    assert(metadata.parameters.keys == Set("bar"))
-    val rs = statement.executeWith(Seq("bar" -> RawString("Hello!"))).right.get
+    val conn = connectionPool.getConnection(jdbcUrl)
+    var statement: NamedParametersPreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      statement = mkPreparedStatement(conn, code)
+      val metadata = statement.queryMetadata.right.get
+      assert(metadata.parameters.keys == Set("bar"))
+      rs = statement.executeWith(Seq("bar" -> RawString("Hello!"))).right.get
 
-    rs.next()
-    assert(rs.getString("v1") == ":foo")
-    assert(rs.getString("v2") == "Hello!")
+      rs.next()
+      assert(rs.getString("v1") == ":foo")
+      assert(rs.getString("v2") == "Hello!")
+    } finally {
+      if (rs != null) rs.close()
+      if (statement != null) statement.close()
+      conn.close()
+    }
   }
 
   test("RD-10681 SQL fails to validate string with json ") { _ =>
     val code = """ SELECT '[1, 2, "3", {"a": "Hello"}]' as arg""".stripMargin
-    val statement = mkPreparedStatement(code)
-    val metadata = statement.queryMetadata
-    assert(metadata.isRight)
-    assert(metadata.right.get.parameters.isEmpty)
-    val rs = statement.executeWith(Seq.empty).right.get
+    val conn = connectionPool.getConnection(jdbcUrl)
+    var statement: NamedParametersPreparedStatement = null
+    var rs: ResultSet = null
+    try {
+      statement = mkPreparedStatement(conn, code)
+      val metadata = statement.queryMetadata
+      assert(metadata.isRight)
+      assert(metadata.right.get.parameters.isEmpty)
+      rs = statement.executeWith(Seq.empty).right.get
 
-    rs.next()
-    assert(rs.getString("arg") == """[1, 2, "3", {"a": "Hello"}]""")
+      rs.next()
+      assert(rs.getString("arg") == """[1, 2, "3", {"a": "Hello"}]""")
+    } finally {
+      if (rs != null) rs.close()
+      if (statement != null) statement.close()
+      conn.close()
+    }
+  }
+
+  private def mkPreparedStatement(conn: Connection, code: String) = {
+    new NamedParametersPreparedStatement(conn, parse(code))
   }
 
   private def parse(sourceCode: String) = {
@@ -125,4 +181,5 @@ class TestNamedParametersStatement
     val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
     syntaxAnalyzer.parse(sourceCode)
   }
+
 }
