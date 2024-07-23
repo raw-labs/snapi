@@ -94,7 +94,7 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
               logger.debug(s"Connection $conn is healthy")
               // All good, so release borrow.
               // This will update the last check is alive time.
-              releaseConnection(conn)
+              releaseConnection(conn, isAlive = true)
             } else {
               logger.debug(s"Connection $conn is not healthy; removing it.")
               // Did not validate, so remove it from list.
@@ -252,14 +252,15 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
   }
 
   // This does not actually close the underlying connection; just makes it available for 'borrow' by future requests.
-  def releaseConnection(conn: SqlConnection): Unit = {
+  def releaseConnection(conn: SqlConnection, isAlive: Boolean): Unit = {
     connectionPoolLock.synchronized {
       connectionState.put(
         conn,
         ConnectionState(
           borrowed = false, // Release the borrow.
           lastBorrowed = connectionState(conn).lastBorrowed, // No update to borrow time since it wasn't borrowed now.
-          lastCheckIsAlive = Instant.now() // Since the connection was just used, we know it is working.
+          lastCheckIsAlive =
+            if (isAlive) Instant.now() else connectionState(conn).lastCheckIsAlive // Update if we know it is alive.
         )
       )
     }

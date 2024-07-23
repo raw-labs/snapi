@@ -34,7 +34,10 @@ class SqlConnection(connectionPool: SqlConnectionPool, conn: Connection) extends
 
   override def close(): Unit = {
     // We do not ACTUALLY close the connection; instead, we just release the borrow.
-    connectionPool.releaseConnection(this)
+    connectionPool.releaseConnection(
+      this,
+      isAlive = false //  We are not sure if the connection is alive or not, e.g. it could be closed because it failed.
+    )
   }
 
   // This is called by the connection pool when we *actually* want to close the connection.
