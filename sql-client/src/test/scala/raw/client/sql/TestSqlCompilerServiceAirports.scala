@@ -956,4 +956,17 @@ class TestSqlCompilerServiceAirports
     assert(v.messages.size == 1)
     assert(v.messages(0).message == "non-executable code")
   }
+
+  test("""select
+    |  airport_id,
+    |  city,
+    |  country.name 'cname'
+    |from
+    |  example.airports
+    |limit 10;
+    |""".stripMargin) { t =>
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.size == 1)
+    assert(v.messages(0).message == "schema \"country\" does not exist")
+  }
 }
