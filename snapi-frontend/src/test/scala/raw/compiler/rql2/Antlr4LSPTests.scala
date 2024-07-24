@@ -228,4 +228,12 @@ class Antlr4LSPTests extends RawTestSuite {
     )
   }
 
+  test("RD11199") { _ =>
+    val prog = "Collection.Transform(Int.Range(1, 100000), -="
+    val result = parseWithAntlr4(prog)
+    assert(
+      result.errors(0).message == "the input does not form a valid statement or expression."
+    )
+  }
+
 }
