@@ -319,7 +319,7 @@ class RawSnapiVisitor(
         .getOrElse((IdnDef(""), Option.empty))
 
       val exp =
-        Option(context.expr()).map(exprContext => Option(visit(exprContext)).getOrElse(ErrorExp).asInstanceOf[Exp])
+        Option(context.expr()).map(exprContext => Option(visit(exprContext)).getOrElse(ErrorExp()).asInstanceOf[Exp])
 
       val result = FunParam(
         tupple._1,
@@ -347,7 +347,7 @@ class RawSnapiVisitor(
     .flatMap { context =>
       Option(context.expr()).map { exprContext =>
         val result: FunAppArg =
-          FunAppArg(Option(visit(exprContext)).getOrElse(ErrorExp).asInstanceOf[Exp], Option.empty)
+          FunAppArg(Option(visit(exprContext)).getOrElse(ErrorExp()).asInstanceOf[Exp], Option.empty)
         positionsWrapper.setPosition(context, result)
         result
       }
