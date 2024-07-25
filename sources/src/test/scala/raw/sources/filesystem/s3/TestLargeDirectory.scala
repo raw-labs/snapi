@@ -14,17 +14,11 @@ package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.BeforeAndAfterAll
-import raw.creds.s3.S3TestCreds
 import raw.utils.{RawTestSuite, SettingsTestContext}
 
 import scala.collection.mutable
 
-class TestLargeDirectory
-    extends RawTestSuite
-    with BeforeAndAfterAll
-    with SettingsTestContext
-    with StrictLogging
-    with S3TestCreds {
+class TestLargeDirectory extends RawTestSuite with BeforeAndAfterAll with SettingsTestContext with StrictLogging {
 
   val prefix = "large-folder"
 
@@ -39,7 +33,12 @@ class TestLargeDirectory
 
   test("list large directory") { _ =>
     val expected = genDataset(prefix)
-    val s3FileSystem = new S3FileSystem(UnitTestPrivateBucket)
+    val s3FileSystem = new S3FileSystem(
+      "rawlabs-private-test-data",
+      Some("eu-west-1"),
+      Some(sys.env("RAW_AWS_ACCESS_KEY_ID")),
+      Some(sys.env("RAW_AWS_SECRET_ACCESS_KEY"))
+    )
     val iterator = s3FileSystem.listContentsWithMetadata(prefix)
     val actual = new mutable.HashSet[String]()
     for ((file, md) <- iterator) {

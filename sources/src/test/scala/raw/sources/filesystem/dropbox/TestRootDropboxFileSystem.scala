@@ -13,13 +13,12 @@
 package raw.sources.filesystem.dropbox
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.creds.dropbox.DropboxTestCreds
 import raw.utils.{RawTestSuite, SettingsTestContext}
 
-class TestRootDropboxFileSystem extends RawTestSuite with DropboxTestCreds with SettingsTestContext with StrictLogging {
+class TestRootDropboxFileSystem extends RawTestSuite with SettingsTestContext with StrictLogging {
 
   test("list /") { _ =>
-    val fs = new DropboxFileSystem(bearerToken)
+    val fs = new DropboxFileSystem(sys.env("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN"))
     logger.debug("Result: " + fs.listContents("/").toList)
     assert(fs.listContents("/").nonEmpty)
   }

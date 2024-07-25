@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.api
+package raw.sources.bytestream.http
 
 import com.sun.net.httpserver.{Authenticator, BasicAuthenticator, HttpExchange, HttpHandler, HttpServer}
 import com.typesafe.scalalogging.StrictLogging

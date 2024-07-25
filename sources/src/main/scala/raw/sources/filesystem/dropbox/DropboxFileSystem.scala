@@ -30,7 +30,7 @@ object DropboxFileSystem {
 }
 
 // TODO (msb): Catch unauthorized and throw specific exception?
-class DropboxFileSystem(client: DbxClientV2) extends BaseFileSystem {
+class DropboxFileSystem(private[raw] val client: DbxClientV2) extends BaseFileSystem {
 
   def this(accessToken: String)(implicit settings: RawSettings) = this(
     new DbxClientV2(

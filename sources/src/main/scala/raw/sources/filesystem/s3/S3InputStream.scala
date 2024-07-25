@@ -19,7 +19,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InterruptedIOException
 
-class RawS3InputStream(s3ObjectInputStream: ResponseInputStream[GetObjectResponse]) extends InputStream {
+class S3InputStream(s3ObjectInputStream: ResponseInputStream[GetObjectResponse]) extends InputStream {
 
   @throws[IOException]
   override def read(): Int = withInterruptedCheck(s3ObjectInputStream.read())

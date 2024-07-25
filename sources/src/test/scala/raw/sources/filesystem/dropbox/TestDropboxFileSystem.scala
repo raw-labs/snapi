@@ -13,24 +13,23 @@
 package raw.sources.filesystem.dropbox
 
 import raw.utils.RawTestSuite
-import raw.creds.dropbox.DropboxTestCreds
 import raw.sources.filesystem.api.{FileSystem, TestFileSystems}
 
 import java.io.ByteArrayInputStream
 import scala.util.Try
 
-class TestDropboxFileSystem extends RawTestSuite with TestFileSystems with DropboxTestCreds {
+class TestDropboxFileSystem extends RawTestSuite with TestFileSystems {
 
   override val basePath = "/dropbox-test"
 
-  val dropboxClient = DropboxFileSystem.buildDbxClientV2(bearerToken)
+  val dropboxClient = new DropboxFileSystem(sys.env("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN"))
 
-  override def newFileSystem: FileSystem = new DropboxFileSystem(bearerToken)
+  override def newFileSystem: FileSystem = dropboxClient
 
   override def writeTestFile(fs: FileSystem, parts: String*): Unit = {
-    Try(dropboxClient.files().createFolderV2(basePath))
+    Try(dropboxClient.client.files().createFolderV2(basePath))
     val in = new ByteArrayInputStream(Array[Byte]())
-    Try(dropboxClient.files().uploadBuilder(buildPath(fs, parts.mkString(fs.fileSeparator))).uploadAndFinish(in))
+    Try(dropboxClient.client.files().uploadBuilder(buildPath(fs, parts.mkString(fs.fileSeparator))).uploadAndFinish(in))
   }
 
 }

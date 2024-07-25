@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.api
+package raw.sources.bytestream.http
 
 trait HttpLocationsTestContext {
 

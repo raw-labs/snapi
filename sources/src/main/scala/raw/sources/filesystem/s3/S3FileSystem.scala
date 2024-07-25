@@ -209,7 +209,7 @@ class S3FileSystem(
 
   override def getInputStream(file: String): InputStream = {
     try {
-      new RawS3InputStream(getS3Object(sanitizePath(file)))
+      new S3InputStream(getS3Object(sanitizePath(file)))
     } catch {
       case ex: PathNotFoundException =>
         // If there are contents, then try as "directory", which may throw exception
