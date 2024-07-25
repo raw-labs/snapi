@@ -47,7 +47,7 @@ trait TestS3FileSystem extends TestFileSystems {
       .build()
   }
 
-  override val newFileSystem: FileSystem =
+  override lazy val newFileSystem: FileSystem =
     new S3FileSystem(bucketName, Some(bucketRegion), Some(bucketAccessKey), Some(bucketSecretKey))
 
   override def writeTestFile(fs: FileSystem, parts: String*): Unit = {
