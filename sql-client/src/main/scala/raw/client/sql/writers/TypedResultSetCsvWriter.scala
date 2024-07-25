@@ -33,7 +33,7 @@ object TypedResultSetCsvWriter {
 
 }
 
-class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String) {
+class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String, maxRows: Option[Long]) {
 
   final private val gen =
     try {
@@ -57,6 +57,10 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String) {
   final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
   final private val timestampFormatterNoMs = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
+  private var maxRowsReached = false
+
+  def complete: Boolean = !maxRowsReached
+
   @throws[IOException]
   def write(resultSet: ResultSet, t: RawType): Unit = {
     val RawIterableType(RawRecordType(atts, _, _), _, _) = t
@@ -69,13 +73,19 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String) {
     }
     gen.setSchema(schemaBuilder.build())
     gen.enable(STRICT_CHECK_FOR_QUOTING)
-    while (resultSet.next()) {
-      gen.writeStartObject()
-      for (i <- 0 until distincted.size()) {
-        gen.writeFieldName(distincted.get(i))
-        writeValue(resultSet, i + 1, atts(i).tipe)
+    var rowsWritten = 0L
+    while (resultSet.next() && !maxRowsReached) {
+      if (maxRows.isDefined && rowsWritten >= maxRows.get) {
+        maxRowsReached = true
+      } else {
+        gen.writeStartObject()
+        for (i <- 0 until distincted.size()) {
+          gen.writeFieldName(distincted.get(i))
+          writeValue(resultSet, i + 1, atts(i).tipe)
+        }
+        gen.writeEndObject()
+        rowsWritten += 1
       }
-      gen.writeEndObject()
     }
   }
 

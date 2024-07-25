@@ -33,7 +33,7 @@ object TypedResultSetJsonWriter {
 
 }
 
-class TypedResultSetJsonWriter(os: OutputStream) {
+class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
 
   final private val gen =
     try {
@@ -49,6 +49,10 @@ class TypedResultSetJsonWriter(os: OutputStream) {
   final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
   final private val mapper = new ObjectMapper();
 
+  private var maxRowsReached = false
+
+  def complete: Boolean = !maxRowsReached
+
   @throws[IOException]
   def write(resultSet: ResultSet, t: RawType): Unit = {
     val RawIterableType(RawRecordType(atts, _, _), _, _) = t
@@ -56,15 +60,21 @@ class TypedResultSetJsonWriter(os: OutputStream) {
     atts.foreach(a => keys.add(a.idn))
     val distincted = RecordFieldsNaming.makeDistinct(keys)
     gen.writeStartArray()
-    while (resultSet.next()) {
-      gen.writeStartObject()
-      for (i <- 0 until distincted.size()) {
-        val field = distincted.get(i)
-        val t = atts(i).tipe
-        gen.writeFieldName(field)
-        writeValue(resultSet, i + 1, t)
+    var rowsWritten = 0L
+    while (resultSet.next() && !maxRowsReached) {
+      if (maxRows.isDefined && rowsWritten >= maxRows.get) {
+        maxRowsReached = true
+      } else {
+        gen.writeStartObject()
+        for (i <- 0 until distincted.size()) {
+          val field = distincted.get(i)
+          val t = atts(i).tipe
+          gen.writeFieldName(field)
+          writeValue(resultSet, i + 1, t)
+        }
+        gen.writeEndObject()
+        rowsWritten += 1
       }
-      gen.writeEndObject()
     }
     gen.writeEndArray()
   }

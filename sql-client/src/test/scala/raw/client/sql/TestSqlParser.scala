@@ -624,4 +624,31 @@ class TestSqlParser extends AnyFunSuite {
     }
   }
 
+  test("newline after comment") {
+    val code = """select
+      |  id,
+      |  key,
+      |  summary,
+      |  project_key,
+      |  status,
+      |  assignee_display_name,
+      |  assignee_account_id
+      |from
+      |  "jira-danai".jira_backlog_issue
+      |  limit 2
+      |--where
+      |-- assignee_display_name = 'yann';
+      | """.stripMargin
+    val result = doTest(code)
+    checkStartEnd(result)
+  }
+
+  private def checkStartEnd(result: ParseProgramResult) = {
+    val SqlProgramNode(stmt) = result.tree
+    assert(result.positions.getStart(stmt).isDefined)
+    assert(result.positions.getFinish(stmt).isDefined)
+    assert(result.positions.getStart(stmt).flatMap(_.optOffset).isDefined)
+    assert(result.positions.getFinish(stmt).flatMap(_.optOffset).isDefined)
+  }
+
 }

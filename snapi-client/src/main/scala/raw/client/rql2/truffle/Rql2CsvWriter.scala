@@ -47,7 +47,7 @@ import java.util.Base64
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
-final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Closeable {
+final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Option[Long]) extends Closeable {
 
   final private val gen =
     try {
@@ -73,6 +73,10 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Close
   final private val tryable = Rql2IsTryableTypeProperty()
   final private val nullable = Rql2IsNullableTypeProperty()
 
+  private var maxRowsReached = false
+
+  def complete: Boolean = !maxRowsReached
+
   @throws[IOException]
   def write(v: Value, t: Rql2TypeWithProperties): Unit = {
     if (t.props.contains(tryable)) {
@@ -97,9 +101,15 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Close
           gen.setSchema(schemaBuilder.build)
           gen.enable(STRICT_CHECK_FOR_QUOTING)
           val iterator = v.getIterator
-          while (iterator.hasIteratorNextElement) {
-            val next = iterator.getIteratorNextElement
-            writeColumns(next, recordType)
+          var rowsWritten = 0L
+          while (iterator.hasIteratorNextElement && !maxRowsReached) {
+            if (maxRows.isDefined && rowsWritten >= maxRows.get) {
+              maxRowsReached = true
+            } else {
+              val next = iterator.getIteratorNextElement
+              writeColumns(next, recordType)
+              rowsWritten += 1
+            }
           }
         case Rql2ListType(recordType: Rql2RecordType, _) =>
           val columnNames = recordType.atts.map(_.idn)
@@ -109,10 +119,12 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String) extends Close
           gen.setSchema(schemaBuilder.build)
           gen.enable(STRICT_CHECK_FOR_QUOTING)
           val size = v.getArraySize
-          for (i <- 0L until size) {
+          for (i <- 0L until Math.min(size, maxRows.getOrElse(Long.MaxValue))) {
             val next = v.getArrayElement(i)
             writeColumns(next, recordType)
           }
+          // Check if maxRows is reached.
+          maxRows.foreach(max => maxRowsReached = size > max)
         case _ => throw new IOException("unsupported type")
       }
     }

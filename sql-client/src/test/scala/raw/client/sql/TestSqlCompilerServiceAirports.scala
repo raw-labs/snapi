@@ -371,7 +371,7 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == ExecutionSuccess
+      ) == ExecutionSuccess(true)
     )
     assert(
       baos.toString() ==
@@ -416,7 +416,7 @@ class TestSqlCompilerServiceAirports
         environment,
         None,
         baos
-      ) == ExecutionSuccess
+      ) == ExecutionSuccess(true)
     )
     assert(
       baos.toString() ==
@@ -448,7 +448,7 @@ class TestSqlCompilerServiceAirports
         environment,
         None,
         baos
-      ) == ExecutionSuccess
+      ) == ExecutionSuccess(true)
     )
     assert(baos.toString() == "[]")
   }
@@ -483,7 +483,7 @@ class TestSqlCompilerServiceAirports
         environment,
         None,
         baos
-      ) == ExecutionSuccess
+      ) == ExecutionSuccess(true)
     )
     assert(baos.toString() == """[{"n":6}]""")
   }
@@ -601,7 +601,7 @@ class TestSqlCompilerServiceAirports
     assert(!description.maybeRunnable.get.params.get.head.required)
     assert(description.maybeRunnable.get.params.get.head.defaultValue.contains(RawInt(2)))
     val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"v":4}]""")
   }
 
@@ -665,13 +665,13 @@ class TestSqlCompilerServiceAirports
     assert(param.defaultValue.isEmpty)
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, withCity, None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, withCity, None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"count":1}]""")
     baos.reset()
-    assert(compilerService.execute(t.q, withNull, None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, withNull, None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"count":0}]""")
     baos.reset()
-    assert(compilerService.execute(t.q, withCountry, None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, withCountry, None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"count":39}]""")
   }
 
@@ -699,10 +699,10 @@ class TestSqlCompilerServiceAirports
     assert(param.defaultValue.isEmpty)
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, withCity, None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, withCity, None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"count":1}]""")
     baos.reset()
-    assert(compilerService.execute(t.q, withNull, None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, withNull, None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"count":3}]""")
   }
 
@@ -775,7 +775,7 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == ExecutionSuccess
+      ) == ExecutionSuccess(true)
     )
     assert(
       baos.toString() ==
@@ -806,7 +806,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"count":8107}]""")
   }
 
@@ -818,7 +818,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"count":8107}]""")
   }
 
@@ -832,7 +832,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess(true))
     assert(baos.toString() == """[{"count":8107}]""")
   }
 
@@ -899,7 +899,7 @@ class TestSqlCompilerServiceAirports
       assert(compilerService.validate(q, env).messages.isEmpty)
       val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(q, env)
       baos.reset()
-      assert(compilerService.execute(q, env, None, baos) == ExecutionSuccess)
+      assert(compilerService.execute(q, env, None, baos) == ExecutionSuccess(true))
       baos.toString
     }
 //    assert(runWith("SELECT e.airport_id FROM example.airports e", Set.empty) == """[]""")
@@ -934,5 +934,26 @@ class TestSqlCompilerServiceAirports
       runWith(q, Set("DEV"))
         == """[{"trip_id":0,"departure_date":"2016-02-27","arrival_date":"2016-03-06"}]"""
     )
+  }
+
+  test("""-- @param p
+    |-- @type p integer
+    |-- SELECT :p + 10;
+    |""".stripMargin) { t =>
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.size == 1)
+    assert(v.messages(0).message == "non-executable code")
+  }
+
+  test("""CREATE TABLE Persons (
+    |    ID int NOT NULL,
+    |    LastName varchar(255) NOT NULL,
+    |    FirstName varchar(255),
+    |    Age int,
+    |    PRIMARY KEY (ID)
+    |);""".stripMargin) { t =>
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.size == 1)
+    assert(v.messages(0).message == "non-executable code")
   }
 }
