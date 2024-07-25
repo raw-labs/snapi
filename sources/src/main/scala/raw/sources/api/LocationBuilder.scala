@@ -12,41 +12,24 @@
 
 package raw.sources.api
 
-import raw.client.api.{MapOptionValue, OptionType, OptionValue, StringOptionValue}
-
 import scala.util.matching.Regex
+
+final case class OptionDefinition(
+    name: String,
+    optionType: OptionType,
+    mandatory: Boolean
+)
 
 trait LocationBuilder {
 
   def schemes: Seq[String]
 
-  def regex: Regex
+  def validOptions: Seq[OptionDefinition]
 
-  def validOptions: Map[String, OptionType]
+  def build(desc: LocationDescription)(implicit sourceContext: SourceContext): Location
 
-  def build(groups: List[String], options: Map[String, OptionValue])(implicit sourceContext: SourceContext): Location
-
-  protected def getStringOption(options: Map[String, OptionValue], key: String): String = {
-    options.get(key) match {
-      case Some(StringOptionValue(value)) => value
-      case Some(_) => throw new LocationException(s"$key must be a string")
-      case None => throw new LocationException(s"$key is required")
-    }
-  }
-
-  protected def getMapStringToStringOption(options: Map[String, OptionValue], key: String): Map[String, String] = {
-    options.get(key) match {
-      case Some(MapOptionValue(map)) => map.map {
-          case (StringOptionValue(k), v) =>
-            val nv = v match {
-              case StringOptionValue(v1) => v1
-              case _ => throw new LocationException(s"$key must be a map of string to string")
-            }
-            k -> nv
-        }
-      case Some(_) => throw new LocationException(s"$key must be a map of string to string")
-      case None => throw new LocationException(s"$key is required")
-    }
+  protected def getRegexMatchingGroups(url: String, regex: Regex): List[String] = {
+    regex.findFirstMatchIn(url).map(_.subgroups).getOrElse(throw new LocationException(s"invalid URL for source: $url"))
   }
 
 }

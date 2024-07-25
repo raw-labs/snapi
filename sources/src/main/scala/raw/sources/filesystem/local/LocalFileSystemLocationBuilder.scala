@@ -12,8 +12,7 @@
 
 package raw.sources.filesystem.local
 
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{OptionType, OptionValue}
+import raw.sources.api.{LocationDescription, LocationException, OptionDefinition, SourceContext}
 import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
 
 import scala.util.matching.Regex
@@ -24,18 +23,20 @@ object LocalFileSystemLocationBuilder {
 
 class LocalFileSystemLocationBuilder extends FileSystemLocationBuilder {
 
+  import LocalFileSystemLocationBuilder._
+
   override def schemes: Seq[String] = Seq("file")
 
-  override def regex: Regex = LocalFileSystemLocationBuilder.REGEX
+  override def validOptions: Seq[OptionDefinition] = Seq.empty
 
-  override def validOptions: Map[String, OptionType] = Map.empty
-
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): FileSystemLocation = {
-    val url = groups(0)
-    val f = url.stripPrefix("file:")
-    if (f.nonEmpty) new LocalPath(url.stripPrefix("file:"))
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
+    val localUrl = groups(0)
+    val f = localUrl.stripPrefix("file:")
+    if (f.nonEmpty) new LocalPath(f)
     else throw new LocationException("not a local location")
   }
 

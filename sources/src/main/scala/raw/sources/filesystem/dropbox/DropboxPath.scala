@@ -12,7 +12,7 @@
 
 package raw.sources.filesystem.dropbox
 
-import raw.client.api._
+import raw.sources.api._
 import raw.sources.bytestream.api.{ByteStreamException, SeekableInputStream}
 import raw.sources.filesystem.api._
 

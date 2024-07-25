@@ -12,11 +12,8 @@
 
 package raw.sources.jdbc.teradata
 
-import raw.client.api.{MapOptionType, OptionType, OptionValue, StringOptionType}
-import raw.sources.api.SourceContext
+import raw.sources.api.{LocationDescription, MapOptionType, OptionDefinition, SourceContext, StringOptionType}
 import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
-
-import scala.util.matching.Regex
 
 object TeradataTableLocationBuilder {
   private val REGEX = """teradata:(?://)?([^:/]+)(?::(\d+))?/([^/]+)/([^/]+)/([^/]+)""".r
@@ -32,21 +29,21 @@ class TeradataTableLocationBuilder extends JdbcTableLocationBuilder {
 
   override def schemes: Seq[String] = Seq("teradata")
 
-  override def regex: Regex = REGEX
-
-  override def validOptions: Map[String, OptionType] = Map(
-    CONFIG_USERNAME -> StringOptionType,
-    CONFIG_PASSWORD -> StringOptionType,
-    CONFIG_PARAMETERS -> MapOptionType(StringOptionType, StringOptionType)
+  override def validOptions: Seq[OptionDefinition] = Seq(
+    OptionDefinition(CONFIG_USERNAME, StringOptionType, mandatory = true),
+    OptionDefinition(CONFIG_PASSWORD, StringOptionType, mandatory = true),
+    OptionDefinition(CONFIG_PARAMETERS, MapOptionType(StringOptionType, StringOptionType), mandatory = false)
   )
 
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): JdbcTableLocation = {
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
     val List(host, portOrNull, dbName, schema, table) = groups
-    val username = getStringOption(options, CONFIG_USERNAME)
-    val password = getStringOption(options, CONFIG_PASSWORD)
-    val parameters = getMapStringToStringOption(options, CONFIG_PARAMETERS)
+    val username = desc.getString(CONFIG_USERNAME)
+    val password = desc.getString(CONFIG_PASSWORD)
+    val parameters = desc.getMapStringStringOpt(CONFIG_PARAMETERS).getOrElse(Map.empty)
     val port = if (portOrNull == null) 1025 else portOrNull.toInt
     val db = new TeradataClient(host, port, dbName, username, password, parameters)(sourceContext.settings)
     new TeradataTable(db, dbName, schema, table)

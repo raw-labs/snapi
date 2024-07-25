@@ -12,12 +12,10 @@
 
 package raw.sources.jdbc.sqlite
 
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{OptionType, OptionValue}
+import raw.sources.api.{LocationDescription, LocationException, OptionDefinition, SourceContext}
 import raw.sources.jdbc.api.{JdbcLocation, JdbcLocationBuilder}
 
 import java.nio.file.{InvalidPathException, Paths}
-import scala.util.matching.Regex
 
 object SqliteLocationBuilder {
   private val REGEX = """mysql:(?://)?([^?]+)\?db=([^&]+)""".r
@@ -29,13 +27,13 @@ class SqliteLocationBuilder extends JdbcLocationBuilder {
 
   override def schemes: Seq[String] = Seq("sqlite")
 
-  override def regex: Regex = REGEX
+  override def validOptions: Seq[OptionDefinition] = Seq.empty
 
-  override def validOptions: Map[String, OptionType] = Map.empty
-
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): JdbcLocation = {
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
     val List(path, dbName) = groups
     val localPath =
       try {

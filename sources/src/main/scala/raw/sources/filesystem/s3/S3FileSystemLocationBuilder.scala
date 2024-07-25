@@ -14,8 +14,7 @@ package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
-import raw.sources.api.SourceContext
-import raw.client.api.{OptionType, OptionValue, StringOptionType}
+import raw.sources.api.{LocationDescription, OptionDefinition, SourceContext, StringOptionType}
 
 object S3FileSystemLocationBuilder {
   private val REGEX = """s3:(?://)?([a-z\d][-a-z\d.]*)(/.*)?""".r
@@ -30,25 +29,25 @@ class S3FileSystemLocationBuilder extends FileSystemLocationBuilder with StrictL
 
   override def schemes: Seq[String] = Seq("s3")
 
-  override def regex: scala.util.matching.Regex = REGEX
-
-  override def validOptions: Map[String, OptionType] = Map(
-    OPTION_REGION -> StringOptionType,
-    OPTION_ACCESS_KEY -> StringOptionType,
-    OPTION_SECRET_KEY -> StringOptionType
+  override def validOptions: Seq[OptionDefinition] = Seq(
+    OptionDefinition(OPTION_REGION, StringOptionType, mandatory = false),
+    OptionDefinition(OPTION_ACCESS_KEY, StringOptionType, mandatory = false),
+    OptionDefinition(OPTION_SECRET_KEY, StringOptionType, mandatory = false)
   )
 
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): FileSystemLocation = {
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
     val bucket = groups(0)
     val key = groups(1)
     val nonNullKey = if (key == null) "" else key
-    val maybeRegion = getStringOption(options, OPTION_REGION)
-    val maybeAccessKey = getStringOption(options, OPTION_ACCESS_KEY)
-    val maybeSecretKey = getStringOption(options, OPTION_SECRET_KEY)
+    val maybeRegion = desc.getStringOpt(OPTION_REGION)
+    val maybeAccessKey = desc.getStringOpt(OPTION_ACCESS_KEY)
+    val maybeSecretKey = desc.getStringOpt(OPTION_SECRET_KEY)
     val cli = new S3FileSystem(bucket, maybeRegion, maybeAccessKey, maybeSecretKey)(sourceContext.settings)
-    new S3Path(cli, nonNullKey, options)
+    new S3Path(cli, nonNullKey, desc.options)
   }
 
 }

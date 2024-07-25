@@ -15,10 +15,7 @@ package raw.sources.filesystem.mock
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{OptionType, OptionValue}
-
-import scala.util.matching.Regex
+import raw.sources.api.{LocationDescription, LocationException, OptionDefinition, SourceContext}
 
 object MockFileSystemLocationBuilder {
   private val REGEX = "mock:(?://)?([^:]+):(.*)".r
@@ -29,22 +26,26 @@ class MockFileSystemLocationBuilder extends FileSystemLocationBuilder with Stric
 
   override def schemes: Seq[String] = Seq("mock")
 
-  override def regex: Regex = REGEX
+  override def validOptions: Seq[OptionDefinition] = Seq.empty
 
-  override def validOptions: Map[String, OptionType] = Map.empty
-
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): FileSystemLocation = {
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
+    if (groups.length != 2) {
+      throw new LocationException(s"invalid URL for mock source: $url")
+    }
     val properties = groups(0)
-    val url = groups(1)
+    val underlyingUrl = groups(1)
     try {
       val parser = ConfigFactory.parseString(properties)
       val delay = parser.getDuration("delay").toMillis
-      val delegate = sourceContext.getFileSystem(url, options)
+      val underlyingLocation = LocationDescription(underlyingUrl, desc.options)
+      val delegate = sourceContext.getFileSystem(underlyingLocation)
       new MockPath(delay, delegate)
     } catch {
-      case ex: ConfigException => throw new LocationException(s"not a mock location: $url", ex)
+      case ex: ConfigException => throw new LocationException(s"not a mock location: $underlyingUrl", ex)
     }
   }
 }

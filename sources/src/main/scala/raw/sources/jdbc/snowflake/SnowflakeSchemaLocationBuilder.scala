@@ -12,11 +12,8 @@
 
 package raw.sources.jdbc.snowflake
 
-import raw.client.api.{OptionType, OptionValue, StringOptionType}
-import raw.sources.api.SourceContext
+import raw.sources.api.{LocationDescription, MapOptionType, OptionDefinition, SourceContext, StringOptionType}
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
-
-import scala.util.matching.Regex
 
 object SnowflakeSchemaLocationBuilder {
   private val REGEX = """snowflake:(?://)?([^/]+)/([^/]+)""".r
@@ -33,21 +30,23 @@ class SnowflakeSchemaLocationBuilder extends JdbcSchemaLocationBuilder {
 
   override def schemes: Seq[String] = Seq("snowflake")
 
-  override def regex: Regex = REGEX
-
-  override def validOptions: Map[String, OptionType] = Map(
-    CONFIG_USERNAME -> StringOptionType,
-    CONFIG_PASSWORD -> StringOptionType
+  override def validOptions: Seq[OptionDefinition] = Seq(
+    OptionDefinition(CONFIG_USERNAME, StringOptionType, mandatory = true),
+    OptionDefinition(CONFIG_PASSWORD, StringOptionType, mandatory = true),
+    OptionDefinition(CONFIG_ACCOUNT_IDENTIFIER, StringOptionType, mandatory = true),
+    OptionDefinition(CONFIG_PARAMETERS, MapOptionType(StringOptionType, StringOptionType), mandatory = false)
   )
 
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): JdbcSchemaLocation = {
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
     val List(host, dbName, schema) = groups
-    val username = getStringOption(options, CONFIG_USERNAME)
-    val password = getStringOption(options, CONFIG_PASSWORD)
-    val accountIdentifier = getStringOption(options, CONFIG_ACCOUNT_IDENTIFIER)
-    val parameters = getMapStringToStringOption(options, CONFIG_PARAMETERS)
+    val username = desc.getString(CONFIG_USERNAME)
+    val password = desc.getString(CONFIG_PASSWORD)
+    val accountIdentifier = desc.getString(CONFIG_ACCOUNT_IDENTIFIER)
+    val parameters = desc.getMapStringStringOpt(CONFIG_PARAMETERS).getOrElse(Map.empty)
     val db =
       new SnowflakeClient(host, dbName, username, password, accountIdentifier, parameters)(sourceContext.settings)
     new SnowflakeSchema(db, dbName, schema)

@@ -32,18 +32,16 @@ object DropboxFileSystem {
 // TODO (msb): Catch unauthorized and throw specific exception?
 class DropboxFileSystem(client: DbxClientV2) extends BaseFileSystem {
 
-  import DropboxFileSystem._
-
   def this(accessToken: String)(implicit settings: RawSettings) = this(
     new DbxClientV2(
-      DbxRequestConfig.newBuilder(settings.getString(DROPBOX_CLIENT_ID)).build(),
+      DbxRequestConfig.newBuilder(settings.getString(DropboxFileSystem.DROPBOX_CLIENT_ID)).build(),
       new DbxCredential(accessToken)
     )
   )
 
   def this(user: String, password: String)(implicit settings: RawSettings) = this(
     new DbxClientV2(
-      DbxRequestConfig.newBuilder(settings.getString(DROPBOX_CLIENT_ID)).build(),
+      DbxRequestConfig.newBuilder(settings.getString(DropboxFileSystem.DROPBOX_CLIENT_ID)).build(),
       new DbxCredential(null, null, null, user, password)
     )
   )

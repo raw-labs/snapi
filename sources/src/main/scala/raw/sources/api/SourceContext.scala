@@ -12,13 +12,10 @@
 
 package raw.sources.api
 
-import raw.client.api._
 import raw.utils.{AuthenticatedUser, RawSettings}
 import raw.sources.bytestream.api._
 import raw.sources.filesystem.api._
 import raw.sources.jdbc.api._
-
-import scala.util.matching.Regex
 
 class SourceContext(
     val user: AuthenticatedUser,
@@ -27,118 +24,198 @@ class SourceContext(
 
   import SourceContext._
 
-  private def getScheme(url: String): Option[String] = {
+  private def getScheme(url: String): String = {
     val i = url.indexOf(':')
-    if (i == -1) None
-    else Some(url.take(i))
+    if (i == -1) throw new LocationException(s"protocol scheme not found in url: $url")
+    else url.take(i)
   }
 
-  def getLocation(url: String, options: Map[String, OptionValue])(
+  def getLocation(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): Location = {
-    get[LocationBuilder, Location](
-      byteStreamLocationBuilderServices ++ fileSystemLocationBuilderServices ++ jdbcLocationBuilderServices ++ jdbcSchemaLocationBuilderServices ++ jdbcTableLocationBuilderServices,
-      url,
-      options
-    )
+    val builders =
+      (byteStreamLocationBuilderServices ++ fileSystemLocationBuilderServices ++ jdbcLocationBuilderServices ++ jdbcSchemaLocationBuilderServices ++ jdbcTableLocationBuilderServices).distinct
+
+    // Check if any builder can handle the scheme
+    val scheme = getScheme(desc.url)
+    val validBuilders = builders.filter(builder => builder.schemes.contains(scheme))
+    if (validBuilders.isEmpty) {
+      throw new LocationException(s"no location implementation found for ${desc.url}")
+    } else if (validBuilders.length > 1) {
+      throw new LocationException(s"multiple location implementations found for ${desc.url}")
+    }
+
+    val builder = validBuilders.head
+
+    // Check if the options are valid
+    checkIfOptionsValid(desc.options, builder.validOptions)
+
+    // All good, so build the location.
+    builder.build(desc)
   }
 
-  def getByteStream(url: String, options: Map[String, OptionValue])(
+  def getByteStream(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): ByteStreamLocation = {
-    get[ByteStreamLocationBuilder, ByteStreamLocation](
-      byteStreamLocationBuilderServices ++ fileSystemLocationBuilderServices,
-      url,
-      options
-    )
+    val builders = (byteStreamLocationBuilderServices ++ fileSystemLocationBuilderServices).distinct
+
+    // Check if any builder can handle the scheme
+    val scheme = getScheme(desc.url)
+    val validBuilders = builders.filter(builder => builder.schemes.contains(scheme))
+    if (validBuilders.isEmpty) {
+      throw new LocationException(s"no location implementation found for ${desc.url}")
+    } else if (validBuilders.length > 1) {
+      throw new LocationException(s"multiple location implementations found for ${desc.url}")
+    }
+
+    val builder = validBuilders.head
+
+    // Check if the options are valid
+    checkIfOptionsValid(desc.options, builder.validOptions)
+
+    // All good, so build the location.
+    builder.build(desc)
   }
 
-  def getFileSystem(url: String, options: Map[String, OptionValue])(
+  def getFileSystem(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): FileSystemLocation = {
-    get[FileSystemLocationBuilder, FileSystemLocation](fileSystemLocationBuilderServices, url, options)
+    val builders = fileSystemLocationBuilderServices.distinct
+
+    // Check if any builder can handle the scheme
+    val scheme = getScheme(desc.url)
+    val validBuilders = builders.filter(builder => builder.schemes.contains(scheme))
+    if (validBuilders.isEmpty) {
+      throw new LocationException(s"no location implementation found for ${desc.url}")
+    } else if (validBuilders.length > 1) {
+      throw new LocationException(s"multiple location implementations found for ${desc.url}")
+    }
+
+    val builder = validBuilders.head
+
+    // Check if the options are valid
+    checkIfOptionsValid(desc.options, builder.validOptions)
+
+    // All good, so build the location.
+    builder.build(desc)
   }
 
-  def getJdbcLocation(url: String, options: Map[String, OptionValue])(
+  def getJdbcLocation(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): JdbcLocation = {
-    get[JdbcLocationBuilder, JdbcLocation](
-      jdbcLocationBuilderServices ++ jdbcSchemaLocationBuilderServices ++ jdbcTableLocationBuilderServices,
-      url,
-      options
-    )
+    val builders = jdbcLocationBuilderServices.distinct
+
+    // Check if any builder can handle the scheme
+    val scheme = getScheme(desc.url)
+    val validBuilders = builders.filter(builder => builder.schemes.contains(scheme))
+    if (validBuilders.isEmpty) {
+      throw new LocationException(s"no location implementation found for ${desc.url}")
+    } else if (validBuilders.length > 1) {
+      throw new LocationException(s"multiple location implementations found for ${desc.url}")
+    }
+
+    val builder = validBuilders.head
+
+    // Check if the options are valid
+    checkIfOptionsValid(desc.options, builder.validOptions)
+
+    // All good, so build the location.
+    builder.build(desc)
   }
 
-  def getJdbcSchemaLocation(url: String, options: Map[String, OptionValue])(
+  def getJdbcSchemaLocation(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): JdbcSchemaLocation = {
-    get[JdbcSchemaLocationBuilder, JdbcSchemaLocation](jdbcSchemaLocationBuilderServices, url, options)
+    val builders = jdbcSchemaLocationBuilderServices.distinct
+
+    // Check if any builder can handle the scheme
+    val scheme = getScheme(desc.url)
+    val validBuilders = builders.filter(builder => builder.schemes.contains(scheme))
+    if (validBuilders.isEmpty) {
+      throw new LocationException(s"no location implementation found for ${desc.url}")
+    } else if (validBuilders.length > 1) {
+      throw new LocationException(s"multiple location implementations found for ${desc.url}")
+    }
+
+    val builder = validBuilders.head
+
+    // Check if the options are valid
+    checkIfOptionsValid(desc.options, builder.validOptions)
+
+    // All good, so build the location.
+    builder.build(desc)
   }
 
-  def getJdbcTableLocation(url: String, options: Map[String, OptionValue])(
+  def getJdbcTableLocation(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): JdbcTableLocation = {
-    get[JdbcTableLocationBuilder, JdbcTableLocation](jdbcTableLocationBuilderServices, url, options)
+    val builders = jdbcTableLocationBuilderServices.distinct
+
+    // Check if any builder can handle the scheme
+    val scheme = getScheme(desc.url)
+    val validBuilders = builders.filter(builder => builder.schemes.contains(scheme))
+    if (validBuilders.isEmpty) {
+      throw new LocationException(s"no location implementation found for ${desc.url}")
+    } else if (validBuilders.length > 1) {
+      throw new LocationException(s"multiple location implementations found for ${desc.url}")
+    }
+
+    val builder = validBuilders.head
+
+    // Check if the options are valid
+    checkIfOptionsValid(desc.options, builder.validOptions)
+
+    // All good, so build the location.
+    builder.build(desc)
+
   }
 
-  private def get[T <: LocationBuilder, L <: Location](
-      builders: Seq[T],
-      url: String,
-      options: Map[String, OptionValue]
-  )(
-      implicit sourceContext: SourceContext
-  ): L = {
-    val scheme = getScheme(url)
-    builders
-      .filter(builder =>
-        builder.schemes.contains(scheme) && checkIfRegexValid(url, builder.regex) && checkIfOptionsValid(
-          options,
-          builder.validOptions
-        )
-      )
-      .flatMap { builder =>
-        try {
-          val groups = getRegexMatchingGroups(url, builder.regex)
-          Some(builder.build(groups, options))
-        } catch {
-          case e: LocationException => None
-        }
-      }
-      .headOption
-      .getOrElse(throw new LocationException(s"no location implementation found for $url"))
-  }
+  // Throws an exception if the options are invalid.
+  private def checkIfOptionsValid(
+      options: Map[String, OptionValue],
+      validOptions: Seq[OptionDefinition]
+  ): Unit = {
 
-  private def checkIfRegexValid(url: String, regex: Regex): Boolean = {
-    regex.findFirstIn(url).isDefined
-  }
-
-  private def getRegexMatchingGroups(url: String, regex: Regex): List[String] = {
-    regex.findFirstMatchIn(url).map(_.subgroups).getOrElse(List.empty)
-  }
-
-  private def checkIfOptionsValid(options: Map[String, OptionValue], validOptions: Map[String, OptionType]): Boolean = {
-    def validate(optionType: OptionType, optionValue: OptionValue): Boolean = {
+    def validate(optionType: OptionType, optionValue: OptionValue): Unit = {
       (optionType, optionValue) match {
-        case (StringOptionType, StringOptionValue(_)) => true
-        case (IntOptionType, IntOptionValue(_)) => true
-        case (BooleanOptionType, BooleanOptionValue(_)) => true
-        case (BinaryOptionType, BinaryOptionValue(_)) => true
-        case (DurationOptionType, DurationOptionValue(_)) => true
-        case (MapOptionType(kt, vt), MapOptionValue(map)) =>
-          map.forall { case (kv, vv) => validate(kt, kv) && validate(vt, vv) }
-        case (ArrayOptionType(innerType), ArrayOptionValue(values)) => values.forall(validate(innerType, _))
+        case (StringOptionType, StringOptionValue(_)) =>
+        case (IntOptionType, IntOptionValue(_)) =>
+        case (BooleanOptionType, BooleanOptionValue(_)) =>
+        case (BinaryOptionType, BinaryOptionValue(_)) =>
+        case (DurationOptionType, DurationOptionValue(_)) =>
+        case (MapOptionType(kt, vt), MapOptionValue(map)) => map.foreach {
+            case (kv, vv) =>
+              validate(kt, kv)
+              validate(vt, vv)
+          }
+        case (ArrayOptionType(innerType), ArrayOptionValue(values)) => values.foreach(validate(innerType, _))
+        case (Tuple2OptionType(t1, t2), Tuple2OptionValue(v1, v2)) =>
+          validate(t1, v1)
+          validate(t2, v2)
+        case _ => throw new LocationException("invalid option type")
       }
     }
 
-    if (!options.keySet.subsetOf(validOptions.keySet)) {
-      false
-    } else {
-      validOptions.forall {
-        case (key, optionType) => options.get(key) match {
-            case Some(optionValue) => validate(optionType, optionValue)
-            case None => true
-          }
-      }
+    // Check if passed options are a subset of the defined/valid options.
+    // If not, fail.
+    val validOptionNames = validOptions.map(_.name).toSet
+    if (!options.keySet.subsetOf(validOptionNames)) {
+      val invalidOptions = options.keySet.diff(validOptionNames)
+      throw new LocationException(s"invalid options: ${invalidOptions.mkString(", ")}")
+    }
+
+    // Check if all required options are present.
+    val mandatoryOptionNames = validOptions.filter(_.mandatory).map(_.name).toSet
+    if (!mandatoryOptionNames.subsetOf(options.keySet)) {
+      val missingOptions = mandatoryOptionNames.diff(options.keySet)
+      throw new LocationException(s"missing options: ${missingOptions.mkString(", ")}")
+    }
+
+    // Check if the values of the passed options are of the correct type.
+    validOptions.foreach {
+      case OptionDefinition(key, optionType, _) =>
+        // Check if the option is present and if so, validate it.
+        options.get(key).foreach(validate(optionType, _))
     }
   }
 

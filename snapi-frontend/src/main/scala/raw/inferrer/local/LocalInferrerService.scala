@@ -68,7 +68,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     try {
       properties match {
         case tbl: SqlTableInferrerProperties =>
-          val location = sourceContext.getJdbcTableLocation(tbl.location.url, tbl.location.options)
+          val location = sourceContext.getJdbcTableLocation(tbl.location)
           val tipe = jdbcInferrer.getTableType(location)
           SqlTableInputFormatDescriptor(location.vendor, location.dbName, location.maybeSchema, location.table, tipe)
         case query: SqlQueryInferrerProperties =>

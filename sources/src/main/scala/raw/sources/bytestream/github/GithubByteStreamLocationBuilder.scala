@@ -14,10 +14,8 @@ package raw.sources.bytestream.github
 
 import raw.sources.bytestream.http.{HttpByteStreamException, HttpByteStreamLocationBuilder}
 import raw.sources.bytestream.api.{ByteStreamLocation, ByteStreamLocationBuilder}
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.{LocationDescription, OptionType, OptionValue}
-
-import scala.util.matching.Regex
+import raw.sources.api.{LocationException, OptionDefinition, SourceContext}
+import raw.sources.api.LocationDescription
 
 object GithubByteStreamLocationBuilder {
 
@@ -43,13 +41,13 @@ class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder {
 
   override def schemes: Seq[String] = Seq("github")
 
-  override def regex: Regex = REGEX
+  override def validOptions: Seq[OptionDefinition] = Seq.empty
 
-  override def validOptions: Map[String, OptionType] = Map.empty
-
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): ByteStreamLocation = {
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
     val List(username, repo, maybeNullFile, maybeNullBranch, maybeNullFileWithoutBranch) = groups
     val (file: String, branch: String) =
       if (maybeNullBranch != null) {
@@ -58,9 +56,9 @@ class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder {
       } else {
         // Branch not defined, so let's find the default one.
         def testBranch(branch: String) = {
-          val url = s"https://github.com/$username/$repo/tree/$branch"
+          val githubUrl = s"https://github.com/$username/$repo/tree/$branch"
           try {
-            val httpLocation = httpBuilder.build(LocationDescription(url, options))
+            val httpLocation = httpBuilder.build(LocationDescription(githubUrl, desc.options))
             httpLocation.testAccess()
             true
           } catch {
@@ -80,8 +78,8 @@ class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder {
           )
         (maybeNullFileWithoutBranch, branch)
       }
-    val url = s"https://raw.githubusercontent.com/$username/$repo/$branch/$file"
-    val httpLocation = httpBuilder.build(LocationDescription(url, options))
+    val githubUrl = s"https://raw.githubusercontent.com/$username/$repo/$branch/$file"
+    val httpLocation = httpBuilder.build(LocationDescription(githubUrl, desc.options))
     new GithubByteStreamLocation(httpLocation, username, repo, file, branch)
   }
 

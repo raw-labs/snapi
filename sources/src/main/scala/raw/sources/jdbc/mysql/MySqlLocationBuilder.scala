@@ -12,11 +12,8 @@
 
 package raw.sources.jdbc.mysql
 
-import raw.client.api.{OptionType, OptionValue, StringOptionType}
-import raw.sources.api.SourceContext
+import raw.sources.api.{LocationDescription, OptionDefinition, SourceContext, StringOptionType}
 import raw.sources.jdbc.api.{JdbcLocation, JdbcLocationBuilder}
-
-import scala.util.matching.Regex
 
 object MySqlLocationBuilder {
   private val REGEX = """mysql:(?://)?([^:/]+)(?::(\d+))?/([^/]+)""".r
@@ -31,19 +28,19 @@ class MySqlLocationBuilder extends JdbcLocationBuilder {
 
   override def schemes: Seq[String] = Seq("mysql")
 
-  override def regex: Regex = REGEX
-
-  override def validOptions: Map[String, OptionType] = Map(
-    CONFIG_USERNAME -> StringOptionType,
-    CONFIG_PASSWORD -> StringOptionType
+  override def validOptions: Seq[OptionDefinition] = Seq(
+    OptionDefinition(CONFIG_USERNAME, StringOptionType, mandatory = true),
+    OptionDefinition(CONFIG_PASSWORD, StringOptionType, mandatory = true)
   )
 
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): JdbcLocation = {
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
     val List(host, portOrNull, dbName) = groups
-    val username = getStringOption(options, CONFIG_USERNAME)
-    val password = getStringOption(options, CONFIG_PASSWORD)
+    val username = desc.getString(CONFIG_USERNAME)
+    val password = desc.getString(CONFIG_PASSWORD)
     val port = if (portOrNull == null) 3306 else portOrNull.toInt
     val db = new MySqlClient(host, port, dbName, username, password)(sourceContext.settings)
     new MySqlLocation(db, dbName)

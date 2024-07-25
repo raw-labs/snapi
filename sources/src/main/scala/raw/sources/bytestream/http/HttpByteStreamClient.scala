@@ -30,17 +30,18 @@ import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import scala.collection.mutable
 
-// TODO (msb): The existence of this is weird; also for the config settings it implies...
-object JavaRuntimeHttpClient {
+object HttpByteStreamClient {
 
-  import HttpClientSettings._
+  private val HTTP_CONNECT_TIMEOUT = "raw.sources.bytestream.http.connect-timeout"
+  private val HTTP_READ_TIMEOUT = "raw.sources.bytestream.http.read-timeout"
 
-  // TODO: Transform this into dependency injection. Note that is requires 'settings'.
-  private val initLock = new Object
+  private val ERROR_RESPONSE_MAX_OUTPUT_SIZE = 2048
+
+  private val httpClientLock = new Object
   private var httpClient: HttpClient = _
 
-  protected[http] def buildHttpClient(settings: RawSettings): HttpClient = {
-    initLock.synchronized {
+  def buildHttpClient(settings: RawSettings): HttpClient = {
+    httpClientLock.synchronized {
       if (httpClient == null) {
         val connectTimeout = settings.getDuration(HTTP_CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
         this.httpClient = java.net.http.HttpClient.newBuilder
@@ -52,9 +53,10 @@ object JavaRuntimeHttpClient {
     }
     httpClient
   }
+
 }
 
-class JavaRuntimeHttpClient(
+class HttpByteStreamClient(
     method: String,
     args: Array[(String, String)],
     headers: Array[(String, String)],
@@ -62,39 +64,28 @@ class JavaRuntimeHttpClient(
     expectedStatus: Seq[Int]
 )(implicit settings: RawSettings)
     extends InputStreamClient
-    with RuntimeHttpClient
     with StrictLogging {
 
-  import HttpClientSettings._
+  import HttpByteStreamClient._
 
-  private val httpClient = JavaRuntimeHttpClient.buildHttpClient(settings)
+  private val httpClient = HttpByteStreamClient.buildHttpClient(settings)
   private val httpReadTimeoutMillis = settings.getDuration(HTTP_READ_TIMEOUT, TimeUnit.MILLISECONDS)
 
   private val requestBuilderTemplate = HttpRequest
     .newBuilder()
     .timeout(Duration.ofMillis(httpReadTimeoutMillis))
 
-
-  // This method is called by our runtime in a read so expects the status code to be 200
-  def getInputStream(url: String): InputStream
-
-  // This method is called by our 'http_request' intrinsic so does not check for the status code.
-  def getInputStreamWithStatus(url: String): HttpResult
-
-  def getSeekableInputStream(url: String): SeekableInputStream
-
-  private val ErrorResponseOutputMaxSize = 2048
-
   protected def readOutputBounded(is: InputStream): String = {
-    val data = is.readNBytes(ErrorResponseOutputMaxSize)
+    val data = is.readNBytes(ERROR_RESPONSE_MAX_OUTPUT_SIZE)
     val result = new String(data, StandardCharsets.UTF_8)
-    if (data.length == ErrorResponseOutputMaxSize && is.read() != -1) {
+    if (data.length == ERROR_RESPONSE_MAX_OUTPUT_SIZE && is.read() != -1) {
       result + "..."
     } else {
       result
     }
   }
-  // This method is called by our runtime in a read so expects the status code to be 200.
+
+  // This method expects the response status code to be 200.
   override def getInputStream(url: String): InputStream = {
     val response = openHTTPConnection(url)
     val responseCode = response.statusCode()
@@ -110,16 +101,16 @@ class JavaRuntimeHttpClient(
           is.close()
         }
       if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-        throw new HttpClientException(s"authorization error accessing $url: ($responseCode)\n$bodyContents")
+        throw new HttpByteStreamException(s"authorization error accessing $url: ($responseCode)\n$bodyContents")
       } else {
-        throw new HttpClientException(
+        throw new HttpByteStreamException(
           s"could not read (HTTP ${method.toUpperCase}) from $url: ($responseCode)\n$bodyContents"
         )
       }
     }
   }
 
-  // This method is called by our 'http_request' intrinsic so does not check for the status code.
+  // This method does not check the response status code.
   def getInputStreamWithStatus(url: String): HttpResult = {
     val response = openHTTPConnection(url)
     val responseCode = response.statusCode()
@@ -140,12 +131,12 @@ class JavaRuntimeHttpClient(
     HttpResult(responseCode, is, headersSeq)
   }
 
-  override def getSeekableInputStream(url: String): SeekableInputStream = {
-    val skipableInputStream = new GenericSkippableInputStream(() => getInputStream(url))
-    new DelegatingSeekableInputStream(skipableInputStream) {
-      override def getPos: Long = skipableInputStream.getPos
+  def getSeekableInputStream(url: String): SeekableInputStream = {
+    val skippableInputStream = new GenericSkippableInputStream(() => getInputStream(url))
+    new DelegatingSeekableInputStream(skippableInputStream) {
+      override def getPos: Long = skippableInputStream.getPos
 
-      override def seek(newPos: Long): Unit = skipableInputStream.seek(newPos)
+      override def seek(newPos: Long): Unit = skippableInputStream.seek(newPos)
     }
   }
 
@@ -189,7 +180,7 @@ class JavaRuntimeHttpClient(
           case ex: IllegalArgumentException =>
             // .setHeader docs says `IllegalArgumentException` can be thrown if the header is restricted (e.g. "Host")
             // RD-6871
-            throw new HttpClientException(ex.getMessage, ex)
+            throw new HttpByteStreamException(ex.getMessage, ex)
         }
     }
 
@@ -198,8 +189,8 @@ class JavaRuntimeHttpClient(
     try {
       httpClient.send(request, BodyHandlers.ofInputStream())
     } catch {
-      case ex: java.net.ConnectException => throw new HttpClientException(s"host not found for $url", ex)
-      case ex: IOException => throw new HttpClientException(s"unexpected error accessing $url", ex)
+      case ex: java.net.ConnectException => throw new HttpByteStreamException(s"host not found for $url", ex)
+      case ex: IOException => throw new HttpByteStreamException(s"unexpected error accessing $url", ex)
     }
   }
 }

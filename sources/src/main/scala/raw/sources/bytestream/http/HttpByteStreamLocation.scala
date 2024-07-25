@@ -13,7 +13,6 @@
 package raw.sources.bytestream.http
 
 import raw.sources.bytestream.api.{ByteStreamException, ByteStreamLocation, SeekableInputStream}
-import raw.client.api.{LocationDescription, OptionValue}
 
 import java.io.InputStream
 import java.net.URI
@@ -22,7 +21,7 @@ import java.nio.file.Path
 final case class HttpResult(status: Int, is: InputStream, headers: Seq[(String, String)])
 
 class HttpByteStreamLocation(
-    cli: JavaRuntimeHttpClient,
+    cli: HttpByteStreamClient,
     url: String
 ) extends ByteStreamLocation {
 

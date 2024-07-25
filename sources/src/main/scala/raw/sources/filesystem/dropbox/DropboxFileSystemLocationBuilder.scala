@@ -12,8 +12,7 @@
 
 package raw.sources.filesystem.dropbox
 
-import raw.client.api.{OptionType, OptionValue, StringOptionType, StringOptionValue}
-import raw.sources.api.SourceContext
+import raw.sources.api.{LocationDescription, OptionDefinition, SourceContext, StringOptionType}
 import raw.sources.filesystem.api.{FileSystemException, FileSystemLocation, FileSystemLocationBuilder}
 
 import scala.util.matching.Regex
@@ -31,30 +30,30 @@ class DropboxFileSystemLocationBuilder extends FileSystemLocationBuilder {
 
   override def schemes: Seq[String] = Seq("dropbox")
 
-  override def regex: Regex = REGEX
-
-  override def validOptions: Map[String, OptionType] = Map(
-    OPTION_ACCESS_TOKEN -> StringOptionType,
-    OPTION_USER -> StringOptionType,
-    OPTION_PASSWORD -> StringOptionType
+  override def validOptions: Seq[OptionDefinition] = Seq(
+    OptionDefinition(OPTION_ACCESS_TOKEN, StringOptionType, mandatory = false),
+    OptionDefinition(OPTION_USER, StringOptionType, mandatory = false),
+    OptionDefinition(OPTION_PASSWORD, StringOptionType, mandatory = false)
   )
 
-  override def build(regexCaptures: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): FileSystemLocation = {
-    implicit val settings = sourceContext.settings
-    val path = regexCaptures(0)
-    val dropboxClient =
-      if (options.contains(OPTION_ACCESS_TOKEN)) {
-        val StringOptionValue(accessToken) = options(OPTION_ACCESS_TOKEN)
-        new DropboxFileSystem(accessToken)
-      } else if (options.contains(OPTION_USER) && options.contains(OPTION_PASSWORD)) {
-        val StringOptionValue(user) = options(OPTION_USER)
-        val StringOptionValue(password) = options(OPTION_PASSWORD)
-        new DropboxFileSystem(user, password)
-      } else {
-        throw new FileSystemException("missing options for Dropbox")
+    val url = desc.url
+    val groups = getRegexMatchingGroups(url, REGEX)
+    val path = groups(0)
+    val dropboxClient = {
+      desc.getStringOpt(OPTION_ACCESS_TOKEN) match {
+        case Some(accessToken) => new DropboxFileSystem(accessToken)(sourceContext.settings)
+        case None => desc.getStringOpt(OPTION_USER) match {
+            case Some(user) => desc.getStringOpt(OPTION_PASSWORD) match {
+                case Some(password) => new DropboxFileSystem(user, password)(sourceContext.settings)
+                case None => throw new FileSystemException("missing password for Dropbox")
+              }
+            case None => throw new FileSystemException("missing user for Dropbox")
+          }
       }
-    new DropboxPath(dropboxClient, path, options)
+    }
+    new DropboxPath(dropboxClient, path, desc.options)
   }
 }

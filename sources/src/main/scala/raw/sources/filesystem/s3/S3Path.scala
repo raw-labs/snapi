@@ -14,7 +14,7 @@ package raw.sources.filesystem.s3
 
 import raw.sources.bytestream.api.{ByteStreamException, SeekableInputStream}
 import raw.sources.filesystem.api._
-import raw.client.api.OptionValue
+import raw.sources.api.OptionValue
 
 import java.io.InputStream
 import java.nio.file.Path

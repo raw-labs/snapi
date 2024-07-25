@@ -12,13 +12,12 @@
 
 package raw.sources.filesystem.api
 
-import raw.client.api.OptionValue
-import raw.sources.api.SourceContext
+import raw.sources.api.{LocationDescription, SourceContext}
 import raw.sources.bytestream.api.ByteStreamLocationBuilder
 
 abstract class FileSystemLocationBuilder extends ByteStreamLocationBuilder {
 
-  override def build(groups: List[String], options: Map[String, OptionValue])(
+  override def build(desc: LocationDescription)(
       implicit sourceContext: SourceContext
   ): FileSystemLocation
 
