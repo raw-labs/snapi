@@ -22,12 +22,12 @@ import raw.compiler.rql2.api.{
   EntryExtension,
   ExpArg,
   ExpParam,
-  ListValue,
-  OptionValue,
+  ListRql2Value,
+  OptionRql2Value,
   PackageExtension,
   Param,
-  RecordValue,
-  StringValue,
+  RecordRql2Value,
+  StringRql2Value,
   SugarEntryExtension,
   TypeArg,
   TypeParam,
@@ -146,14 +146,14 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(2))), None)
     val readType = FunAppArg(TypeExp(t), None)
     val optArgs = optionalArgs.map {
-      case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn))
-      case (idn, ValueArg(ListValue(v: Seq[RecordValue]), _)) =>
+      case (idn, ValueArg(StringRql2Value(s), _)) => FunAppArg(StringConst(s), Some(idn))
+      case (idn, ValueArg(ListRql2Value(v: Seq[RecordRql2Value]), _)) =>
         // building a List of tuples
         val records = v.map { r =>
           val fields = r.v.zipWithIndex.map {
-            case (OptionValue(Some(StringValue(v))), idx) =>
+            case (OptionRql2Value(Some(StringRql2Value(v))), idx) =>
               s"_${idx + 1}" -> NullablePackageBuilder.Build(StringConst(v))
-            case (OptionValue(None), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
+            case (OptionRql2Value(None), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
 
           }.toVector
           RecordPackageBuilder.Build(fields)
@@ -427,14 +427,14 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
     val optArgs = optionalArgs.map {
-      case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn))
-      case (idn, ValueArg(ListValue(v: Seq[RecordValue]), _)) =>
+      case (idn, ValueArg(StringRql2Value(s), _)) => FunAppArg(StringConst(s), Some(idn))
+      case (idn, ValueArg(ListRql2Value(v: Seq[RecordRql2Value]), _)) =>
         // building a List of tuples
         val records = v.map { r =>
           val fields = r.v.zipWithIndex.map {
-            case (OptionValue(Some(StringValue(v))), idx) =>
+            case (OptionRql2Value(Some(StringRql2Value(v))), idx) =>
               s"_${idx + 1}" -> NullablePackageBuilder.Build(StringConst(v))
-            case (OptionValue(None), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
+            case (OptionRql2Value(None), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
 
           }.toVector
           RecordPackageBuilder.Build(fields)

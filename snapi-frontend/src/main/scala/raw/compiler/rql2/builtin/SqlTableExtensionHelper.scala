@@ -14,7 +14,7 @@ package raw.compiler.rql2.builtin
 
 import raw.compiler.base.errors.UnsupportedType
 import raw.compiler.base.source.Type
-import raw.compiler.rql2.api.{Arg, EntryExtensionHelper, StringValue, ValueArg}
+import raw.compiler.rql2.api.{Arg, EntryExtensionHelper, StringRql2Value, ValueArg}
 import raw.compiler.rql2.source._
 import raw.inferrer.api.{SqlQueryInferrerProperties, SqlTableInferrerProperties}
 import raw.client.api._
@@ -60,7 +60,7 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
       vendor: SqlVendor
   ): Either[String, SqlTableInferrerProperties] = {
 
-    val tablePath = mandatoryArgs.map { case ValueArg(StringValue(v), _) => v }.mkString("/")
+    val tablePath = mandatoryArgs.map { case ValueArg(StringRql2Value(v), _) => v }.mkString("/")
     val url = vendorToUrl(vendor) + ":" + tablePath
     val locationDesc = getLocation(url, optionalArgs.toMap)
     Right(SqlTableInferrerProperties(locationDesc, None))

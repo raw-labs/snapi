@@ -19,22 +19,22 @@ import raw.compiler.base.source.Type
 import raw.compiler.common.source._
 import raw.compiler.rql2.api.{
   Arg,
-  BoolValue,
-  ByteValue,
-  DateValue,
-  DoubleValue,
-  FloatValue,
-  IntValue,
-  IntervalValue,
-  ListValue,
-  LongValue,
-  OptionValue,
-  RecordValue,
-  ShortValue,
-  StringValue,
-  TimeValue,
-  TimestampValue,
-  Value,
+  BoolRql2Value,
+  ByteRql2Value,
+  DateRql2Value,
+  DoubleRql2Value,
+  FloatRql2Value,
+  IntRql2Value,
+  IntervalRql2Value,
+  ListRql2Value,
+  LongRql2Value,
+  OptionRql2Value,
+  RecordRql2Value,
+  ShortRql2Value,
+  StringRql2Value,
+  TimeRql2Value,
+  TimestampRql2Value,
+  Rql2Value,
   ValueArg
 }
 import raw.compiler.rql2.builtin._
@@ -56,18 +56,18 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
     val tree = new Tree(program)
     lazy val analyzer = tree.analyzer
 
-    case class TypeAndValue(t: Type, value: Option[Value])
+    case class TypeAndValue(t: Type, value: Option[Rql2Value])
     case class ExpProps(
         ne: Exp,
         t: Type,
         castNeeded: Boolean,
         props: Set[Rql2TypeProperty],
-        value: Option[Value] = None
+        value: Option[Rql2Value] = None
     )
 
     // Returns the type of argument at index `idx`. If the index points to a ValueArg,
     // add the computed value
-    def getTypeAndValue(entryArguments: FunAppPackageEntryArguments, args: Seq[FunAppArg], idx: Int): Option[Value] = {
+    def getTypeAndValue(entryArguments: FunAppPackageEntryArguments, args: Seq[FunAppArg], idx: Int): Option[Rql2Value] = {
       val arg: Arg = args(idx).idn match {
         case Some(i) => entryArguments.optionalArgs.collectFirst { case a if a._1 == i => a._2 }.get
         case None =>
@@ -342,32 +342,32 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
     r
   }
 
-  private def valueToExp(value: Value, t: Type): Exp = value match {
-    case ByteValue(v) => ByteConst(v.toString)
-    case ShortValue(v) => ShortConst(v.toString)
-    case IntValue(v) => IntConst(v.toString)
-    case LongValue(v) => LongConst(v.toString)
-    case FloatValue(v) => FloatConst(v.toString)
-    case DoubleValue(v) => DoubleConst(v.toString)
-    case StringValue(v) => StringConst(v)
-    case BoolValue(v) => BoolConst(v)
-    case OptionValue(option) =>
+  private def valueToExp(value: Rql2Value, t: Type): Exp = value match {
+    case ByteRql2Value(v) => ByteConst(v.toString)
+    case ShortRql2Value(v) => ShortConst(v.toString)
+    case IntRql2Value(v) => IntConst(v.toString)
+    case LongRql2Value(v) => LongConst(v.toString)
+    case FloatRql2Value(v) => FloatConst(v.toString)
+    case DoubleRql2Value(v) => DoubleConst(v.toString)
+    case StringRql2Value(v) => StringConst(v)
+    case BoolRql2Value(v) => BoolConst(v)
+    case OptionRql2Value(option) =>
       val innerType = resetProps(t, Set.empty)
       option
         .map(v => valueToExp(v, innerType))
         .map(NullablePackageBuilder.Build(_))
         .getOrElse(NullablePackageBuilder.Empty(innerType))
-    case RecordValue(r) =>
+    case RecordRql2Value(r) =>
       val Rql2RecordType(atts, _) = t
       val fields = r.zip(atts).map { case (v, att) => att.idn -> valueToExp(v, att.tipe) }
       RecordPackageBuilder.Build(fields.toVector)
-    case ListValue(v) =>
+    case ListRql2Value(v) =>
       val Rql2ListType(innerType, _) = t
       ListPackageBuilder.Build(v.map(x => valueToExp(x, innerType)): _*)
-    case DateValue(v) => DatePackageBuilder.FromLocalDate(v)
-    case TimeValue(v) => TimePackageBuilder.FromLocalTime(v)
-    case TimestampValue(v) => TimestampPackageBuilder.FromLocalDateTime(v)
-    case IntervalValue(
+    case DateRql2Value(v) => DatePackageBuilder.FromLocalDate(v)
+    case TimeRql2Value(v) => TimePackageBuilder.FromLocalTime(v)
+    case TimestampRql2Value(v) => TimestampPackageBuilder.FromLocalDateTime(v)
+    case IntervalRql2Value(
           years,
           month,
           weeks,
