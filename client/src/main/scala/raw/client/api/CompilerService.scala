@@ -13,12 +13,11 @@
 package raw.client.api
 
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import org.graalvm.polyglot.{Engine, Value}
+import org.graalvm.polyglot.Engine
 import raw.utils.{RawException, RawService, RawSettings}
 
 import java.io.OutputStream
 import scala.collection.mutable
-import scala.util.control.NonFatal
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 
 // Exception that wraps the underlying error so that it includes the extra debug info.
@@ -87,137 +86,6 @@ object CompilerService {
       "Options" -> environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
       //"Settings" -> runtimeContext.settings.toString
     )
-  }
-
-  def polyglotValueToRawValue(v: Value, t: RawType): RawValue = {
-    if (t.triable) {
-      if (v.isException) {
-        try {
-          v.throwException()
-          throw new AssertionError("should not happen")
-        } catch {
-          case NonFatal(ex) => RawError(ex.getMessage)
-        }
-      } else {
-        // Success, recurse without the tryable property.
-        polyglotValueToRawValue(v, t.cloneNotTriable)
-      }
-    } else if (t.nullable) {
-      if (v.isNull) {
-        RawNull()
-      } else {
-        polyglotValueToRawValue(v, t.cloneNotNullable)
-      }
-    } else {
-      t match {
-        case _: RawUndefinedType => throw new AssertionError("RawUndefined is not triable and is not nullable.")
-        case _: RawAnyType => RawAny(v)
-        case _: RawBoolType => RawBool(v.asBoolean())
-        case _: RawStringType => RawString(v.asString())
-        case _: RawByteType => RawByte(v.asByte())
-        case _: RawShortType => RawShort(v.asShort())
-        case _: RawIntType => RawInt(v.asInt())
-        case _: RawLongType => RawLong(v.asLong())
-        case _: RawFloatType => RawFloat(v.asFloat())
-        case _: RawDoubleType => RawDouble(v.asDouble())
-        case _: RawDecimalType =>
-          val bg = BigDecimal(v.asString())
-          RawDecimal(bg.bigDecimal)
-        case _: RawDateType =>
-          val date = v.asDate()
-          RawDate(date)
-        case _: RawTimeType =>
-          val time = v.asTime()
-          RawTime(time)
-        case _: RawTimestampType =>
-          val localDate = v.asDate()
-          val localTime = v.asTime()
-          RawTimestamp(localDate.atTime(localTime))
-        case _: RawIntervalType =>
-          val d = v.asDuration()
-          RawInterval(0, 0, 0, d.toDaysPart.toInt, d.toHoursPart, d.toMinutesPart, d.toSecondsPart, d.toMillisPart)
-        case _: RawBinaryType =>
-          val bufferSize = v.getBufferSize.toInt
-          val byteArray = new Array[Byte](bufferSize)
-          for (i <- 0 until bufferSize) {
-            byteArray(i) = v.readBufferByte(i)
-          }
-          RawBinary(byteArray)
-        case RawRecordType(atts, _, _) =>
-          val vs = atts.map(att => polyglotValueToRawValue(v.getMember(att.idn), att.tipe))
-          RawRecord(vs)
-        case RawListType(innerType, _, _) =>
-          val seq = mutable.ArrayBuffer[RawValue]()
-          for (i <- 0L until v.getArraySize) {
-            val v1 = v.getArrayElement(i)
-            seq.append(polyglotValueToRawValue(v1, innerType))
-          }
-          RawList(seq)
-        case RawIterableType(innerType, _, _) =>
-          val seq = mutable.ArrayBuffer[RawValue]()
-          val it = v.getIterator
-          while (it.hasIteratorNextElement) {
-            val v1 = it.getIteratorNextElement
-            seq.append(polyglotValueToRawValue(v1, innerType))
-          }
-          if (it.canInvokeMember("close")) {
-            val callable = it.getMember("close")
-            callable.execute()
-          }
-          RawIterable(seq)
-        case RawOrType(tipes, _, _) =>
-          val idx = v.getMember("index").asInt()
-          val v1 = v.getMember("value")
-          val tipe = tipes(idx)
-          polyglotValueToRawValue(v1, tipe)
-        case _: RawLocationType =>
-          val url = v.asString
-          assert(v.hasMembers);
-          val members = v.getMemberKeys
-          val settings = mutable.Map.empty[LocationSettingKey, LocationSettingValue]
-          val keys = members.iterator()
-          while (keys.hasNext) {
-            val key = keys.next()
-            val tv = v.getMember(key)
-            val value =
-              if (tv.isNumber) LocationIntSetting(tv.asInt)
-              else if (tv.isBoolean) LocationBooleanSetting(tv.asBoolean)
-              else if (tv.isString) LocationStringSetting(tv.asString)
-              else if (tv.hasBufferElements) {
-                val bufferSize = tv.getBufferSize.toInt
-                val byteArray = new Array[Byte](bufferSize)
-                for (i <- 0 until bufferSize) {
-                  byteArray(i) = tv.readBufferByte(i)
-                }
-                LocationBinarySetting(byteArray)
-              } else if (tv.isDuration) LocationDurationSetting(tv.asDuration())
-              else if (tv.hasArrayElements) {
-                // in the context of a location, it's int-array for sure
-                val size = tv.getArraySize
-                val array = new Array[Int](size.toInt)
-                for (i <- 0L until size) {
-                  array(i.toInt) = tv.getArrayElement(i).asInt
-                }
-                LocationIntArraySetting(array)
-              } else if (tv.hasHashEntries) {
-                // kv settings
-                val iterator = tv.getHashEntriesIterator
-                val keyValues = mutable.ArrayBuffer.empty[(String, String)]
-                while (iterator.hasIteratorNextElement) {
-                  val kv = iterator.getIteratorNextElement // array with two elements: key and value
-                  val key = kv.getArrayElement(0).asString
-                  val value = kv.getArrayElement(1).asString
-                  keyValues += ((key, value))
-                }
-                LocationKVSetting(keyValues)
-              } else {
-                throw new AssertionError("Unexpected value type: " + tv)
-              }
-            settings.put(LocationSettingKey(key), value)
-          }
-          RawLocation(LocationDescription(url, settings.toMap))
-      }
-    }
   }
 
 }
