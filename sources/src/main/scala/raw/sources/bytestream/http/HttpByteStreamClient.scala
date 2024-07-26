@@ -57,11 +57,16 @@ object HttpByteStreamClient {
 }
 
 class HttpByteStreamClient(
-    method: String,
-    args: Array[(String, String)],
-    headers: Array[(String, String)],
-    body: Option[Array[Byte]],
-    expectedStatus: Seq[Int]
+    method: String = "GET",
+    args: Array[(String, String)] = Array.empty,
+    headers: Array[(String, String)] = Array.empty,
+    maybeBody: Option[Array[Byte]] = None,
+    expectedStatus: Array[Int] = Array(
+      HttpURLConnection.HTTP_OK,
+      HttpURLConnection.HTTP_ACCEPTED,
+      HttpURLConnection.HTTP_CREATED,
+      HttpURLConnection.HTTP_PARTIAL
+    )
 )(implicit settings: RawSettings)
     extends InputStreamClient
     with StrictLogging {
@@ -141,7 +146,7 @@ class HttpByteStreamClient(
   }
 
   private def createBodyPublisher(): BodyPublisher = {
-    body
+    maybeBody
       .map(s =>
         method.toLowerCase match {
           case "post" | "put" | "patch" => return BodyPublishers.ofByteArray(s)

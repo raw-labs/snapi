@@ -16,7 +16,7 @@ import java.sql.ResultSetMetaData
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api.{SourceAttrType, SourceCollectionType, SourceRecordType, SourceType}
-import raw.sources.jdbc.api.{JdbcLocation, JdbcTableLocation}
+import raw.sources.jdbc.api.{JdbcServerLocation, JdbcTableLocation}
 
 import scala.collection.mutable
 
@@ -26,7 +26,7 @@ class JdbcInferrer extends JdbcTypeToSourceType with StrictLogging {
     tableMetadataToSourceType(location.getType())
   }
 
-  def getQueryType(location: JdbcLocation, query: String): SourceType = {
+  def getQueryType(location: JdbcServerLocation, query: String): SourceType = {
     location.jdbcClient.wrapSQLException {
       val conn = location.getJdbcConnection()
       try {

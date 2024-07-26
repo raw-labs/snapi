@@ -15,16 +15,15 @@ package raw.sources.filesystem.mock
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.filesystem.api._
+import raw.utils.RawSettings
 
 import java.io.InputStream
 import java.lang.StackWalker.StackFrame
 import java.nio.file.Path
 
-class MockPath(
-    delayMillis: Long,
-    delegate: FileSystemLocation
-) extends FileSystemLocation
-    with StrictLogging {
+class MockPath(config: MockConfig)(implicit settings: RawSettings) extends FileSystemLocation with StrictLogging {
+
+  private val delegate = FileSystemBuilder.build(config.fileSystemConfig)
 
   private def doDelay(): Unit = {
     val sw = StackWalker.getInstance()
@@ -32,12 +31,10 @@ class MockPath(
       s.skip(1).findFirst().get()
     })
 
-    logger.info(s"Pausing for $delayMillis millis. Called by: $caller")
-    Thread.sleep(delayMillis)
+    logger.info(s"Pausing for ${config.delayMillis} millis. Called by: $caller")
+    Thread.sleep(config.delayMillis)
     logger.info(s"Continuing")
   }
-
-  override def rawUri: String = s"mock://${delegate.rawUri}"
 
   override def testAccess(): Unit = {
     doDelay()

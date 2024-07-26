@@ -25,26 +25,8 @@ import java.io.InputStream
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-object DropboxFileSystem {
-  private val DROPBOX_CLIENT_ID = "raw.sources.dropbox.clientId"
-}
-
 // TODO (msb): Catch unauthorized and throw specific exception?
 class DropboxFileSystem(private[raw] val client: DbxClientV2) extends BaseFileSystem {
-
-  def this(accessToken: String)(implicit settings: RawSettings) = this(
-    new DbxClientV2(
-      DbxRequestConfig.newBuilder(settings.getString(DropboxFileSystem.DROPBOX_CLIENT_ID)).build(),
-      new DbxCredential(accessToken)
-    )
-  )
-
-  def this(user: String, password: String)(implicit settings: RawSettings) = this(
-    new DbxClientV2(
-      DbxRequestConfig.newBuilder(settings.getString(DropboxFileSystem.DROPBOX_CLIENT_ID)).build(),
-      new DbxCredential(null, null, null, user, password)
-    )
-  )
 
   val fileSeparator: String = "/"
 

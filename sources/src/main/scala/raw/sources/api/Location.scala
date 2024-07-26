@@ -12,14 +12,8 @@
 
 package raw.sources.api
 
-import com.typesafe.scalalogging.StrictLogging
-
-trait Location extends StrictLogging {
-
-  def rawUri: String
+trait Location {
 
   def testAccess(): Unit
-
-  override def toString: String = rawUri
 
 }

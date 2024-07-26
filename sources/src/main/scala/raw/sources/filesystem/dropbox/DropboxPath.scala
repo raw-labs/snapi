@@ -12,16 +12,40 @@
 
 package raw.sources.filesystem.dropbox
 
-import raw.sources.api._
+import com.dropbox.core.DbxRequestConfig
+import com.dropbox.core.oauth.DbxCredential
+import com.dropbox.core.v2.DbxClientV2
 import raw.sources.bytestream.api.{ByteStreamException, SeekableInputStream}
 import raw.sources.filesystem.api._
+import raw.utils.RawSettings
 
 import java.io.InputStream
 import java.nio.file.Path
 
-class DropboxPath(cli: DropboxFileSystem, path: String, options: Map[String, OptionValue]) extends FileSystemLocation {
+object DropboxPath {
+  val DROPBOX_CLIENT_ID = "raw.sources.dropbox.clientId"
+}
 
-  override def rawUri: String = s"dropbox://$path"
+class DropboxPath private (dbxClientV2: DbxClientV2, path: String)(implicit settings: RawSettings)
+    extends FileSystemLocation {
+
+  private val cli = new DropboxFileSystem(dbxClientV2)
+
+  def this(config: DropboxAccessTokenConfig)(implicit settings: RawSettings) = this(
+    new DbxClientV2(
+      DbxRequestConfig.newBuilder(settings.getString(DropboxPath.DROPBOX_CLIENT_ID)).build(),
+      new DbxCredential(config.accessToken)
+    ),
+    config.path
+  )
+
+  def this(config: DropboxUsernamePasswordConfig)(implicit settings: RawSettings) = this(
+    new DbxClientV2(
+      DbxRequestConfig.newBuilder(settings.getString(DropboxPath.DROPBOX_CLIENT_ID)).build(),
+      new DbxCredential(null, null, null, config.username, config.password)
+    ),
+    config.path
+  )
 
   override def testAccess(): Unit = {
     cli.testAccess(path)
@@ -46,11 +70,11 @@ class DropboxPath(cli: DropboxFileSystem, path: String, options: Map[String, Opt
   override protected def doLs(): Iterator[FileSystemLocation] = {
     cli
       .listContents(path)
-      .map(npath => new DropboxPath(cli, npath, options))
+      .map(npath => new DropboxPath(dbxClientV2, npath))
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new DropboxPath(cli, npath, options), meta) }
+    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new DropboxPath(dbxClientV2, npath), meta) }
   }
 
 }

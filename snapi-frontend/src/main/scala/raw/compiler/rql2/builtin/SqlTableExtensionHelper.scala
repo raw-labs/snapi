@@ -62,6 +62,12 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
     val tablePath = mandatoryArgs.map { case ValueArg(StringValue(v), _) => v }.mkString("/")
     val url = vendorToUrl(vendor) + ":" + tablePath
 
+    mysql://databasenmae
+
+    mysql://host:port
+
+    Builds a Case Class
+
     this builds the entire table path
 
     val locationDesc = getLocation(url, optionalArgs.toMap)

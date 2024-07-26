@@ -58,7 +58,6 @@ module raw.sources {
   requires mysql.connector.j;
   requires ojdbc10;
   requires raw.utils;
-  requires raw.client;
 
   exports raw.auth.api;
   exports raw.rest.client;

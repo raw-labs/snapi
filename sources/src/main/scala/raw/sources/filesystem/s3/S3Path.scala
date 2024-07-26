@@ -13,19 +13,16 @@
 package raw.sources.filesystem.s3
 
 import raw.sources.bytestream.api.{ByteStreamException, SeekableInputStream}
-import raw.sources.filesystem.api._
-import raw.sources.api.OptionValue
+import raw.sources.filesystem.api.{FileSystemLocation, FileSystemMetadata}
+import raw.utils.RawSettings
 
 import java.io.InputStream
 import java.nio.file.Path
 
-class S3Path(cli: S3FileSystem, protected val path: String, options: Map[String, OptionValue])
-    extends FileSystemLocation {
+class S3Path private (cli: S3FileSystem, path: String)(implicit settings: RawSettings) extends FileSystemLocation {
 
-  // TODO (msb): Shouldn't we sanitize path?
-  override val rawUri: String = {
-    val sep = if (path.startsWith("/")) "" else "/"
-    s"s3://${cli.bucket}$sep$path"
+  def this(config: S3Config)(implicit settings: RawSettings) = {
+    this(new S3FileSystem(config.bucket, config.maybeRegion, config.maybeAccessKey, config.maybeSecretKey), config.path)
   }
 
   override def testAccess(): Unit = {
@@ -51,11 +48,11 @@ class S3Path(cli: S3FileSystem, protected val path: String, options: Map[String,
   override protected def doLs(): Iterator[FileSystemLocation] = {
     cli
       .listContents(path)
-      .map(npath => new S3Path(cli, npath, options))
+      .map(npath => new S3Path(cli, npath))
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new S3Path(cli, npath, options), meta) }
+    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new S3Path(cli, npath), meta) }
   }
 
 }

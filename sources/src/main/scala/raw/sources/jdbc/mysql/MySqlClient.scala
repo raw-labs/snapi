@@ -22,7 +22,7 @@ import java.net.{SocketTimeoutException, UnknownHostException}
 import java.sql.SQLException
 import scala.util.control.NonFatal
 
-class MySqlClient(val hostname: String, val port: Int, dbName: String, username: String, password: String)(
+class MySqlClient(val hostname: String, val port: Int, val dbName: String, username: String, password: String)(
     implicit settings: RawSettings
 ) extends JdbcClient {
 

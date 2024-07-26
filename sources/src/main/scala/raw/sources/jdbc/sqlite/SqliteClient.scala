@@ -12,16 +12,22 @@
 
 package raw.sources.jdbc.sqlite
 
+import raw.sources.api.LocationException
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
-import java.nio.file.{InvalidPathException, Path}
+import java.nio.file.{InvalidPathException, Path, Paths}
 import java.sql.SQLException
 import scala.util.control.NonFatal
 
-class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClient {
+class SqliteClient(path: String)(implicit settings: RawSettings) extends JdbcClient {
 
-  Class.forName("org.sqlite.JDBC")
+  private val localPath =
+    try {
+      Paths.get(path)
+    } catch {
+      case _: InvalidPathException => throw new LocationException("invalid path")
+    }
 
   // The JDBC driver requires a local path.
   // Opted to validate here instead of having constructor take a Path and force all the callers to valid the path,
@@ -29,10 +35,12 @@ class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClien
   // This way, if there is any error with the "connection string" (the path in this case), we throw early an exception.
   val sqlitePath: Path =
     try {
-      path.toAbsolutePath
+      localPath.toAbsolutePath
     } catch {
-      case ex: InvalidPathException => throw new JdbcLocationException(s"invalid local path: $path", ex)
+      case ex: InvalidPathException => throw new JdbcLocationException(s"invalid local path: $localPath", ex)
     }
+
+  Class.forName("org.sqlite.JDBC")
 
   override val vendor: String = "sqlite"
 
@@ -44,7 +52,7 @@ class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClien
 
   override val connectionString: String = s"jdbc:$vendor:$sqlitePath"
 
-  override val hostname: String = path.toAbsolutePath.toString
+  override val hostname: String = localPath.toAbsolutePath.toString
 
   override def wrapSQLException[T](f: => T): T = {
     try {

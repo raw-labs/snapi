@@ -15,6 +15,8 @@ package raw.client.api
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 
+import raw.sources.api.LocationConfig
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
   Array(
@@ -55,7 +57,7 @@ final case class RawDecimal(v: java.math.BigDecimal) extends RawValue
 final case class RawBool(v: java.lang.Boolean) extends RawValue
 final case class RawString(v: java.lang.String) extends RawValue
 final case class RawBinary(v: Array[Byte]) extends RawValue
-final case class RawLocation(v: LocationDescription) extends RawValue
+final case class RawLocation(v: LocationConfig) extends RawValue
 final case class RawDate(v: java.time.LocalDate) extends RawValue
 final case class RawTime(v: java.time.LocalTime) extends RawValue
 final case class RawTimestamp(v: java.time.LocalDateTime) extends RawValue

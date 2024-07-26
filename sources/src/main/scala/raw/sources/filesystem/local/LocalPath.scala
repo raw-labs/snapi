@@ -17,11 +17,13 @@ import java.nio.file.{Path, Paths}
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.filesystem.api._
 
-class LocalPath(pathName: String) extends FileSystemLocation {
+class LocalPath(config: LocalConfig) extends FileSystemLocation {
+
+  def this(path: String) = this(LocalConfig(path))
 
   def this(path: Path) = this(path.toAbsolutePath.toString)
 
-  override def rawUri: String = s"file://$pathName"
+  private val pathName = config.path
 
   protected def path: Path = Paths.get(pathName)
 
