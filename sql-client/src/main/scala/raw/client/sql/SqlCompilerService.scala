@@ -21,7 +21,7 @@ import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter
 import raw.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
-import java.sql.ResultSet
+import java.sql.{ResultSet, SQLException}
 import scala.util.control.NonFatal
 
 /**
@@ -86,64 +86,79 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       safeParse(source) match {
         case Left(errors) => GetProgramDescriptionFailure(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
-            val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
-            val description = stmt.queryMetadata match {
-              case Right(info) =>
-                val queryParamInfo = info.parameters
-                val outputType = pgRowTypeToIterableType(info.outputType)
-                val parameterInfo = queryParamInfo
-                  .map {
-                    case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.pgType).map { rawType =>
-                        // we ignore tipe.nullable and mark all parameters as nullable
-                        val paramType = rawType match {
-                          case RawAnyType() => rawType;
-                          case other => other.cloneNullable
+            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+            try {
+              val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
+              val description = stmt.queryMetadata match {
+                case Right(info) =>
+                  val queryParamInfo = info.parameters
+                  val outputType = pgRowTypeToIterableType(info.outputType)
+                  val parameterInfo = queryParamInfo
+                    .map {
+                      case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.pgType).map { rawType =>
+                          // we ignore tipe.nullable and mark all parameters as nullable
+                          val paramType = rawType match {
+                            case RawAnyType() => rawType;
+                            case other => other.cloneNullable
+                          }
+                          ParamDescription(
+                            name,
+                            Some(paramType),
+                            paramInfo.default,
+                            comment = paramInfo.comment,
+                            required = paramInfo.default.isEmpty
+                          )
                         }
-                        ParamDescription(
-                          name,
-                          Some(paramType),
-                          paramInfo.default,
-                          comment = paramInfo.comment,
-                          required = paramInfo.default.isEmpty
-                        )
-                      }
+                    }
+                    .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
+                      case (Left(errors), Left(error)) => Left(errors :+ error)
+                      case (_, Left(error)) => Left(Seq(error))
+                      case (Right(params), Right(param)) => Right(params :+ param)
+                      case (errors @ Left(_), _) => errors
+                      case (_, Right(param)) => Right(Seq(param))
+                    }
+                  (outputType, parameterInfo) match {
+                    case (Right(iterableType), Right(ps)) =>
+                      // Regardless if there are parameters, we declare a main function with the output type.
+                      // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
+                      val ok = ProgramDescription(
+                        Map.empty,
+                        Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
+                        None
+                      )
+                      GetProgramDescriptionSuccess(ok)
+                    case _ =>
+                      val errorMessages =
+                        outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
+                      GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
                   }
-                  .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
-                    case (Left(errors), Left(error)) => Left(errors :+ error)
-                    case (_, Left(error)) => Left(Seq(error))
-                    case (Right(params), Right(param)) => Right(params :+ param)
-                    case (errors @ Left(_), _) => errors
-                    case (_, Right(param)) => Right(Seq(param))
-                  }
-                (outputType, parameterInfo) match {
-                  case (Right(iterableType), Right(ps)) =>
-                    // Regardless if there are parameters, we declare a main function with the output type.
-                    // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
-                    val ok = ProgramDescription(
-                      Map.empty,
-                      Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
-                      None
-                    )
-                    GetProgramDescriptionSuccess(ok)
-                  case _ =>
-                    val errorMessages = outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
-                    GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
-                }
-              case Left(errors) => GetProgramDescriptionFailure(errors)
+                case Left(errors) => GetProgramDescriptionFailure(errors)
+              }
+              RawUtils.withSuppressNonFatalException(stmt.close())
+              description
+            } catch {
+              case e: NamedParametersPreparedStatementException => GetProgramDescriptionFailure(e.errors)
+            } finally {
+              RawUtils.withSuppressNonFatalException(conn.close())
             }
-            RawUtils.withSuppressNonFatalException(stmt.close())
-            description
           } catch {
-            case e: NamedParametersPreparedStatementException => GetProgramDescriptionFailure(e.errors)
-          } finally {
-            RawUtils.withSuppressNonFatalException(conn.close())
+            case ex: SQLException if isConnectionFailure(ex) =>
+              GetProgramDescriptionFailure(List(treeError(parsedTree, ex.getMessage)))
           }
       }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
+  }
+
+  private def treeError(parsedTree: ParseProgramResult, msg: String) = {
+    val tree = parsedTree.tree
+    val start = parsedTree.positions.getStart(tree).get
+    val end = parsedTree.positions.getFinish(tree).get
+    val startPos = ErrorPosition(start.line, start.column)
+    val endPos = ErrorPosition(end.line, end.column)
+    ErrorMessage(msg, List(ErrorRange(startPos, endPos)), ErrorCode.SqlErrorCode)
   }
 
   override def execute(
@@ -182,9 +197,9 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           } finally {
             RawUtils.withSuppressNonFatalException(conn.close())
           }
-
       }
     } catch {
+      case ex: SQLException if isConnectionFailure(ex) => ExecutionRuntimeFailure(ex.getMessage)
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
@@ -319,21 +334,25 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
               .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
               .getOrElse(HoverResponse(None))
           case use: SqlParamUseNode =>
-            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
             try {
-              val pstmt = new NamedParametersPreparedStatement(conn, tree)
+              val conn = connectionPool.getConnection(environment.jdbcUrl.get)
               try {
-                pstmt.parameterInfo(use.name) match {
-                  case Right(typeInfo) => HoverResponse(Some(TypeCompletion(use.name, typeInfo.pgType.typeName)))
-                  case Left(_) => HoverResponse(None)
+                val pstmt = new NamedParametersPreparedStatement(conn, tree)
+                try {
+                  pstmt.parameterInfo(use.name) match {
+                    case Right(typeInfo) => HoverResponse(Some(TypeCompletion(use.name, typeInfo.pgType.typeName)))
+                    case Left(_) => HoverResponse(None)
+                  }
+                } finally {
+                  RawUtils.withSuppressNonFatalException(pstmt.close())
                 }
+              } catch {
+                case _: NamedParametersPreparedStatementException => HoverResponse(None)
               } finally {
-                RawUtils.withSuppressNonFatalException(pstmt.close())
+                RawUtils.withSuppressNonFatalException(conn.close())
               }
             } catch {
-              case _: NamedParametersPreparedStatementException => HoverResponse(None)
-            } finally {
-              RawUtils.withSuppressNonFatalException(conn.close())
+              case ex: SQLException if isConnectionFailure(ex) => HoverResponse(None)
             }
         }
         .getOrElse(HoverResponse(None))
@@ -372,21 +391,26 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       safeParse(source) match {
         case Left(errors) => ValidateResponse(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
-            val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
+            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
             try {
-              stmt.queryMetadata match {
-                case Right(_) => ValidateResponse(List.empty)
-                case Left(errors) => ValidateResponse(errors)
+              val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
+              try {
+                stmt.queryMetadata match {
+                  case Right(_) => ValidateResponse(List.empty)
+                  case Left(errors) => ValidateResponse(errors)
+                }
+              } finally {
+                RawUtils.withSuppressNonFatalException(stmt.close())
               }
+            } catch {
+              case e: NamedParametersPreparedStatementException => ValidateResponse(e.errors)
             } finally {
-              RawUtils.withSuppressNonFatalException(stmt.close())
+              RawUtils.withSuppressNonFatalException(conn.close())
             }
           } catch {
-            case e: NamedParametersPreparedStatementException => ValidateResponse(e.errors)
-          } finally {
-            RawUtils.withSuppressNonFatalException(conn.close())
+            case ex: SQLException if isConnectionFailure(ex) =>
+              ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
           }
       }
     } catch {
@@ -421,4 +445,13 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     rowAttrTypes.right.map(attrs => RawIterableType(RawRecordType(attrs.toVector, false, false), false, false))
   }
 
+  private def isConnectionFailure(ex: SQLException) = {
+    val state = ex.getSQLState
+    if (state != null && state.startsWith("08")) {
+      logger.warn("SqlConnectionPool connection failure", ex)
+      true
+    } else {
+      false
+    }
+  }
 }

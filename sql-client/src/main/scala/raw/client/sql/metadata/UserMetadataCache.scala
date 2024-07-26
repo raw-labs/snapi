@@ -14,9 +14,12 @@ package raw.client.sql.metadata
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.typesafe.scalalogging.StrictLogging
+
 import java.time.Duration
 import raw.client.sql.antlr4.{SqlIdentifierNode, SqlIdnNode, SqlProjNode}
 import raw.client.sql.{SqlConnectionPool, SqlIdentifier}
+
+import java.sql.SQLException
 
 case class IdentifierInfo(name: Seq[SqlIdentifier], tipe: String)
 
@@ -34,17 +37,23 @@ class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxS
   private val wordCompletionCache = {
     val loader = new CacheLoader[Seq[SqlIdentifier], Seq[IdentifierInfo]]() {
       override def load(idns: Seq[SqlIdentifier]): Seq[IdentifierInfo] = {
-        val con = connectionPool.getConnection(jdbcUrl)
         try {
-          val query = idns.size match {
-            case 3 => WordSearchWithThreeItems
-            case 2 => WordSearchWithTwoItems
-            case 1 => WordSearchWithOneItem
+          val con = connectionPool.getConnection(jdbcUrl)
+          try {
+            val query = idns.size match {
+              case 3 => WordSearchWithThreeItems
+              case 2 => WordSearchWithTwoItems
+              case 1 => WordSearchWithOneItem
+            }
+            val tokens = idns.map(idn => if (idn.quoted) idn.value else idn.value.toLowerCase)
+            query.run(con, tokens)
+          } finally {
+            con.close()
           }
-          val tokens = idns.map(idn => if (idn.quoted) idn.value else idn.value.toLowerCase)
-          query.run(con, tokens)
-        } finally {
-          con.close()
+        } catch {
+          case ex: SQLException if isConnectionFailure(ex) =>
+            logger.warn("SqlConnectionPool connection failure", ex)
+            Seq.empty
         }
       }
     }
@@ -100,16 +109,22 @@ class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxS
   private val dotCompletionCache = {
     val loader = new CacheLoader[Seq[SqlIdentifier], Seq[IdentifierInfo]]() {
       override def load(idns: Seq[SqlIdentifier]): Seq[IdentifierInfo] = {
-        val con = connectionPool.getConnection(jdbcUrl)
         try {
-          val query = idns.size match {
-            case 2 => DotSearchWithTwoItems
-            case 1 => DotSearchWithOneItem
+          val con = connectionPool.getConnection(jdbcUrl)
+          try {
+            val query = idns.size match {
+              case 2 => DotSearchWithTwoItems
+              case 1 => DotSearchWithOneItem
+            }
+            val tokens = idns.map(idn => if (idn.quoted) idn.value else idn.value.toLowerCase)
+            query.run(con, tokens)
+          } finally {
+            con.close()
           }
-          val tokens = idns.map(idn => if (idn.quoted) idn.value else idn.value.toLowerCase)
-          query.run(con, tokens)
-        } finally {
-          con.close()
+        } catch {
+          case ex: SQLException if isConnectionFailure(ex) =>
+            logger.warn("SqlConnectionPool connection failure", ex)
+            Seq.empty
         }
       }
     }
@@ -132,4 +147,13 @@ class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxS
     dotCompletionCache.get(seq).map(i => (i.name, i.tipe))
   }
 
+  private def isConnectionFailure(ex: SQLException) = {
+    val state = ex.getSQLState
+    if (state != null && state.startsWith("08")) {
+      logger.warn("SqlConnectionPool connection failure", ex)
+      true
+    } else {
+      false
+    }
+  }
 }
