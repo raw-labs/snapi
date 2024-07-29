@@ -146,60 +146,60 @@ trait StagedCompiler {
             v.throwException()
             throw new AssertionError("should not happen")
           } catch {
-            case NonFatal(ex) => TryRql2Value(Left(ex.getMessage))
+            case NonFatal(ex) => Rql2TryValue(Left(ex.getMessage))
           }
         } else {
-          TryRql2Value(Right(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()))))
+          Rql2TryValue(Right(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()))))
         }
       case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) =>
         if (v.isNull) {
-          OptionRql2Value(None)
+          Rql2OptionValue(None)
         } else {
-          OptionRql2Value(Some(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(Rql2IsNullableTypeProperty()))))
+          Rql2OptionValue(Some(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(Rql2IsNullableTypeProperty()))))
         }
 
       case _: Rql2UndefinedType => throw new AssertionError("Rql2Undefined is not triable and is not nullable.")
-      case _: Rql2BoolType => BoolRql2Value(v.asBoolean())
-      case _: Rql2StringType => StringRql2Value(v.asString())
-      case _: Rql2ByteType => ByteRql2Value(v.asByte())
-      case _: Rql2ShortType => ShortRql2Value(v.asShort())
-      case _: Rql2IntType => IntRql2Value(v.asInt())
-      case _: Rql2LongType => LongRql2Value(v.asLong())
-      case _: Rql2FloatType => FloatRql2Value(v.asFloat())
-      case _: Rql2DoubleType => DoubleRql2Value(v.asDouble())
+      case _: Rql2BoolType => Rql2BoolValue(v.asBoolean())
+      case _: Rql2StringType => Rql2StringValue(v.asString())
+      case _: Rql2ByteType => Rql2ByteValue(v.asByte())
+      case _: Rql2ShortType => Rql2ShortValue(v.asShort())
+      case _: Rql2IntType => Rql2IntValue(v.asInt())
+      case _: Rql2LongType => Rql2LongValue(v.asLong())
+      case _: Rql2FloatType => Rql2FloatValue(v.asFloat())
+      case _: Rql2DoubleType => Rql2DoubleValue(v.asDouble())
       case _: Rql2DecimalType =>
         val bg = BigDecimal(v.asString())
-        DecimalRql2Value(bg)
+        Rql2DecimalValue(bg)
       case _: Rql2DateType =>
         val date = v.asDate()
-        DateRql2Value(date)
+        Rql2DateValue(date)
       case _: Rql2TimeType =>
         val time = v.asTime()
-        TimeRql2Value(time)
+        Rql2TimeValue(time)
       case _: Rql2TimestampType =>
         val localDate = v.asDate()
         val localTime = v.asTime()
-        TimestampRql2Value(localDate.atTime(localTime))
+        Rql2TimestampValue(localDate.atTime(localTime))
       case _: Rql2IntervalType =>
         val d = v.asDuration()
-        IntervalRql2Value(0, 0, 0, d.toDaysPart.toInt, d.toHoursPart, d.toMinutesPart, d.toSecondsPart, d.toMillisPart)
+        Rql2IntervalValue(0, 0, 0, d.toDaysPart.toInt, d.toHoursPart, d.toMinutesPart, d.toSecondsPart, d.toMillisPart)
       case _: Rql2BinaryType =>
         val bufferSize = v.getBufferSize.toInt
         val byteArray = new Array[Byte](bufferSize)
         for (i <- 0 until bufferSize) {
           byteArray(i) = v.readBufferByte(i)
         }
-        BinaryRql2Value(byteArray)
+        Rql2BinaryValue(byteArray)
       case Rql2RecordType(atts, _) =>
         val vs = atts.map(att => polyglotValueToRql2Value(v.getMember(att.idn), att.tipe))
-        RecordRql2Value(vs)
+        Rql2RecordValue(vs)
       case Rql2ListType(innerType, _) =>
         val seq = mutable.ArrayBuffer[Rql2Value]()
         for (i <- 0L until v.getArraySize) {
           val v1 = v.getArrayElement(i)
           seq.append(polyglotValueToRql2Value(v1, innerType))
         }
-        ListRql2Value(seq)
+        Rql2ListValue(seq)
       case Rql2IterableType(innerType, _) =>
         val seq = mutable.ArrayBuffer[Rql2Value]()
         val it = v.getIterator
@@ -211,7 +211,7 @@ trait StagedCompiler {
           val callable = it.getMember("close")
           callable.execute()
         }
-        IterableRql2Value(seq)
+        Rql2IterableValue(seq)
       case Rql2OrType(tipes, _) =>
         val idx = v.getMember("index").asInt()
         val v1 = v.getMember("value")
@@ -262,7 +262,7 @@ trait StagedCompiler {
             }
           settings.put(LocationSettingKey(key), value)
         }
-        LocationRql2Value(LocationDescription(url, settings.toMap))
+        Rql2LocationValue(LocationDescription(url, settings.toMap))
     }
   }
 
