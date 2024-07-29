@@ -13,15 +13,15 @@
 package raw.inferrer.api
 
 import raw.inferrer.local.LocalInferrerService
-
 import raw.sources.api.SourceContext
+import raw.utils.RawSettings
 
 object InferrerServiceProvider {
 
   private val INFERRER_IMPL = "raw.inferrer.impl"
 
-  def apply()(implicit sourceContext: SourceContext): InferrerService = {
-    sourceContext.settings.getStringOpt(INFERRER_IMPL) match {
+  def apply()(implicit settings: RawSettings): InferrerService = {
+    settings.getStringOpt(INFERRER_IMPL) match {
       case Some("local") => new LocalInferrerService()
       case Some(impl) => throw new InferrerException(s"cannot find inferrer service: $impl")
       case None => new LocalInferrerService()

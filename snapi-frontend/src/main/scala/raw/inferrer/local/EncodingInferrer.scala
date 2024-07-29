@@ -19,6 +19,7 @@ import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
+import raw.utils.RawSettings
 
 private[inferrer] case class TextBuffer(reader: Reader, encoding: Encoding, confidence: Int)
 
@@ -30,9 +31,7 @@ private[inferrer] trait EncodingInferrer extends StrictLogging {
 
   import EncodingInferrer._
 
-  protected def sourceContext: SourceContext
-
-  protected val settings = sourceContext.settings
+  protected def settings: RawSettings
 
   private val encodingDetectionReadSize = settings.getBytes(ENCODING_DETECTION_READ_SIZE)
 

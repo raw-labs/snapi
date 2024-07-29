@@ -24,6 +24,7 @@ import raw.inferrer.local.xml.XmlInferrer
 import raw.sources.api._
 import raw.sources.bytestream.api.ByteStreamLocation
 import raw.sources.filesystem.api.{DirectoryMetadata, FileSystemLocation}
+import raw.utils.RawSettings
 
 object AutoInferrer {
   private val USE_BUFFERED_SEEKABLE_IS = "raw.inferrer.local.use-buffered-seekable-is"
@@ -35,7 +36,7 @@ class AutoInferrer(
     jsonInferrer: JsonInferrer,
     hjsonInferrer: HjsonInferrer,
     xmlInferrer: XmlInferrer
-)(implicit protected val sourceContext: SourceContext)
+)(implicit protected val settings: RawSettings)
     extends InferrerErrorHandler
     with EncodingInferrer
     with StrictLogging {
@@ -85,7 +86,7 @@ class AutoInferrer(
     // and pass those to inferrers.
 
     val is =
-      if (sourceContext.settings.getBoolean(USE_BUFFERED_SEEKABLE_IS)) {
+      if (settings.getBoolean(USE_BUFFERED_SEEKABLE_IS)) {
         new InferrerBufferedSeekableIS(location.getSeekableInputStream)
       } else {
         location.getSeekableInputStream

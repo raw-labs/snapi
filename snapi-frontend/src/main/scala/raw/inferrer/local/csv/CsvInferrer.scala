@@ -18,8 +18,8 @@ import raw.inferrer.local._
 import raw.inferrer.local.text.TextLineIterator
 import raw.inferrer.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.sources.api.{Encoding, SourceContext}
-import raw.utils.RawException
+import raw.sources.api.Encoding
+import raw.utils.{RawException, RawSettings}
 
 import scala.util.control.NonFatal
 
@@ -29,7 +29,7 @@ object CsvInferrer {
   private val CSV_QUOTED_WEIGHT = "raw.inferrer.local.csv.quoted-weight"
 }
 
-class CsvInferrer(implicit protected val sourceContext: SourceContext)
+class CsvInferrer(implicit protected val settings: RawSettings)
     extends EncodingInferrer
     with InferrerErrorHandler
     with StrictLogging {

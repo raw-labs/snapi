@@ -14,7 +14,7 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
-import raw.utils.RawException
+import raw.utils.{RawException, RawSettings}
 import raw.inferrer.api._
 import raw.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
 import raw.inferrer.local.csv.{CsvInferrer, CsvMergeTypes}
@@ -25,16 +25,15 @@ import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.{XmlInferrer, XmlMergeTypes}
 import raw.sources.api._
 import raw.sources.bytestream.api.ByteStreamLocation
+import raw.sources.jdbc.api.JdbcTableLocation
 
 import scala.util.control.NonFatal
 
-class LocalInferrerService(implicit sourceContext: SourceContext)
+class LocalInferrerService(implicit settings: RawSettings)
     extends InferrerService
     with InferrerErrorHandler
     with PrettyPrinter
     with StrictLogging {
-
-  private val settings = sourceContext.settings
 
   private val textInferrer = new TextInferrer
   private val csvInferrer = new CsvInferrer
@@ -54,7 +53,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
 
   private val defaultSampleFiles = settings.getInt("raw.inferrer.local.sample-files")
   // This buffered-IS is only valid for text formats
-  private val useBufferedSeekableIs = sourceContext.settings.getBoolean("raw.inferrer.local.use-buffered-seekable-is")
+  private val useBufferedSeekableIs = settings.getBoolean("raw.inferrer.local.use-buffered-seekable-is")
 
   private def textInputStream(loc: ByteStreamLocation) = {
     if (useBufferedSeekableIs) {
@@ -68,16 +67,13 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     try {
       properties match {
         case tbl: SqlTableInferrerProperties =>
-          val location = sourceContext.getJdbcTableLocation(tbl.location)
-          val tipe = jdbcInferrer.getTableType(location)
-          SqlTableInputFormatDescriptor(location.vendor, location.dbName, location.maybeSchema, location.table, tipe)
+          val tipe = jdbcInferrer.getTableType(tbl.location)
+          SqlTableInputFormatDescriptor(tbl.location.vendor, tbl.location.dbName, tbl.location.maybeSchema, tbl.location.table, tipe)
         case query: SqlQueryInferrerProperties =>
-          val location = sourceContext.getJdbcLocation(query.location.url, query.location.options)
-          val tipe = jdbcInferrer.getQueryType(location, query.sql)
-          SqlQueryInputFormatDescriptor(location.vendor, location.dbName, tipe)
+          val tipe = jdbcInferrer.getQueryType(query.location, query.sql)
+          SqlQueryInputFormatDescriptor(query.location.vendor, query.location.dbName, tipe)
         case csv: CsvInferrerProperties =>
-          val location = sourceContext.getByteStream(csv.location.url, csv.location.options)
-          val is = textInputStream(location)
+          val is = textInputStream(csv.location)
           try {
             csvInferrer.infer(
               is,
@@ -95,8 +91,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             is.close()
           }
         case csv: ManyCsvInferrerProperties =>
-          val location = sourceContext.getFileSystem(csv.location.url, csv.location.options)
-          val files = location.ls()
+          val files = csv.location.ls()
           readMany(
             files,
             csv.maybeSampleFiles,
@@ -121,16 +116,14 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             }
           )
         case hjson: HjsonInferrerProperties =>
-          val location = sourceContext.getByteStream(hjson.location.url, hjson.location.options)
-          val is = textInputStream(location)
+          val is = textInputStream(hjson.location)
           try {
             hjsonInferrer.infer(is, hjson.maybeEncoding, hjson.maybeSampleSize)
           } finally {
             is.close()
           }
         case hjson: ManyHjsonInferrerProperties =>
-          val location = sourceContext.getFileSystem(hjson.location.url, hjson.location.options)
-          val files = location.ls()
+          val files = hjson.location.ls()
           readMany(
             files,
             hjson.maybeSampleFiles,
@@ -144,16 +137,14 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             }
           )
         case json: JsonInferrerProperties =>
-          val location = sourceContext.getByteStream(json.location.url, json.location.options)
-          val is = textInputStream(location)
+          val is = textInputStream(json.location)
           try {
             jsonInferrer.infer(is, json.maybeEncoding, json.maybeSampleSize)
           } finally {
             is.close()
           }
         case json: ManyJsonInferrerProperties =>
-          val location = sourceContext.getFileSystem(json.location.url, json.location.options)
-          val files = location.ls()
+          val files = json.location.ls()
           readMany(
             files,
             json.maybeSampleFiles,
@@ -167,16 +158,14 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             }
           )
         case xml: XmlInferrerProperties =>
-          val location = sourceContext.getByteStream(xml.location.url, xml.location.options)
-          val is = textInputStream(location)
+          val is = textInputStream(xml.location)
           try {
             xmlInferrer.infer(is, xml.maybeEncoding, xml.maybeSampleSize)
           } finally {
             is.close()
           }
         case xml: ManyXmlInferrerProperties =>
-          val location = sourceContext.getFileSystem(xml.location.url, xml.location.options)
-          val files = location.ls()
+          val files = xml.location.ls()
           readMany(
             files,
             xml.maybeSampleFiles,
@@ -189,20 +178,15 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
               }
             }
           )
-        case auto: AutoInferrerProperties =>
-          if (ByteStreamLocationProvider.isSupported(auto.location)) {
-            val location = ByteStreamLocationProvider.build(auto.location)
-            autoInferrer.infer(location, auto.maybeSampleSize)
-          } else if (JdbcTableLocationProvider.isSupported(auto.location.url)) {
-            val location = JdbcTableLocationProvider.build(auto.location)
-            val tipe = jdbcInferrer.getTableType(location)
-            SqlTableInputFormatDescriptor(location.vendor, location.dbName, location.maybeSchema, location.table, tipe)
-          } else {
-            throw new LocalInferrerException("unsupported location for auto inference")
+        case auto: AutoInferrerProperties => auto.location match {
+            case bs: ByteStreamLocation => autoInferrer.infer(bs, auto.maybeSampleSize)
+            case tbl: JdbcTableLocation =>
+              val tipe = jdbcInferrer.getTableType(tbl)
+              SqlTableInputFormatDescriptor(tbl.vendor, tbl.dbName, tbl.maybeSchema, tbl.table, tipe)
+            case _ => throw new LocalInferrerException("unsupported location for auto inference")
           }
         case auto: ManyAutoInferrerProperties =>
-          val location = sourceContext.getFileSystem(auto.location.url, auto.location.options)
-          val files = location.ls()
+          val files = auto.location.ls()
           readMany(files, auto.maybeSampleFiles, file => autoInferrer.infer(file, auto.maybeSampleSize))
       }
     } catch {
@@ -211,7 +195,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
         // Errors such as e.g. accessing a data source are seen as inferrer errors.
         logger.debug(
           s"""Inferrer failed gracefully.
-            |Location: ${properties.location.url}""".stripMargin,
+            |Inferrer properties: $properties""".stripMargin,
           ex
         )
         throw new LocalInferrerException(ex.getMessage, ex)
