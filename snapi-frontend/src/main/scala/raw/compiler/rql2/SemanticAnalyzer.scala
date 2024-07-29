@@ -16,7 +16,6 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.Entity
-import raw.client.api._
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
@@ -26,12 +25,12 @@ import raw.compiler.rql2.api.{
   EntryExtension,
   ExpArg,
   ExpParam,
-  OptionValue,
   PackageExtensionProvider,
-  TryValue,
+  Rql2OptionValue,
+  Rql2TryValue,
+  Rql2Value,
   TypeArg,
   TypeParam,
-  Value,
   ValueArg,
   ValueParam
 }
@@ -549,7 +548,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             getValue(report, e) match {
               // If getValue returns an error which means the staged compiler failed to execute "Environment.Secret(<secret_name>)" code
               // We return a warning that the secret is missing.
-              case Right(TryValue(Left(error))) => Seq(MissingSecretWarning(e))
+              case Right(Rql2TryValue(Left(error))) => Seq(MissingSecretWarning(e))
               // In case of Right(TryValue(Right())) that <secret_name> in "Environment.Secret(<secret_name>)" is a free variable, we don't report that as a warning
               case _ => Seq.empty
             }
@@ -1514,7 +1513,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     Right(r)
   }
 
-  final private def getValue(report: CompatibilityReport, e: Exp): Either[ErrorCompilerMessage, Value] = {
+  final private def getValue(report: CompatibilityReport, e: Exp): Either[ErrorCompilerMessage, Rql2Value] = {
     // Recurse over all entities in the order of its dependencies.
     // Populate an ordered list of declarations as a side-effect.
     val lets: mutable.ArrayBuffer[LetDecl] = mutable.ArrayBuffer.empty[LetDecl]
@@ -1608,7 +1607,6 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       program, {
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
-        val rawType = rql2TypeToRawType(expected).get
         val stagedCompilerEnvironment = programContext.programEnvironment
           .copy(
             options = programContext.programEnvironment.options + ("staged-compiler" -> "true"),
@@ -1616,26 +1614,26 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
           )
 
         logger.trace("Pretty printed staged compiler program is:\n" + prettyPrinterProgram)
-        logger.trace("Pretty printed staged compiler type is:\n" + rawType)
+        logger.trace("Pretty printed staged compiler type is:\n" + expected)
 
         try {
-          eval(prettyPrinterProgram, rawType, stagedCompilerEnvironment)(programContext.settings) match {
+          eval(prettyPrinterProgram, expected, stagedCompilerEnvironment)(programContext.settings) match {
             case StagedCompilerSuccess(v) =>
-              var stagedCompilerResult = rawValueToRql2Value(v, rawType)
+              var stagedCompilerResult = v
               // Remove extraProps
               if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
-                val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v
+                val tryValue = stagedCompilerResult.asInstanceOf[Rql2TryValue].v
                 if (tryValue.isLeft) {
                   return Left(FailedToEvaluate(e, tryValue.left.toOption))
                 }
-                stagedCompilerResult = stagedCompilerResult.asInstanceOf[TryValue].v.right.get
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[Rql2TryValue].v.right.get
               }
               if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
-                val optionValue = stagedCompilerResult.asInstanceOf[OptionValue].v
+                val optionValue = stagedCompilerResult.asInstanceOf[Rql2OptionValue].v
                 if (optionValue.isEmpty) {
                   return Left(FailedToEvaluate(e, Some("unexpected null value found")))
                 }
-                stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[Rql2OptionValue].v.get
               }
               Right(stagedCompilerResult)
             case StagedCompilerValidationFailure(errs) =>

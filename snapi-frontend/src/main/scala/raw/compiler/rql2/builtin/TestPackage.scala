@@ -125,7 +125,7 @@ class OptionalValueArgSugar extends SugarEntryExtension {
   )(implicit programContext: ProgramContext): Exp = {
     val mandatory = FunAppArg(mandatoryArgs.head.asInstanceOf[ExpArg].e, None)
     val optionalX = {
-      val arg = optionalArgs.find(_._1 == "x").get._2.asInstanceOf[ValueArg].v.asInstanceOf[IntValue]
+      val arg = optionalArgs.find(_._1 == "x").get._2.asInstanceOf[ValueArg].v.asInstanceOf[Rql2IntValue]
       FunAppArg(IntConst(arg.v.toString), Some("x"))
     }
     val optionalY = FunAppArg(IntConst("10"), Some("y"))
@@ -209,7 +209,7 @@ class VarValueArgSugarTestEntry extends SugarEntryExtension {
     val varArg1 = FunAppArg(IntConst("1"), None)
     val varArg2 = FunAppArg(IntConst("2"), None)
     val valueArgs =
-      varArgs.map { case ValueArg(v, _) => FunAppArg(IntConst(v.asInstanceOf[IntValue].v.toString), None) }
+      varArgs.map { case ValueArg(v, _) => FunAppArg(IntConst(v.asInstanceOf[Rql2IntValue].v.toString), None) }
     FunApp(Proj(PackageIdnExp("TestPackage"), "VarValueArgs"), Vector(varArg1, varArg2) ++ valueArgs)
   }
 

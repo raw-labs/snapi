@@ -111,7 +111,8 @@ class MySQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionH
     val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs =
+      optionalArgs.map { case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("MySQL"), "Read"),
       Vector(db, table, readType) ++ optArgs
@@ -337,7 +338,8 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtension
     val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs =
+      optionalArgs.map { case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("MySQL"), "Query"),
       Vector(db, query, readType) ++ optArgs

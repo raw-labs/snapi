@@ -22,7 +22,7 @@ import raw.compiler.rql2.api.{
   ExpParam,
   PackageExtension,
   Param,
-  StringValue,
+  Rql2StringValue,
   SugarEntryExtension,
   TypeArg,
   TypeParam,
@@ -130,7 +130,8 @@ class OracleInferAndReadEntry extends SugarEntryExtension with SqlTableExtension
     val schema = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(2))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs =
+      optionalArgs.map { case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("Oracle"), "Read"),
       Vector(db, schema, table, readType) ++ optArgs
@@ -366,7 +367,8 @@ class OracleInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensio
     val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
-    val optArgs = optionalArgs.map { case (idn, ValueArg(StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+    val optArgs =
+      optionalArgs.map { case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("Oracle"), "Query"),
       Vector(db, query, readType) ++ optArgs
