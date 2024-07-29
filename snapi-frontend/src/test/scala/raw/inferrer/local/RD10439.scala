@@ -13,12 +13,9 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{LocationDescription, LocationSettingKey, LocationStringSetting}
 import raw.creds.api.MySqlCredential
 import raw.inferrer.api._
 import raw.inferrer.local.jdbc.JdbcInferrer
-import raw.sources.api.SourceContext
-import raw.sources.jdbc.api.JdbcTableLocationProvider
 import raw.sources.jdbc.mysql.{MySqlClient, MySqlTable}
 import raw.utils.{RawTestSuite, SettingsTestContext}
 

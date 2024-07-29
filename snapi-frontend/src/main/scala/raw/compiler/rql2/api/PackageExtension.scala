@@ -17,7 +17,7 @@ import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, LocationPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.{PackageEntity, ProgramContext, Rql2TypeUtils}
+import raw.compiler.rql2.{ProgramContext, Rql2TypeUtils}
 import raw.client.api._
 import raw.sources.api._
 
