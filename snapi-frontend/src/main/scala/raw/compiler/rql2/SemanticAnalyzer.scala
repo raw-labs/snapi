@@ -25,10 +25,10 @@ import raw.compiler.rql2.api.{
   EntryExtension,
   ExpArg,
   ExpParam,
-  OptionRql2Value,
   PackageExtensionProvider,
+  Rql2OptionValue,
+  Rql2TryValue,
   Rql2Value,
-  TryRql2Value,
   TypeArg,
   TypeParam,
   ValueArg,
@@ -548,7 +548,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             getValue(report, e) match {
               // If getValue returns an error which means the staged compiler failed to execute "Environment.Secret(<secret_name>)" code
               // We return a warning that the secret is missing.
-              case Right(TryRql2Value(Left(error))) => Seq(MissingSecretWarning(e))
+              case Right(Rql2TryValue(Left(error))) => Seq(MissingSecretWarning(e))
               // In case of Right(TryValue(Right())) that <secret_name> in "Environment.Secret(<secret_name>)" is a free variable, we don't report that as a warning
               case _ => Seq.empty
             }
@@ -1622,18 +1622,18 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
               var stagedCompilerResult = v
               // Remove extraProps
               if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
-                val tryValue = stagedCompilerResult.asInstanceOf[TryRql2Value].v
+                val tryValue = stagedCompilerResult.asInstanceOf[Rql2TryValue].v
                 if (tryValue.isLeft) {
                   return Left(FailedToEvaluate(e, tryValue.left.toOption))
                 }
-                stagedCompilerResult = stagedCompilerResult.asInstanceOf[TryRql2Value].v.right.get
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[Rql2TryValue].v.right.get
               }
               if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
-                val optionValue = stagedCompilerResult.asInstanceOf[OptionRql2Value].v
+                val optionValue = stagedCompilerResult.asInstanceOf[Rql2OptionValue].v
                 if (optionValue.isEmpty) {
                   return Left(FailedToEvaluate(e, Some("unexpected null value found")))
                 }
-                stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionRql2Value].v.get
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[Rql2OptionValue].v.get
               }
               Right(stagedCompilerResult)
             case StagedCompilerValidationFailure(errs) =>

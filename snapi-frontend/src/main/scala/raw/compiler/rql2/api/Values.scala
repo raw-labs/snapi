@@ -15,20 +15,20 @@ package raw.compiler.rql2.api
 import raw.client.api.LocationDescription
 
 sealed trait Rql2Value
-final case class StringRql2Value(v: String) extends Rql2Value
-final case class BoolRql2Value(v: Boolean) extends Rql2Value
-final case class BinaryRql2Value(v: Array[Byte]) extends Rql2Value
-final case class ByteRql2Value(v: Byte) extends Rql2Value
-final case class ShortRql2Value(v: Short) extends Rql2Value
-final case class IntRql2Value(v: Int) extends Rql2Value
-final case class LongRql2Value(v: Long) extends Rql2Value
-final case class FloatRql2Value(v: Float) extends Rql2Value
-final case class DoubleRql2Value(v: Double) extends Rql2Value
-final case class DecimalRql2Value(v: BigDecimal) extends Rql2Value
-final case class DateRql2Value(v: java.time.LocalDate) extends Rql2Value
-final case class TimeRql2Value(v: java.time.LocalTime) extends Rql2Value
-final case class TimestampRql2Value(v: java.time.LocalDateTime) extends Rql2Value
-final case class IntervalRql2Value(
+final case class Rql2StringValue(v: String) extends Rql2Value
+final case class Rql2BoolValue(v: Boolean) extends Rql2Value
+final case class Rql2BinaryValue(v: Array[Byte]) extends Rql2Value
+final case class Rql2ByteValue(v: Byte) extends Rql2Value
+final case class Rql2ShortValue(v: Short) extends Rql2Value
+final case class Rql2IntValue(v: Int) extends Rql2Value
+final case class Rql2LongValue(v: Long) extends Rql2Value
+final case class Rql2FloatValue(v: Float) extends Rql2Value
+final case class Rql2DoubleValue(v: Double) extends Rql2Value
+final case class Rql2DecimalValue(v: BigDecimal) extends Rql2Value
+final case class Rql2DateValue(v: java.time.LocalDate) extends Rql2Value
+final case class Rql2TimeValue(v: java.time.LocalTime) extends Rql2Value
+final case class Rql2TimestampValue(v: java.time.LocalDateTime) extends Rql2Value
+final case class Rql2IntervalValue(
     years: Int,
     months: Int,
     weeks: Int,
@@ -38,10 +38,10 @@ final case class IntervalRql2Value(
     seconds: Int,
     millis: Int
 ) extends Rql2Value
-final case class LocationRql2Value(v: LocationDescription) extends Rql2Value
-final case class RecordRql2Value(v: Seq[Rql2Value]) extends Rql2Value
-final case class TryRql2Value(v: Either[String, Rql2Value]) extends Rql2Value
-final case class OptionRql2Value(v: Option[Rql2Value]) extends Rql2Value
-final case class ListRql2Value(v: Seq[Rql2Value]) extends Rql2Value
-final case class IterableRql2Value(v: Seq[Rql2Value]) extends Rql2Value // Data has been ready is now materialized.
-final case class OrRql2Value(vs: Seq[Rql2Value]) extends Rql2Value
+final case class Rql2LocationValue(v: LocationDescription) extends Rql2Value
+final case class Rql2RecordValue(v: Seq[Rql2Value]) extends Rql2Value
+final case class Rql2TryValue(v: Either[String, Rql2Value]) extends Rql2Value
+final case class Rql2OptionValue(v: Option[Rql2Value]) extends Rql2Value
+final case class Rql2ListValue(v: Seq[Rql2Value]) extends Rql2Value
+final case class Rql2IterableValue(v: Seq[Rql2Value]) extends Rql2Value // Data has been ready is now materialized.
+final case class Rql2OrValue(vs: Seq[Rql2Value]) extends Rql2Value

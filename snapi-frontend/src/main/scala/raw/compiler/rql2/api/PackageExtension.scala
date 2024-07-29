@@ -175,14 +175,14 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
   // Helpers
   ///////////////////////////////////////////////////////////////////////////
 
-  final protected def getStringValue(v: Arg): String = { v.asInstanceOf[ValueArg].v.asInstanceOf[StringRql2Value].v }
+  final protected def getStringValue(v: Arg): String = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2StringValue].v }
 
-  final protected def getIntValue(v: Arg): Int = { v.asInstanceOf[ValueArg].v.asInstanceOf[IntRql2Value].v }
+  final protected def getIntValue(v: Arg): Int = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2IntValue].v }
 
-  final protected def getBoolValue(v: Arg): Boolean = { v.asInstanceOf[ValueArg].v.asInstanceOf[BoolRql2Value].v }
+  final protected def getBoolValue(v: Arg): Boolean = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2BoolValue].v }
 
   final protected def getLocationValue(v: Arg): LocationDescription = {
-    v.asInstanceOf[ValueArg].v.asInstanceOf[LocationRql2Value].v
+    v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2LocationValue].v
   }
 
   final protected def locationValueToExp(v: Arg): Exp = {
@@ -209,29 +209,29 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
   }
 
   final protected def getListStringValue(v: Arg): Seq[String] = {
-    v.asInstanceOf[ValueArg].v.asInstanceOf[ListRql2Value].v.map(v => v.asInstanceOf[StringRql2Value].v)
+    v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2ListValue].v.map(v => v.asInstanceOf[Rql2StringValue].v)
   }
 
   final protected def getListOptionStringValue(v: Arg): Seq[Option[String]] = {
     v
       .asInstanceOf[ValueArg]
       .v
-      .asInstanceOf[ListRql2Value]
+      .asInstanceOf[Rql2ListValue]
       .v
-      .map(v => v.asInstanceOf[OptionRql2Value].v.map(_.asInstanceOf[StringRql2Value].v))
+      .map(v => v.asInstanceOf[Rql2OptionValue].v.map(_.asInstanceOf[Rql2StringValue].v))
   }
 
   final protected def getListKVValue(v: Arg): Seq[(String, String)] = {
     val values = v
       .asInstanceOf[ValueArg]
       .v
-      .asInstanceOf[ListRql2Value]
+      .asInstanceOf[Rql2ListValue]
       .v
       .map { x =>
-        val values = x.asInstanceOf[RecordRql2Value].v.map {
-          case OptionRql2Value(Some(v: StringRql2Value)) => Some(v.v)
-          case StringRql2Value(v) => Some(v)
-          case OptionRql2Value(None) => None
+        val values = x.asInstanceOf[Rql2RecordValue].v.map {
+          case Rql2OptionValue(Some(v: Rql2StringValue)) => Some(v.v)
+          case Rql2StringValue(v) => Some(v)
+          case Rql2OptionValue(None) => None
         }
         (values(0), values(1))
       }
@@ -241,7 +241,7 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
 
   final protected def getEncodingValue(v: Arg): Either[String, Encoding] = {
     Encoding
-      .fromEncodingString(v.asInstanceOf[ValueArg].v.asInstanceOf[StringRql2Value].v)
+      .fromEncodingString(v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2StringValue].v)
   }
 
   final protected def getMandatoryArgExp(mandatoryArgs: Seq[Arg], idx: Int): Exp = {
