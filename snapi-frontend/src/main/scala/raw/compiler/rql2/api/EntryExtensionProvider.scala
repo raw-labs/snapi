@@ -252,6 +252,7 @@ object EntryExtensionProvider {
     new raw.compiler.rql2.builtin.TimestampValueArgTestEntry,
     new raw.compiler.rql2.builtin.IntervalValueArgTestEntry,
     new raw.compiler.rql2.builtin.RecordValueArgTestEntry,
+    new raw.compiler.rql2.builtin.OrValueArgTestEntry,
     new raw.compiler.rql2.builtin.ListValueArgTestEntry,
     new raw.compiler.rql2.builtin.TimeBuildEntry,
     new raw.compiler.rql2.builtin.TimeParseEntry,

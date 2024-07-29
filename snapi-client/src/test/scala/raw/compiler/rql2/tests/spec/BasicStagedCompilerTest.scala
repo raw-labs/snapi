@@ -39,4 +39,12 @@ trait BasicStagedCompilerTest extends Rql2CompilerTestContext {
   test("""TestPackage.ListValueArg([1, 2, 3])""")(_ should evaluateTo("{arg: [1, 2, 3]}"))
   test("""TestPackage.RecordValueArg({a: 1, b: 2.12f})""")(_ should evaluateTo("{arg: {a: 1, b: 2.12f}}"))
 
+  test("""
+    |let arg = Json.Parse("12", type int or record(a: int))
+    |in TestPackage.OrValueArg(arg)""".stripMargin)(_ should evaluateTo("{arg: 12}"))
+  private val ttt = "\"\"\""
+  test(s"""
+    |let arg = Json.Parse($ttt{"a": 14}$ttt, type int or record(a: int))
+    |in TestPackage.OrValueArg(arg)""".stripMargin)(_ should evaluateTo("{arg: {a: 14}}"))
+
 }

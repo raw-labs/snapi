@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.base.source.Type
+import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.rql2._
 import raw.compiler.rql2.api._
 import raw.compiler.rql2.source._
@@ -339,23 +339,33 @@ class StrictArgsColConsumeTestEntry extends EntryExtension {
 
 }
 
-abstract class ValueArgTestEntry(t: Type) extends EntryExtension {
+abstract class ValueArgTestEntry(t: Type) extends SugarEntryExtension {
 
   override def packageName: String = "TestPackage"
 
   override def docs: EntryDoc = ???
 
   override def nrMandatoryParams: Int = 1
+
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ValueParam(t))
+    Right(ValueParam(AnythingType()))
+  }
+  override def desugar(
+      t: Type,
+      args: Seq[FunAppArg],
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Exp = {
+    RecordPackageBuilder.Build(Vector("arg" -> args.head.e))
   }
 
   override def returnType(
-      Args: Seq[Arg],
+      args: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2RecordType(Vector(Rql2AttrType("arg", t))))
+    Right(Rql2RecordType(Vector(Rql2AttrType("arg", args.head.t))))
   }
 
 }
@@ -413,6 +423,20 @@ class RecordValueArgTestEntry
       Rql2RecordType(Vector(Rql2AttrType("a", Rql2IntType()), Rql2AttrType("b", Rql2FloatType())))
     ) {
   override def entryName: String = "RecordValueArg"
+}
+
+class OrValueArgTestEntry
+    extends ValueArgTestEntry(
+      Rql2OrType(
+        Vector(
+          Rql2IntType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())),
+          Rql2RecordType(
+            Vector(Rql2AttrType("a", Rql2IntType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))))
+          )
+        )
+      )
+    ) {
+  override def entryName: String = "OrValueArg"
 }
 
 class ListValueArgTestEntry

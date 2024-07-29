@@ -286,6 +286,7 @@ module raw.snapi.truffle {
       raw.compiler.snapi.truffle.builtin.test_extension.TruffleOptionalExpArgsTestEntry,
       raw.compiler.snapi.truffle.builtin.test_extension.TruffleOptionalValueArgsTestEntry,
       raw.compiler.snapi.truffle.builtin.test_extension.TruffleRecordValueArgTestEntry,
+      raw.compiler.snapi.truffle.builtin.test_extension.TruffleOrValueArgTestEntry,
       raw.compiler.snapi.truffle.builtin.test_extension.TruffleShortValueArgTestEntry,
       raw.compiler.snapi.truffle.builtin.test_extension.TruffleStrictArgsColPassThroughTestEntry,
       raw.compiler.snapi.truffle.builtin.test_extension.TruffleStrictArgsTestEntry,

@@ -213,8 +213,8 @@ trait StagedCompiler {
         }
         Rql2IterableValue(seq)
       case Rql2OrType(tipes, _) =>
-        val idx = v.getMember("index").asInt()
-        val v1 = v.getMember("value")
+        val idx = v.invokeMember("getIndex").asInt()
+        val v1 = v.invokeMember("getValue")
         val tipe = tipes(idx)
         polyglotValueToRql2Value(v1, tipe)
       case _: Rql2LocationType =>

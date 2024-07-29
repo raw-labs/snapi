@@ -297,6 +297,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             new raw.compiler.snapi.truffle.builtin.test_extension.TruffleOptionalExpArgsTestEntry(),
             new raw.compiler.snapi.truffle.builtin.test_extension.TruffleOptionalValueArgsTestEntry(),
             new raw.compiler.snapi.truffle.builtin.test_extension.TruffleRecordValueArgTestEntry(),
+            new raw.compiler.snapi.truffle.builtin.test_extension.TruffleOrValueArgTestEntry(),
             new raw.compiler.snapi.truffle.builtin.test_extension.TruffleShortValueArgTestEntry(),
             new raw.compiler.snapi.truffle.builtin.test_extension.TruffleStrictArgsColPassThroughTestEntry(),
             new raw.compiler.snapi.truffle.builtin.test_extension.TruffleStrictArgsTestEntry(),
@@ -448,6 +449,8 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                     case FunType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                     case Rql2RecordType ignored ->
+                            getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
+                    case Rql2OrType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                     case Rql2LocationType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
