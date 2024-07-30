@@ -165,7 +165,6 @@ trait Rql2TypeUtils {
       case _: IllegalArgumentException => None
     }
   }
-
 }
 
 object Rql2TypeUtils extends Rql2TypeUtils

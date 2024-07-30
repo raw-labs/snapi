@@ -17,7 +17,7 @@ import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, LocationPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.{ProgramContext, Rql2TypeUtils}
+import raw.compiler.rql2.{ProgramContext, Rql2TypeUtils, Rql2ValueToExp}
 import raw.client.api._
 import raw.sources.api._
 
@@ -169,7 +169,7 @@ abstract class ShortEntryExtension(
 
 }
 
-trait EntryExtensionHelper extends Rql2TypeUtils {
+trait EntryExtensionHelper extends Rql2TypeUtils with Rql2ValueToExp {
 
   ///////////////////////////////////////////////////////////////////////////
   // Helpers
@@ -186,26 +186,8 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
   }
 
   final protected def locationValueToExp(v: Arg): Exp = {
-    val description = getLocationValue(v)
-    LocationPackageBuilder.Build(
-      StringConst(description.url),
-      description.settings.map {
-        case (k, v) =>
-          val idn = k.key
-          val exp = v match {
-            case LocationIntSetting(value) => IntConst(value.toString)
-            case LocationStringSetting(value) => StringConst(value)
-            case LocationBinarySetting(bytes) => BinaryConst(bytes.toArray)
-            case LocationBooleanSetting(value) => BoolConst(value)
-            case LocationDurationSetting(value) => ???
-            case LocationKVSetting(settings) => ListPackageBuilder.Build(settings.map {
-                case (k, v) => RecordPackageBuilder.Build(StringConst(k), StringConst(v))
-              }: _*)
-            case LocationIntArraySetting(value) => ListPackageBuilder.Build(value.map(i => IntConst(i.toString)): _*)
-          }
-          (idn, exp)
-      }.toVector
-    )
+    val ValueArg(locationValue: Rql2LocationValue, locationType: Rql2LocationType) = v
+    valueToExp(locationValue, locationType)
   }
 
   final protected def getListStringValue(v: Arg): Seq[String] = {
