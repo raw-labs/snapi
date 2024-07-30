@@ -43,3 +43,4 @@ final case class Rql2TryValue(v: Either[String, Rql2Value]) extends Rql2Value
 final case class Rql2OptionValue(v: Option[Rql2Value]) extends Rql2Value
 final case class Rql2ListValue(v: Seq[Rql2Value]) extends Rql2Value
 final case class Rql2IterableValue(v: Seq[Rql2Value]) extends Rql2Value // Data has been ready is now materialized.
+final case class Rql2OrValue(vs: Seq[Rql2Value]) extends Rql2Value
