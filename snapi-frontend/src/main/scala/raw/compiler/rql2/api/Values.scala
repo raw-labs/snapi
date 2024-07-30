@@ -12,8 +12,6 @@
 
 package raw.compiler.rql2.api
 
-import raw.client.api.LocationDescription
-
 sealed trait Rql2Value
 final case class Rql2StringValue(v: String) extends Rql2Value
 final case class Rql2BoolValue(v: Boolean) extends Rql2Value
@@ -39,9 +37,9 @@ final case class Rql2IntervalValue(
     millis: Int
 ) extends Rql2Value
 final case class Rql2LocationValue(v: LocationDescription) extends Rql2Value
-final case class Rql2RecordValue(v: Seq[Rql2Value]) extends Rql2Value
+final case class Rql2RecordValue(v: Seq[Rql2RecordAttr]) extends Rql2Value
+final case class Rql2RecordAttr(name: String, value: Rql2Value)
 final case class Rql2TryValue(v: Either[String, Rql2Value]) extends Rql2Value
 final case class Rql2OptionValue(v: Option[Rql2Value]) extends Rql2Value
 final case class Rql2ListValue(v: Seq[Rql2Value]) extends Rql2Value
 final case class Rql2IterableValue(v: Seq[Rql2Value]) extends Rql2Value // Data has been ready is now materialized.
-final case class Rql2OrValue(vs: Seq[Rql2Value]) extends Rql2Value

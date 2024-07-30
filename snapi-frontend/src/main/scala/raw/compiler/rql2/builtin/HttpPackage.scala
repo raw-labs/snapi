@@ -214,7 +214,7 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       "clientSecret",
       "authProvider",
       "tokenUrl",
-      "useBasicAuth",
+      "useBasicAuth", fhix this as many not supported anymore
       "username",
       "password",
       "args",
@@ -224,6 +224,10 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
   )
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
+
+    this is not correct
+      this is not validating anything, really
+
     Right(
       ExpParam(
         OneOfType(

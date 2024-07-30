@@ -49,6 +49,7 @@ class LocationBuildEntry extends EntryExtension {
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     Right(
       ExpParam(
+        put more types...
         OneOfType(
           Rql2IntType(),
           Rql2StringType(),

@@ -30,7 +30,7 @@ public class TruffleLocationBuildEntry extends LocationBuildEntry
     String[] keys =
         args.stream()
             .filter(a -> a.identifier() != null)
-            .map(a -> a.identifier().replace('_', '-'))
+            .map(a -> a.identifier().replace('_', '-')) what is this!!!
             .toArray(String[]::new);
 
     ExpressionNode[] values = optionalArgs(args);

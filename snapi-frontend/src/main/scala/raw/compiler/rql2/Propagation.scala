@@ -346,43 +346,6 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
     r
   }
 
-  private def valueToExp(value: Rql2Value, t: Type): Exp = value match {
-    case Rql2ByteValue(v) => ByteConst(v.toString)
-    case Rql2ShortValue(v) => ShortConst(v.toString)
-    case Rql2IntValue(v) => IntConst(v.toString)
-    case Rql2LongValue(v) => LongConst(v.toString)
-    case Rql2FloatValue(v) => FloatConst(v.toString)
-    case Rql2DoubleValue(v) => DoubleConst(v.toString)
-    case Rql2StringValue(v) => StringConst(v)
-    case Rql2BoolValue(v) => BoolConst(v)
-    case Rql2OptionValue(option) =>
-      val innerType = resetProps(t, Set.empty)
-      option
-        .map(v => valueToExp(v, innerType))
-        .map(NullablePackageBuilder.Build(_))
-        .getOrElse(NullablePackageBuilder.Empty(innerType))
-    case Rql2RecordValue(r) =>
-      val Rql2RecordType(atts, _) = t
-      val fields = r.zip(atts).map { case (v, att) => att.idn -> valueToExp(v, att.tipe) }
-      RecordPackageBuilder.Build(fields.toVector)
-    case Rql2ListValue(v) =>
-      val Rql2ListType(innerType, _) = t
-      ListPackageBuilder.Build(v.map(x => valueToExp(x, innerType)): _*)
-    case Rql2DateValue(v) => DatePackageBuilder.FromLocalDate(v)
-    case Rql2TimeValue(v) => TimePackageBuilder.FromLocalTime(v)
-    case Rql2TimestampValue(v) => TimestampPackageBuilder.FromLocalDateTime(v)
-    case Rql2IntervalValue(
-          years,
-          month,
-          weeks,
-          days,
-          hours,
-          minutes,
-          seconds,
-          millis
-        ) => IntervalPackageBuilder.FromRawInterval(years, month, weeks, days, hours, minutes, seconds, millis)
-  }
-
   private def sameModuloAttributes(t1: Type, t2: Type) = {
     val plainType1 = resetProps(t1, Set.empty)
     val plainType2 = resetProps(t2, Set.empty)

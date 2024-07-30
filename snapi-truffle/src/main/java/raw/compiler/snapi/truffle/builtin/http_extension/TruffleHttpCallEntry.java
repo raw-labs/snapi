@@ -67,7 +67,7 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
                     .skip(1)
                     .filter(e -> e.identifier() != null)
                     .map(e -> replaceKey(e.identifier())),
-                Stream.of("http-method"))
+                Stream.of("http-method")) why?
             .toArray(String[]::new);
 
     ExpressionNode[] values =
