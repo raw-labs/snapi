@@ -374,15 +374,15 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
       case Rql2TimeValue(v) => TimePackageBuilder.FromLocalTime(v)
       case Rql2TimestampValue(v) => TimestampPackageBuilder.FromLocalDateTime(v)
       case Rql2IntervalValue(
-      years,
-      month,
-      weeks,
-      days,
-      hours,
-      minutes,
-      seconds,
-      millis
-      ) => IntervalPackageBuilder.FromRawInterval(years, month, weeks, days, hours, minutes, seconds, millis)
+            years,
+            month,
+            weeks,
+            days,
+            hours,
+            minutes,
+            seconds,
+            millis
+          ) => IntervalPackageBuilder.FromRawInterval(years, month, weeks, days, hours, minutes, seconds, millis)
     }
   }
 
