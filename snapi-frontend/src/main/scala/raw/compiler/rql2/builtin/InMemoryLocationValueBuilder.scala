@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.rql2.api.{Arg, LocationValue, StringValue, ValueArg}
+import raw.compiler.rql2.api.{Arg, Rql2LocationValue, Rql2StringValue, ValueArg}
 import raw.sources.bytestream.in_memory.InMemoryByteStreamLocation
 import raw.client.api._
 import raw.compiler.rql2.source.Rql2LocationType
@@ -21,7 +21,7 @@ object InMemoryLocationValueBuilder {
   def build(mandatoryArgs: Seq[Arg]): (ValueArg, String) = {
     val codeData = mandatoryArgs.head match {
       case ValueArg(v, _) => v match {
-          case StringValue(innVal) => innVal
+          case Rql2StringValue(innVal) => innVal
         }
     }
     val settings = Map[LocationSettingKey, LocationSettingValue](
@@ -31,6 +31,6 @@ object InMemoryLocationValueBuilder {
       )
     )
     val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
-    (ValueArg(LocationValue(locationDescription), Rql2LocationType()), codeData)
+    (ValueArg(Rql2LocationValue(locationDescription), Rql2LocationType()), codeData)
   }
 }

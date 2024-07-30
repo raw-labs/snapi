@@ -24,7 +24,7 @@ import raw.compiler.rql2.api.{
   ExpParam,
   PackageExtension,
   Param,
-  StringValue,
+  Rql2StringValue,
   SugarEntryExtension,
   TypeArg,
   TypeParam,
@@ -323,7 +323,7 @@ class OrderByCollectionEntry extends EntryExtension with CollectionToListHint {
       if !isComparable(keyType)
     ) yield KeyNotComparable(arg)
     val orderErrors = for (
-      ValueArg(value @ StringValue(order), _) <- orders;
+      ValueArg(value @ Rql2StringValue(order), _) <- orders;
       if !Set("ASC", "DESC").contains(order.toUpperCase)
     ) yield InvalidOrderSpec(node, order)
     val errors = keyErrors ++ orderErrors
