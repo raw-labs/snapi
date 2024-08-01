@@ -104,8 +104,8 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     listTables(schema).close()
   }
 
-  def testAccess(database: Option[String], maybeSchema: Option[String], table: String): Unit = {
-    tableMetadata(database, maybeSchema, table)
+  def testAccess(maybeSchema: Option[String], table: String): Unit = {
+    tableMetadata(maybeSchema, table)
   }
 
   def listSchemas: Iterator[String] with Closeable = {
@@ -124,10 +124,10 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     SchemaMetadata()
   }
 
-  def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
+  def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
     val conn = getConnection
     try {
-      val res = getTableMetadata(conn, database, maybeSchema, table)
+      val res = getTableMetadata(conn, maybeDatabase, maybeSchema, table)
       try {
         getTableTypeFromTableMetadata(res)
       } finally {
@@ -138,7 +138,7 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     }
   }
 
-  private def getTableMetadata(
+  protected def getTableMetadata(
       conn: Connection,
       maybeDatabase: Option[String],
       maybeSchema: Option[String],
@@ -157,7 +157,7 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
 
   // Infer schema from table.
   // Skip silently fields we do not understand (except if can't understand any field, in which case, fire an error.)
-  private def getTableTypeFromTableMetadata(res: ResultSet): TableMetadata = {
+  protected def getTableTypeFromTableMetadata(res: ResultSet): TableMetadata = {
     val columns = mutable.ListBuffer[TableColumn]()
     while (wrapSQLException(res.next)) {
       val columnName = wrapSQLException(res.getString("COLUMN_NAME"))

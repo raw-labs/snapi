@@ -27,6 +27,7 @@ import raw.compiler.rql2.api.{
   Rql2ListValue,
   Rql2LongValue,
   Rql2OptionValue,
+  Rql2RecordAttr,
   Rql2RecordValue,
   Rql2ShortValue,
   Rql2StringValue,
@@ -208,10 +209,11 @@ trait Rql2TypeUtils {
         .map(v => valueToExp(v, innerType))
         .map(NullablePackageBuilder.Build(_))
         .getOrElse(NullablePackageBuilder.Empty(innerType))
-    case Rql2RecordValue(r) =>
+    case Rql2RecordValue(vs) =>
       val Rql2RecordType(atts, _) = t
-      val fields = r.zip(atts).map { case (v, att) => att.idn -> valueToExp(v, att.tipe) }
-      RecordPackageBuilder.Build(fields.toVector)
+      RecordPackageBuilder.Build(
+        vs.zip(atts).map { case (Rql2RecordAttr(idn, v1), att) => idn -> valueToExp(v1, att.tipe) }.toVector
+      )
     case Rql2ListValue(v) =>
       val Rql2ListType(innerType, _) = t
       ListPackageBuilder.Build(v.map(x => valueToExp(x, innerType)): _*)

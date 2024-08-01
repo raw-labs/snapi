@@ -26,6 +26,7 @@ import raw.compiler.rql2.api.{
   Param,
   Rql2ListValue,
   Rql2OptionValue,
+  Rql2RecordAttr,
   Rql2RecordValue,
   Rql2StringValue,
   SugarEntryExtension,
@@ -35,7 +36,13 @@ import raw.compiler.rql2.api.{
   ValueParam
 }
 import raw.client.api._
-import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
+import raw.inferrer.api.{
+  SqlQueryInferrerProperties,
+  SqlQueryInputFormatDescriptor,
+  SqlTableInferrerProperties,
+  SqlTableInputFormatDescriptor
+}
+import raw.sources.jdbc.snowflake.{SnowflakeServerLocation, SnowflakeTableLocation}
 
 class SnowflakePackage extends PackageExtension {
 
@@ -47,7 +54,7 @@ class SnowflakePackage extends PackageExtension {
 
 }
 
-class SnowflakeInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class SnowflakeInferAndReadEntry extends SugarEntryExtension {
 
   override def packageName: String = "Snowflake"
 
@@ -148,13 +155,11 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
     val optArgs = optionalArgs.map {
       case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn))
       case (idn, ValueArg(Rql2ListValue(v: Seq[Rql2RecordValue]), _)) =>
-        // building a List of tuples
         val records = v.map { r =>
           val fields = r.v.zipWithIndex.map {
-            case (Rql2OptionValue(Some(Rql2StringValue(v))), idx) =>
+            case (Rql2RecordAttr(_, Rql2OptionValue(Some(Rql2StringValue(v)))), idx) =>
               s"_${idx + 1}" -> NullablePackageBuilder.Build(StringConst(v))
-            case (Rql2OptionValue(None), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
-
+            case (Rql2RecordAttr(_, Rql2OptionValue(None)), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
           }.toVector
           RecordPackageBuilder.Build(fields)
         }
@@ -167,22 +172,54 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
     )
   }
 
+  private def getTableInferrerProperties(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)]
+  )(implicit programContext: ProgramContext): Either[String, SqlTableInferrerProperties] = {
+    val db = getStringValue(mandatoryArgs(0))
+    val schema = getStringValue(mandatoryArgs(1))
+    val table = getStringValue(mandatoryArgs(2))
+    val parameters =
+      optionalArgs.collectFirst { case a if a._1 == "options" => getListKVValue(a._2) }.getOrElse(Seq.empty)
+    val location =
+      if (optionalArgs.exists(_._1 == "accountID")) {
+        val accountID = getStringValue(optionalArgs.find(_._1 == "accountID").get._2)
+        val username =
+          getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
+        val password =
+          getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
+        new SnowflakeTableLocation(db, username, password, accountID, parameters.toMap, schema, table)(
+          programContext.settings
+        )
+      } else {
+        programContext.programEnvironment.credentials.get(db) match {
+          case Some(l: SnowflakeServerLocation) =>
+            new SnowflakeTableLocation(db, l.username, l.password, l.accountIdentifier, l.parameters, schema, table)(
+              programContext.settings
+            )
+          case Some(_) => return Left("not a Snowflake server")
+          case None => return Left("not found in credentials")
+        }
+      }
+    Right(SqlTableInferrerProperties(location, None))
+  }
+
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
-      inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs, SnowflakeVendor());
+      inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
+      SqlTableInputFormatDescriptor(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, makeNullable = false, makeTryable = false)
     }
   }
 }
 
-class SnowflakeReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class SnowflakeReadEntry extends SugarEntryExtension {
 
   override def packageName: String = "Snowflake"
 
@@ -320,7 +357,7 @@ class SnowflakeReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
 
 }
 
-class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
 
   override def packageName: String = "Snowflake"
 
@@ -402,15 +439,41 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
     }
   }
 
+  private def getQueryInferrerProperties(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)]
+  )(implicit programContext: ProgramContext): Either[String, SqlQueryInferrerProperties] = {
+    val db = getStringValue(mandatoryArgs(0))
+    val query = getStringValue(mandatoryArgs(1))
+    val parameters =
+      optionalArgs.collectFirst { case a if a._1 == "options" => getListKVValue(a._2) }.getOrElse(Seq.empty)
+    val location =
+      if (optionalArgs.exists(_._1 == "accountID")) {
+        val accountID = getStringValue(optionalArgs.find(_._1 == "accountID").get._2)
+        val username =
+          getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
+        val password =
+          getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
+        new SnowflakeServerLocation(db, username, password, accountID, parameters.toMap)(programContext.settings)
+      } else {
+        programContext.programEnvironment.credentials.get(db) match {
+          case Some(l: SnowflakeServerLocation) => l
+          case Some(_) => return Left("not a Snowflake server")
+          case None => return Left("not found in credentials")
+        }
+      }
+    Right(SqlQueryInferrerProperties(location, query, None))
+  }
+
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
-      inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, SnowflakeVendor());
+      inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
+      SqlQueryInputFormatDescriptor(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, makeNullable = false, makeTryable = false)
     }
@@ -432,9 +495,9 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
         // building a List of tuples
         val records = v.map { r =>
           val fields = r.v.zipWithIndex.map {
-            case (Rql2OptionValue(Some(Rql2StringValue(v))), idx) =>
+            case (Rql2RecordAttr(_, Rql2OptionValue(Some(Rql2StringValue(v)))), idx) =>
               s"_${idx + 1}" -> NullablePackageBuilder.Build(StringConst(v))
-            case (Rql2OptionValue(None), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
+            case (Rql2RecordAttr(_, Rql2OptionValue(None)), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
 
           }.toVector
           RecordPackageBuilder.Build(fields)
@@ -450,7 +513,7 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
 
 }
 
-class SnowflakeQueryEntry extends EntryExtension with SqlTableExtensionHelper {
+class SnowflakeQueryEntry extends EntryExtension {
 
   override def packageName: String = "Snowflake"
 

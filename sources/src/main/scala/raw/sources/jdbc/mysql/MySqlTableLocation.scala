@@ -15,14 +15,24 @@ package raw.sources.jdbc.mysql
 import raw.sources.jdbc.api.JdbcTableLocation
 import raw.utils.RawSettings
 
-class MySqlTableLocation(cli: MySqlClient, dbName: String, table: String)
-    extends JdbcTableLocation(cli, "mysql", dbName, table, None) {
+class MySqlTableLocation(cli: MySqlClient, val table: String) extends JdbcTableLocation(cli, None, table) {
 
-  def this(config: MySqlTableConfig)(implicit settings: RawSettings) = {
+  val host: String = cli.hostname
+
+  val port: Int = cli.port
+
+  val dbName: String = cli.maybeDatabase.get
+
+  val username: String = cli.maybeUsername.get
+
+  val password: String = cli.maybePassword.get
+
+  def this(host: String, port: Int, dbName: String, username: String, password: String, tableName: String)(
+      implicit settings: RawSettings
+  ) = {
     this(
-      new MySqlClient(config.host, config.port, config.dbName, config.username, config.password),
-      config.dbName,
-      config.tableName
+      new MySqlClient(host, port, dbName, username, password),
+      tableName
     )
   }
 

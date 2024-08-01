@@ -23,17 +23,18 @@ import java.util.{Properties, TimeZone}
 import scala.util.control.NonFatal
 
 class SnowflakeClient(
-    val hostname: String,
     dbName: String,
     username: String,
     password: String,
-    accountIdentifier: String,
-    parameters: Map[String, String]
+    val accountIdentifier: String,
+    val parameters: Map[String, String]
 )(
     implicit settings: RawSettings
 ) extends JdbcClient {
 
   Class.forName("net.snowflake.client.jdbc.SnowflakeDriver")
+
+  override val hostname: String = s"$accountIdentifier.snowflakecomputing.com"
 
   override val vendor: String = "snowflake"
 
@@ -64,8 +65,18 @@ class SnowflakeClient(
     }
   }
 
-  override def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
-    super.tableMetadata(None, maybeSchema, table)
+  override def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
+    val conn = getConnection
+    try {
+      val res = getTableMetadata(conn, None, maybeSchema, table)
+      try {
+        getTableTypeFromTableMetadata(res)
+      } finally {
+        wrapSQLException(res.close())
+      }
+    } finally {
+      wrapSQLException(conn.close())
+    }
   }
 
   override def wrapSQLException[T](f: => T): T = {

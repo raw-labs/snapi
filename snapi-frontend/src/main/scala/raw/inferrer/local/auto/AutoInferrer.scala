@@ -44,33 +44,19 @@ class AutoInferrer(
   import AutoInferrer._
 
   def infer(location: ByteStreamLocation, maybeSampleSize: Option[Int]): InputStreamFormatDescriptor = {
-    val maybeFileExtension = {
-      val i = location.rawUri.lastIndexOf('.')
-      if (i != -1) {
-        val ext = location.rawUri.substring(i + 1)
-        // If it looks like an extension, pass it to the inferrer
-        if (ext.length >= 3 && ext.length <= 8) Some(ext)
-        else None
-      } else {
-        None
-      }
-    }
-
-    maybeFileExtension match {
-      case _ => location match {
-          case fs: FileSystemLocation =>
-            // If it is a file system, check if it is a directory, to attempt to detect Hadoop-like files.
-            fs.metadata() match {
-              case DirectoryMetadata(_) =>
-                throw new LocalInferrerException("automatic inference failed: location is a directory!")
-              case _ =>
-                // Not a directory.
-                inferTextFormats(location, maybeSampleSize)
-            }
+    location match {
+      case fs: FileSystemLocation =>
+        // If it is a file system, check if it is a directory, to attempt to detect Hadoop-like files.
+        fs.metadata() match {
+          case DirectoryMetadata(_) =>
+            throw new LocalInferrerException("automatic inference failed: location is a directory!")
           case _ =>
-            // Not a file system.
+            // Not a directory.
             inferTextFormats(location, maybeSampleSize)
         }
+      case _ =>
+        // Not a file system.
+        inferTextFormats(location, maybeSampleSize)
     }
   }
 

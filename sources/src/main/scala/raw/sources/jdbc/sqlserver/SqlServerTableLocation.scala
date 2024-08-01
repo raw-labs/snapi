@@ -17,17 +17,33 @@ import raw.utils.RawSettings
 
 class SqlServerTableLocation(
     cli: SqlServerClient,
-    dbName: String,
-    schema: String,
-    table: String
-) extends JdbcTableLocation(cli, "sqlserver", dbName, table, Some(schema)) {
+    val schema: String,
+    val table: String
+) extends JdbcTableLocation(cli, Some(schema), table) {
 
-  def this(config: SqlServerTableConfig)(implicit settings: RawSettings) = {
+  val host: String = cli.hostname
+
+  val port: Int = cli.port
+
+  val dbName: String = cli.maybeDatabase.get
+
+  val username: String = cli.maybeUsername.get
+
+  val password: String = cli.maybePassword.get
+
+  def this(
+      host: String,
+      port: Int,
+      dbName: String,
+      username: String,
+      password: String,
+      schema: String,
+      tableName: String
+  )(implicit settings: RawSettings) = {
     this(
-      new SqlServerClient(config.host, config.port, config.dbName, config.username, config.password),
-      config.dbName,
-      config.schema,
-      config.tableName
+      new SqlServerClient(host, port, dbName, username, password),
+      schema,
+      tableName
     )
   }
 

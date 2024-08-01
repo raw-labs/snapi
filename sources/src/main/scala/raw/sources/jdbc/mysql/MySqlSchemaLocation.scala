@@ -18,8 +18,20 @@ import raw.utils.RawSettings
 
 class MySqlSchemaLocation private (cli: MySqlClient) extends JdbcSchemaLocation(cli, None) {
 
-  def this(config: MySqlSchemaConfig)(implicit settings: RawSettings) = {
-    this(new MySqlClient(config.host, config.port, config.dbName, config.username, config.password))
+  val host: String = cli.hostname
+
+  val port: Int = cli.port
+
+  val dbName: String = cli.maybeDatabase.get
+
+  val username: String = cli.maybeUsername.get
+
+  val password: String = cli.maybePassword.get
+
+  def this(host: String, port: Int, dbName: String, username: String, password: String)(
+      implicit settings: RawSettings
+  ) = {
+    this(new MySqlClient(host, port, dbName, username, password))
   }
 
   override def listTables(): Iterator[JdbcTableLocation] with Closeable = {
@@ -29,7 +41,7 @@ class MySqlSchemaLocation private (cli: MySqlClient) extends JdbcSchemaLocation(
       override def hasNext: Boolean = it.hasNext
 
       override def next(): JdbcTableLocation = {
-        new MySqlTableLocation(cli, cli.dbName, it.next())
+        new MySqlTableLocation(cli, it.next())
       }
 
       override def close(): Unit = it.close()

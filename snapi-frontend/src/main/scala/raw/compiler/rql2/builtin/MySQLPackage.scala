@@ -19,7 +19,13 @@ import raw.compiler.rql2.api._
 import raw.compiler.rql2.ProgramContext
 import raw.compiler.rql2.source._
 import raw.client.api._
-import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
+import raw.inferrer.api.{
+  SqlQueryInferrerProperties,
+  SqlQueryInputFormatDescriptor,
+  SqlTableInferrerProperties,
+  SqlTableInputFormatDescriptor
+}
+import raw.sources.jdbc.mysql.{MySqlServerLocation, MySqlTableLocation}
 
 class MySQLPackage extends PackageExtension {
 
@@ -31,7 +37,7 @@ class MySQLPackage extends PackageExtension {
 
 }
 
-class MySQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class MySQLInferAndReadEntry extends SugarEntryExtension {
 
   override def packageName: String = "MySQL"
 
@@ -119,22 +125,48 @@ class MySQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionH
     )
   }
 
+  private def getTableInferrerProperties(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)]
+  )(implicit programContext: ProgramContext): Either[String, SqlTableInferrerProperties] = {
+    val db = getStringValue(mandatoryArgs(0))
+    val table = getStringValue(mandatoryArgs(1))
+    val location =
+      if (optionalArgs.exists(_._1 == "host")) {
+        val host = getStringValue(optionalArgs.find(_._1 == "host").get._2)
+        val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
+        val username =
+          getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
+        val password =
+          getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
+        new MySqlTableLocation(host, port, db, username, password, table)(programContext.settings)
+      } else {
+        programContext.programEnvironment.credentials.get(db) match {
+          case Some(l: MySqlServerLocation) =>
+            new MySqlTableLocation(l.host, l.port, db, l.username, l.password, table)(programContext.settings)
+          case Some(_) => return Left("not a MySQL server")
+          case None => return Left("not found in credentials")
+        }
+      }
+    Right(SqlTableInferrerProperties(location, None))
+  }
+
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
-      inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs, MySqlVendor());
+      inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
+      SqlTableInputFormatDescriptor(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, false, false)
     }
   }
 }
 
-class MySQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class MySQLReadEntry extends SugarEntryExtension {
 
   override def packageName: String = "MySQL"
 
@@ -244,7 +276,7 @@ class MySQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
   }
 }
 
-class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class MySQLInferAndQueryEntry extends SugarEntryExtension {
 
   override def packageName: String = "MySQL"
 
@@ -314,15 +346,40 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtension
     }
   }
 
+  private def getQueryInferrerProperties(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)]
+  )(implicit programContext: ProgramContext): Either[String, SqlQueryInferrerProperties] = {
+    val db = getStringValue(mandatoryArgs(0))
+    val query = getStringValue(mandatoryArgs(1))
+    val location =
+      if (optionalArgs.exists(_._1 == "host")) {
+        val host = getStringValue(optionalArgs.find(_._1 == "host").get._2)
+        val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
+        val username =
+          getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
+        val password =
+          getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
+        new MySqlServerLocation(host, port, db, username, password)(programContext.settings)
+      } else {
+        programContext.programEnvironment.credentials.get(db) match {
+          case Some(l: MySqlServerLocation) => l
+          case Some(_) => return Left("not a MySQL server")
+          case None => return Left("not found in credentials")
+        }
+      }
+    Right(SqlQueryInferrerProperties(location, query, None))
+  }
+
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
-      inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, MySqlVendor());
+      inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
+      SqlQueryInputFormatDescriptor(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, false, false)
     }
@@ -348,7 +405,7 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtension
 
 }
 
-class MySQLQueryEntry extends EntryExtension with SqlTableExtensionHelper {
+class MySQLQueryEntry extends EntryExtension {
 
   override def packageName: String = "MySQL"
 

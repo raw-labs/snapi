@@ -16,7 +16,10 @@ import raw.sources.api.Location
 
 import java.io.Closeable
 
-abstract class JdbcSchemaLocation(val jdbcClient: JdbcClient, val maybeSchema: Option[String]) extends Location {
+abstract class JdbcSchemaLocation(
+    val jdbcClient: JdbcClient,
+    maybeSchema: Option[String]
+) extends Location {
 
   def listTables(): Iterator[JdbcTableLocation] with Closeable
 

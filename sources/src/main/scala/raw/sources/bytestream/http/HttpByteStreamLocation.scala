@@ -16,20 +16,34 @@ import raw.sources.bytestream.api.{ByteStreamException, ByteStreamLocation, Seek
 import raw.utils.RawSettings
 
 import java.io.InputStream
-import java.net.{MalformedURLException, URI, URISyntaxException}
+import java.net.{HttpURLConnection, MalformedURLException, URI, URISyntaxException}
 import java.nio.file.Path
 import java.util.Base64
 import scala.collection.mutable
 
 final case class HttpResult(status: Int, is: InputStream, headers: Seq[(String, String)])
 
-class HttpByteStreamLocation(config: HttpByteStreamConfig)(implicit settings: RawSettings) extends ByteStreamLocation {
+class HttpByteStreamLocation(
+    val url: String,
+    val method: String = "GET",
+    val args: Array[(String, String)] = Array.empty,
+    val headers: Array[(String, String)] = Array.empty,
+    val maybeBody: Option[Array[Byte]] = None,
+    val expectedStatus: Array[Int] = Array(
+      HttpURLConnection.HTTP_OK,
+      HttpURLConnection.HTTP_ACCEPTED,
+      HttpURLConnection.HTTP_CREATED,
+      HttpURLConnection.HTTP_PARTIAL
+    ),
+    val basicAuth: Option[(String, String)] = None
+)(implicit settings: RawSettings)
+    extends ByteStreamLocation {
 
   private val allHeaders = mutable.ArrayBuilder.make[(String, String)]
-  allHeaders ++= config.headers
+  allHeaders ++= headers
 
   // Add the Authentication Header
-  config.basicAuth.foreach {
+  basicAuth.foreach {
     case (username, password) => allHeaders += (
         (
           "Authorization",
@@ -40,7 +54,7 @@ class HttpByteStreamLocation(config: HttpByteStreamConfig)(implicit settings: Ra
 
   private val httpClient =
     try {
-      new HttpByteStreamClient(config.method, config.args, allHeaders.result, config.maybeBody, config.expectedStatus)(
+      new HttpByteStreamClient(method, args, allHeaders.result, maybeBody, expectedStatus)(
         settings
       )
     } catch {
@@ -49,7 +63,7 @@ class HttpByteStreamLocation(config: HttpByteStreamConfig)(implicit settings: Ra
     }
 
   private val safeUrl: String = {
-    new URI(config.url).normalize().toString
+    new URI(url).normalize().toString
   }
 
   override def testAccess(): Unit = {

@@ -24,13 +24,16 @@ import raw.compiler.rql2.api.{
   ExpParam,
   PackageExtension,
   Param,
+  Rql2LocationValue,
   SugarEntryExtension,
   TypeParam,
+  ValueArg,
   ValueParam
 }
 import raw.compiler.rql2.source._
 import raw.client.api._
 import raw.inferrer.api._
+import raw.sources.bytestream.inmemory.InMemoryByteStreamLocation
 
 class JsonPackage extends PackageExtension {
 
@@ -359,13 +362,15 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
-    val (locationArg, _) = InMemoryLocationValueBuilder.build(mandatoryArgs)
+    val codeData = getStringValue(mandatoryArgs.head)
     val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
-    val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InputFormatDescriptor] =
-      getJsonInferrerProperties(Seq(locationArg), optionalArgs)
-        .flatMap(programContext.infer)
-        .left
-        .map(error => Seq(InvalidSemantic(node, error)))
+    val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InputFormatDescriptor] = getJsonInferrerProperties(
+      Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData)), Rql2LocationType())),
+      optionalArgs
+    )
+      .flatMap(programContext.infer)
+      .left
+      .map(error => Seq(InvalidSemantic(node, error)))
     for (
       descriptor <- inferenceDiagnostic;
       TextInputStreamFormatDescriptor(
@@ -388,11 +393,13 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-
-    val (locationArg, codeData) = InMemoryLocationValueBuilder.build(mandatoryArgs)
+    val codeData = getStringValue(mandatoryArgs.head)
 
     val inputFormatDescriptor = for (
-      inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
+      inferrerProperties <- getJsonInferrerProperties(
+        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData)), Rql2LocationType())),
+        optionalArgs
+      );
       inputFormatDescriptor <- programContext.infer(inferrerProperties)
     ) yield {
       inputFormatDescriptor
@@ -570,15 +577,15 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
   ): Either[String, JsonInferrerProperties] = {
-    Right(
+    getByteStreamLocation(mandatoryArgs.head).right.map { location =>
       JsonInferrerProperties(
-        getLocationValue(mandatoryArgs.head),
+        location,
         optionalArgs.collectFirst { case a if a._1 == "sampleSize" => a._2 }.map(getIntValue),
         optionalArgs
           .collectFirst { case a if a._1 == "encoding" => a._2 }
           .map(v => getEncodingValue(v).fold(err => return Left(err), v => v))
       )
-    )
+    }
   }
 
   // validates the type as entered by the user. We have the possibility to flag the error on the specific

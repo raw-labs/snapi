@@ -12,16 +12,15 @@
 
 package raw.compiler.rql2.api
 
-import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic}
+import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
-import raw.compiler.rql2.builtin.{ListPackageBuilder, LocationPackageBuilder, RecordPackageBuilder}
+import raw.compiler.rql2.builtin.{BinaryPackageBuilder, LocationPackageBuilder}
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.{ProgramContext, Rql2TypeUtils}
 import raw.client.api._
 import raw.sources.api._
 import raw.sources.bytestream.api.ByteStreamLocation
-import raw.sources.filesystem.api.FileSystemLocation
 
 import scala.annotation.nowarn
 import scala.collection.immutable.ListMap
@@ -174,7 +173,7 @@ abstract class ShortEntryExtension(
 trait EntryExtensionHelper extends Rql2TypeUtils {
 
   ///////////////////////////////////////////////////////////////////////////
-  // Helpers
+  // Value Helpers
   ///////////////////////////////////////////////////////////////////////////
 
   final protected def getStringValue(v: Arg): String = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2StringValue].v }
@@ -183,16 +182,22 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
 
   final protected def getBoolValue(v: Arg): Boolean = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2BoolValue].v }
 
-  final protected def getLocationValue(v: Arg): LocationDescription = {
-    v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2LocationValue].v
+  private def getLocation(v: Arg): Location = {
+    v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2LocationValue].l
+  }
+
+  final protected def getByteStreamLocation(v: Arg): Either[String, ByteStreamLocation] = {
+    getLocation(v) match {
+      case l: ByteStreamLocation => Right(l)
+      case _ => Left("expected a bytestream")
+    }
   }
 
   final protected def locationValueToExp(v: Arg): Exp = {
-    val description = getLocationValue(v)
-    LocationPackageBuilder.Build(
-      StringConst(description.url),
-      description.options.map { case (k, v) => k -> valueToExp(v) }.toVector
-    )
+    val location = getLocation(v)
+    LocationConst(location)
+//    val locationDescription = LocationDescription.toLocationDescription(location)
+//    LocationPackageBuilder.FromBinary(BinaryConst(LocationDescription.serialize(locationDescription)))
   }
 
   final protected def getListStringValue(v: Arg): Seq[String] = {
@@ -216,9 +221,9 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
       .v
       .map { x =>
         val values = x.asInstanceOf[Rql2RecordValue].v.map {
-          case Rql2OptionValue(Some(v: Rql2StringValue)) => Some(v.v)
-          case Rql2StringValue(v) => Some(v)
-          case Rql2OptionValue(None) => None
+          case Rql2RecordAttr(_, Rql2OptionValue(Some(v: Rql2StringValue))) => Some(v.v)
+          case Rql2RecordAttr(_, Rql2StringValue(v)) => Some(v)
+          case Rql2RecordAttr(_, Rql2OptionValue(None)) => None
         }
         (values(0), values(1))
       }
@@ -241,6 +246,31 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
 
   final protected def getVarArgsExp(varArgs: Seq[Arg], idx: Int): Exp = {
     varArgs(idx).asInstanceOf[ExpArg].e
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Validator Helpers
+  ///////////////////////////////////////////////////////////////////////////
+
+  protected def validateTableType(t: Type): Either[Seq[UnsupportedType], Rql2IterableType] = t match {
+    case Rql2IterableType(Rql2RecordType(atts, _), _) =>
+      val validated = atts.map { x =>
+        x.tipe match {
+          case _: Rql2StringType => Right(x)
+          case _: Rql2BoolType => Right(x)
+          case _: Rql2NumberType => Right(x)
+          case _: Rql2DateType => Right(x)
+          case _: Rql2TimeType => Right(x)
+          case _: Rql2TimestampType => Right(x)
+          case _: Rql2BinaryType => Right(x)
+          // intervals are not supported, so we cannot match temporal types here.
+          case _ => Left(Seq(UnsupportedType(x.tipe, x.tipe, None)))
+        }
+      }
+      val errors = validated.collect { case Left(error) => error }
+      if (errors.nonEmpty) Left(errors.flatten)
+      else Right(Rql2IterableType(Rql2RecordType(atts)))
+    case _ => Left(Seq(UnsupportedType(t, t, None)))
   }
 
   ///////////////////////////////////////////////////////////////////////////

@@ -17,24 +17,39 @@ import raw.utils.RawSettings
 
 class SnowflakeTableLocation(
     cli: SnowflakeClient,
-    dbName: String,
-    schema: String,
-    table: String
-) extends JdbcTableLocation(cli, "snowflake", dbName, table.toUpperCase, Some(schema.toUpperCase)) {
+    val schema: String,
+    val table: String
+) extends JdbcTableLocation(cli, Some(schema.toUpperCase), table.toUpperCase) {
 
-  def this(config: SnowflakeTableConfig)(implicit settings: RawSettings) = {
+  val dbName: String = cli.maybeDatabase.get
+
+  val username: String = cli.maybeUsername.get
+
+  val password: String = cli.maybePassword.get
+
+  val accountIdentifier: String = cli.accountIdentifier
+
+  val parameters: Map[String, String] = cli.parameters
+
+  def this(
+      dbName: String,
+      username: String,
+      password: String,
+      accountIdentifier: String,
+      parameters: Map[String, String],
+      schema: String,
+      tableName: String
+  )(implicit settings: RawSettings) = {
     this(
       new SnowflakeClient(
-        config.host,
-        config.dbName,
-        config.username,
-        config.password,
-        config.accountIdentifier,
-        config.parameters
+        dbName,
+        username,
+        password,
+        accountIdentifier,
+        parameters
       ),
-      config.dbName,
-      config.schema,
-      config.tableName
+      schema,
+      tableName
     )
   }
 

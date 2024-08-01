@@ -144,7 +144,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                       case _ => None
                     }
                   case _: Rql2LocationType => actual match {
-                      case _: Rql2StringType => Some(LocationPackageBuilder.Build(e, Vector.empty))
+                      case _: Rql2StringType => Some(LocationPackageBuilder.FromString(e))
                       case _ => None
                     }
                   case Rql2IterableType(t, _) => actual match {
@@ -418,7 +418,6 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
             }
         }
       case _ => fail
-      // TODO (msb): LegacyCallLanguage args
     }))
 
     val r = rewrite(s)(tree.root)

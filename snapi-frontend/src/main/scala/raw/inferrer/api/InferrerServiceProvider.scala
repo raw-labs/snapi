@@ -13,7 +13,6 @@
 package raw.inferrer.api
 
 import raw.inferrer.local.LocalInferrerService
-import raw.sources.api.SourceContext
 import raw.utils.RawSettings
 
 object InferrerServiceProvider {

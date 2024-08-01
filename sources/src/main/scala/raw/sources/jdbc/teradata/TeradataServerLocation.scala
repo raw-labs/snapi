@@ -18,25 +18,25 @@ import raw.utils.RawSettings
 import java.io.Closeable
 
 class TeradataServerLocation(
-    cli: TeradataClient,
-    dbName: String
-) extends JdbcServerLocation(cli, "teradata") {
-
-  def this(config: TeradataServerConfig)(implicit settings: RawSettings) = {
-    this(
-      new TeradataClient(config.host, config.port, config.dbName, config.username, config.password, config.parameters),
-      config.dbName
-    )
-  }
+    val host: String,
+    val port: Int,
+    val dbName: String,
+    val username: String,
+    val password: String,
+    val parameters: Map[String, String]
+)(
+    implicit settings: RawSettings
+) extends JdbcServerLocation(new TeradataClient(host, port, dbName, username, password, parameters)) {
 
   override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
     new Iterator[JdbcSchemaLocation] with Closeable {
+      private val cli = jdbcClient.asInstanceOf[TeradataClient]
       private val it = cli.listSchemas
 
       override def hasNext: Boolean = it.hasNext
 
       override def next(): JdbcSchemaLocation = {
-        new TeradataSchemaLocation(cli, dbName, it.next())
+        new TeradataSchemaLocation(cli, it.next())
       }
 
       override def close(): Unit = it.close()

@@ -17,17 +17,36 @@ import raw.utils.RawSettings
 
 class TeradataTableLocation(
     cli: TeradataClient,
-    dbName: String,
-    schema: String,
-    table: String
-) extends JdbcTableLocation(cli, "teradata", dbName, table, Some(schema)) {
+    val schema: String,
+    val table: String
+) extends JdbcTableLocation(cli, Some(schema), table) {
 
-  def this(config: TeradataTableConfig)(implicit settings: RawSettings) = {
+  val host: String = cli.hostname
+
+  val port: Int = cli.port
+
+  val dbName: String = cli.maybeDatabase.get
+
+  val username: String = cli.maybeUsername.get
+
+  val password: String = cli.maybePassword.get
+
+  val parameters: Map[String, String] = cli.parameters
+
+  def this(
+      host: String,
+      port: Int,
+      dbName: String,
+      username: String,
+      password: String,
+      schema: String,
+      tableName: String,
+      parameters: Map[String, String]
+  )(implicit settings: RawSettings) = {
     this(
-      new TeradataClient(config.host, config.port, config.dbName, config.username, config.password, config.parameters),
-      config.dbName,
-      config.schema,
-      config.tableName
+      new TeradataClient(host, port, dbName, username, password, parameters),
+      schema,
+      tableName
     )
   }
 

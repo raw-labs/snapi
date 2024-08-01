@@ -26,7 +26,7 @@ class TeradataClient(
     dbName: String,
     username: String,
     password: String,
-    parameters: Map[String, String]
+    val parameters: Map[String, String]
 )(
     implicit settings: RawSettings
 ) extends JdbcClient {
@@ -53,7 +53,7 @@ class TeradataClient(
     }
   }
 
-  override def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
+  override def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
     val schema = maybeSchema.get
     val conn = getConnection
     try {

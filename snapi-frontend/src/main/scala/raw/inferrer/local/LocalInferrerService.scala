@@ -14,6 +14,7 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
+import raw.compiler.rql2.api.LocationDescription
 import raw.utils.{RawException, RawSettings}
 import raw.inferrer.api._
 import raw.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
@@ -25,6 +26,7 @@ import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.{XmlInferrer, XmlMergeTypes}
 import raw.sources.api._
 import raw.sources.bytestream.api.ByteStreamLocation
+import raw.sources.filesystem.api.FileSystemLocation
 import raw.sources.jdbc.api.JdbcTableLocation
 
 import scala.util.control.NonFatal
@@ -68,10 +70,10 @@ class LocalInferrerService(implicit settings: RawSettings)
       properties match {
         case tbl: SqlTableInferrerProperties =>
           val tipe = jdbcInferrer.getTableType(tbl.location)
-          SqlTableInputFormatDescriptor(tbl.location.vendor, tbl.location.dbName, tbl.location.maybeSchema, tbl.location.table, tipe)
+          SqlTableInputFormatDescriptor(tipe)
         case query: SqlQueryInferrerProperties =>
           val tipe = jdbcInferrer.getQueryType(query.location, query.sql)
-          SqlQueryInputFormatDescriptor(query.location.vendor, query.location.dbName, tipe)
+          SqlQueryInputFormatDescriptor(tipe)
         case csv: CsvInferrerProperties =>
           val is = textInputStream(csv.location)
           try {
@@ -182,7 +184,7 @@ class LocalInferrerService(implicit settings: RawSettings)
             case bs: ByteStreamLocation => autoInferrer.infer(bs, auto.maybeSampleSize)
             case tbl: JdbcTableLocation =>
               val tipe = jdbcInferrer.getTableType(tbl)
-              SqlTableInputFormatDescriptor(tbl.vendor, tbl.dbName, tbl.maybeSchema, tbl.table, tipe)
+              SqlTableInputFormatDescriptor(tipe)
             case _ => throw new LocalInferrerException("unsupported location for auto inference")
           }
         case auto: ManyAutoInferrerProperties =>
@@ -226,9 +228,17 @@ class LocalInferrerService(implicit settings: RawSettings)
           try {
             doInference(loc)
           } catch {
-            case ex: RawException =>
-              // Annotate actual failing file in message
-              throw new LocationException(s"failed inferring '${loc.rawUri}' with error '${ex.getMessage}'", ex)
+            case ex: RawException => loc match {
+                case fs: FileSystemLocation =>
+                  // Annotate actual failing file in message.
+                  throw new LocalInferrerException(
+                    s"failed inferring '${fs.pathForUser}' with error '${ex.getMessage}'",
+                    ex
+                  )
+                case _ =>
+                  // Otherwise, just leave message as is.
+                  throw ex
+              }
           }
         case _ => throw new LocationException("input stream location required")
       }

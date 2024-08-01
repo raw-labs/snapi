@@ -44,31 +44,7 @@ class LocationBuildEntry extends EntryExtension {
     Right(ExpParam(Rql2StringType()))
   }
 
-  override def optionalParams: Option[Set[String]] = Some(Set.empty)
-
-  override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    Right(
-      ExpParam(
-        put more types...
-        OneOfType(
-          Rql2IntType(),
-          Rql2StringType(),
-          Rql2BinaryType(),
-          Rql2BoolType(),
-          Rql2IntervalType(),
-          Rql2ListType(
-            Rql2RecordType(
-              Vector(
-                Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
-              )
-            )
-          ),
-          Rql2ListType(Rql2IntType())
-        )
-      )
-    )
-  }
+  override def optionalParams: Option[Set[String]] = None
 
   override def returnType(
       mandatoryArgs: Seq[Arg],

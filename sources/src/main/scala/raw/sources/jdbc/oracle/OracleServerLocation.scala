@@ -16,20 +16,25 @@ import java.io.Closeable
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
-class OracleServerLocation private (cli: OracleClient, dbName: String) extends JdbcServerLocation(cli, "oracle") {
-
-  def this(config: OracleServerConfig)(implicit settings: RawSettings) = {
-    this(new OracleClient(config.host, config.port, config.dbName, config.username, config.password), config.dbName)
-  }
+class OracleServerLocation(
+    val host: String,
+    val port: Int,
+    val dbName: String,
+    val username: String,
+    val password: String
+)(
+    implicit settings: RawSettings
+) extends JdbcServerLocation(new OracleClient(host, port, dbName, username, password)) {
 
   override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
     new Iterator[JdbcSchemaLocation] with Closeable {
+      private val cli = jdbcClient.asInstanceOf[OracleClient]
       private val it = cli.listSchemas
 
       override def hasNext: Boolean = it.hasNext
 
       override def next(): JdbcSchemaLocation = {
-        new OracleSchemaLocation(cli, dbName, it.next())
+        new OracleSchemaLocation(cli, it.next())
       }
 
       override def close(): Unit = it.close()

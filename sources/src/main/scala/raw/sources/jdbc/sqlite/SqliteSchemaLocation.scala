@@ -17,12 +17,13 @@ import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcTableLocation}
 import raw.utils.RawSettings
 
 class SqliteSchemaLocation(
-    cli: SqliteClient,
-    dbName: String
+    cli: SqliteClient
 ) extends JdbcSchemaLocation(cli, None) {
 
-  def this(config: SqliteSchemaConfig)(implicit settings: RawSettings) = {
-    this(new SqliteClient(config.path), config.dbName)
+  val path: String = cli.path
+
+  def this(path: String)(implicit settings: RawSettings) = {
+    this(new SqliteClient(path))
   }
 
   override def listTables(): Iterator[JdbcTableLocation] with Closeable = {
@@ -32,7 +33,7 @@ class SqliteSchemaLocation(
       override def hasNext: Boolean = it.hasNext
 
       override def next(): JdbcTableLocation = {
-        new SqliteTableLocation(cli, dbName, it.next())
+        new SqliteTableLocation(cli, it.next())
       }
 
       override def close(): Unit = it.close()

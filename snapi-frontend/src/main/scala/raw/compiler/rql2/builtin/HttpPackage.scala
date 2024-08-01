@@ -21,7 +21,8 @@ import raw.compiler.rql2.source._
 
 import scala.collection.immutable.ListMap
 
-class HttpPackage extends PackageExtension {
+class
+HttpPackage extends PackageExtension {
 
   override def name: String = "Http"
 
@@ -204,6 +205,7 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
     Right(ExpParam(Rql2StringType()))
   }
 
+  // FIXME (msb): This includes settings that are no longer supported!
   override def optionalParams: Option[Set[String]] = Some(
     Set(
       "bodyString",
@@ -214,7 +216,7 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       "clientSecret",
       "authProvider",
       "tokenUrl",
-      "useBasicAuth", fhix this as many not supported anymore
+      "useBasicAuth",
       "username",
       "password",
       "args",
@@ -222,12 +224,11 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       "expectedStatus"
     )
   )
-
+  // FIXME (msb): This isn't actually validating anything! We must do:
+  //  idn match {
+  //    case "bodyString" => Right(Rql2StringType())
+  //    ...
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-
-    this is not correct
-      this is not validating anything, really
-
     Right(
       ExpParam(
         OneOfType(

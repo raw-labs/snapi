@@ -27,7 +27,8 @@ import scala.collection.immutable.Map;
 
 @ExportLibrary(InteropLibrary.class)
 public final class LocationObject implements TruffleObject {
-  private final LocationDescription locationDescription;
+  private final Location location;
+  //private final LocationDescription locationDescription;
 
   @TruffleBoundary
   public LocationObject(String url) {
@@ -47,6 +48,7 @@ public final class LocationObject implements TruffleObject {
   public LocationDescription getLocationDescription() {
     return locationDescription;
   }
+
 
   @ExportMessage
   final boolean isString() {

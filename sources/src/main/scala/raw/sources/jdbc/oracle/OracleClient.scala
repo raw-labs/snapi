@@ -77,7 +77,7 @@ class OracleClient(val hostname: String, val port: Int, dbName: String, username
     super.listTables(sch)
   }
 
-  override def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
+  override def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
     val schema = maybeSchema.get
     val conn = getConnection
     try {

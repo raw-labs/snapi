@@ -13,14 +13,11 @@
 package raw.sources.jdbc.api
 
 import java.sql.Connection
-import com.typesafe.scalalogging.StrictLogging
 import raw.sources.api.Location
 
 import java.io.Closeable
 
-abstract class JdbcServerLocation(val jdbcClient: JdbcClient, val vendor: String)
-    extends Location
-    with StrictLogging {
+abstract class JdbcServerLocation(val jdbcClient: JdbcClient) extends Location {
 
   def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable
 

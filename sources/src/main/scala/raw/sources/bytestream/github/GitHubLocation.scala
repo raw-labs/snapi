@@ -15,13 +15,14 @@ package raw.sources.bytestream.github
 import java.io.InputStream
 import java.nio.file.Path
 import com.typesafe.scalalogging.StrictLogging
-import raw.sources.bytestream.http.{HttpByteStreamConfig, HttpByteStreamException, HttpByteStreamLocation}
+import raw.sources.bytestream.http.{HttpByteStreamException, HttpByteStreamLocation}
 import raw.sources.bytestream.api.{ByteStreamException, ByteStreamLocation, SeekableInputStream}
 import raw.utils.RawSettings
 
 // Supports only public repositories.
-class GitHubLocation(config: GitHubConfig)(implicit settings: RawSettings)
-    extends ByteStreamLocation
+class GitHubLocation(val username: String,val repo: String,val file: String,val maybeBranch: Option[String])(
+    implicit settings: RawSettings
+) extends ByteStreamLocation
     with StrictLogging {
 
   // If branch is not defined, try to find the default one.
@@ -30,12 +31,12 @@ class GitHubLocation(config: GitHubConfig)(implicit settings: RawSettings)
   // But got the following after some tests:
   //   {"message":"API rate limit exceeded for 84.226.22.197. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)","documentation_url":"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"}
   private val branch = {
-    config.maybeBranch.getOrElse {
+    maybeBranch.getOrElse {
 
       def testBranch(branch: String) = {
-        val githubUrl = s"https://github.com/${config.username}/${config.repo}/tree/$branch"
+        val githubUrl = s"https://github.com/$username/$repo/tree/$branch"
         try {
-          val httpLocation = new HttpByteStreamLocation(HttpByteStreamConfig(githubUrl))
+          val httpLocation = new HttpByteStreamLocation(githubUrl)
           httpLocation.testAccess()
           true
         } catch {
@@ -53,9 +54,9 @@ class GitHubLocation(config: GitHubConfig)(implicit settings: RawSettings)
     }
   }
 
-  private val githubUrl = s"https://github.com/${config.username}/${config.repo}/tree/$branch/${config.file}"
+  private val githubUrl = s"https://github.com/$username/$repo/tree/$branch/$file"
 
-  private val httpClient = new HttpByteStreamLocation(HttpByteStreamConfig(githubUrl))
+  private val httpClient = new HttpByteStreamLocation(githubUrl)
 
   override protected def doGetInputStream(): InputStream = {
     httpClient.getInputStream

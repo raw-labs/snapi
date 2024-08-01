@@ -20,7 +20,7 @@ import java.nio.file.{InvalidPathException, Path, Paths}
 import java.sql.SQLException
 import scala.util.control.NonFatal
 
-class SqliteClient(path: String)(implicit settings: RawSettings) extends JdbcClient {
+class SqliteClient(val path: String)(implicit settings: RawSettings) extends JdbcClient {
 
   private val localPath =
     try {

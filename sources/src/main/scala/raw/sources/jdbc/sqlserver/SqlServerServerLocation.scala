@@ -17,22 +17,24 @@ import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
 class SqlServerServerLocation(
-    cli: SqlServerClient,
-    dbName: String
-) extends JdbcServerLocation(cli, "sqlserver") {
-
-  def this(config: SqlServerServerConfig)(implicit settings: RawSettings) = {
-    this(new SqlServerClient(config.host, config.port, config.dbName, config.username, config.password), config.dbName)
-  }
+    val host: String,
+    val port: Int,
+    val dbName: String,
+    val username: String,
+    val password: String
+)(
+    implicit settings: RawSettings
+) extends JdbcServerLocation(new SqlServerClient(host, port, dbName, username, password)) {
 
   override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
     new Iterator[JdbcSchemaLocation] with Closeable {
+      private val cli = jdbcClient.asInstanceOf[SqlServerClient]
       private val it = cli.listSchemas
 
       override def hasNext: Boolean = it.hasNext
 
       override def next(): JdbcSchemaLocation = {
-        new SqlServerSchemaLocation(cli, dbName, it.next())
+        new SqlServerSchemaLocation(cli, it.next())
       }
 
       override def close(): Unit = it.close()

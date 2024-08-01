@@ -17,26 +17,7 @@ import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 import raw.compiler.base.Phase
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
-import raw.compiler.rql2.api.{
-  Arg,
-  Rql2BoolValue,
-  Rql2ByteValue,
-  Rql2DateValue,
-  Rql2DoubleValue,
-  Rql2FloatValue,
-  Rql2IntValue,
-  Rql2IntervalValue,
-  Rql2ListValue,
-  Rql2LongValue,
-  Rql2OptionValue,
-  Rql2RecordValue,
-  Rql2ShortValue,
-  Rql2StringValue,
-  Rql2TimeValue,
-  Rql2TimestampValue,
-  Rql2Value,
-  ValueArg
-}
+import raw.compiler.rql2.api.{Arg, Rql2Value, ValueArg}
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 

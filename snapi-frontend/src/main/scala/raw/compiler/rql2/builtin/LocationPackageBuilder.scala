@@ -16,11 +16,21 @@ import raw.compiler.common.source._
 import raw.compiler.rql2.source._
 
 object LocationPackageBuilder {
-  object Build {
-    def apply(url: Exp, args: Vector[(String, Exp)]): Exp = {
+
+//  object FromBinary {
+//    def apply(url: Exp): Exp = {
+//      FunApp(
+//        Proj(PackageIdnExp("Location"), "FromBinary"),
+//        Vector(FunAppArg(url, None))
+//      )
+//    }
+//  }
+
+  object FromString {
+    def apply(url: Exp): Exp = {
       FunApp(
-        Proj(PackageIdnExp("Location"), "Build"),
-        Vector(FunAppArg(url, None)) ++ args.map { case (idn, e) => FunAppArg(e, Some(idn)) }
+        Proj(PackageIdnExp("Location"), "FromString"),
+        Vector(FunAppArg(url, None))
       )
     }
   }

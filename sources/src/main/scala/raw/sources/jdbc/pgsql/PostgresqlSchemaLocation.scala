@@ -18,15 +18,25 @@ import raw.utils.RawSettings
 
 class PostgresqlSchemaLocation(
     cli: PostgresqlClient,
-    dbName: String,
-    schema: String
+    val schema: String
 ) extends JdbcSchemaLocation(cli, Some(schema)) {
 
-  def this(config: PostgresqlSchemaConfig)(implicit settings: RawSettings) = {
+  val host: String = cli.hostname
+
+  val port: Int = cli.port
+
+  val dbName: String = cli.maybeDatabase.get
+
+  val username: String = cli.maybeUsername.get
+
+  val password: String = cli.maybePassword.get
+
+  def this(host: String, port: Int, dbName: String, username: String, password: String, schema: String)(
+      implicit settings: RawSettings
+  ) = {
     this(
-      new PostgresqlClient(config.host, config.port, config.dbName, config.username, config.password),
-      config.dbName,
-      config.schema
+      new PostgresqlClient(host, port, dbName, username, password),
+      schema
     )
   }
 
@@ -37,7 +47,7 @@ class PostgresqlSchemaLocation(
       override def hasNext: Boolean = it.hasNext
 
       override def next(): JdbcTableLocation = {
-        new PostgresqlTableLocation(cli, dbName, schema, it.next())
+        new PostgresqlTableLocation(cli, schema, it.next())
       }
 
       override def close(): Unit = it.close()

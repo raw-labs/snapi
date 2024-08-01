@@ -17,12 +17,13 @@ import raw.utils.RawSettings
 
 class SqliteTableLocation(
     cli: SqliteClient,
-    dbName: String,
-    table: String
-) extends JdbcTableLocation(cli, "sqlite", dbName, table, None) {
+    val table: String
+) extends JdbcTableLocation(cli, None, table) {
 
-  def this(config: SqliteTableConfig)(implicit settings: RawSettings) = {
-    this(new SqliteClient(config.path), config.dbName, config.table)
+  val path: String = cli.path
+
+  def this(path: String, table: String)(implicit settings: RawSettings) = {
+    this(new SqliteClient(path), table)
   }
 
 }

@@ -16,11 +16,15 @@ import java.io.Closeable
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
-class MySqlServerLocation private (cli: MySqlClient) extends JdbcServerLocation(cli, "mysql") {
-
-  def this(config: MySqlServerConfig)(implicit settings: RawSettings) = {
-    this(new MySqlClient(config.host, config.port, config.dbName, config.username, config.dbName))
-  }
+class MySqlServerLocation(
+    val host: String,
+    val port: Int,
+    val dbName: String,
+    val username: String,
+    val password: String
+)(
+    implicit settings: RawSettings
+) extends JdbcServerLocation(new MySqlClient(host, port, dbName, username, password)) {
 
   override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
     throw new JdbcLocationException("no schemas in mysql")

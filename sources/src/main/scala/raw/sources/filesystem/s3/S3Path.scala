@@ -19,10 +19,31 @@ import raw.utils.RawSettings
 import java.io.InputStream
 import java.nio.file.Path
 
-class S3Path private (cli: S3FileSystem, path: String)(implicit settings: RawSettings) extends FileSystemLocation {
+class S3Path private (cli: S3FileSystem, val path: String)(implicit settings: RawSettings) extends FileSystemLocation {
 
-  def this(config: S3Config)(implicit settings: RawSettings) = {
-    this(new S3FileSystem(config.bucket, config.maybeRegion, config.maybeAccessKey, config.maybeSecretKey), config.path)
+  val bucket: String = cli.bucket
+
+  val region: Option[String] = cli.maybeRegion
+
+  val maybeAccessKey: Option[String] = cli.maybeAccessKey
+
+  val maybeSecretKey: Option[String] = cli.maybeSecretKey
+
+  def this(
+      bucket: String,
+      maybeRegion: Option[String],
+      maybeAccessKey: Option[String],
+      maybeSecretKey: Option[String],
+      path: String
+  )(implicit settings: RawSettings) = {
+    this(
+      new S3FileSystem(bucket, maybeRegion, maybeAccessKey, maybeSecretKey),
+      path
+    )
+  }
+
+  override def pathForUser: String = {
+    cli.bucket + "/" + path
   }
 
   override def testAccess(): Unit = {

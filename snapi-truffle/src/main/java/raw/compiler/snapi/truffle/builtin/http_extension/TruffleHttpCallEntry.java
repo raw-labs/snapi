@@ -25,6 +25,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode;
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.sources.bytestream.http.HttpByteStreamLocation;
 import scala.collection.immutable.HashSet;
 
 public abstract class TruffleHttpCallEntry extends HttpCallEntry implements TruffleEntryExtension {
@@ -60,6 +61,12 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode url = args.get(0).exprNode();
+    HttpByteStreamLocation l = new HttpByteStreamLocation()
+
+
+          return new LocationObjectNode(l);
+
+
 
     String[] keys =
         Stream.concat(

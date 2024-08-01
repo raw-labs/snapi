@@ -18,22 +18,36 @@ import raw.utils.RawSettings
 
 class SnowflakeSchemaLocation(
     cli: SnowflakeClient,
-    dbName: String,
-    schema: String
+    val schema: String
 ) extends JdbcSchemaLocation(cli, Some(schema)) {
 
-  def this(config: SnowflakeSchemaConfig)(implicit settings: RawSettings) = {
+  val dbName: String = cli.maybeDatabase.get
+
+  val username: String = cli.maybeUsername.get
+
+  val password: String = cli.maybePassword.get
+
+  val accountIdentifier: String = cli.accountIdentifier
+
+  val parameters: Map[String, String] = cli.parameters
+
+  def this(
+      dbName: String,
+      username: String,
+      password: String,
+      accountIdentifier: String,
+      parameters: Map[String, String],
+      schema: String
+  )(implicit settings: RawSettings) = {
     this(
       new SnowflakeClient(
-        config.host,
-        config.dbName,
-        config.username,
-        config.password,
-        config.accountIdentifier,
-        config.parameters
+        dbName,
+        username,
+        password,
+        accountIdentifier,
+        parameters
       ),
-      config.dbName,
-      config.schema
+      schema
     )
   }
 
@@ -44,7 +58,7 @@ class SnowflakeSchemaLocation(
       override def hasNext: Boolean = it.hasNext
 
       override def next(): JdbcTableLocation = {
-        new SnowflakeTableLocation(cli, dbName, schema, it.next())
+        new SnowflakeTableLocation(cli, schema, it.next())
       }
 
       override def close(): Unit = it.close()

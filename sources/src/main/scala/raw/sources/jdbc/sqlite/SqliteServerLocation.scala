@@ -16,14 +16,9 @@ import java.io.Closeable
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
-class SqliteServerLocation(
-    cli: SqliteClient,
-    dbName: String
-) extends JdbcServerLocation(cli, "sqlite") {
-
-  def this(config: SqliteServerConfig)(implicit settings: RawSettings) = {
-    this(new SqliteClient(config.path), config.dbName)
-  }
+class SqliteServerLocation(val path: String)(
+    implicit settings: RawSettings
+) extends JdbcServerLocation(new SqliteClient(path)) {
 
   override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
     throw new JdbcLocationException("no schemas in sqlite")

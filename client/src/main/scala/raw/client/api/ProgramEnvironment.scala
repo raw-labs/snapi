@@ -12,18 +12,16 @@
 
 package raw.client.api
 
-import raw.sources.api.LocationConfig
 import raw.utils.AuthenticatedUser
+import raw.sources.api.Location
 
 final case class ProgramEnvironment(
     user: AuthenticatedUser,
     maybeArguments: Option[Array[(String, RawValue)]],
     scopes: Set[String],
+    secrets: Map[String, String],
+    credentials: Map[String, Location],
     options: Map[String, String],
-    maybeTraceId: Option[String] = None,
-    // The following setting is only necessary for SQL.
     jdbcUrl: Option[String] = None,
-    // The following settings are only necessary for Snapi.
-    secrets: Map[String, String] = Map.empty,
-    credentials: Map[String, LocationConfig] = Map.empty
+    maybeTraceId: Option[String] = None
 )

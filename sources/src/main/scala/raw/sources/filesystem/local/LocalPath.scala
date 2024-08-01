@@ -17,15 +17,13 @@ import java.nio.file.{Path, Paths}
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.filesystem.api._
 
-class LocalPath(config: LocalConfig) extends FileSystemLocation {
-
-  def this(path: String) = this(LocalConfig(path))
+class LocalPath(val pathName: String) extends FileSystemLocation {
 
   def this(path: Path) = this(path.toAbsolutePath.toString)
 
-  private val pathName = config.path
-
   protected def path: Path = Paths.get(pathName)
+
+  override def pathForUser: String = pathName
 
   override def testAccess(): Unit = {
     LocalFileSystem.testAccess(pathName)

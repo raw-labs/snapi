@@ -18,15 +18,33 @@ import raw.utils.RawSettings
 
 class TeradataSchemaLocation(
     cli: TeradataClient,
-    dbName: String,
-    schema: String
+    val schema: String
 ) extends JdbcSchemaLocation(cli, Some(schema)) {
 
-  def this(config: TeradataSchemaConfig)(implicit settings: RawSettings) = {
+  val host: String = cli.hostname
+
+  val port: Int = cli.port
+
+  val dbName: String = cli.maybeDatabase.get
+
+  val username: String = cli.maybeUsername.get
+
+  val password: String = cli.maybePassword.get
+
+  val parameters: Map[String, String] = cli.parameters
+
+  def this(
+      host: String,
+      port: Int,
+      dbName: String,
+      username: String,
+      password: String,
+      schema: String,
+      parameters: Map[String, String]
+  )(implicit settings: RawSettings) = {
     this(
-      new TeradataClient(config.host, config.port, config.dbName, config.username, config.password, config.parameters),
-      config.dbName,
-      config.schema
+      new TeradataClient(host, port, dbName, username, password, parameters),
+      schema
     )
   }
 
@@ -37,7 +55,7 @@ class TeradataSchemaLocation(
       override def hasNext: Boolean = it.hasNext
 
       override def next(): JdbcTableLocation = {
-        new TeradataTableLocation(cli, dbName, schema, it.next())
+        new TeradataTableLocation(cli, schema, it.next())
       }
 
       override def close(): Unit = it.close()

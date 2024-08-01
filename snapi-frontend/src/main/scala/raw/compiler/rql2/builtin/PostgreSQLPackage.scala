@@ -32,7 +32,13 @@ import raw.compiler.rql2.api.{
 }
 import raw.compiler.rql2.source._
 import raw.client.api._
-import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
+import raw.inferrer.api.{
+  SqlQueryInferrerProperties,
+  SqlQueryInputFormatDescriptor,
+  SqlTableInferrerProperties,
+  SqlTableInputFormatDescriptor
+}
+import raw.sources.jdbc.pgsql.{PostgresqlServerLocation, PostgresqlTableLocation}
 
 class PostgreSQLPackage extends PackageExtension {
 
@@ -44,7 +50,7 @@ class PostgreSQLPackage extends PackageExtension {
 
 }
 
-class PostgreSQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class PostgreSQLInferAndReadEntry extends SugarEntryExtension {
 
   override def packageName: String = "PostgreSQL"
 
@@ -138,22 +144,51 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension with SqlTableExten
     )
   }
 
+  private def getTableInferrerProperties(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)]
+  )(implicit programContext: ProgramContext): Either[String, SqlTableInferrerProperties] = {
+    val db = getStringValue(mandatoryArgs(0))
+    val schema = getStringValue(mandatoryArgs(1))
+    val table = getStringValue(mandatoryArgs(2))
+    val location =
+      if (optionalArgs.exists(_._1 == "host")) {
+        val host = getStringValue(optionalArgs.find(_._1 == "host").get._2)
+        val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
+        val username =
+          getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
+        val password =
+          getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
+        new PostgresqlTableLocation(host, port, db, username, password, schema, table)(programContext.settings)
+      } else {
+        programContext.programEnvironment.credentials.get(db) match {
+          case Some(l: PostgresqlServerLocation) =>
+            new PostgresqlTableLocation(l.host, l.port, db, l.username, l.password, schema, table)(
+              programContext.settings
+            )
+          case Some(_) => return Left("not a PostgreSQL server")
+          case None => return Left("not found in credentials")
+        }
+      }
+    Right(SqlTableInferrerProperties(location, None))
+  }
+
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
-      inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs, PgSqlVendor());
+      inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
+      SqlTableInputFormatDescriptor(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, false, false)
     }
   }
 }
 
-class PostgreSQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class PostgreSQLReadEntry extends SugarEntryExtension {
 
   override def packageName: String = "PostgreSQL"
 
@@ -274,7 +309,7 @@ class PostgreSQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelp
   }
 }
 
-class PostgreSQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class PostgreSQLInferAndQueryEntry extends SugarEntryExtension {
 
   override def packageName: String = "PostgreSQL"
 
@@ -345,15 +380,40 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExte
     }
   }
 
+  private def getQueryInferrerProperties(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)]
+  )(implicit programContext: ProgramContext): Either[String, SqlQueryInferrerProperties] = {
+    val db = getStringValue(mandatoryArgs(0))
+    val query = getStringValue(mandatoryArgs(1))
+    val location =
+      if (optionalArgs.exists(_._1 == "host")) {
+        val host = getStringValue(optionalArgs.find(_._1 == "host").get._2)
+        val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
+        val username =
+          getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
+        val password =
+          getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
+        new PostgresqlServerLocation(host, port, db, username, password)(programContext.settings)
+      } else {
+        programContext.programEnvironment.credentials.get(db) match {
+          case Some(l: PostgresqlServerLocation) => l
+          case Some(_) => return Left("not an Oracle server")
+          case None => return Left("not found in credentials")
+        }
+      }
+    Right(SqlQueryInferrerProperties(location, query, None))
+  }
+
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
-      inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, PgSqlVendor());
+      inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
+      SqlQueryInputFormatDescriptor(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, false, false)
     }
@@ -379,7 +439,7 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExte
   }
 }
 
-class PostgreSQLQueryEntry extends EntryExtension with SqlTableExtensionHelper {
+class PostgreSQLQueryEntry extends EntryExtension {
 
   override def packageName: String = "PostgreSQL"
 

@@ -177,15 +177,15 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
   ): Either[String, XmlInferrerProperties] = {
-    Right(
+    getByteStreamLocation(mandatoryArgs.head).right.map { location =>
       XmlInferrerProperties(
-        getLocationValue(mandatoryArgs.head),
+        location,
         optionalArgs.collectFirst { case a if a._1 == "sampleSize" => a._2 }.map(getIntValue),
         optionalArgs
           .collectFirst { case a if a._1 == "encoding" => a._2 }
           .map(v => getEncodingValue(v).fold(err => return Left(err), v => v))
       )
-    )
+    }
   }
 
   protected def validateAttributeType(t: Type): Either[Seq[UnsupportedType], Type] = t match {

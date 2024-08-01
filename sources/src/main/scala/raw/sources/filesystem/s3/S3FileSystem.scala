@@ -53,9 +53,9 @@ object S3FileSystem {
 
 class S3FileSystem(
     val bucket: String,
-    maybeRegion: Option[String],
-    maybeAccessKey: Option[String],
-    maybeSecretKey: Option[String]
+    val maybeRegion: Option[String],
+    val maybeAccessKey: Option[String],
+    val maybeSecretKey: Option[String]
 )(implicit settings: RawSettings)
     extends BaseFileSystem {
 
