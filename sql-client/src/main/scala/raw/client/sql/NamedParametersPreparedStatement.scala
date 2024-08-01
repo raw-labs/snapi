@@ -566,7 +566,7 @@ class NamedParametersPreparedStatement(
   }
 
   private def asErrorString(ex: PSQLException): Option[String] = {
-    if (Set("42", "22", "0A").exists(ex.getSQLState.startsWith)) {
+    if (Set("42", "22", "0A", "3F").exists(ex.getSQLState.startsWith)) {
       // syntax error / semantic error
       val psqlError = Option(ex.getServerErrorMessage) // getServerErrorMessage can be null!
       val error = psqlError.map(_.getMessage).getOrElse(ex.getMessage)
