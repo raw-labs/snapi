@@ -10,15 +10,6 @@
  * licenses/APL.txt.
  */
 
-/* we probably need to make parameters optional and replace them by null when not specified. No default value
-   where does one get the credentials from?
-   let's try to find a decent library that deals with parameters?
-   since we run on Postgres we can use the Postgres JDBC driver exceptions and be more specific with error handling
-   - some messages show line and column numbers, we could use that to provide more precise error messages
-   - but it will be messed up if we don't account for question marks
-   one should return correct runtime/validation failures
- */
-
 package raw.client.sql
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
