@@ -149,11 +149,6 @@ class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxS
 
   private def isConnectionFailure(ex: SQLException) = {
     val state = ex.getSQLState
-    if (state != null && state.startsWith("08")) {
-      logger.warn("SqlConnectionPool connection failure", ex)
-      true
-    } else {
-      false
-    }
+    state != null && state.startsWith("08") // connection exception, SqlConnectionPool is full
   }
 }

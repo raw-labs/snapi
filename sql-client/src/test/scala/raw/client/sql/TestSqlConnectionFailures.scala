@@ -30,17 +30,16 @@ class TestSqlConnectionFailures
     with SettingsTestContext
     with TrainingWheelsContext {
 
-  /* The test suite triggers connection failures for both 'no connections
-     available' (the pool can't open a new connection) and 'too many
-     connections active' (the user runs too many queries in parallel)
-     for all implemented calls: execute, validate, getProgramDescription,
-     hover, dotCompletion, wordCompletion. For each we use sequential
-     or parallel queries to exhaust the pool in some way and assert the
-     failure is hit as expected.
-   */
+  // The test suite triggers connection failures for both 'no connections
+  // available' (the pool can't open a new connection) and 'too many
+  // connections active' (the user runs too many queries in parallel)
+  // for all implemented calls: execute, validate, getProgramDescription,
+  // hover, dotCompletion, wordCompletion. For each we use sequential
+  // or parallel queries to exhaust the pool in some way and assert the
+  // failure is hit as expected.
 
-  // number of users to run with, this permits to test errors that are hit
-  // when a single user exhausts its share.
+  // Number of users to run with. This allows testing errors that occur
+  // when a single user exhausts their allocated share.
   val nUsers = 3
 
   // We run a test container emulating FDW. It has the example schema.

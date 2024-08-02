@@ -144,6 +144,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
             }
           } catch {
             case ex: SQLException if isConnectionFailure(ex) =>
+              logger.warn("SqlConnectionPool connection failure", ex)
               GetProgramDescriptionFailure(List(treeError(parsedTree, ex.getMessage)))
           }
       }
@@ -199,7 +200,9 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           }
       }
     } catch {
-      case ex: SQLException if isConnectionFailure(ex) => ExecutionRuntimeFailure(ex.getMessage)
+      case ex: SQLException if isConnectionFailure(ex) =>
+        logger.warn("SqlConnectionPool connection failure", ex)
+        ExecutionRuntimeFailure(ex.getMessage)
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
@@ -352,7 +355,9 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                 RawUtils.withSuppressNonFatalException(conn.close())
               }
             } catch {
-              case ex: SQLException if isConnectionFailure(ex) => HoverResponse(None)
+              case ex: SQLException if isConnectionFailure(ex) =>
+                logger.warn("SqlConnectionPool connection failure", ex)
+                HoverResponse(None)
             }
         }
         .getOrElse(HoverResponse(None))
@@ -410,6 +415,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
             }
           } catch {
             case ex: SQLException if isConnectionFailure(ex) =>
+              logger.warn("SqlConnectionPool connection failure", ex)
               ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
           }
       }
@@ -447,11 +453,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
 
   private def isConnectionFailure(ex: SQLException) = {
     val state = ex.getSQLState
-    if (state != null && state.startsWith("08")) {
-      logger.warn("SqlConnectionPool connection failure", ex)
-      true
-    } else {
-      false
-    }
+    state != null && state.startsWith("08") // connection exception, SqlConnectionPool is full
   }
 }
