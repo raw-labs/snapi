@@ -142,7 +142,6 @@ trait Rql2TypeUtils {
         case _: Rql2BoolType => RawBoolType(nullable, triable)
         case _: Rql2StringType => RawStringType(nullable, triable)
         case _: Rql2BinaryType => RawBinaryType(nullable, triable)
-        case _: Rql2LocationType => RawLocationType(nullable, triable)
         case _: Rql2DateType => RawDateType(nullable, triable)
         case _: Rql2TimeType => RawTimeType(nullable, triable)
         case _: Rql2TimestampType => RawTimestampType(nullable, triable)
