@@ -17,15 +17,6 @@ import raw.compiler.rql2.source._
 
 object LocationPackageBuilder {
 
-//  object FromBinary {
-//    def apply(url: Exp): Exp = {
-//      FunApp(
-//        Proj(PackageIdnExp("Location"), "FromBinary"),
-//        Vector(FunAppArg(url, None))
-//      )
-//    }
-//  }
-
   object FromString {
     def apply(url: Exp): Exp = {
       FunApp(

@@ -192,7 +192,7 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
           programContext.settings
         )
       } else {
-        programContext.programEnvironment.credentials.get(db) match {
+        programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: SnowflakeServerLocation) =>
             new SnowflakeTableLocation(db, l.username, l.password, l.accountIdentifier, l.parameters, schema, table)(
               programContext.settings
@@ -456,7 +456,7 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new SnowflakeServerLocation(db, username, password, accountID, parameters.toMap)(programContext.settings)
       } else {
-        programContext.programEnvironment.credentials.get(db) match {
+        programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: SnowflakeServerLocation) => l
           case Some(_) => return Left("not a Snowflake server")
           case None => return Left("not found in credentials")

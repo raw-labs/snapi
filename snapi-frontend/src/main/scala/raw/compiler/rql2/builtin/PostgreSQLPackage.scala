@@ -161,7 +161,7 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new PostgresqlTableLocation(host, port, db, username, password, schema, table)(programContext.settings)
       } else {
-        programContext.programEnvironment.credentials.get(db) match {
+        programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: PostgresqlServerLocation) =>
             new PostgresqlTableLocation(l.host, l.port, db, l.username, l.password, schema, table)(
               programContext.settings
@@ -396,7 +396,7 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new PostgresqlServerLocation(host, port, db, username, password)(programContext.settings)
       } else {
-        programContext.programEnvironment.credentials.get(db) match {
+        programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: PostgresqlServerLocation) => l
           case Some(_) => return Left("not an Oracle server")
           case None => return Left("not found in credentials")

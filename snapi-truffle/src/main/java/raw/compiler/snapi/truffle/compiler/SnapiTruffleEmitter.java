@@ -17,7 +17,6 @@ import java.util.*;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
-import com.oracle.truffle.api.nodes.Node;
 import org.bitbucket.inkytonik.kiama.relation.TreeRelation;
 import org.bitbucket.inkytonik.kiama.util.Entity;
 import raw.compiler.base.source.Type;
@@ -30,7 +29,7 @@ import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
-import raw.compiler.snapi.truffle.builtin.test_extension.TruffleVarNullableStringExpTestEntry;
+import raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationFromStringEntry;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
@@ -54,7 +53,6 @@ import raw.runtime.truffle.ast.local.ReadLocalVariableNodeGen;
 import raw.runtime.truffle.ast.local.WriteLocalVariableNodeGen;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.function.Function;
-import scala.Option;
 import scala.collection.JavaConverters;
 
 public class SnapiTruffleEmitter extends TruffleEmitter {
@@ -131,7 +129,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             new raw.compiler.snapi.truffle.builtin.list_extension.TruffleUnsafeFromListEntry(),
             new raw.compiler.snapi.truffle.builtin.list_extension.TruffleGroupListEntry(),
             new raw.compiler.snapi.truffle.builtin.list_extension.TruffleExistsListEntry(),
-            new raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationBuildEntry(),
+            new TruffleLocationFromStringEntry(),
             new raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationDescribeEntry(),
             new raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationLsEntry(),
             new raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationLlEntry(),

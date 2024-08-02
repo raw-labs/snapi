@@ -14,29 +14,20 @@ package raw.compiler.snapi.truffle.builtin.location_extension;
 
 import java.util.List;
 import raw.compiler.base.source.Type;
-import raw.compiler.rql2.builtin.LocationBuildEntry;
+import raw.compiler.rql2.builtin.LocationFromStringEntry;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.compiler.snapi.truffle.builtin.WithArgs;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode;
+import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromStringNode;
 
-public class TruffleLocationBuildEntry extends LocationBuildEntry
+public class TruffleLocationFromStringEntry extends LocationFromStringEntry
     implements TruffleEntryExtension, WithArgs {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    String[] keys =
-        args.stream()
-            .filter(a -> a.identifier() != null)
-            .map(a -> a.identifier().replace('_', '-')) what is this!!!
-            .toArray(String[]::new);
-
-    ExpressionNode[] values = optionalArgs(args);
-
-    Rql2TypeWithProperties[] types = optionalArgsTypes(args);
-
-    return new LocationBuildNode(args.get(0).exprNode(), keys, values, types);
+    ExpressionNode url = args.get(0).exprNode();
+    return new LocationFromStringNode(url);
   }
 }

@@ -13,15 +13,23 @@
 package raw.client.api
 
 import raw.utils.AuthenticatedUser
-import raw.sources.api.Location
+import raw.sources.jdbc.api.JdbcServerLocation
 
 final case class ProgramEnvironment(
     user: AuthenticatedUser,
     maybeArguments: Option[Array[(String, RawValue)]],
     scopes: Set[String],
     secrets: Map[String, String],
-    credentials: Map[String, Location],
+    jdbcServers: Map[String, JdbcServerLocation],
+    httpHeaders: Map[String, Map[String, String]],
+    s3Credentials: Map[String, S3Credential],
     options: Map[String, String],
     jdbcUrl: Option[String] = None,
     maybeTraceId: Option[String] = None
+)
+
+final case class S3Credential(
+    accessKey: Option[String],
+    secretKey: Option[String],
+    region: Option[String]
 )

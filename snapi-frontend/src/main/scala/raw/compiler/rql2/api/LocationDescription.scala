@@ -43,8 +43,7 @@ final case class HttpByteStreamLocationDescription(
     args: Array[(String, String)],
     headers: Array[(String, String)],
     maybeBody: Option[Array[Byte]],
-    expectedStatus: Array[Int],
-    basicAuth: Option[(String, String)]
+    expectedStatus: Array[Int]
 ) extends LocationDescription
 final case class InMemoryByteStreamLocationDescription(data: Array[Byte]) extends LocationDescription
 final case class DropboxAccessTokenLocationDescription(accessToken: String, path: String) extends LocationDescription
@@ -259,9 +258,7 @@ object LocationDescription {
           h.args,
           h.headers,
           h.maybeBody,
-          h.expectedStatus,
-          h.basicAuth
-        )
+          h.expectedStatus)
       case i: InMemoryByteStreamLocation => InMemoryByteStreamLocationDescription(i.data)
       case d: DropboxAccessTokenPath => DropboxAccessTokenLocationDescription(d.accessToken, d.path)
       case d: DropboxUsernamePasswordPath => DropboxUsernamePasswordLocationDescription(d.username, d.password, d.path)
@@ -332,8 +329,8 @@ object LocationDescription {
     l match {
       case GitHubLocationDescription(username, repo, file, maybeBranch) =>
         new GitHubLocation(username, repo, file, maybeBranch)
-      case HttpByteStreamLocationDescription(url, method, args, headers, maybeBody, expectedStatus, basicAuth) =>
-        new HttpByteStreamLocation(url, method, args, headers, maybeBody, expectedStatus, basicAuth)
+      case HttpByteStreamLocationDescription(url, method, args, headers, maybeBody, expectedStatus) =>
+        new HttpByteStreamLocation(url, method, args, headers, maybeBody, expectedStatus)
       case InMemoryByteStreamLocationDescription(data) => new InMemoryByteStreamLocation(data)
       case DropboxAccessTokenLocationDescription(accessToken, path) => new DropboxAccessTokenPath(accessToken, path)
       case DropboxUsernamePasswordLocationDescription(username, password, path) =>

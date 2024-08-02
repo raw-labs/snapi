@@ -10,6 +10,8 @@
  * licenses/APL.txt.
  */
 
+import raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationFromStringEntry;
+
 module raw.snapi.truffle {
   // Direct dependencies
   requires java.base;
@@ -48,6 +50,7 @@ module raw.snapi.truffle {
   requires ch.qos.logback.classic;
   requires com.google.common;
   requires jul.to.slf4j;
+  requires snowflake.jdbc;
 
   uses raw.compiler.rql2.api.EntryExtension;
   uses raw.sources.jdbc.api.JdbcTableLocationBuilder;
@@ -119,7 +122,7 @@ module raw.snapi.truffle {
       raw.compiler.snapi.truffle.builtin.list_extension.TruffleUnsafeFromListEntry,
       raw.compiler.snapi.truffle.builtin.list_extension.TruffleGroupListEntry,
       raw.compiler.snapi.truffle.builtin.list_extension.TruffleExistsListEntry,
-      raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationBuildEntry,
+          TruffleLocationFromStringEntry,
       raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationDescribeEntry,
       raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationLsEntry,
       raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationLlEntry,

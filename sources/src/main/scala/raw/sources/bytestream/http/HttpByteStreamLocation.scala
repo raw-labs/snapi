@@ -34,27 +34,13 @@ class HttpByteStreamLocation(
       HttpURLConnection.HTTP_ACCEPTED,
       HttpURLConnection.HTTP_CREATED,
       HttpURLConnection.HTTP_PARTIAL
-    ),
-    val basicAuth: Option[(String, String)] = None
+    )
 )(implicit settings: RawSettings)
     extends ByteStreamLocation {
 
-  private val allHeaders = mutable.ArrayBuilder.make[(String, String)]
-  allHeaders ++= headers
-
-  // Add the Authentication Header
-  basicAuth.foreach {
-    case (username, password) => allHeaders += (
-        (
-          "Authorization",
-          s"Basic ${Base64.getEncoder.encodeToString(s"$username:$password".getBytes)}"
-        )
-      )
-  }
-
   private val httpClient =
     try {
-      new HttpByteStreamClient(method, args, allHeaders.result, maybeBody, expectedStatus)(
+      new HttpByteStreamClient(method, args, headers, maybeBody, expectedStatus)(
         settings
       )
     } catch {

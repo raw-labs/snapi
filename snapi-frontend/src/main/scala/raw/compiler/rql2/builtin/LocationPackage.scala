@@ -29,11 +29,11 @@ class LocationPackage extends PackageExtension {
 
 }
 
-class LocationBuildEntry extends EntryExtension {
+class LocationFromStringEntry extends EntryExtension {
 
   override def packageName: String = "Location"
 
-  override def entryName: String = "Build"
+  override def entryName: String = "FromString"
 
   override def docs: EntryDoc = ???
 

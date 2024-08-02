@@ -125,45 +125,9 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
         isOptional = true
       ),
       ParamDoc(
-        "token",
-        TypeDoc(List("string")),
-        "The bearer token to be passed as the Authorization header of the request.",
-        isOptional = true
-      ),
-      ParamDoc(
         "authCredentialName",
         TypeDoc(List("string")),
         "The name of the HTTP credential registered in the credentials storage.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "clientId",
-        TypeDoc(List("string")),
-        "The client ID to use for the client credentials OAuth flow. Requires `clientSecret` and `tokenUrl`.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "clientSecret",
-        TypeDoc(List("string")),
-        "The client secret to use for the client credentials OAuth flow. Requires `clientId` and either `authProvider` or `tokenUrl`.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "authProvider",
-        TypeDoc(List("string")),
-        "The provider for client ID client secret OAuth flow. Requires `clientId` and `clientSecret`.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "tokenUrl",
-        TypeDoc(List("string")),
-        "The URL to be used for the client credentials OAuth flow. Requires `clientId` and `clientSecret`.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "useBasicAuth",
-        TypeDoc(List("bool")),
-        "If true, uses basic auth for the client credentials OAuth flow. Requires `clientId`, `clientSecret` and `tokenUrl`.",
         isOptional = true
       ),
       ParamDoc(
@@ -205,18 +169,11 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
     Right(ExpParam(Rql2StringType()))
   }
 
-  // FIXME (msb): This includes settings that are no longer supported!
   override def optionalParams: Option[Set[String]] = Some(
     Set(
       "bodyString",
       "bodyBinary",
-      "token",
       "authCredentialName",
-      "clientId",
-      "clientSecret",
-      "authProvider",
-      "tokenUrl",
-      "useBasicAuth",
       "username",
       "password",
       "args",
@@ -224,6 +181,7 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       "expectedStatus"
     )
   )
+
   // FIXME (msb): This isn't actually validating anything! We must do:
   //  idn match {
   //    case "bodyString" => Right(Rql2StringType())

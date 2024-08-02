@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.io.jdbc;
+package raw.runtime.truffle.ast.expressions.builtin.jdbc;
 
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
