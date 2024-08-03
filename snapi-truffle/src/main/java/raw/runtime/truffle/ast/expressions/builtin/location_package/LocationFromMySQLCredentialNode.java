@@ -37,7 +37,7 @@ public class LocationFromMySQLCredentialNode extends ExpressionNode {
     RawContext context = RawContext.get(this);
 
     String credentialName = (String) this.credentialName.executeGeneric(frame);
-    Location l = (Location) context.getProgramEnvironment().jdbcServers().get(credentialName).get();
+    Location l = (Location) context.getJdbcLocation(credentialName);
     MySqlServerLocationDescription d =
         (MySqlServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
 

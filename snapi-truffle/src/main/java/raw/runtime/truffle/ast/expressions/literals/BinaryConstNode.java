@@ -18,19 +18,19 @@ import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 public class BinaryConstNode extends ExpressionNode {
 
-    private final BinaryObject value;
+  private final BinaryObject value;
 
-    public BinaryConstNode(byte[] value) {
-        this.value = new BinaryObject(value);
-    }
+  public BinaryConstNode(byte[] value) {
+    this.value = new BinaryObject(value);
+  }
 
-    @Override
-    public final BinaryObject executeBinary(VirtualFrame virtualFrame) {
-        return value;
-    }
+  @Override
+  public final BinaryObject executeBinary(VirtualFrame virtualFrame) {
+    return value;
+  }
 
-    @Override
-    public final Object executeGeneric(VirtualFrame virtualFrame) {
-        return value;
-    }
+  @Override
+  public final Object executeGeneric(VirtualFrame virtualFrame) {
+    return value;
+  }
 }

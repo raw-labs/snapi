@@ -67,11 +67,11 @@ public class LocationFromS3Node extends ExpressionNode {
     // The docs say:
     // "If the S3 bucket is not registered in the credentials storage, then the region, accessKey
     // and secretKey must be provided as arguments."
-    Option<S3Credential> maybeCred =
-        RawContext.get(this).getProgramEnvironment().s3Credentials().get(bucket);
+    RawContext context = RawContext.get(this);
     S3Path location;
-    if (maybeCred.isDefined()) {
-      S3Credential cred = maybeCred.get();
+
+    if (RawContext.get(this).existsS3Credential(bucket)) {
+      S3Credential cred = context.getS3Credential(bucket);
       location =
           new S3Path(
               bucket,
@@ -79,7 +79,7 @@ public class LocationFromS3Node extends ExpressionNode {
               cred.accessKey(),
               cred.secretKey(),
               path,
-              RawContext.get(this).getSettings());
+              context.getSettings());
     } else {
       // We actually do NOT throw an exception if the accessKey is not passed.
       // Instead, we go without it, which triggers anonymous access to the S3 bucket.
@@ -96,7 +96,7 @@ public class LocationFromS3Node extends ExpressionNode {
               maybeAccessKey,
               maybeSecretKey,
               path,
-              RawContext.get(this).getSettings());
+              context.getSettings());
     }
 
     return new LocationObject(location);

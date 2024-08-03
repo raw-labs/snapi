@@ -53,14 +53,15 @@ public class LocationFromStringNode extends ExpressionNode {
       throw new RawTruffleRuntimeException("missing protocol: " + url);
     }
 
-    RawSettings rawSettings = RawContext.get(this).getSettings();
+    RawContext context = RawContext.get(this);
+    RawSettings rawSettings = context.getSettings();
 
     Location location = null;
 
     String protocol = url.substring(0, colonIndex);
     switch (protocol) {
       case "pgsql":
-        location = getPgsqlLocation(url, rawSettings);
+        location = getPgsqlLocation(url, context);
         break;
       case "mysql":
         throw new RawTruffleRuntimeException("mysql location not supported");
@@ -81,7 +82,7 @@ public class LocationFromStringNode extends ExpressionNode {
         throw new RawTruffleRuntimeException("snowflake location not supported");
         //        break;
       case "s3":
-        location = getS3Location(url, rawSettings);
+        location = getS3Location(url, context);
         break;
       case "http":
         throw new RawTruffleRuntimeException("http location not supported");
@@ -120,7 +121,7 @@ public class LocationFromStringNode extends ExpressionNode {
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Location getS3Location(String url, RawSettings settings) {
+  private Location getS3Location(String url, RawContext context) {
     try {
       URI uri = new URI(url);
       String uriUserInfo = uri.getUserInfo();
@@ -130,7 +131,6 @@ public class LocationFromStringNode extends ExpressionNode {
 
       String accessKey = null;
       String secretKey = null;
-      String region = null;
       if (uriUserInfo != null) {
         String[] userInfoParts = uriUserInfo.split(":");
         accessKey = userInfoParts[0];
@@ -150,15 +150,14 @@ public class LocationFromStringNode extends ExpressionNode {
       if (accessKey == null) {
         // If the access key/secret key are not defined, then the "host" is actually the bucket name
         // in the program environment credentials set.
-        S3Credential s3Credential =
-            RawContext.get(this).getProgramEnvironment().s3Credentials().get(bucketName).get();
+        S3Credential s3Credential = RawContext.get(this).getS3Credential(bucketName);
         return new S3Path(
             bucketName,
             s3Credential.region(),
             s3Credential.accessKey(),
             s3Credential.secretKey(),
             objectKey,
-            settings);
+            context.getSettings());
       } else {
         // TODO (msb): There is no way to specify the region when using a direct URL...
         return new S3Path(
@@ -167,7 +166,7 @@ public class LocationFromStringNode extends ExpressionNode {
             new Some(accessKey),
             new Some(secretKey),
             objectKey,
-            settings);
+            context.getSettings());
       }
     } catch (URISyntaxException e) {
       throw new RawTruffleRuntimeException("invalid S3 URL: " + url);
@@ -175,7 +174,7 @@ public class LocationFromStringNode extends ExpressionNode {
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Location getPgsqlLocation(String url, RawSettings settings) {
+  private Location getPgsqlLocation(String url, RawContext context) {
     try {
       URI uri = new URI(url);
       String uriUserInfo = uri.getUserInfo();
@@ -237,12 +236,12 @@ public class LocationFromStringNode extends ExpressionNode {
 
       if (dbname != null && schema != null && table != null) {
         return new PostgresqlTableLocation(
-            host, port, dbname, username, password, schema, table, settings);
+            host, port, dbname, username, password, schema, table, context.getSettings());
       } else if (dbname != null && schema != null) {
         return new PostgresqlSchemaLocation(
-            host, port, dbname, username, password, schema, settings);
+            host, port, dbname, username, password, schema, context.getSettings());
       } else if (dbname != null) {
-        return new PostgresqlServerLocation(host, port, dbname, username, password, settings);
+        return new PostgresqlServerLocation(host, port, dbname, username, password, context.getSettings());
       } else {
         throw new RawTruffleRuntimeException("invalid PostgreSQL URL: " + url);
       }

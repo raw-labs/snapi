@@ -21,9 +21,11 @@ import java.io.OutputStream;
 import java.util.Map;
 import raw.client.api.*;
 import raw.inferrer.api.InferrerService;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
 import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
+import scala.Option;
 import scala.collection.JavaConverters;
 
 public final class RawContext {
@@ -97,12 +99,47 @@ public final class RawContext {
 
   @CompilerDirectives.TruffleBoundary
   public Map<String, String> getHttpHeaders(String name) {
-    return JavaConverters.mapAsJavaMap(programEnvironment.httpHeaders().get(name).get());
+    Option<scala.collection.immutable.Map<String, String>> maybeHttpHeaders = programEnvironment.httpHeaders().get(name);
+    if (maybeHttpHeaders.isEmpty()) {
+      throw new RawTruffleRuntimeException("unknown http credential: " + name);
+    }
+    return JavaConverters.mapAsJavaMap(maybeHttpHeaders.get());
   }
 
   @CompilerDirectives.TruffleBoundary
   public String getSecret(String key) {
-    return programEnvironment.secrets().get(key).get();
+    Option<String> maybeSecret = programEnvironment.secrets().get(key);
+    if (maybeSecret.isEmpty()) {
+      throw new RawTruffleRuntimeException("unknown secret: " + key);
+    }
+    return maybeSecret.get();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public JdbcLocation getJdbcLocation(String name) {
+    Option<JdbcLocation> maybeJdbcLocation = programEnvironment.jdbcServers().get(name);
+    if (maybeJdbcLocation.isEmpty()) {
+      throw new RawTruffleRuntimeException("unknown database credential: " + name);
+    }
+    return maybeJdbcLocation.get();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public boolean existsS3Credential(String bucket) {
+    if (programEnvironment.s3Credentials().contains(bucket)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public S3Credential getS3Credential(String bucket) {
+    Option<S3Credential> maybeCred = programEnvironment.s3Credentials().get(bucket);
+    if (maybeCred.isEmpty()) {
+      throw new RawTruffleRuntimeException("unknown S3 bucket: " + bucket);
+    }
+    return maybeCred.get();
   }
 
   @CompilerDirectives.TruffleBoundary
