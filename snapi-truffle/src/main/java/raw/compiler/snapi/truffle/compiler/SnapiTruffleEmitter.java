@@ -562,6 +562,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 default -> throw new RawTruffleInternalErrorException();
             };
             case BinaryConst bc -> new BinaryConstNode(bc.bytes());
+            case LocationConst lc -> new LocationConstNode(lc.bytes());
             case UnaryExp ue -> switch (ue.unaryOp()) {
                 case Neg ignored -> NegNodeGen.create(recurseExp(ue.exp()));
                 case Not ignored -> NotNodeGen.create(recurseExp(ue.exp()));

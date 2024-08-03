@@ -838,6 +838,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         case _: TripleQuotedStringConst => Rql2StringType()
         case _: BoolConst => Rql2BoolType()
         case _: BinaryConst => Rql2BinaryType()
+        case _: LocationConst => Rql2LocationType()
       }
     case l: Let => actualType(l.e)
     case TypeExp(t) => ExpType(t)

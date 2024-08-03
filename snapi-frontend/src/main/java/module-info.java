@@ -41,6 +41,7 @@ module raw.snapi.frontend {
   requires raw.client;
   requires raw.sources;
   requires raw.snapi.parser;
+  requires org.objenesis;
 
   exports raw.compiler.base;
   exports raw.compiler.base.errors;

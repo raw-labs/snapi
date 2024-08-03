@@ -14,6 +14,8 @@ package raw.compiler.rql2.api
 
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.io.{Input, Output}
+import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy
+import org.objenesis.strategy.StdInstantiatorStrategy
 import raw.sources.api.Location
 import raw.sources.bytestream.github.GitHubLocation
 import raw.sources.bytestream.http.HttpByteStreamLocation
@@ -218,6 +220,9 @@ final case class TeradataTableLocationDescription(
 object LocationDescription {
 
   private val kryo = new Kryo()
+  // Use reflection to instantiate objects
+  kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy))
+
   // Register all classes that can be serialized/deserialized for better performance
   kryo.register(classOf[GitHubLocationDescription])
   kryo.register(classOf[HttpByteStreamLocationDescription])
