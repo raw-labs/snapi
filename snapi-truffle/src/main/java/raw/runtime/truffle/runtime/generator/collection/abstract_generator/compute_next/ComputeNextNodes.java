@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
@@ -510,8 +509,7 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("initCsv") CsvParserNodes.InitCsvParserNode initParser,
         @Cached @Cached.Shared("closeCsv") CsvParserNodes.CloseCsvParserNode closeParser) {
       try {
-        TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocation());
+        TruffleInputStream truffleInputStream = new TruffleInputStream(computeNext.getLocation());
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
@@ -614,9 +612,7 @@ public class ComputeNextNodes {
     }
 
     @Specialization
-    static void init(
-        Node node,
-        XmlReadComputeNext computeNext) {
+    static void init(Node node, XmlReadComputeNext computeNext) {
       try {
         TruffleInputStream truffleInputStream =
             new TruffleInputStream(computeNext.getLocationObject());
@@ -810,8 +806,7 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode) {
 
       RawSettings settings = RawContext.get(thisNode).getSettings();
-      computeNext.setDiskRight(
-          IOUtils.getScratchFile("cartesian.", ".kryo", settings).toFile());
+      computeNext.setDiskRight(IOUtils.getScratchFile("cartesian.", ".kryo", settings).toFile());
 
       // save right to disk
       Object rightGen = getGeneratorNode.execute(thisNode, computeNext.getRightIterable());

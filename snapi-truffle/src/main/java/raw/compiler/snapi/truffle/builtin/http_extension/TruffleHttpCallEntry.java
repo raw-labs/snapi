@@ -13,27 +13,17 @@
 package raw.compiler.snapi.truffle.builtin.http_extension;
 
 import java.util.List;
-import java.util.stream.Stream;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.HttpCallEntry;
-import raw.compiler.rql2.source.Rql2StringType;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.compiler.snapi.truffle.builtin.WithArgs;
-import raw.compiler.snapi.truffle.builtin.list_extension.TruffleBuildListEntry;
-import raw.compiler.snapi.truffle.builtin.list_extension.TruffleUnsafeFromListEntry;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.builtin.binary_package.BinaryFromStringNodeGen;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromHttpNode;
-import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromStringNode;
-import raw.runtime.truffle.ast.expressions.literals.StringNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.sources.bytestream.http.HttpByteStreamLocation;
-import scala.collection.immutable.HashSet;
 
-public abstract class TruffleHttpCallEntry extends HttpCallEntry implements TruffleEntryExtension, WithArgs {
+public abstract class TruffleHttpCallEntry extends HttpCallEntry
+    implements TruffleEntryExtension, WithArgs {
 
   private final String method;
 
@@ -55,6 +45,16 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
     ExpressionNode headers = arg(args, "headers").orElse(null);
     ExpressionNode expectedStatus = arg(args, "expectedStatus").orElse(null);
 
-    return new LocationFromHttpNode(method, url, bodyString, bodyBinary, authCredentialName, username, password, httpArgs, headers, expectedStatus);
+    return new LocationFromHttpNode(
+        method,
+        url,
+        bodyString,
+        bodyBinary,
+        authCredentialName,
+        username,
+        password,
+        httpArgs,
+        headers,
+        expectedStatus);
   }
 }

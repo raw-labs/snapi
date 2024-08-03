@@ -47,6 +47,7 @@ public class JdbcQueryNode extends ExpressionNode {
     RawSettings rawSettings = RawContext.get(this).getSettings();
     LocationObject dbLocation = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String query = (String) this.queryExp.executeGeneric(virtualFrame);
-    return new JdbcQueryCollection(dbLocation, query, rawSettings, makeRowCallTarget, exceptionHandler);
+    return new JdbcQueryCollection(
+        dbLocation, query, rawSettings, makeRowCallTarget, exceptionHandler);
   }
 }

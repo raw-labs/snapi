@@ -46,12 +46,7 @@ public class JdbcQueryComputeNext {
   }
 
   public void init() {
-    this.rs =
-        new JdbcQuery(
-            this.dbLocation,
-            this.query,
-            this.rawSettings,
-            this.exceptionHandler);
+    this.rs = new JdbcQuery(this.dbLocation, this.query, this.rawSettings, this.exceptionHandler);
   }
 
   public void close() {

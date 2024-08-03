@@ -19,30 +19,32 @@ import raw.compiler.rql2.api.PostgresqlServerLocationDescription;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.*;
-        import raw.sources.api.Location;
+import raw.sources.api.Location;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.pgsql.PostgresqlServerLocation;
 
 @NodeInfo(shortName = "Location.FromPostgreSQLCredential")
 public class LocationFromPostgreSQLCredentialNode extends ExpressionNode {
 
-    @Child private ExpressionNode credentialName;
+  @Child private ExpressionNode credentialName;
 
-    public LocationFromPostgreSQLCredentialNode(ExpressionNode credentialName) {
-        this.credentialName = credentialName;
-    }
+  public LocationFromPostgreSQLCredentialNode(ExpressionNode credentialName) {
+    this.credentialName = credentialName;
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        RawContext context = RawContext.get(this);
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    RawContext context = RawContext.get(this);
 
-        String credentialName = (String) this.credentialName.executeGeneric(frame);
-        Location l = (Location) context.getProgramEnvironment().jdbcServers().get(credentialName).get();
-        PostgresqlServerLocationDescription d = (PostgresqlServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
+    String credentialName = (String) this.credentialName.executeGeneric(frame);
+    Location l = (Location) context.getProgramEnvironment().jdbcServers().get(credentialName).get();
+    PostgresqlServerLocationDescription d =
+        (PostgresqlServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
 
-        JdbcServerLocation location = new PostgresqlServerLocation(d.host(), d.port(), d.dbName(), d.username(), d.password(), context.getSettings());
+    JdbcServerLocation location =
+        new PostgresqlServerLocation(
+            d.host(), d.port(), d.dbName(), d.username(), d.password(), context.getSettings());
 
-        return new LocationObject(location);
-    }
-
+    return new LocationObject(location);
+  }
 }

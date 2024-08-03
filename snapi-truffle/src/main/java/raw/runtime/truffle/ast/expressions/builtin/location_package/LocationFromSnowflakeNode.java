@@ -18,6 +18,7 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.Map;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
@@ -27,58 +28,64 @@ import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.snowflake.SnowflakeServerLocation;
 
-import java.util.Map;
-
 @NodeInfo(shortName = "Location.FromSnowflake")
 public class LocationFromSnowflakeNode extends ExpressionNode {
 
-    @Child private ExpressionNode db;
-    @Child private ExpressionNode username;
-    @Child private ExpressionNode password;
-    @Child private ExpressionNode accountID;
-    @Child private ExpressionNode options;
+  @Child private ExpressionNode db;
+  @Child private ExpressionNode username;
+  @Child private ExpressionNode password;
+  @Child private ExpressionNode accountID;
+  @Child private ExpressionNode options;
 
-    @Child private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
-    @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
-    @Child private ListNodes.GetNode getNode = ListNodesFactory.GetNodeGen.create();
+  @Child private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
+  @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
+  @Child private ListNodes.GetNode getNode = ListNodesFactory.GetNodeGen.create();
 
-    public LocationFromSnowflakeNode(ExpressionNode db, ExpressionNode username, ExpressionNode password, ExpressionNode accountID, ExpressionNode options) {
-        this.db = db;
-        this.username = username;
-        this.password = password;
-        this.accountID = accountID;
-        this.options = options;
-    }
+  public LocationFromSnowflakeNode(
+      ExpressionNode db,
+      ExpressionNode username,
+      ExpressionNode password,
+      ExpressionNode accountID,
+      ExpressionNode options) {
+    this.db = db;
+    this.username = username;
+    this.password = password;
+    this.accountID = accountID;
+    this.options = options;
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        try {
-        String db = (String) this.db.executeGeneric(frame);
-        String username = (String) this.username.executeGeneric(frame);
-        String password = (String) this.password.executeGeneric(frame);
-        String accountID = (String) this.accountID.executeGeneric(frame);
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    try {
+      String db = (String) this.db.executeGeneric(frame);
+      String username = (String) this.username.executeGeneric(frame);
+      String password = (String) this.password.executeGeneric(frame);
+      String accountID = (String) this.accountID.executeGeneric(frame);
 
-        // Build args vector
-        Map<String, String> parameters = java.util.Map.of();
-        Object value = this.options.executeGeneric(frame);
-        int size = (int) sizeNode.execute(this, value);
-        for (int i = 0; i < size; i++) {
-            Object record = getNode.execute(this, value, i);
-            Object keys = interops.getMembers(record);
-            Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
-            Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
-            // ignore entries where key or val is null
-            if (key != NullObject.INSTANCE && val != NullObject.INSTANCE) {
-                parameters.put((String) key, (String) val);
-            }
+      // Build args vector
+      Map<String, String> parameters = java.util.Map.of();
+      Object value = this.options.executeGeneric(frame);
+      int size = (int) sizeNode.execute(this, value);
+      for (int i = 0; i < size; i++) {
+        Object record = getNode.execute(this, value, i);
+        Object keys = interops.getMembers(record);
+        Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
+        Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
+        // ignore entries where key or val is null
+        if (key != NullObject.INSTANCE && val != NullObject.INSTANCE) {
+          parameters.put((String) key, (String) val);
         }
+      }
 
-        JdbcServerLocation location = new SnowflakeServerLocation(db, username, password, accountID, parameters, RawContext.get(this).getSettings());
+      JdbcServerLocation location =
+          new SnowflakeServerLocation(
+              db, username, password, accountID, parameters, RawContext.get(this).getSettings());
 
-        return new LocationObject(location);
-        } catch (UnsupportedMessageException | InvalidArrayIndexException | UnknownIdentifierException e) {
-            throw new RawTruffleInternalErrorException(e, this);
-        }
+      return new LocationObject(location);
+    } catch (UnsupportedMessageException
+        | InvalidArrayIndexException
+        | UnknownIdentifierException e) {
+      throw new RawTruffleInternalErrorException(e, this);
     }
-
+  }
 }

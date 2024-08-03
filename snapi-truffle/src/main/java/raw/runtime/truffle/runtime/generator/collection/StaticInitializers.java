@@ -82,9 +82,7 @@ public class StaticInitializers {
 
   public static int getKryoOutputBufferSize(Node node) {
     return (int)
-        RawContext.get(node)
-            .getSettings()
-            .getMemorySize("raw.runtime.kryo.output-buffer-size");
+        RawContext.get(node).getSettings().getMemorySize("raw.runtime.kryo.output-buffer-size");
   }
 
   @CompilerDirectives.TruffleBoundary

@@ -13,7 +13,6 @@
 package raw.compiler.snapi.truffle.builtin.snowflake_extension;
 
 import java.util.List;
-
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.SnowflakeQueryEntry;
 import raw.compiler.snapi.truffle.TruffleArg;
@@ -43,7 +42,7 @@ public class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry
       ExpressionNode username = arg(args, "username").get();
       ExpressionNode password = arg(args, "password").get();
       ExpressionNode options = arg(args, "options").get();
-      location = new LocationFromSnowflakeNode( db, username, password, accountID, options);
+      location = new LocationFromSnowflakeNode(db, username, password, accountID, options);
     }
 
     return Jdbc.query(location, query, type, new SnowflakeExceptionHandler(), rawLanguage);

@@ -29,7 +29,12 @@ public class LocationFromSQLServerNode extends ExpressionNode {
   @Child private ExpressionNode username;
   @Child private ExpressionNode password;
 
-  public LocationFromSQLServerNode(ExpressionNode host, ExpressionNode port, ExpressionNode db, ExpressionNode username, ExpressionNode password) {
+  public LocationFromSQLServerNode(
+      ExpressionNode host,
+      ExpressionNode port,
+      ExpressionNode db,
+      ExpressionNode username,
+      ExpressionNode password) {
     this.host = host;
     this.port = port;
     this.db = db;
@@ -45,9 +50,10 @@ public class LocationFromSQLServerNode extends ExpressionNode {
     String username = (String) this.username.executeGeneric(frame);
     String password = (String) this.password.executeGeneric(frame);
 
-    JdbcServerLocation location = new SqlServerServerLocation(host, port, db, username, password, RawContext.get(this).getSettings());
+    JdbcServerLocation location =
+        new SqlServerServerLocation(
+            host, port, db, username, password, RawContext.get(this).getSettings());
 
     return new LocationObject(location);
   }
-
 }

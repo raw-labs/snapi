@@ -15,7 +15,6 @@ package raw.runtime.truffle.utils;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.InputStream;
 import java.io.Reader;
-
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Encoding;

@@ -26,23 +26,30 @@ import raw.sources.jdbc.snowflake.SnowflakeServerLocation;
 @NodeInfo(shortName = "Location.FromSnowflakeCredential")
 public class LocationFromSnowflakeCredentialNode extends ExpressionNode {
 
-    @Child private ExpressionNode credentialName;
+  @Child private ExpressionNode credentialName;
 
-    public LocationFromSnowflakeCredentialNode(ExpressionNode credentialName) {
-        this.credentialName = credentialName;
-    }
+  public LocationFromSnowflakeCredentialNode(ExpressionNode credentialName) {
+    this.credentialName = credentialName;
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        RawContext context = RawContext.get(this);
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    RawContext context = RawContext.get(this);
 
-        String credentialName = (String) this.credentialName.executeGeneric(frame);
-        Location l = (Location) context.getProgramEnvironment().jdbcServers().get(credentialName).get();
-        SnowflakeServerLocationDescription d = (SnowflakeServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
+    String credentialName = (String) this.credentialName.executeGeneric(frame);
+    Location l = (Location) context.getProgramEnvironment().jdbcServers().get(credentialName).get();
+    SnowflakeServerLocationDescription d =
+        (SnowflakeServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
 
-        JdbcServerLocation location = new SnowflakeServerLocation(d.dbName(), d.username(), d.password(), d.accountIdentifier(), d.parameters(), context.getSettings());
+    JdbcServerLocation location =
+        new SnowflakeServerLocation(
+            d.dbName(),
+            d.username(),
+            d.password(),
+            d.accountIdentifier(),
+            d.parameters(),
+            context.getSettings());
 
-        return new LocationObject(location);
-    }
-
+    return new LocationObject(location);
+  }
 }

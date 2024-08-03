@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 
@@ -37,5 +36,4 @@ public final class IntNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     return value;
   }
-
 }

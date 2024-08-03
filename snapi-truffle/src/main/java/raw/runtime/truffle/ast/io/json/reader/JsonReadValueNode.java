@@ -18,7 +18,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.CloseJsonParserNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.InitJsonParserNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.NextTokenJsonParserNode;

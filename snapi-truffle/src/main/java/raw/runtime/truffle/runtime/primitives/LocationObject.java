@@ -19,6 +19,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.nio.ByteOrder;
 import raw.compiler.rql2.api.LocationDescription;
 import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -27,8 +28,6 @@ import raw.sources.bytestream.api.ByteStreamLocation;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
 import raw.sources.filesystem.api.FileSystemLocation;
 import raw.sources.jdbc.api.JdbcServerLocation;
-
-import java.nio.ByteOrder;
 
 @ExportLibrary(InteropLibrary.class)
 public final class LocationObject implements TruffleObject {
@@ -79,7 +78,9 @@ public final class LocationObject implements TruffleObject {
     }
   }
 
-  public byte[] getBytes() { return byteArray; }
+  public byte[] getBytes() {
+    return byteArray;
+  }
 
   @ExportMessage
   boolean hasArrayElements() {
@@ -122,31 +123,31 @@ public final class LocationObject implements TruffleObject {
 
   @ExportMessage
   final short readBufferShort(ByteOrder order, long byteOffset)
-          throws UnsupportedMessageException, InvalidBufferOffsetException {
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 
   @ExportMessage
   final int readBufferInt(ByteOrder order, long byteOffset)
-          throws UnsupportedMessageException, InvalidBufferOffsetException {
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 
   @ExportMessage
   final long readBufferLong(ByteOrder order, long byteOffset)
-          throws UnsupportedMessageException, InvalidBufferOffsetException {
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 
   @ExportMessage
   final float readBufferFloat(ByteOrder order, long byteOffset)
-          throws UnsupportedMessageException, InvalidBufferOffsetException {
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 
   @ExportMessage
   final double readBufferDouble(ByteOrder order, long byteOffset)
-          throws UnsupportedMessageException, InvalidBufferOffsetException {
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 }

@@ -22,7 +22,7 @@ import raw.utils._
 class CompilerContext(
     val language: String,
     val user: AuthenticatedUser,
-    val inferrer: InferrerService,
+    val inferrer: InferrerService
 )(
     implicit val settings: RawSettings
 ) extends StrictLogging {

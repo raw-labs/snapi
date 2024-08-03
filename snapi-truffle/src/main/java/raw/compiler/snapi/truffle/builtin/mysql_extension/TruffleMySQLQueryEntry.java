@@ -13,7 +13,6 @@
 package raw.compiler.snapi.truffle.builtin.mysql_extension;
 
 import java.util.List;
-
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.MySQLQueryEntry;
 import raw.compiler.snapi.truffle.TruffleArg;
@@ -32,19 +31,19 @@ public class TruffleMySQLQueryEntry extends MySQLQueryEntry
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode db = args.get(0).exprNode();
-      ExpressionNode query = args.get(1).exprNode();
+    ExpressionNode query = args.get(1).exprNode();
 
-      ExpressionNode location;
+    ExpressionNode location;
 
-      ExpressionNode host = arg(args, "host").orElse(null);
-      if (host == null) {
-          location = new LocationFromMySQLCredentialNode(db);
-      } else {
-          ExpressionNode port = arg(args, "port").get();
-          ExpressionNode username = arg(args, "username").get();
-          ExpressionNode password = arg(args, "password").get();
-          location = new LocationFromMySQLNode(host, port, db, username, password);
-      }
+    ExpressionNode host = arg(args, "host").orElse(null);
+    if (host == null) {
+      location = new LocationFromMySQLCredentialNode(db);
+    } else {
+      ExpressionNode port = arg(args, "port").get();
+      ExpressionNode username = arg(args, "username").get();
+      ExpressionNode password = arg(args, "password").get();
+      location = new LocationFromMySQLNode(host, port, db, username, password);
+    }
 
     return Jdbc.query(location, query, type, new MySQLExceptionHandler(), rawLanguage);
   }

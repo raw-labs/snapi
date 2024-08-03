@@ -26,23 +26,25 @@ import raw.sources.jdbc.mysql.MySqlServerLocation;
 @NodeInfo(shortName = "Location.FromMySQLCredential")
 public class LocationFromMySQLCredentialNode extends ExpressionNode {
 
-    @Child private ExpressionNode credentialName;
+  @Child private ExpressionNode credentialName;
 
-    public LocationFromMySQLCredentialNode(ExpressionNode credentialName) {
-        this.credentialName = credentialName;
-    }
+  public LocationFromMySQLCredentialNode(ExpressionNode credentialName) {
+    this.credentialName = credentialName;
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        RawContext context = RawContext.get(this);
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    RawContext context = RawContext.get(this);
 
-        String credentialName = (String) this.credentialName.executeGeneric(frame);
-        Location l = (Location) context.getProgramEnvironment().jdbcServers().get(credentialName).get();
-        MySqlServerLocationDescription d = (MySqlServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
+    String credentialName = (String) this.credentialName.executeGeneric(frame);
+    Location l = (Location) context.getProgramEnvironment().jdbcServers().get(credentialName).get();
+    MySqlServerLocationDescription d =
+        (MySqlServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
 
-        JdbcServerLocation location = new MySqlServerLocation(d.host(), d.port(), d.dbName(), d.username(), d.password(), context.getSettings());
+    JdbcServerLocation location =
+        new MySqlServerLocation(
+            d.host(), d.port(), d.dbName(), d.username(), d.password(), context.getSettings());
 
-        return new LocationObject(location);
-    }
-
+    return new LocationObject(location);
+  }
 }

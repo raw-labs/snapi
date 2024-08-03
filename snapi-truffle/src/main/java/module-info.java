@@ -117,7 +117,7 @@ module raw.snapi.truffle {
       raw.compiler.snapi.truffle.builtin.list_extension.TruffleUnsafeFromListEntry,
       raw.compiler.snapi.truffle.builtin.list_extension.TruffleGroupListEntry,
       raw.compiler.snapi.truffle.builtin.list_extension.TruffleExistsListEntry,
-          TruffleLocationFromStringEntry,
+      TruffleLocationFromStringEntry,
       raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationDescribeEntry,
       raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationLsEntry,
       raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationLlEntry,

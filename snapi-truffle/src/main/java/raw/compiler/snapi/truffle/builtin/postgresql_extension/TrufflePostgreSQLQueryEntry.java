@@ -13,7 +13,6 @@
 package raw.compiler.snapi.truffle.builtin.postgresql_extension;
 
 import java.util.List;
-
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.PostgreSQLQueryEntry;
 import raw.compiler.snapi.truffle.TruffleArg;
@@ -40,7 +39,7 @@ public class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry
     if (host == null) {
       location = new LocationFromPostgreSQLCredentialNode(db);
     } else {
-    ExpressionNode port = arg(args, "port").get();
+      ExpressionNode port = arg(args, "port").get();
       ExpressionNode username = arg(args, "username").get();
       ExpressionNode password = arg(args, "password").get();
       location = new LocationFromPostgreSQLNode(host, port, db, username, password);

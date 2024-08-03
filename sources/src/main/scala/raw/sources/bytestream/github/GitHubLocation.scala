@@ -20,7 +20,7 @@ import raw.sources.bytestream.api.{ByteStreamException, ByteStreamLocation, Seek
 import raw.utils.RawSettings
 
 // Supports only public repositories.
-class GitHubLocation(val username: String,val repo: String,val file: String,val maybeBranch: Option[String])(
+class GitHubLocation(val username: String, val repo: String, val file: String, val maybeBranch: Option[String])(
     implicit settings: RawSettings
 ) extends ByteStreamLocation
     with StrictLogging {

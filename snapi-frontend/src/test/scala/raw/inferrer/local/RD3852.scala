@@ -29,8 +29,7 @@ class RD3852 extends RawTestSuite with SettingsTestContext with StrictLogging wi
     val l1 = new LocalPath(p)
     try {
 
-      val TextInputStreamFormatDescriptor(_, _, format) =
-        inferrer.infer(AutoInferrerProperties(l1, None))
+      val TextInputStreamFormatDescriptor(_, _, format) = inferrer.infer(AutoInferrerProperties(l1, None))
       assert(format.isInstanceOf[CsvInputFormatDescriptor])
 
     } finally {

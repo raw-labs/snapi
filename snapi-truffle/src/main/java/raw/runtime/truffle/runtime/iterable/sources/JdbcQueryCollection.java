@@ -51,7 +51,8 @@ public class JdbcQueryCollection implements TruffleObject {
 
   public AbstractGenerator getGenerator() {
     return new AbstractGenerator(
-        new JdbcQueryComputeNext(dbLocation, query, rawSettings, rowParserCallTarget, exceptionHandler));
+        new JdbcQueryComputeNext(
+            dbLocation, query, rawSettings, rowParserCallTarget, exceptionHandler));
   }
 
   // InteropLibrary: Iterable

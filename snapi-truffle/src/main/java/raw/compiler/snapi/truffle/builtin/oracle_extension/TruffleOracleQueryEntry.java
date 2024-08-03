@@ -13,7 +13,6 @@
 package raw.compiler.snapi.truffle.builtin.oracle_extension;
 
 import java.util.List;
-
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.OracleQueryEntry;
 import raw.compiler.snapi.truffle.TruffleArg;

@@ -52,7 +52,8 @@ public class JdbcQuery {
         throw exceptionHandler.rewrite(e, this);
       }
     } catch (RawException e) {
-      // Exceptions due to location errors (e.g. connection failures) are turned into runtime exceptions.
+      // Exceptions due to location errors (e.g. connection failures) are turned into runtime
+      // exceptions.
       throw new JdbcReaderRawTruffleException(e.getMessage(), this, e, null);
     }
   }

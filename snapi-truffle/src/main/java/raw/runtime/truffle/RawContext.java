@@ -18,6 +18,7 @@ import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import java.io.OutputStream;
+import java.util.Map;
 import raw.client.api.*;
 import raw.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
@@ -52,7 +53,9 @@ public final class RawContext {
     }
 
     // Set program environment.
-    this.programEnvironment = ProgramEnvironment$.MODULE$.deserializeFromString(env.getEnvironment().get("RAW_PROGRAM_ENVIRONMENT"));
+    this.programEnvironment =
+        ProgramEnvironment$.MODULE$.deserializeFromString(
+            env.getEnvironment().get("RAW_PROGRAM_ENVIRONMENT"));
 
     // The function registry holds snapi methods (top level functions). It is the data
     // structure that is used to extract a ref to a function from a piece of execute snapi.
@@ -93,16 +96,24 @@ public final class RawContext {
   }
 
   @CompilerDirectives.TruffleBoundary
+  public Map<String, String> getHttpHeaders(String name) {
+    return JavaConverters.mapAsJavaMap(programEnvironment.httpHeaders().get(name).get());
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public String getSecret(String key) {
     return programEnvironment.secrets().get(key).get();
   }
 
+  @CompilerDirectives.TruffleBoundary
   public AuthenticatedUser getUser() {
     return programEnvironment.user();
   }
 
+  @CompilerDirectives.TruffleBoundary
   public String[] getScopes() {
-    return (String[]) JavaConverters.setAsJavaSetConverter(programEnvironment.scopes()).asJava().toArray();
+    return (String[])
+        JavaConverters.setAsJavaSetConverter(programEnvironment.scopes()).asJava().toArray();
   }
 
   private static final TruffleLanguage.ContextReference<RawContext> REFERENCE =

@@ -15,7 +15,6 @@ package raw.compiler.snapi.truffle.builtin.location_extension;
 import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.LocationFromStringEntry;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.compiler.snapi.truffle.builtin.WithArgs;

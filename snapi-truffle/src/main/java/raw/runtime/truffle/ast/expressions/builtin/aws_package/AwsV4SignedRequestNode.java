@@ -17,7 +17,6 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -139,7 +138,8 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     String amzdate = formatterWithTimeZone().format(t);
     String datestamp = getDateFormatter().format(t);
 
-    ClassTag<Tuple2<String, String>> tupleClassTag = (ClassTag<Tuple2<String, String>>) (ClassTag<?>) ClassTag$.MODULE$.apply(Tuple2.class);
+    ClassTag<Tuple2<String, String>> tupleClassTag =
+        (ClassTag<Tuple2<String, String>>) (ClassTag<?>) ClassTag$.MODULE$.apply(Tuple2.class);
 
     // Task 1: create canonical request with all request settings: method, canonicalUri,
     // canonicalQueryString etc.
@@ -318,14 +318,24 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
 
     String url = "https://" + host + "/" + path.replaceAll("^/+", "");
 
-    int[] expectedStatusArray = { HttpURLConnection.HTTP_OK,
-            HttpURLConnection.HTTP_ACCEPTED,
-            HttpURLConnection.HTTP_CREATED,
-            HttpURLConnection.HTTP_PARTIAL};
+    int[] expectedStatusArray = {
+      HttpURLConnection.HTTP_OK,
+      HttpURLConnection.HTTP_ACCEPTED,
+      HttpURLConnection.HTTP_CREATED,
+      HttpURLConnection.HTTP_PARTIAL
+    };
 
     RawSettings rawSettings = RawContext.get(this).getSettings();
 
-    HttpByteStreamLocation location = new HttpByteStreamLocation(url, method, (Tuple2<String, String>[]) argsBuilder.result(), (Tuple2<String, String>[]) headersBuilder.result(), maybeBody, expectedStatusArray, rawSettings);
+    HttpByteStreamLocation location =
+        new HttpByteStreamLocation(
+            url,
+            method,
+            (Tuple2<String, String>[]) argsBuilder.result(),
+            (Tuple2<String, String>[]) headersBuilder.result(),
+            maybeBody,
+            expectedStatusArray,
+            rawSettings);
 
     return new LocationObject(location);
   }

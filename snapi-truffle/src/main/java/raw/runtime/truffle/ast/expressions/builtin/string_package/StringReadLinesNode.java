@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
@@ -29,9 +28,7 @@ import raw.runtime.truffle.utils.TruffleInputStream;
 public abstract class StringReadLinesNode extends ExpressionNode {
 
   @Specialization
-  static Object doExecute(
-      LocationObject locationObject,
-      String encoding) {
+  static Object doExecute(LocationObject locationObject, String encoding) {
     TruffleInputStream stream = new TruffleInputStream(locationObject);
     TruffleCharInputStream charStream = new TruffleCharInputStream(stream, encoding);
     return new ReadLinesCollection(charStream);

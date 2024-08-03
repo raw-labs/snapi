@@ -252,13 +252,8 @@ object LocationDescription {
   def toLocationDescription(l: Location): LocationDescription = {
     l match {
       case g: GitHubLocation => GitHubLocationDescription(g.username, g.repo, g.file, g.maybeBranch)
-      case h: HttpByteStreamLocation => HttpByteStreamLocationDescription(
-          h.url,
-          h.method,
-          h.args,
-          h.headers,
-          h.maybeBody,
-          h.expectedStatus)
+      case h: HttpByteStreamLocation =>
+        HttpByteStreamLocationDescription(h.url, h.method, h.args, h.headers, h.maybeBody, h.expectedStatus)
       case i: InMemoryByteStreamLocation => InMemoryByteStreamLocationDescription(i.data)
       case d: DropboxAccessTokenPath => DropboxAccessTokenLocationDescription(d.accessToken, d.path)
       case d: DropboxUsernamePasswordPath => DropboxUsernamePasswordLocationDescription(d.username, d.password, d.path)

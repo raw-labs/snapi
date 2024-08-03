@@ -13,13 +13,12 @@
 package raw.compiler.snapi.truffle.builtin.sqlserver_extension;
 
 import java.util.List;
-
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.SQLServerQueryEntry;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
-import raw.compiler.snapi.truffle.builtin.jdbc.Jdbc;
 import raw.compiler.snapi.truffle.builtin.WithArgs;
+import raw.compiler.snapi.truffle.builtin.jdbc.Jdbc;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromSQLServerCredentialNode;
@@ -40,13 +39,12 @@ public class TruffleSQLServerQueryEntry extends SQLServerQueryEntry
     if (host == null) {
       location = new LocationFromSQLServerCredentialNode(db);
     } else {
-       ExpressionNode port = arg(args, "port").get();
-        ExpressionNode username = arg(args, "username").get();
-        ExpressionNode  password = arg(args, "password").get();
-        location = new LocationFromSQLServerNode(host, port, db, username, password);
+      ExpressionNode port = arg(args, "port").get();
+      ExpressionNode username = arg(args, "username").get();
+      ExpressionNode password = arg(args, "password").get();
+      location = new LocationFromSQLServerNode(host, port, db, username, password);
     }
 
     return Jdbc.query(location, query, type, new SqlServerExceptionHandler(), rawLanguage);
   }
-
 }
