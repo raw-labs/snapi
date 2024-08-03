@@ -25,6 +25,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Location;
+import raw.sources.filesystem.local.LocalPath;
 import raw.sources.filesystem.s3.S3Path;
 import raw.sources.jdbc.pgsql.PostgresqlSchemaLocation;
 import raw.sources.jdbc.pgsql.PostgresqlServerLocation;
@@ -63,45 +64,59 @@ public class LocationFromStringNode extends ExpressionNode {
         break;
       case "mysql":
         throw new RawTruffleRuntimeException("mysql location not supported");
-//        break;
+        //        break;
       case "oracle":
         throw new RawTruffleRuntimeException("oracle location not supported");
-//        break;
+        //        break;
       case "sqlserver":
         throw new RawTruffleRuntimeException("sqlserver location not supported");
-//        break;
+        //        break;
       case "sqlite":
         throw new RawTruffleRuntimeException("sqlite location not supported");
-//        break;
+        //        break;
       case "teradata":
         throw new RawTruffleRuntimeException("teradata location not supported");
-//        break;
+        //        break;
       case "snowflake":
         throw new RawTruffleRuntimeException("snowflake location not supported");
-//        break;
+        //        break;
       case "s3":
         location = getS3Location(url, rawSettings);
         break;
       case "http":
         throw new RawTruffleRuntimeException("http location not supported");
-//        break;
+        //        break;
       case "https":
         throw new RawTruffleRuntimeException("https location not supported");
-//        break;
+        //        break;
       case "github":
         throw new RawTruffleRuntimeException("github location not supported");
-//        break;
+        //        break;
+      case "file":
+        getLocalLocation(url);
+        break;
       case "local":
-        throw new RawTruffleRuntimeException("local location not supported");
-//        break;
+        getLocalLocation(url);
+        break;
       case "mock":
         throw new RawTruffleRuntimeException("mock location not supported");
-//        break;
+        //        break;
       default:
         throw new RawTruffleRuntimeException("unsupported protocol: " + protocol);
     }
 
     return new LocationObject(location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private Location getLocalLocation(String url) {
+    try {
+      URI uri = new URI(url);
+      String path = uri.getPath();
+      return new LocalPath(path);
+    } catch (URISyntaxException e) {
+      throw new RawTruffleRuntimeException("invalid local URL: " + url);
+    }
   }
 
   @CompilerDirectives.TruffleBoundary
