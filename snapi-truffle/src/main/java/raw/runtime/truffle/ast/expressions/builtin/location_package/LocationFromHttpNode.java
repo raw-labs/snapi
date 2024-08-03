@@ -178,8 +178,8 @@ public class LocationFromHttpNode extends ExpressionNode {
 
       HttpByteStreamLocation location =
           new HttpByteStreamLocation(
-              method,
               url,
+              method,
               (Tuple2<String, String>[]) argsBuilder.result(),
               (Tuple2<String, String>[]) headersBuilder.result(),
               maybeBody,

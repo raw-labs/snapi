@@ -41,7 +41,6 @@ module raw.snapi.frontend {
   requires raw.client;
   requires raw.sources;
   requires raw.snapi.parser;
-  requires org.objenesis;
 
   exports raw.compiler.base;
   exports raw.compiler.base.errors;
@@ -62,5 +61,5 @@ module raw.snapi.frontend {
   opens raw.inferrer.api to
       com.fasterxml.jackson.databind;
   opens raw.compiler.rql2.api to
-      com.esotericsoftware.kryo;
+      com.fasterxml.jackson.databind;
 }

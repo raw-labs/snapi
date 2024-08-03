@@ -12,10 +12,6 @@
 
 package raw.compiler.rql2.api
 
-import com.esotericsoftware.kryo.Kryo
-import com.esotericsoftware.kryo.io.{Input, Output}
-import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy
-import org.objenesis.strategy.StdInstantiatorStrategy
 import raw.sources.api.Location
 import raw.sources.bytestream.github.GitHubLocation
 import raw.sources.bytestream.http.HttpByteStreamLocation
@@ -35,7 +31,45 @@ import raw.sources.jdbc.teradata.{TeradataSchemaLocation, TeradataServerLocation
 import raw.utils.RawSettings
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[GitHubLocationDescription], name = "github"),
+    new JsonType(value = classOf[HttpByteStreamLocationDescription], name = "http"),
+    new JsonType(value = classOf[InMemoryByteStreamLocationDescription], name = "in-memory"),
+    new JsonType(value = classOf[DropboxAccessTokenLocationDescription], name = "dropbox-access-token"),
+    new JsonType(value = classOf[DropboxUsernamePasswordLocationDescription], name = "dropbox-username-password"),
+    new JsonType(value = classOf[LocalPathLocationDescription], name = "local-path"),
+    new JsonType(value = classOf[MockPathLocationDescription], name = "mock-path"),
+    new JsonType(value = classOf[S3PathLocationDescription], name = "s3"),
+    new JsonType(value = classOf[MySqlServerLocationDescription], name = "mysql-server"),
+    new JsonType(value = classOf[MySqlSchemaLocationDescription], name = "mysql-schema"),
+    new JsonType(value = classOf[MySqlTableLocationDescription], name = "mysql-table"),
+    new JsonType(value = classOf[OracleServerLocationDescription], name = "oracle-server"),
+    new JsonType(value = classOf[OracleSchemaLocationDescription], name = "oracle-schema"),
+    new JsonType(value = classOf[OracleTableLocationDescription], name = "oracle-table"),
+    new JsonType(value = classOf[PostgresqlServerLocationDescription], name = "postgresql-server"),
+    new JsonType(value = classOf[PostgresqlSchemaLocationDescription], name = "postgresql-schema"),
+    new JsonType(value = classOf[PostgresqlTableLocationDescription], name = "postgresql-table"),
+    new JsonType(value = classOf[SnowflakeServerLocationDescription], name = "snowflake-server"),
+    new JsonType(value = classOf[SnowflakeSchemaLocationDescription], name = "snowflake-schema"),
+    new JsonType(value = classOf[SnowflakeTableLocationDescription], name = "snowflake-table"),
+    new JsonType(value = classOf[SqliteServerLocationDescription], name = "sqlite-server"),
+    new JsonType(value = classOf[SqliteSchemaLocationDescription], name = "sqlite-schema"),
+    new JsonType(value = classOf[SqliteTableLocationDescription], name = "sqlite-table"),
+    new JsonType(value = classOf[SqlServerServerLocationDescription], name = "sqlserver-server"),
+    new JsonType(value = classOf[SqlServerSchemaLocationDescription], name = "sqlserver-schema"),
+    new JsonType(value = classOf[SqlServerTableLocationDescription], name = "sqlserver-table"),
+    new JsonType(value = classOf[TeradataServerLocationDescription], name = "teradata-server"),
+    new JsonType(value = classOf[TeradataSchemaLocationDescription], name = "teradata-schema"),
+    new JsonType(value = classOf[TeradataTableLocationDescription], name = "teradata-table")
+  )
+)
 sealed trait LocationDescription
 final case class GitHubLocationDescription(username: String, repo: String, file: String, maybeBranch: Option[String])
     extends LocationDescription
@@ -219,40 +253,12 @@ final case class TeradataTableLocationDescription(
 
 object LocationDescription {
 
-  private val kryo = new Kryo()
-  // Use reflection to instantiate objects
-  kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy))
+  private val jsonMapper = new ObjectMapper with ClassTagExtensions {
+    registerModule(DefaultScalaModule)
+  }
 
-  // Register all classes that can be serialized/deserialized for better performance
-  kryo.register(classOf[GitHubLocationDescription])
-  kryo.register(classOf[HttpByteStreamLocationDescription])
-  kryo.register(classOf[InMemoryByteStreamLocationDescription])
-  kryo.register(classOf[DropboxAccessTokenLocationDescription])
-  kryo.register(classOf[DropboxUsernamePasswordLocationDescription])
-  kryo.register(classOf[LocalPathLocationDescription])
-  kryo.register(classOf[MockPathLocationDescription])
-  kryo.register(classOf[S3PathLocationDescription])
-  kryo.register(classOf[MySqlServerLocationDescription])
-  kryo.register(classOf[MySqlSchemaLocationDescription])
-  kryo.register(classOf[MySqlTableLocationDescription])
-  kryo.register(classOf[OracleServerLocationDescription])
-  kryo.register(classOf[OracleSchemaLocationDescription])
-  kryo.register(classOf[OracleTableLocationDescription])
-  kryo.register(classOf[PostgresqlServerLocationDescription])
-  kryo.register(classOf[PostgresqlSchemaLocationDescription])
-  kryo.register(classOf[PostgresqlTableLocationDescription])
-  kryo.register(classOf[SnowflakeServerLocationDescription])
-  kryo.register(classOf[SnowflakeSchemaLocationDescription])
-  kryo.register(classOf[SnowflakeTableLocationDescription])
-  kryo.register(classOf[SqliteServerLocationDescription])
-  kryo.register(classOf[SqliteSchemaLocationDescription])
-  kryo.register(classOf[SqliteTableLocationDescription])
-  kryo.register(classOf[SqlServerServerLocationDescription])
-  kryo.register(classOf[SqlServerSchemaLocationDescription])
-  kryo.register(classOf[SqlServerTableLocationDescription])
-  kryo.register(classOf[TeradataServerLocationDescription])
-  kryo.register(classOf[TeradataSchemaLocationDescription])
-  kryo.register(classOf[TeradataTableLocationDescription])
+  private val reader = jsonMapper.readerFor[LocationDescription]
+  private val writer = jsonMapper.writerFor[LocationDescription]
 
   def toLocationDescription(l: Location): LocationDescription = {
     l match {
@@ -397,33 +403,19 @@ object LocationDescription {
   }
 
   def serialize(l: LocationDescription): Array[Byte] = {
-    val output = new Output(new ByteArrayOutputStream())
+    val output = new ByteArrayOutputStream()
     try {
-      kryo.writeClassAndObject(output, l)
-      output.toBytes
+      val generator = jsonMapper.getFactory.createGenerator(output)
+      writer.writeValue(generator, l)
+      generator.flush()
+      output.toByteArray
     } finally {
       output.close()
     }
   }
 
   def deserialize(bytes: Array[Byte]): LocationDescription = {
-    val input = new Input(new ByteArrayInputStream(bytes))
-    try {
-      kryo.readClassAndObject(input).asInstanceOf[LocationDescription]
-    } finally {
-      input.close()
-    }
+    reader.readValue(new ByteArrayInputStream(bytes))
   }
 
-//  def toUrl(l: LocationDescription): String = l match {
-//    case GitHubLocationDescription(owner, repo, branch) => s""
-//  }
-
-//  def fromUrl(url: String): LocationDescription = {
-//    val parts = url.split("/")
-//    if (parts.length < 4) {
-//      throw new IllegalArgumentException(s"Invalid location URL: $url")
-//    }
-//    GitHubLocationDescription(parts(1), parts(2), parts(3))
-//  }
 }

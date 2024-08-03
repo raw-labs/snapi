@@ -194,7 +194,8 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
 
   final protected def locationValueToExp(v: Arg): Exp = {
     val location = getLocation(v)
-    LocationConst(LocationDescription.serialize(LocationDescription.toLocationDescription(location)))
+    val locationDescription = LocationDescription.toLocationDescription(location)
+    LocationConst(LocationDescription.serialize(locationDescription))
   }
 
   final protected def getListStringValue(v: Arg): Seq[String] = {
