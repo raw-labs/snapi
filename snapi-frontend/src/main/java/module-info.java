@@ -60,4 +60,6 @@ module raw.snapi.frontend {
 
   opens raw.inferrer.api to
       com.fasterxml.jackson.databind;
+  opens raw.compiler.rql2.api to
+      com.esotericsoftware.kryo;
 }

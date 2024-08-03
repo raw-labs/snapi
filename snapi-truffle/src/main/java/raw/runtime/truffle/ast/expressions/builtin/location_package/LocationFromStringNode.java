@@ -93,10 +93,10 @@ public class LocationFromStringNode extends ExpressionNode {
         throw new RawTruffleRuntimeException("github location not supported");
         //        break;
       case "file":
-        getLocalLocation(url);
+        location = getLocalLocation(url);
         break;
       case "local":
-        getLocalLocation(url);
+        location = getLocalLocation(url);
         break;
       case "mock":
         throw new RawTruffleRuntimeException("mock location not supported");
