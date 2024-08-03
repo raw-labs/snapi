@@ -25,7 +25,6 @@ import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.NextTokenJsonParse
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "Json.ReadArray")
 public class JsonReadValueNode extends ExpressionNode {
@@ -47,8 +46,6 @@ public class JsonReadValueNode extends ExpressionNode {
   private NextTokenJsonParserNode nextTokenNode =
       JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
-  private final SourceContext sourceContext = RawContext.get(this).getSourceContext();
-
   private JsonParser parser;
 
   public JsonReadValueNode(
@@ -64,7 +61,7 @@ public class JsonReadValueNode extends ExpressionNode {
       LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
       String encoding = (String) encodingExp.executeGeneric(virtualFrame);
 
-      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, sourceContext);
+      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject);
       TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
 
       parser = initParserNode.execute(this, stream);

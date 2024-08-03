@@ -33,8 +33,8 @@ public abstract class EnvironmentSecretNode extends ExpressionNode {
       @Bind("$node") Node thisNode,
       @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context) {
     try {
-      Secret v = context.getSecret(key);
-      return v.value();
+      String v = context.getSecret(key);
+      return v;
     } catch (NoSuchElementException e) {
       return new ErrorObject("could not find secret " + key);
     }

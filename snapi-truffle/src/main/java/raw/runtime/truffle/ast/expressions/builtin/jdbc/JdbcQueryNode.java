@@ -21,7 +21,7 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.iterable.sources.JdbcQueryCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.api.SourceContext;
+import raw.utils.RawSettings;
 
 @NodeInfo(shortName = "Jdbc.Query")
 public class JdbcQueryNode extends ExpressionNode {
@@ -30,7 +30,6 @@ public class JdbcQueryNode extends ExpressionNode {
   @Child private ExpressionNode queryExp;
   private final RootCallTarget makeRowCallTarget;
   private final JdbcExceptionHandler exceptionHandler;
-  private final SourceContext context = RawContext.get(this).getSourceContext();
 
   public JdbcQueryNode(
       ExpressionNode locationExp,
@@ -45,8 +44,9 @@ public class JdbcQueryNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
+    RawSettings rawSettings = RawContext.get(this).getSettings();
     LocationObject dbLocation = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String query = (String) this.queryExp.executeGeneric(virtualFrame);
-    return new JdbcQueryCollection(dbLocation, query, context, makeRowCallTarget, exceptionHandler);
+    return new JdbcQueryCollection(dbLocation, query, rawSettings, makeRowCallTarget, exceptionHandler);
   }
 }

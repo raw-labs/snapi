@@ -31,7 +31,6 @@ import raw.compiler.rql2.lsp.CompilerLspService
 import raw.compiler.rql2.source._
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
-import raw.sources.api.SourceContext
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
@@ -85,14 +84,11 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   private def createCompilerContext(user: AuthenticatedUser, language: String): CompilerContext = {
-    // Initialize source context
-    implicit val sourceContext = new SourceContext(user, credentials, settings)
-
     // Initialize inferrer
     val inferrer = InferrerServiceProvider()
 
     // Initialize compiler context
-    new CompilerContext(language, user, inferrer, sourceContext)
+    new CompilerContext(language, user, inferrer)
   }
 
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {
@@ -651,9 +647,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
     val ctxBuilder = Context
       .newBuilder("rql")
       .engine(engine)
-      .environment("RAW_USER", environment.user.uid.toString)
-      .environment("RAW_TRACE_ID", environment.user.uid.toString)
-      .environment("RAW_SCOPES", environment.scopes.mkString(","))
+      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     environment.options.get("staged-compiler").foreach { stagedCompiler =>

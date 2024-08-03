@@ -18,24 +18,12 @@ import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import java.io.OutputStream;
-import java.util.Objects;
 import raw.client.api.*;
-import raw.creds.api.Secret;
 import raw.inferrer.api.InferrerService;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
-import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
-import raw.utils.InteractiveUser;
 import raw.utils.RawSettings;
-import scala.Option;
-import scala.Some;
-import scala.Tuple2;
 import scala.collection.JavaConverters;
-import scala.collection.immutable.Map;
-import scala.collection.immutable.Seq;
-import scala.collection.immutable.Seq$;
-import scala.collection.immutable.Set;
 
 public final class RawContext {
 
@@ -43,9 +31,6 @@ public final class RawContext {
   private final Env env;
   private final RawSettings rawSettings;
   private final OutputStream output;
-  private final AuthenticatedUser user;
-  private final String traceId;
-  private final String[] scopes;
   private final ProgramEnvironment programEnvironment;
   private final RawFunctionRegistry functionRegistry;
 
@@ -66,39 +51,8 @@ public final class RawContext {
       this.rawSettings = new RawSettings(rawSettingsConfigString);
     }
 
-    // Set user from environment variable.
-    String uid = Objects.toString(env.getEnvironment().get("RAW_USER"), "");
-    this.user = new InteractiveUser(uid, uid, uid, (Seq<String>) Seq$.MODULE$.empty());
-
-    // Set traceId from environment variable.
-    String traceId = Objects.toString(env.getEnvironment().get("RAW_TRACE_ID"), "");
-    this.traceId = traceId;
-
-    // Set scopes from environment variable.
-    String scopesStr = Objects.toString(env.getEnvironment().get("RAW_SCOPES"), "");
-    this.scopes = (scopesStr == null || scopesStr.isEmpty()) ? new String[0] : scopesStr.split(",");
-
-    // Create program environment.
-    Set<String> scalaScopes =
-        JavaConverters.asScalaSetConverter(java.util.Set.of(this.scopes)).asScala().toSet();
-
-    java.util.Map<String, String> javaOptions = new java.util.HashMap<>();
-    env.getOptions()
-        .getDescriptors()
-        .forEach(d -> javaOptions.put(d.getName(), env.getOptions().get(d.getKey()).toString()));
-
-    Map<String, String> scalaOptions =
-        JavaConverters.mapAsScalaMapConverter(javaOptions)
-            .asScala()
-            .toMap(scala.Predef.<scala.Tuple2<String, String>>conforms());
-
-    Option<String> maybeTraceId = traceId != null ? Some.apply(traceId) : Option.empty();
-
-    // Arguments are unused by the runtime in case of Truffle.
-    Option<Tuple2<String, RawValue>[]> maybeArguments = Option.empty();
-    this.programEnvironment =
-        new ProgramEnvironment(
-            this.user, maybeArguments, scalaScopes, scalaOptions, maybeTraceId, Option.empty());
+    // Set program environment.
+    this.programEnvironment = ProgramEnvironment$.MODULE$.deserializeFromString(env.getEnvironment().get("RAW_PROGRAM_ENVIRONMENT"));
 
     // The function registry holds snapi methods (top level functions). It is the data
     // structure that is used to extract a ref to a function from a piece of execute snapi.
@@ -123,7 +77,7 @@ public final class RawContext {
   }
 
   public String getTraceId() {
-    return traceId;
+    return programEnvironment.maybeTraceId().get();
   }
 
   public InferrerService getInferrer() {
@@ -134,29 +88,21 @@ public final class RawContext {
     return output;
   }
 
-  @CompilerDirectives.TruffleBoundary
-  public SourceContext getSourceContext() {
-    return language.getSourceContext(getUser(), rawSettings);
-  }
-
   public RawSettings getSettings() {
     return rawSettings;
   }
 
   @CompilerDirectives.TruffleBoundary
-  public Secret getSecret(String key) {
-    if (user == null) {
-      throw new RawTruffleRuntimeException("User not set");
-    }
-    return getSourceContext().credentialsService().getSecret(user, key).get();
+  public String getSecret(String key) {
+    return programEnvironment.secrets().get(key).get();
   }
 
   public AuthenticatedUser getUser() {
-    return user;
+    return programEnvironment.user();
   }
 
   public String[] getScopes() {
-    return scopes;
+    return (String[]) JavaConverters.setAsJavaSetConverter(programEnvironment.scopes()).asJava().toArray();
   }
 
   private static final TruffleLanguage.ContextReference<RawContext> REFERENCE =

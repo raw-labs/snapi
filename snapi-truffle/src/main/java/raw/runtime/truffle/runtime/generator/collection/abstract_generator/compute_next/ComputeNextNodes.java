@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+
+import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
@@ -59,7 +61,7 @@ import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
-import raw.sources.api.SourceContext;
+import raw.utils.RawSettings;
 
 public class ComputeNextNodes {
 
@@ -506,12 +508,10 @@ public class ComputeNextNodes {
         CsvReadComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("initCsv") CsvParserNodes.InitCsvParserNode initParser,
-        @Cached @Cached.Shared("closeCsv") CsvParserNodes.CloseCsvParserNode closeParser,
-        @Cached(value = "getSourceContext(thisNode)", allowUncached = true, neverDefault = true)
-            SourceContext sourceContext) {
+        @Cached @Cached.Shared("closeCsv") CsvParserNodes.CloseCsvParserNode closeParser) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocation(), sourceContext);
+            new TruffleInputStream(computeNext.getLocation());
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
@@ -561,12 +561,10 @@ public class ComputeNextNodes {
         @Bind("$node") Node thisNode,
         @Cached JsonParserNodes.InitJsonParserNode initParser,
         @Cached JsonParserNodes.CloseJsonParserNode closeParser,
-        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken,
-        @Cached(value = "getSourceContext(thisNode)", allowUncached = true, neverDefault = true)
-            SourceContext sourceContext) {
+        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocationObject(), sourceContext);
+            new TruffleInputStream(computeNext.getLocationObject());
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(initParser.execute(thisNode, computeNext.getStream()));
@@ -618,13 +616,10 @@ public class ComputeNextNodes {
     @Specialization
     static void init(
         Node node,
-        XmlReadComputeNext computeNext,
-        @Bind("$node") Node thisNode,
-        @Cached(value = "getSourceContext(thisNode)", allowUncached = true, neverDefault = true)
-            SourceContext sourceContext) {
+        XmlReadComputeNext computeNext) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocationObject(), sourceContext);
+            new TruffleInputStream(computeNext.getLocationObject());
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
@@ -812,12 +807,11 @@ public class ComputeNextNodes {
             LoopNode loopNode,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-        @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached(value = "getSourceContext(thisNode)", allowUncached = true)
-            SourceContext sourceContext) {
+        @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode) {
 
+      RawSettings settings = RawContext.get(thisNode).getSettings();
       computeNext.setDiskRight(
-          IOUtils.getScratchFile("cartesian.", ".kryo", sourceContext).toFile());
+          IOUtils.getScratchFile("cartesian.", ".kryo", settings).toFile());
 
       // save right to disk
       Object rightGen = getGeneratorNode.execute(thisNode, computeNext.getRightIterable());

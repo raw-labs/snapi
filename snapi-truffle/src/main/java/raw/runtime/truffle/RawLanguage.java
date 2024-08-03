@@ -43,7 +43,6 @@ import raw.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
-import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
 import scala.collection.JavaConverters;
@@ -236,10 +235,6 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   @Override
   protected Object getScope(RawContext context) {
     return context.getFunctionRegistry().asPolyglot();
-  }
-
-  public SourceContext getSourceContext(AuthenticatedUser user, RawSettings rawSettings) {
-    return languageCache.getSourceContext(user, rawSettings);
   }
 
   public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {

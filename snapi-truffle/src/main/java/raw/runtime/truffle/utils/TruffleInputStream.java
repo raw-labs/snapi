@@ -16,35 +16,37 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.InputStream;
 import java.io.Reader;
 
-import raw.client.api.LocationDescription;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Encoding;
-import raw.sources.api.SourceContext;
+import raw.sources.api.Location;
 import raw.sources.bytestream.api.ByteStreamLocation;
+import raw.sources.filesystem.api.FileSystemLocation;
 import raw.utils.RawException;
 import scala.util.Either;
 
 public class TruffleInputStream {
   private final LocationObject locationObject;
 
-  private final SourceContext sourceContext;
-
-  public TruffleInputStream(LocationObject locationObject, SourceContext context) {
-    this.sourceContext = context;
+  public TruffleInputStream(LocationObject locationObject) {
     this.locationObject = locationObject;
   }
 
   @TruffleBoundary
   public String getUrl() {
-    return locationObject.getLocationDescription().url();
+    Location location = locationObject.getLocation();
+    if (location instanceof FileSystemLocation) {
+      return ((FileSystemLocation) location).pathForUser();
+    } else {
+      // FIXME (msb): What should getUrl return for non-FileSystemLocations?
+      return "";
+    }
   }
 
   @TruffleBoundary
   public ByteStreamLocation getLocation() {
-    LocationDescription locationDescription = locationObject.getLocationDescription();
     try {
-      return sourceContext.getByteStream(locationDescription.url(), locationDescription.options(), sourceContext);
+      return locationObject.getByteStreamLocation();
     } catch (RawException ex) {
       throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
     }

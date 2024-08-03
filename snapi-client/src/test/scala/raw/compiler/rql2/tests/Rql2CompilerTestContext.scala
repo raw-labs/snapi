@@ -472,7 +472,12 @@ trait Rql2CompilerTestContext
     authorizedUser,
     maybeArguments,
     this.runnerScopes ++ scopes,
+    Map.empty, // secrets
+    Map.empty, // Jdbc servers
+    Map.empty, // http headers
+    Map.empty, // s3 credentials
     this.options ++ options ++ programOptions,
+    None, // jdbcUrl
     maybeTraceId
   )
 

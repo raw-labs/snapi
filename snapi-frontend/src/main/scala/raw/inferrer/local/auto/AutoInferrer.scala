@@ -21,7 +21,6 @@ import raw.inferrer.local.hjson.HjsonInferrer
 import raw.inferrer.local.json.JsonInferrer
 import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.XmlInferrer
-import raw.sources.api._
 import raw.sources.bytestream.api.ByteStreamLocation
 import raw.sources.filesystem.api.{DirectoryMetadata, FileSystemLocation}
 import raw.utils.RawSettings

@@ -28,7 +28,18 @@ class RD10767Test extends TruffleWithLocalCredentialsTestContext {
     |
     |Json.Read("$data", data_type())
     |""".stripMargin) { it =>
-    val programEnvironment = ProgramEnvironment(authorizedUser, None, Set.empty, Map.empty, None)
+    val programEnvironment = ProgramEnvironment(
+      authorizedUser,
+      None,
+      Set.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      None,
+      None
+    )
     compilerService.getProgramDescription(it.q, programEnvironment) match {
       case GetProgramDescriptionSuccess(desc) =>
         assert(desc.maybeRunnable.isDefined, "Expected a runnable program")
@@ -42,7 +53,18 @@ class RD10767Test extends TruffleWithLocalCredentialsTestContext {
     |
     |func()(1)
     |""".stripMargin) { it =>
-    val programEnvironment = ProgramEnvironment(authorizedUser, None, Set.empty, Map.empty, None)
+    val programEnvironment = ProgramEnvironment(
+      authorizedUser,
+      None,
+      Set.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      None,
+      None
+    )
     compilerService.getProgramDescription(it.q, programEnvironment) match {
       case GetProgramDescriptionSuccess(desc) =>
         assert(desc.maybeRunnable.isDefined, "Expected a runnable program")

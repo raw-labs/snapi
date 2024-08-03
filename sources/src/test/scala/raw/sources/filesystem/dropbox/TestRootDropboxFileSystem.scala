@@ -23,7 +23,7 @@ class TestRootDropboxFileSystem extends RawTestSuite with SettingsTestContext wi
   test("list /") { _ =>
     val fs = new DropboxFileSystem(
       new DbxClientV2(
-        DbxRequestConfig.newBuilder(settings.getString(DropboxPath.DROPBOX_CLIENT_ID)).build(),
+        DbxRequestConfig.newBuilder(settings.getString(BaseDropboxPath.DROPBOX_CLIENT_ID)).build(),
         new DbxCredential(sys.env("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN"))
       )
     )

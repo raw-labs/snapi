@@ -79,7 +79,13 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
     super.beforeAll()
     // (CTM) while we sort out our snowflake installation
     // this will fail immediately instead of polluting tier2 tests
-    val client = new SnowflakeClient(snowflakeCreds)(settings)
+    val client = new SnowflakeClient(
+      snowflakeCreds.database,
+      snowflakeCreds.username.get,
+      snowflakeCreds.password.get,
+      snowflakeCreds.accountIdentifier,
+      snowflakeCreds.parameters
+    )(settings)
     client.listSchemas
   }
 

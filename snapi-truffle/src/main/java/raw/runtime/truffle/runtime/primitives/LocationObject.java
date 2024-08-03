@@ -23,6 +23,9 @@ import raw.compiler.rql2.api.LocationDescription;
 import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.sources.api.Location;
+import raw.sources.bytestream.api.ByteStreamLocation;
+import raw.sources.bytestream.http.HttpByteStreamLocation;
+import raw.sources.filesystem.api.FileSystemLocation;
 import raw.sources.jdbc.api.JdbcServerLocation;
 
 import java.nio.ByteOrder;
@@ -44,11 +47,35 @@ public final class LocationObject implements TruffleObject {
     return location;
   }
 
+  public ByteStreamLocation getByteStreamLocation() {
+    if (location instanceof ByteStreamLocation) {
+      return (ByteStreamLocation) location;
+    } else {
+      throw new RawTruffleRuntimeException("not a byte stream location");
+    }
+  }
+
+  public FileSystemLocation getFileSystemLocation() {
+    if (location instanceof FileSystemLocation) {
+      return (FileSystemLocation) location;
+    } else {
+      throw new RawTruffleRuntimeException("not a file system location");
+    }
+  }
+
   public JdbcServerLocation getJdbcServerLocation() {
     if (location instanceof JdbcServerLocation) {
       return (JdbcServerLocation) location;
     } else {
       throw new RawTruffleRuntimeException("not a database location");
+    }
+  }
+
+  public HttpByteStreamLocation getHttpByteStreamLocation() {
+    if (location instanceof HttpByteStreamLocation) {
+      return (HttpByteStreamLocation) location;
+    } else {
+      throw new RawTruffleRuntimeException("not an HTTP location");
     }
   }
 

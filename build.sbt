@@ -110,7 +110,7 @@ lazy val sources = (project in file("sources"))
 
 lazy val client = (project in file("client"))
   .dependsOn(
-    sources % "compile->compile;test->test"
+    utils % "compile->compile;test->test"
   )
   .settings(
     commonSettings,

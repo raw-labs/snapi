@@ -15,7 +15,6 @@ package raw.compiler.rql2.api
 import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
-import raw.compiler.rql2.builtin.{BinaryPackageBuilder, LocationPackageBuilder}
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.{ProgramContext, Rql2TypeUtils}
 import raw.client.api._

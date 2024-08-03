@@ -21,6 +21,8 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.compiler.snapi.truffle.builtin.WithArgs;
+import raw.compiler.snapi.truffle.builtin.list_extension.TruffleBuildListEntry;
+import raw.compiler.snapi.truffle.builtin.list_extension.TruffleUnsafeFromListEntry;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.binary_package.BinaryFromStringNodeGen;
@@ -43,46 +45,16 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode url = args.get(0).exprNode();
+
+    ExpressionNode bodyString = arg(args, "bodyString").orElse(null);
+    ExpressionNode bodyBinary = arg(args, "bodyBinary").orElse(null);
     ExpressionNode authCredentialName = arg(args, "authCredentialName").orElse(null);
+    ExpressionNode username = arg(args, "username").orElse(null);
+    ExpressionNode password = arg(args, "password").orElse(null);
+    ExpressionNode httpArgs = arg(args, "args").orElse(null);
+    ExpressionNode headers = arg(args, "headers").orElse(null);
+    ExpressionNode expectedStatus = arg(args, "expectedStatus").orElse(null);
 
-    handle basic auth here?
-
-    // Add the Authentication Header
-    basicAuth.foreach {
-      case (username, password) => allHeaders += (
-              (
-                      "Authorization",
-              s"Basic ${Base64.getEncoder.encodeToString(s"$username:$password".getBytes)}"
-        )
-      )
-    }
-    if (authCredentialName == null) {
-
-      go to program environment, collect headers, and concatenate them to the headers specified also here
-              probably with lower priority
-
-
-      return new
-    } else {
-      ExpressionNode bodyString = arg(args, "bodyString").orElse(null);
-      ExpressionNode bodyBinary = arg(args, "bodyBinary").orElse(null);
-
-      ExpressionNode body;
-      if (bodyBinary != null) {
-      body = bodyBinary;
-      } else if (bodyString != null) {
-        body = BinaryFromStringNodeGen.create(bodyString);
-      } else {
-        body = null;
-      }
-
-      ExpressionNode username = arg(args, "username").orElse(null);
-      ExpressionNode password = arg(args, "password").orElse(null);
-      ExpressionNode argsNode = arg(args, "args").orElse(null);
-      ExpressionNode headers = arg(args, "headers").orElse(null);
-      ExpressionNode expectedStatus = arg(args, "expectedStatus").orElse(null);
-
-      return new LocationFromHttpNode(method, url, argsNode, headers, body, expectedStatus, username, password);
-    }
+    return new LocationFromHttpNode(method, url, bodyString, bodyBinary, authCredentialName, username, password, httpArgs, headers, expectedStatus);
   }
 }

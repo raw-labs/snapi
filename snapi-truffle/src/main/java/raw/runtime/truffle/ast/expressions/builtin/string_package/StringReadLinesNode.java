@@ -21,7 +21,6 @@ import raw.runtime.truffle.runtime.iterable.sources.ReadLinesCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "String.ReadLines")
 @NodeChild("location")
@@ -32,10 +31,8 @@ public abstract class StringReadLinesNode extends ExpressionNode {
   @Specialization
   static Object doExecute(
       LocationObject locationObject,
-      String encoding,
-      @Bind("$node") Node thisNode,
-      @Cached(value = "getSourceContext(thisNode)", neverDefault = true) SourceContext context) {
-    TruffleInputStream stream = new TruffleInputStream(locationObject, context);
+      String encoding) {
+    TruffleInputStream stream = new TruffleInputStream(locationObject);
     TruffleCharInputStream charStream = new TruffleCharInputStream(stream, encoding);
     return new ReadLinesCollection(charStream);
   }

@@ -14,7 +14,6 @@ package raw.compiler.rql2.builtin
 
 import raw.client.api._
 import raw.compiler.base.source.Type
-import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 import raw.compiler.rql2.source._
@@ -35,6 +34,7 @@ class LocationFromStringEntry extends EntryExtension {
 
   override def entryName: String = "FromString"
 
+  // FIXME (msb): Make this a user-visible node and take advantage to document the exact format of the URLs allowed.
   override def docs: EntryDoc = ???
 
   override def nrMandatoryParams: Int = 1

@@ -23,7 +23,6 @@ import raw.creds.api.CredentialsService;
 import raw.creds.api.CredentialsServiceProvider;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
-import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
 import raw.utils.RawUtils;
@@ -43,12 +42,12 @@ public class RawLanguageCache {
 
     private static class Value {
         private final CompilerContext compilerContext;
-        private final SourceContext sourceContext;
+        private final CredentialsService credentialsService;
         private final InferrerService inferrer;
 
-        Value(CompilerContext compilerContext, SourceContext sourceContext, InferrerService inferrer) {
+        Value(CompilerContext compilerContext, CredentialsService credentialsService, InferrerService inferrer) {
             this.compilerContext = compilerContext;
-            this.sourceContext = sourceContext;
+            this.credentialsService = credentialsService;
             this.inferrer = inferrer;
         }
 
@@ -56,27 +55,13 @@ public class RawLanguageCache {
             return compilerContext;
         }
 
-        public SourceContext getSourceContext() {
-            return sourceContext;
-        }
-
         public InferrerService getInferrer() {
             return inferrer;
         }
-    }
 
-    public CompilerContext getCompilerContext() {
-      return compilerContext;
-    }
+        public CredentialsService getCredentialsService() {return credentialsService; }
 
-    public SourceContext getSourceContext() {
-      return sourceContext;
     }
-
-    public InferrerService getInferrer() {
-      return inferrer;
-    }
-  }
 
   @CompilerDirectives.TruffleBoundary
   private Value get(AuthenticatedUser user, RawSettings rawSettings) {
@@ -87,16 +72,15 @@ public class RawLanguageCache {
     return map.computeIfAbsent(
         user,
         k -> {
-          SourceContext sourceContext = new SourceContext(user, credentialsService, rawSettings);
-          InferrerService inferrer = InferrerServiceProvider.apply(sourceContext);
+          InferrerService inferrer = InferrerServiceProvider.apply(rawSettings);
           CompilerContext compilerContext =
-              new CompilerContext("rql2-truffle", user, inferrer, sourceContext, rawSettings);
-          return new Value(compilerContext, sourceContext, inferrer);
+              new CompilerContext("rql2-truffle", user, inferrer, rawSettings);
+          return new Value(compilerContext, credentialsService, inferrer);
         });
   }
 
-  public SourceContext getSourceContext(AuthenticatedUser user, RawSettings rawSettings) {
-    return get(user, rawSettings).getSourceContext();
+  public CredentialsService getCredentialsService(AuthenticatedUser user, RawSettings rawSettings) {
+    return get(user, rawSettings).getCredentialsService();
   }
 
   public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
@@ -106,49 +90,6 @@ public class RawLanguageCache {
   public InferrerService getInferrer(AuthenticatedUser user, RawSettings rawSettings) {
     return get(user, rawSettings).getInferrer();
   }
-
-  @CompilerDirectives.TruffleBoundary
-  public void incrementContext(RawContext context) {
-    synchronized (activeContextsLock) {
-      activeContexts.add(context);
-    }
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  public void releaseContext(RawContext context) {
-    synchronized (activeContextsLock) {
-      activeContexts.remove(context);
-      if (activeContexts.isEmpty()) {
-        // Close all inferrer services and credential services.
-        map.values()
-            .forEach(
-                v -> {
-                  RawUtils.withSuppressNonFatalException(
-                      () -> {
-                        v.getInferrer().stop();
-                        return BoxedUnit.UNIT;
-                      },
-                      true);
-                  RawUtils.withSuppressNonFatalException(
-                      () -> {
-                        v.getSourceContext().credentialsService().stop();
-                        return BoxedUnit.UNIT;
-                      },
-                      true);
-                });
-    }
-
-    public SourceContext getSourceContext(AuthenticatedUser user, RawSettings rawSettings) {
-        return get(user, rawSettings).getSourceContext();
-    }
-
-    public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
-        return get(user, rawSettings).getCompilerContext();
-    }
-
-    public InferrerService getInferrer(AuthenticatedUser user, RawSettings rawSettings) {
-        return get(user, rawSettings).getInferrer();
-    }
 
     @CompilerDirectives.TruffleBoundary
     public void incrementContext(RawContext context) {
@@ -169,12 +110,6 @@ public class RawLanguageCache {
                                     RawUtils.withSuppressNonFatalException(
                                             () -> {
                                                 v.getInferrer().stop();
-                                                return BoxedUnit.UNIT;
-                                            },
-                                            true);
-                                    RawUtils.withSuppressNonFatalException(
-                                            () -> {
-                                                v.getSourceContext().credentialsService().stop();
                                                 return BoxedUnit.UNIT;
                                             },
                                             true);

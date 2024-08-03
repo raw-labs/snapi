@@ -15,6 +15,7 @@ package raw.sources.jdbc.snowflake
 import java.io.Closeable
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
+import scala.collection.JavaConverters._
 
 class SnowflakeServerLocation(
     val dbName: String,
@@ -32,6 +33,16 @@ class SnowflakeServerLocation(
         parameters
       )
     ) {
+
+  // Constructor for Java.
+  def this(
+      dbName: String,
+      username: String,
+      password: String,
+      accountIdentifier: String,
+      parameters: java.util.Map[String, String],
+      settings: RawSettings
+  ) = this(dbName, username, password, accountIdentifier, parameters.asScala.toMap)(settings)
 
   override def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable = {
     new Iterator[JdbcSchemaLocation] with Closeable {

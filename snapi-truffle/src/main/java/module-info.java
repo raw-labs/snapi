@@ -53,13 +53,8 @@ module raw.snapi.truffle {
   requires snowflake.jdbc;
 
   uses raw.compiler.rql2.api.EntryExtension;
-  uses raw.sources.jdbc.api.JdbcTableLocationBuilder;
   uses raw.compiler.rql2.api.PackageExtension;
   uses raw.client.api.CompilerServiceBuilder;
-  uses raw.sources.filesystem.api.FileSystemLocationBuilder;
-  uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
-  uses raw.sources.jdbc.api.JdbcLocationBuilder;
-  uses raw.sources.jdbc.api.JdbcSchemaLocationBuilder;
 
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       raw.runtime.truffle.RawLanguageProvider;

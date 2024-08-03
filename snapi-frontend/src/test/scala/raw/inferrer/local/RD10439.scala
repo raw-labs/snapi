@@ -28,7 +28,7 @@ class RD10439 extends RawTestSuite with SettingsTestContext with StrictLogging {
   test("infer mysql table which is repeated in another database") { _ =>
     val inferrer = new JdbcInferrer()
     val client = new MySqlClient(mysqlHostname, 3306, mysqlDb, mysqlUsername, mysqlPassword)
-    val location = new MySqlTableLocation(client, mysqlDb, "rd10439")
+    val location = new MySqlTableLocation(client, "rd10439")
     val tipe = inferrer.getTableType(location)
     logger.info(s"tipe: $tipe")
     val expected = SourceCollectionType(

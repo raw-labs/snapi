@@ -14,15 +14,13 @@ package raw.compiler.rql2.builtin
 
 import raw.client.api._
 import raw.compiler.base.source.Type
-import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param, ShortEntryExtension}
 import raw.compiler.rql2.source._
 
 import scala.collection.immutable.ListMap
 
-class
-HttpPackage extends PackageExtension {
+class HttpPackage extends PackageExtension {
 
   override def name: String = "Http"
 
@@ -182,31 +180,29 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
     )
   )
 
-  // FIXME (msb): This isn't actually validating anything! We must do:
-  //  idn match {
-  //    case "bodyString" => Right(Rql2StringType())
-  //    ...
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    Right(
-      ExpParam(
-        OneOfType(
-          Rql2IntType(),
-          Rql2StringType(),
-          Rql2BinaryType(),
-          Rql2BoolType(),
-          Rql2IntervalType(),
-          Rql2ListType(
-            Rql2RecordType(
-              Vector(
-                Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
-              )
+    idn match {
+      case "bodyString" => Right(ExpParam(Rql2StringType()))
+      case "bodyBinary" => Right(ExpParam(Rql2BinaryType()))
+      case "authCredentialName" => Right(ExpParam(Rql2StringType()))
+      case "username" => Right(ExpParam(Rql2StringType()))
+      case "password" => Right(ExpParam(Rql2StringType()))
+      case "args" => Right(
+          ExpParam(
+            Rql2ListType(
+              Rql2RecordType(Vector(Rql2AttrType("_1", Rql2StringType()), Rql2AttrType("_2", Rql2StringType())))
             )
-          ),
-          Rql2ListType(Rql2IntType())
+          )
         )
-      )
-    )
+      case "headers" => Right(
+          ExpParam(
+            Rql2ListType(
+              Rql2RecordType(Vector(Rql2AttrType("_1", Rql2StringType()), Rql2AttrType("_2", Rql2StringType())))
+            )
+          )
+        )
+      case "expectedStatus" => Right(ExpParam(Rql2ListType(Rql2IntType())))
+    }
   }
 
   override def returnType(

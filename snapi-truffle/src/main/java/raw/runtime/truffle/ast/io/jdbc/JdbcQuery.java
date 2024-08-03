@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.expressions.builtin.jdbc;
+package raw.runtime.truffle.ast.io.jdbc;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
@@ -18,35 +18,32 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import raw.client.api.LocationDescription;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcReaderRawTruffleException;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.DecimalObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
-import raw.sources.api.SourceContext;
+import raw.runtime.truffle.runtime.primitives.*;
 import raw.utils.RawException;
+import raw.utils.RawSettings;
 
 public class JdbcQuery {
 
+  private final String host;
   private final Connection connection;
   private final ResultSet rs;
   private final JdbcExceptionHandler exceptionHandler;
-  private final String url;
 
   @TruffleBoundary
   public JdbcQuery(
-      LocationDescription locationDescription,
+      LocationObject locationObject,
       String query,
-      SourceContext sourceContext,
+      RawSettings rawSettings,
       JdbcExceptionHandler exceptionHandler) {
+    this.host = locationObject.getJdbcServerLocation().hostForUser();
     this.exceptionHandler = exceptionHandler;
-    this.url = locationDescription.url();
     try {
-      connection = sourceContext.getJdbcLocation(locationDescription.url(), locationDescription.options(), sourceContext).getJdbcConnection();
       PreparedStatement stmt;
-      int fetchSize = sourceContext.settings().getInt("raw.runtime.rdbms.fetch-size");
+      int fetchSize = rawSettings.getInt("raw.runtime.rdbms.fetch-size");
+      // FIXME (msb): What is crashes during construction? Must release connection.
+      connection = locationObject.getJdbcServerLocation().getJdbcConnection();
       try {
         stmt = connection.prepareStatement(query);
         stmt.setFetchSize(fetchSize);
@@ -55,8 +52,7 @@ public class JdbcQuery {
         throw exceptionHandler.rewrite(e, this);
       }
     } catch (RawException e) {
-      // exceptions due to location errors (e.g. connection failures) are turned into runtime
-      // exceptions.
+      // Exceptions due to location errors (e.g. connection failures) are turned into runtime exceptions.
       throw new JdbcReaderRawTruffleException(e.getMessage(), this, e, null);
     }
   }
@@ -212,6 +208,6 @@ public class JdbcQuery {
   }
 
   public String location() {
-    return url;
+    return host;
   }
 }

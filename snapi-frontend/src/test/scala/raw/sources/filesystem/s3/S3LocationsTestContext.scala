@@ -12,6 +12,8 @@
 
 package raw.sources.filesystem.s3
 
+import raw.creds.s3.S3TestCreds
+
 trait S3LocationsTestContext extends S3TestCreds {
 
   def s3Path(bucket: String, path: String): String = s"s3://$bucket/$path"

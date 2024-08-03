@@ -18,13 +18,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.sources.api.SourceContext;
+import raw.utils.RawSettings;
 
 public class IOUtils {
 
   @TruffleBoundary
-  public static Path getScratchPath(SourceContext context) {
-    Path p = Paths.get(context.settings().getString("raw.runtime.scratch-path", true));
+  public static Path getScratchPath(RawSettings rawSettings) {
+    Path p = Paths.get(rawSettings.getString("raw.runtime.scratch-path", true));
     if (!Files.exists(p)) {
       try {
         Files.createDirectories(p);
@@ -36,9 +36,9 @@ public class IOUtils {
   }
 
   @TruffleBoundary
-  public static Path getScratchFile(String prefix, String suffix, SourceContext context) {
+  public static Path getScratchFile(String prefix, String suffix, RawSettings rawSettings) {
     try {
-      return Files.createTempFile(getScratchPath(context), prefix, suffix);
+      return Files.createTempFile(getScratchPath(rawSettings), prefix, suffix);
     } catch (IOException ex) {
       throw new RawTruffleRuntimeException("failed to create scratch file", ex);
     }

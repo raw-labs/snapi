@@ -17,7 +17,6 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.creds.api.CredentialsTestContext
 import raw.inferrer.api._
 import raw.inferrer.local.LocalInferrerTestContext
-import raw.sources.api.SourceContext
 import raw.utils._
 
 import java.io.StringReader
@@ -28,17 +27,10 @@ class JsonOrTypeTest
     with LocalInferrerTestContext
     with CredentialsTestContext {
 
-  implicit private var sourceContext: SourceContext = _
-
   private var inferrer: JsonInferrer = _
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    sourceContext = new SourceContext(
-      InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com"),
-      credentials,
-      settings
-    )
     inferrer = new JsonInferrer()
   }
 

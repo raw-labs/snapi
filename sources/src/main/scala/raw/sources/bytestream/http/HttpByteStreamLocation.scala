@@ -18,8 +18,6 @@ import raw.utils.RawSettings
 import java.io.InputStream
 import java.net.{HttpURLConnection, MalformedURLException, URI, URISyntaxException}
 import java.nio.file.Path
-import java.util.Base64
-import scala.collection.mutable
 
 final case class HttpResult(status: Int, is: InputStream, headers: Seq[(String, String)])
 

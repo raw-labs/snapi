@@ -20,6 +20,7 @@ import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
+import raw.runtime.truffle.ast.expressions.builtin.jdbc.JdbcQueryNode;
 import raw.runtime.truffle.ast.io.csv.writer.internal.*;
 import raw.runtime.truffle.ast.io.jdbc.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;

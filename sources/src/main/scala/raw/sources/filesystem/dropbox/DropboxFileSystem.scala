@@ -13,13 +13,11 @@
 package raw.sources.filesystem.dropbox
 
 import com.dropbox.core._
-import com.dropbox.core.oauth.DbxCredential
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.{DownloadErrorException, FolderMetadata, Metadata, FileMetadata => DropboxFileMetadata}
 import org.springframework.util.AntPathMatcher
 import raw.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
 import raw.sources.filesystem.api._
-import raw.utils.RawSettings
 
 import java.io.InputStream
 import scala.collection.JavaConverters._

@@ -25,7 +25,7 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OffHeapGroupByKeys;
 import raw.runtime.truffle.utils.IOUtils;
-import raw.sources.api.SourceContext;
+import raw.utils.RawSettings;
 
 public class StaticInitializers {
 
@@ -37,9 +37,9 @@ public class StaticInitializers {
   @CompilerDirectives.TruffleBoundary
   public static FileOutputStream getGroupByKeyNewDiskBuffer(
       OffHeapGroupByKey offHeapGroupByKey, Node node) {
-    SourceContext sourceContext = RawContext.get(node).getSourceContext();
+    RawSettings settings = RawContext.get(node).getSettings();
     File file;
-    file = IOUtils.getScratchFile("groupby.", ".kryo", sourceContext).toFile();
+    file = IOUtils.getScratchFile("groupby.", ".kryo", settings).toFile();
     offHeapGroupByKey.getSpilledBuffers().add(file);
     try {
       return new FileOutputStream(file);
@@ -52,8 +52,8 @@ public class StaticInitializers {
   public static FileOutputStream groupByKeysNextFile(
       OffHeapGroupByKeys offHeapGroupByKeys, Node node) {
     File file;
-    SourceContext sourceContext = RawContext.get(node).getSourceContext();
-    file = IOUtils.getScratchFile("orderby.", ".kryo", sourceContext).toFile();
+    RawSettings settings = RawContext.get(node).getSettings();
+    file = IOUtils.getScratchFile("orderby.", ".kryo", settings).toFile();
     offHeapGroupByKeys.getSpilledBuffers().add(file);
     try {
       return new FileOutputStream(file);
@@ -65,8 +65,8 @@ public class StaticInitializers {
   @CompilerDirectives.TruffleBoundary
   public static FileOutputStream distinctNextFile(OffHeapDistinct offHeapDistinct, Node node) {
     File file;
-    SourceContext sourceContext = RawContext.get(node).getSourceContext();
-    file = IOUtils.getScratchFile("distinct.", ".kryo", sourceContext).toFile();
+    RawSettings settings = RawContext.get(node).getSettings();
+    file = IOUtils.getScratchFile("distinct.", ".kryo", settings).toFile();
     offHeapDistinct.getSpilledBuffers().add(file);
     try {
       return new FileOutputStream(file);
@@ -83,26 +83,23 @@ public class StaticInitializers {
   public static int getKryoOutputBufferSize(Node node) {
     return (int)
         RawContext.get(node)
-            .getSourceContext()
-            .settings()
+            .getSettings()
             .getMemorySize("raw.runtime.kryo.output-buffer-size");
   }
 
   @CompilerDirectives.TruffleBoundary
   public static long[] getContextValues(Node node) {
-    SourceContext sourceContext = RawContext.get(node).getSourceContext();
+    RawSettings rawSettings = RawContext.get(node).getSettings();
     long[] contextValues = new long[3];
-    contextValues[0] =
-        sourceContext.settings().getMemorySize("raw.runtime.external.disk-block-max-size");
+    contextValues[0] = rawSettings.getMemorySize("raw.runtime.external.disk-block-max-size");
     contextValues[1] = getKryoOutputBufferSize(node);
-    contextValues[2] =
-        (int) sourceContext.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
+    contextValues[2] = (int) rawSettings.getMemorySize("raw.runtime.kryo.input-buffer-size");
     return contextValues;
   }
 
   @CompilerDirectives.TruffleBoundary
-  public static SourceContext getSourceContext(Node node) {
-    return RawContext.get(node).getSourceContext();
+  public static RawSettings getRawSettings(Node node) {
+    return RawContext.get(node).getSettings();
   }
 
   @CompilerDirectives.TruffleBoundary

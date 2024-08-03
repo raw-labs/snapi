@@ -56,9 +56,7 @@ trait StagedCompiler {
     val ctxBuilder = Context
       .newBuilder("rql")
       .engine(engine)
-      .environment("RAW_USER", environment.user.uid.toString)
-      .environment("RAW_TRACE_ID", environment.user.uid.toString)
-      .environment("RAW_SCOPES", environment.scopes.mkString(","))
+      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     environment.options.get("staged-compiler").foreach { stagedCompiler =>

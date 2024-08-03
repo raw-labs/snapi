@@ -25,7 +25,6 @@ import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleInputStream;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "String.Read")
 @NodeChild("location")
@@ -36,10 +35,8 @@ public abstract class StringReadNode extends ExpressionNode {
   @TruffleBoundary
   protected static Object doExecute(
       LocationObject locationObject,
-      String encoding,
-      @Bind("$node") Node thisNode,
-      @Cached(value = "getSourceContext(thisNode)", neverDefault = true) SourceContext context) {
-    TruffleInputStream stream = new TruffleInputStream(locationObject, context);
+      String encoding) {
+    TruffleInputStream stream = new TruffleInputStream(locationObject);
     try {
       Reader reader = stream.getReader(encoding);
       try {

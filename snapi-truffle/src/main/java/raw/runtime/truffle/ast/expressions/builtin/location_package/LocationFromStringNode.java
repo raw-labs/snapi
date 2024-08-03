@@ -33,6 +33,30 @@ public class LocationFromStringNode extends ExpressionNode {
 
     // FIXME (msb): Do regex here and build location object
     throw new RawTruffleRuntimeException("Location.FromString not implemented");
+
+    // pgsql://user:password@host:port/db
+    // pgsql://user:password@host:port/db/schema
+    // pgsql://user:password@host:port/db/schema/table
+    // pgsql:credName
+    // pgsql:credName/schemaName
+    // pgsql:credName/schemaName/tableName
+    // (and mysql, oracle, sqlserver, slite, teradata, snowflake)
+
+    // s3
+
+    // dropbox (token or username and passdword?)
+
+    // https -> direct ?
+
+    // github
+
+    // local?
+
+    // mock
+
+
+
+
 //    Location location = null;
 //
 //    return new LocationObject(location);

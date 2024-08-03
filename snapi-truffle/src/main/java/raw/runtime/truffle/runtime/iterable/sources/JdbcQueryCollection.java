@@ -25,34 +25,33 @@ import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.JdbcQueryComputeNext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.api.SourceContext;
+import raw.utils.RawSettings;
 
 @ExportLibrary(InteropLibrary.class)
 public class JdbcQueryCollection implements TruffleObject {
   private final LocationObject dbLocation;
   private final String query;
+  private final RawSettings rawSettings;
   private final RootCallTarget rowParserCallTarget;
 
-  private final SourceContext context;
   private final JdbcExceptionHandler exceptionHandler;
 
   public JdbcQueryCollection(
       LocationObject dbLocation,
       String query,
-      SourceContext context,
+      RawSettings rawSettings,
       RootCallTarget rowParserCallTarget,
       JdbcExceptionHandler exceptionHandler) {
     this.dbLocation = dbLocation;
     this.query = query;
+    this.rawSettings = rawSettings;
     this.rowParserCallTarget = rowParserCallTarget;
-    this.context = context;
     this.exceptionHandler = exceptionHandler;
   }
 
   public AbstractGenerator getGenerator() {
     return new AbstractGenerator(
-        new JdbcQueryComputeNext(
-            dbLocation, query, context, rowParserCallTarget, exceptionHandler));
+        new JdbcQueryComputeNext(dbLocation, query, rawSettings, rowParserCallTarget, exceptionHandler));
   }
 
   // InteropLibrary: Iterable

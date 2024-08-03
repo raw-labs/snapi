@@ -30,9 +30,7 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 import raw.sources.api.LocationException;
-import raw.sources.api.SourceContext;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
-import raw.sources.bytestream.http.HttpByteStreamLocationBuilder;
 import raw.sources.bytestream.http.HttpResult;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;
@@ -52,12 +50,9 @@ public abstract class HttpReadNode extends ExpressionNode {
       @Cached(inline = true) TryableNullableNodes.IsNullNode isNullNode,
       @Cached(inline = true) ListNodes.SizeNode sizeNode,
       @Cached(inline = true) ListNodes.GetNode getNode,
-      @Cached(inline = true) RecordNodes.AddPropNode addPropNode,
-      @Cached(value = "getSourceContext(thisNode)", neverDefault = true) SourceContext context) {
+      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
     try {
-      HttpByteStreamLocationBuilder builder = new HttpByteStreamLocationBuilder();
-      HttpByteStreamLocation location =
-          builder.build(locationObject.getLocationDescription(), context);
+      HttpByteStreamLocation location = locationObject.getHttpByteStreamLocation();
       HttpResult result = location.getHttpResult();
       Object record = RawLanguage.get(thisNode).createPureRecord();
 
@@ -67,15 +62,10 @@ public abstract class HttpReadNode extends ExpressionNode {
           statuses[i] = (int) getNode.execute(thisNode, statusListOption, i);
         }
         if (Arrays.stream(statuses).noneMatch(status -> status == result.status())) {
-          String method =
-              locationObject
-                  .getLocationDescription()
-                  .getStringSetting("http-method")
-                  .getOrElse(() -> "get");
           return new ErrorObject(
               String.format(
                   "HTTP %s failed, got %d, expected %s",
-                  method.toUpperCase(),
+                  location.method().toUpperCase(),
                   result.status(),
                   String.join(
                       ",",

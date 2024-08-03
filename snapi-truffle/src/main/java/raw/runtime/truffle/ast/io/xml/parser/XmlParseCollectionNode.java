@@ -19,7 +19,6 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.iterable.sources.XmlParseCollection;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "XmlParseCollection")
 public class XmlParseCollectionNode extends ExpressionNode {
@@ -51,7 +50,6 @@ public class XmlParseCollectionNode extends ExpressionNode {
     String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
     RawTruffleXmlParserSettings settings =
         new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
-    SourceContext context = RawContext.get(this).getSourceContext();
     return new XmlParseCollection(text, parseNextRootCallTarget, settings);
   }
 }
