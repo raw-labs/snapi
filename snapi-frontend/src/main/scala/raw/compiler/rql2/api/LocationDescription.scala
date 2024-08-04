@@ -366,6 +366,10 @@ object LocationDescription {
     }
   }
 
+  def toLocation(l: JdbcLocation)(implicit settings: RawSettings): Location = {
+    toLocation(toLocationDescription(l))
+  }
+
   def toLocation(l: LocationDescription)(implicit settings: RawSettings): Location = {
     l match {
       case GitHubLocationDescription(username, repo, file, maybeBranch) =>

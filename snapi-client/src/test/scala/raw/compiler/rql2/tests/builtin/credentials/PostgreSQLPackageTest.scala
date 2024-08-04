@@ -162,7 +162,7 @@ import raw.testing.tags.TruffleTests
   test(
     s"""PostgreSQL.InferAndRead("${pgsqlCreds.database}", "$pgSchema", "$pgTable" )""".stripMargin
   ) { it =>
-    it should runErrorAs(s"""inference error: unknown database credential: ${pgsqlCreds.database}""".stripMargin)
+    it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.database}""".stripMargin)
   }
 
   test(

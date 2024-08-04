@@ -161,7 +161,7 @@ import raw.testing.tags.TruffleTests
   // no credentials
   test(
     s"""MySQL.InferAndRead("${mysqlCreds.database}", "$mysqlTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""inference error: unknown database credential: ${mysqlCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: ${mysqlCreds.database}""".stripMargin))
 
   test(
     s"""MySQL.Read("${mysqlCreds.database}", "$mysqlTable",

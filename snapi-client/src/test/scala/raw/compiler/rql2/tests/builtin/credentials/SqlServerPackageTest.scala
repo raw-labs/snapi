@@ -159,7 +159,7 @@ import raw.testing.tags.TruffleTests
   // no credentials
   test(
     s"""SQLServer.InferAndRead("$sqlServDb", "$sqlServSchema", "$sqlServTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""inference error: unknown database credential: rawtest""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: rawtest""".stripMargin))
 
   test(
     s"""SQLServer.Read("$sqlServDb", "$sqlServSchema", "$sqlServTable",

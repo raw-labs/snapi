@@ -165,7 +165,7 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension {
         new PostgresqlTableLocation(host, port, db, username, password, schema, table)(programContext.settings)
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: PostgresqlServerLocation) =>
+          case Some(l: PostgresJdbcLocation) =>
             new PostgresqlTableLocation(l.host, l.port, db, l.username, l.password, schema, table)(
               programContext.settings
             )
@@ -419,7 +419,8 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension {
         new PostgresqlServerLocation(host, port, db, username, password)(programContext.settings)
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: PostgresqlServerLocation) => l
+          case Some(l: PostgresJdbcLocation) =>
+            new PostgresqlServerLocation(l.host, l.port, db, l.username, l.password)(programContext.settings)
           case Some(_) => return Left("not an Oracle server")
           case None => return Left(s"unknown database credential: $db")
         }

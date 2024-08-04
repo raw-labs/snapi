@@ -25,6 +25,7 @@ import raw.inferrer.api.{
   SqlTableInferrerProperties,
   SqlTableInputFormatDescriptor
 }
+import raw.sources.jdbc.api.JdbcServerLocation
 import raw.sources.jdbc.mysql.{MySqlServerLocation, MySqlTableLocation}
 
 class MySQLPackage extends PackageExtension {
@@ -145,7 +146,7 @@ class MySQLInferAndReadEntry extends SugarEntryExtension {
         new MySqlTableLocation(host, port, db, username, password, table)(programContext.settings)
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: MySqlServerLocation) =>
+          case Some(l: MySqlJdbcLocation) =>
             new MySqlTableLocation(l.host, l.port, db, l.username, l.password, table)(programContext.settings)
           case Some(_) => return Left("not a MySQL server")
           case None => return Left(s"unknown database credential: $db")
@@ -259,9 +260,6 @@ class MySQLReadEntry extends SugarEntryExtension {
     ) {
       if (!optionalArgs.exists(_._1 == "host")) {
         return Left(Seq(InvalidSemantic(node, "host is required")))
-      }
-      if (!optionalArgs.exists(_._1 == "port")) {
-        return Left(Seq(InvalidSemantic(node, "port is required")))
       }
       if (!optionalArgs.exists(_._1 == "username")) {
         return Left(Seq(InvalidSemantic(node, "username is required")))
@@ -389,7 +387,8 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension {
         new MySqlServerLocation(host, port, db, username, password)(programContext.settings)
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: MySqlServerLocation) => l
+          case Some(l: MySqlJdbcLocation) =>
+            new MySqlServerLocation(l.host, l.port, db, l.username, l.password)(programContext.settings)
           case Some(_) => return Left("not a MySQL server")
           case None => return Left(s"unknown database credential: $db")
         }

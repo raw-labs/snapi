@@ -281,7 +281,7 @@ import raw.testing.tags.TruffleTests
     s"""Snowflake.InferAndRead("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable" )""".stripMargin
   )(it =>
     it should runErrorAs(
-      s"""inference error: unknown database credential: ${snowflakeCreds.database}""".stripMargin
+      s"""unknown database credential: ${snowflakeCreds.database}""".stripMargin
     )
   )
 
