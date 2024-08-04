@@ -87,6 +87,10 @@ class TestSqlCompilerServiceAirports
       user,
       if (params.isEmpty) None else Some(params.toArray),
       scopes,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl)
     )
@@ -96,6 +100,10 @@ class TestSqlCompilerServiceAirports
       user,
       if (params.isEmpty) None else Some(params.toArray),
       scopes,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
       Map("output-format" -> "csv"),
       jdbcUrl = Some(jdbcUrl)
     )

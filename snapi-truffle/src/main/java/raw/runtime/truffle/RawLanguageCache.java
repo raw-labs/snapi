@@ -17,8 +17,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import raw.compiler.base.CompilerContext;
-import raw.creds.api.CredentialsService;
-import raw.creds.api.CredentialsServiceProvider;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
 import raw.utils.AuthenticatedUser;
@@ -33,22 +31,16 @@ public class RawLanguageCache {
   private final Object activeContextsLock = new Object();
   private final Set<RawContext> activeContexts = new HashSet<RawContext>();
 
-  private final ConcurrentHashMap<RawSettings, CredentialsService> credentialsCache =
-      new ConcurrentHashMap<>();
-
   private final ConcurrentHashMap<AuthenticatedUser, Value> map = new ConcurrentHashMap<>();
 
   private static class Value {
     private final CompilerContext compilerContext;
-    private final CredentialsService credentialsService;
     private final InferrerService inferrer;
 
     Value(
         CompilerContext compilerContext,
-        CredentialsService credentialsService,
         InferrerService inferrer) {
       this.compilerContext = compilerContext;
-      this.credentialsService = credentialsService;
       this.inferrer = inferrer;
     }
 
@@ -59,30 +51,18 @@ public class RawLanguageCache {
     public InferrerService getInferrer() {
       return inferrer;
     }
-
-    public CredentialsService getCredentialsService() {
-      return credentialsService;
-    }
   }
 
   @CompilerDirectives.TruffleBoundary
   private Value get(AuthenticatedUser user, RawSettings rawSettings) {
-    // Create services on-demand.
-    CredentialsService credentialsService =
-        credentialsCache.computeIfAbsent(
-            rawSettings, k -> CredentialsServiceProvider.apply(rawSettings));
     return map.computeIfAbsent(
         user,
         k -> {
           InferrerService inferrer = InferrerServiceProvider.apply(rawSettings);
           CompilerContext compilerContext =
               new CompilerContext("rql2-truffle", user, inferrer, rawSettings);
-          return new Value(compilerContext, credentialsService, inferrer);
+          return new Value(compilerContext, inferrer);
         });
-  }
-
-  public CredentialsService getCredentialsService(AuthenticatedUser user, RawSettings rawSettings) {
-    return get(user, rawSettings).getCredentialsService();
   }
 
   public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
@@ -105,7 +85,7 @@ public class RawLanguageCache {
     synchronized (activeContextsLock) {
       activeContexts.remove(context);
       if (activeContexts.isEmpty()) {
-        // Close all inferrer services and credential services.
+        // Close all inferrer services.
         map.values()
             .forEach(
                 v -> {
@@ -117,18 +97,6 @@ public class RawLanguageCache {
                       true);
                 });
         map.clear();
-        credentialsCache
-            .values()
-            .forEach(
-                v -> {
-                  RawUtils.withSuppressNonFatalException(
-                      () -> {
-                        v.stop();
-                        return BoxedUnit.UNIT;
-                      },
-                      true);
-                });
-        credentialsCache.clear();
       }
     }
   }

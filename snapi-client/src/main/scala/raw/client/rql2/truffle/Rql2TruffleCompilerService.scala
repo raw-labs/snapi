@@ -29,7 +29,6 @@ import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, String
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.CompilerLspService
 import raw.compiler.rql2.source._
-import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
@@ -70,8 +69,6 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   override def language: Set[String] = Rql2TruffleCompilerService.LANGUAGE
-
-  private val credentials = CredentialsServiceProvider()
 
   // Map of users to compiler context.
   private val compilerContextCaches = new mutable.HashMap[AuthenticatedUser, CompilerContext]
@@ -608,7 +605,6 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
 
   override def doStop(): Unit = {
     compilerContextCaches.values.foreach(compilerContext => compilerContext.inferrer.stop())
-    credentials.stop()
     if (initedEngine) {
       CompilerService.releaseEngine
     }
