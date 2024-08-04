@@ -260,7 +260,7 @@ import raw.testing.tags.TruffleTests
     |       ]
     |    )
     |)
-    |""".stripMargin)(it => it should runErrorAs("http error: host not found for https://iam.us-east-1.amazonaws.com/"))
+    |""".stripMargin)(it => it should runErrorAs("host not found for https://iam.us-east-1.amazonaws.com/"))
 
   // Wrong path.
   test("""String.Read(
@@ -294,7 +294,7 @@ import raw.testing.tags.TruffleTests
     |)
     |
     |""".stripMargin)(
-    _ should runErrorAs("http error: host not found for https://does-not-exist.amazonaws.com/")
+    _ should runErrorAs("host not found for https://does-not-exist.amazonaws.com/")
   )
 
   // Wrong service but with correct host.

@@ -23,6 +23,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromOracleCredentialNode;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromOracleNode;
+import raw.runtime.truffle.ast.expressions.literals.IntNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.OracleExceptionHandler;
 
 public class TruffleOracleQueryEntry extends OracleQueryEntry
@@ -39,7 +40,7 @@ public class TruffleOracleQueryEntry extends OracleQueryEntry
     if (host == null) {
       location = new LocationFromOracleCredentialNode(db);
     } else {
-      ExpressionNode port = arg(args, "port").get();
+      ExpressionNode port = arg(args, "port").orElse(new IntNode(1521));
       ExpressionNode username = arg(args, "username").get();
       ExpressionNode password = arg(args, "password").get();
       location = new LocationFromOracleNode(host, port, db, username, password);

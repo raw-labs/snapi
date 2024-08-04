@@ -152,9 +152,12 @@ class OracleInferAndReadEntry extends SugarEntryExtension {
     val schema = getStringValue(mandatoryArgs(1))
     val table = getStringValue(mandatoryArgs(2))
     val location =
-      if (optionalArgs.exists(_._1 == "host")) {
-        val host = getStringValue(optionalArgs.find(_._1 == "host").get._2)
-        val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
+      if (
+        optionalArgs.exists(_._1 == "host") || optionalArgs
+          .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+      ) {
+        val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("host is required"))._2)
+        val port = optionalArgs.find(_._1 == "port").map(v => getIntValue(v._2)).getOrElse(1521)
         val username =
           getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
         val password =
@@ -165,7 +168,7 @@ class OracleInferAndReadEntry extends SugarEntryExtension {
           case Some(l: OracleServerLocation) =>
             new OracleTableLocation(l.host, l.port, db, l.username, l.password, schema, table)(programContext.settings)
           case Some(_) => return Left("not an Oracle server")
-          case None => return Left("not found in credentials")
+          case None => return Left(s"unknown database credential: $db")
         }
       }
     Right(SqlTableInferrerProperties(location, None))
@@ -278,13 +281,10 @@ class OracleReadEntry extends SugarEntryExtension {
     // Check that host/port/username/password are all present if any of them is present.
     if (
       optionalArgs.exists(_._1 == "host") || optionalArgs
-        .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+        .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
     ) {
       if (!optionalArgs.exists(_._1 == "host")) {
         return Left(Seq(InvalidSemantic(node, "host is required")))
-      }
-      if (!optionalArgs.exists(_._1 == "port")) {
-        return Left(Seq(InvalidSemantic(node, "port is required")))
       }
       if (!optionalArgs.exists(_._1 == "username")) {
         return Left(Seq(InvalidSemantic(node, "username is required")))
@@ -404,10 +404,10 @@ class OracleInferAndQueryEntry extends SugarEntryExtension {
     val location =
       if (
         optionalArgs.exists(_._1 == "host") || optionalArgs
-          .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+          .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
       ) {
         val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("host is required"))._2)
-        val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
+        val port = optionalArgs.find(_._1 == "port").map(v => getIntValue(v._2)).getOrElse(1521)
         val username =
           getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
         val password =
@@ -417,7 +417,7 @@ class OracleInferAndQueryEntry extends SugarEntryExtension {
         programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: OracleServerLocation) => l
           case Some(_) => return Left("not an Oracle server")
-          case None => return Left("not found in credentials")
+          case None => return Left(s"unknown database credential: $db")
         }
       }
     Right(SqlQueryInferrerProperties(location, query, None))
@@ -546,13 +546,10 @@ class OracleQueryEntry extends EntryExtension {
     // Check that host/port/username/password are all present if any of them is present.
     if (
       optionalArgs.exists(_._1 == "host") || optionalArgs
-        .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+        .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
     ) {
       if (!optionalArgs.exists(_._1 == "host")) {
         return Left(Seq(InvalidSemantic(node, "host is required")))
-      }
-      if (!optionalArgs.exists(_._1 == "port")) {
-        return Left(Seq(InvalidSemantic(node, "port is required")))
       }
       if (!optionalArgs.exists(_._1 == "username")) {
         return Left(Seq(InvalidSemantic(node, "username is required")))

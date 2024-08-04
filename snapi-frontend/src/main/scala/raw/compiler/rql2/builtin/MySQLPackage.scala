@@ -133,11 +133,10 @@ class MySQLInferAndReadEntry extends SugarEntryExtension {
     val table = getStringValue(mandatoryArgs(1))
     val location =
       if (
-        optionalArgs.exists(_._1 == "host") || optionalArgs
-          .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+        optionalArgs.exists(_._1 == "host")  || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
       ) {
         val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("host is required"))._2)
-        val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
+        val port = optionalArgs.find(_._1 == "port").map(v => getIntValue(v._2)).getOrElse(3306)
         val username =
           getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
         val password =
@@ -148,7 +147,7 @@ class MySQLInferAndReadEntry extends SugarEntryExtension {
           case Some(l: MySqlServerLocation) =>
             new MySqlTableLocation(l.host, l.port, db, l.username, l.password, table)(programContext.settings)
           case Some(_) => return Left("not a MySQL server")
-          case None => return Left("not found in credentials")
+          case None => return Left(s"unknown database credential: $db")
         }
       }
     Right(SqlTableInferrerProperties(location, None))
@@ -380,8 +379,8 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension {
         optionalArgs.exists(_._1 == "host") || optionalArgs
           .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
       ) {
-        val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("port is required"))._2)
-        val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
+        val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("host is required"))._2)
+        val port = optionalArgs.find(_._1 == "port").map(v => getIntValue(v._2)).getOrElse(3306)
         val username =
           getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
         val password =
@@ -391,7 +390,7 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension {
         programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: MySqlServerLocation) => l
           case Some(_) => return Left("not a MySQL server")
-          case None => return Left("not found in credentials")
+          case None => return Left(s"unknown database credential: $db")
         }
       }
     Right(SqlQueryInferrerProperties(location, query, None))
@@ -516,14 +515,10 @@ class MySQLQueryEntry extends EntryExtension {
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     // Check that host/port/username/password are all present if any of them is present.
     if (
-      optionalArgs.exists(_._1 == "host") || optionalArgs
-        .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+      optionalArgs.exists(_._1 == "host") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
     ) {
       if (!optionalArgs.exists(_._1 == "host")) {
         return Left(Seq(InvalidSemantic(node, "host is required")))
-      }
-      if (!optionalArgs.exists(_._1 == "port")) {
-        return Left(Seq(InvalidSemantic(node, "port is required")))
       }
       if (!optionalArgs.exists(_._1 == "username")) {
         return Left(Seq(InvalidSemantic(node, "username is required")))

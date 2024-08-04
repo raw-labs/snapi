@@ -23,6 +23,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromMySQLCredentialNode;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromMySQLNode;
+import raw.runtime.truffle.ast.expressions.literals.IntNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler;
 
 public class TruffleMySQLQueryEntry extends MySQLQueryEntry
@@ -39,7 +40,7 @@ public class TruffleMySQLQueryEntry extends MySQLQueryEntry
     if (host == null) {
       location = new LocationFromMySQLCredentialNode(db);
     } else {
-      ExpressionNode port = arg(args, "port").get();
+      ExpressionNode port = arg(args, "port").orElse(new IntNode(3306));
       ExpressionNode username = arg(args, "username").get();
       ExpressionNode password = arg(args, "password").get();
       location = new LocationFromMySQLNode(host, port, db, username, password);

@@ -117,7 +117,7 @@ import raw.testing.tags.TruffleTests
   // no credentials
   test(
     s"""Oracle.InferAndRead("$oracleDb", "$oracleSchema", "$oracleTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""inference error: no credential found for oracle: $oracleDb""".stripMargin))
+  )(it => it should runErrorAs(s"""inference error: unknown database credential: $oracleDb""".stripMargin))
 
   test(
     s"""Oracle.Read("$oracleSchema", "rdbmstest", "$oracleTable",

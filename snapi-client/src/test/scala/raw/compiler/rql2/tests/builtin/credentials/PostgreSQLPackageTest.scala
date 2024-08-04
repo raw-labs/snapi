@@ -162,14 +162,14 @@ import raw.testing.tags.TruffleTests
   test(
     s"""PostgreSQL.InferAndRead("${pgsqlCreds.database}", "$pgSchema", "$pgTable" )""".stripMargin
   ) { it =>
-    it should runErrorAs(s"""inference error: no credential found for postgresql: ${pgsqlCreds.database}""".stripMargin)
+    it should runErrorAs(s"""inference error: unknown database credential: ${pgsqlCreds.database}""".stripMargin)
   }
 
   test(
     s"""PostgreSQL.Read("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""no credential found for postgresql: ${pgsqlCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.database}""".stripMargin))
 
   // server does not exist
   test(

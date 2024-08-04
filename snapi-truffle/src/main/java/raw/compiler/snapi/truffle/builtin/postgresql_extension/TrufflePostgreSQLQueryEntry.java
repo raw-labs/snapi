@@ -23,6 +23,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromPostgreSQLCredentialNode;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromPostgreSQLNode;
+import raw.runtime.truffle.ast.expressions.literals.IntNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.PostgreSQLExceptionHandler;
 
 public class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry
@@ -39,7 +40,7 @@ public class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry
     if (host == null) {
       location = new LocationFromPostgreSQLCredentialNode(db);
     } else {
-      ExpressionNode port = arg(args, "port").get();
+      ExpressionNode port = arg(args, "port").orElse(new IntNode(5432));
       ExpressionNode username = arg(args, "username").get();
       ExpressionNode password = arg(args, "password").get();
       location = new LocationFromPostgreSQLNode(host, port, db, username, password);

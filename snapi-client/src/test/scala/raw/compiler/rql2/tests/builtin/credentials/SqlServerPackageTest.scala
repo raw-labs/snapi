@@ -159,13 +159,13 @@ import raw.testing.tags.TruffleTests
   // no credentials
   test(
     s"""SQLServer.InferAndRead("$sqlServDb", "$sqlServSchema", "$sqlServTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""inference error: no credential found for sqlserver: rawtest""".stripMargin))
+  )(it => it should runErrorAs(s"""inference error: unknown database credential: rawtest""".stripMargin))
 
   test(
     s"""SQLServer.Read("$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""no credential found for sqlserver: $sqlServDb""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: $sqlServDb""".stripMargin))
 
   // server does not exist
   test(

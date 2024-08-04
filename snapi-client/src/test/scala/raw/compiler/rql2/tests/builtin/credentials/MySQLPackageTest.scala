@@ -162,14 +162,14 @@ import raw.testing.tags.TruffleTests
   test(
     s"""MySQL.InferAndRead("${mysqlCreds.database}", "$mysqlTable" )""".stripMargin
   )(it =>
-    it should runErrorAs(s"""inference error: no credential found for mysql: ${mysqlCreds.database}""".stripMargin)
+    it should runErrorAs(s"""inference error: unknown database credential: ${mysqlCreds.database}""".stripMargin)
   )
 
   test(
     s"""MySQL.Read("${mysqlCreds.database}", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""no credential found for mysql: ${mysqlCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: ${mysqlCreds.database}""".stripMargin))
 
   // server does not exist
   test(
