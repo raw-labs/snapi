@@ -11,6 +11,7 @@
  */
 
 package raw.compiler.rql2.tests.builtin
+
 import com.sun.net.httpserver.{BasicAuthenticator, HttpExchange, HttpServer}
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.BeforeAndAfterAll
@@ -287,7 +288,7 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |""".stripMargin)(it => it should evaluateTo(s"""
     |List.Build(
     | Record.Build(url="http://localhost:$wrongPort/hello",
-    |              r=Error.Build("http error: host not found for http://localhost:$wrongPort/hello")),
+    |              r=Error.Build("host not found for http://localhost:$wrongPort/hello")),
     | Record.Build(url="http://localhost:$testPort/hello", r=200),
     | Record.Build(url="http://localhost:$testPort/darkness", r=404)
     |)""".stripMargin))
@@ -336,7 +337,7 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |       {"Header2", "value2"}
     |     ]
     |  )
-    |)""".stripMargin)(it => it should runErrorAs("http error: restricted header name: \"Host\""))
+    |)""".stripMargin)(it => it should runErrorAs("restricted header name: \"Host\""))
 
   test(s"""let
     |  query = $triple SELECT DISTINCT (?country as ?wikidata_country) ?countryLabel ?code

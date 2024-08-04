@@ -19,7 +19,7 @@ import scala.collection.JavaConverters._
 
 trait EnvironmentPackageTest extends Rql2CompilerTestContext {
 
-  test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("could not find secret my-typo"))
+  test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("unknown secret: my-typo"))
 
   test("""Environment.Scopes()""")(it => it should evaluateTo("""[]"""))
 

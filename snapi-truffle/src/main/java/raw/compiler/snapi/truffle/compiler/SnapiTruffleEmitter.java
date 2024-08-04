@@ -528,7 +528,6 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return new ClosureNode(f, new ExpressionNode[]{null});
     }
 
-
     public ExpressionNode recurseExp(Exp in) {
         return switch (in) {
             case Exp ignored when tipe(in) instanceof PackageType || tipe(in) instanceof PackageEntryType ->

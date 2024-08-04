@@ -51,9 +51,16 @@ public class LocationFromHttpNode extends ExpressionNode {
   @Child private ExpressionNode headers;
   @Child private ExpressionNode expectedStatus;
 
-  @Child private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
-  @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
-  @Child private ListNodes.GetNode getNode = ListNodesFactory.GetNodeGen.create();
+  @Child private InteropLibrary argsInterops = InteropLibrary.getFactory().createDispatched(3);
+  @Child private ListNodes.SizeNode argsSizeNode = ListNodesFactory.SizeNodeGen.create();
+  @Child private ListNodes.GetNode argsGetNode = ListNodesFactory.GetNodeGen.create();
+
+  @Child private InteropLibrary headersInterops = InteropLibrary.getFactory().createDispatched(3);
+  @Child private ListNodes.SizeNode headersSizeNode = ListNodesFactory.SizeNodeGen.create();
+  @Child private ListNodes.GetNode headersGetNode = ListNodesFactory.GetNodeGen.create();
+
+  @Child private ListNodes.SizeNode expectedStatusSizeNode = ListNodesFactory.SizeNodeGen.create();
+  @Child private ListNodes.GetNode expectedStatusGetNode = ListNodesFactory.GetNodeGen.create();
 
   public LocationFromHttpNode(
       String method,
@@ -85,10 +92,10 @@ public class LocationFromHttpNode extends ExpressionNode {
 
       // Build body
       Option<byte[]> maybeBody;
-      if (bodyString != null) {
-        maybeBody = new Some(((String) bodyString.executeGeneric(frame)).getBytes());
-      } else if (bodyBinary != null) {
-        maybeBody = new Some((byte[]) bodyBinary.executeGeneric(frame));
+      if (this.bodyString != null) {
+        maybeBody = new Some(((String) this.bodyString.executeGeneric(frame)).getBytes());
+      } else if (this.bodyBinary != null) {
+        maybeBody = new Some(((BinaryObject) this.bodyBinary.executeGeneric(frame)).getBytes());
       } else {
         maybeBody = None$.empty();
       }
@@ -97,14 +104,14 @@ public class LocationFromHttpNode extends ExpressionNode {
       ClassTag<Tuple2<String, String>> tupleClassTag =
           (ClassTag<Tuple2<String, String>>) (ClassTag<?>) ClassTag$.MODULE$.apply(Tuple2.class);
       ArrayBuilder<Tuple2<String, String>> argsBuilder = new ArrayBuilder.ofRef(tupleClassTag);
-      if (args != null) {
+      if (this.args != null) {
         Object value = this.args.executeGeneric(frame);
-        int size = (int) sizeNode.execute(this, value);
+        int size = (int) this.argsSizeNode.execute(this, value);
         for (int i = 0; i < size; i++) {
-          Object record = getNode.execute(this, value, i);
-          Object keys = interops.getMembers(record);
-          Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
-          Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
+          Object record = this.argsGetNode.execute(this, value, i);
+          Object keys = this.argsInterops.getMembers(record);
+          Object key = this.argsInterops.readMember(record, (String) this.argsInterops.readArrayElement(keys, 0));
+          Object val = this.argsInterops.readMember(record, (String) this.argsInterops.readArrayElement(keys, 1));
           // ignore entries where key or val is null
           if (key != NullObject.INSTANCE && val != NullObject.INSTANCE) {
             argsBuilder =
@@ -118,12 +125,12 @@ public class LocationFromHttpNode extends ExpressionNode {
       ArrayBuilder<Tuple2<String, String>> headersBuilder = new ArrayBuilder.ofRef(tupleClassTag);
       if (this.headers != null) {
         Object value = this.headers.executeGeneric(frame);
-        int size = (int) sizeNode.execute(this, value);
+        int size = (int) this.headersSizeNode.execute(this, value);
         for (int i = 0; i < size; i++) {
-          Object record = getNode.execute(this, value, i);
-          Object keys = interops.getMembers(record);
-          Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
-          Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
+          Object record = this.headersGetNode.execute(this, value, i);
+          Object keys = this.headersInterops.getMembers(record);
+          Object key = this.headersInterops.readMember(record, (String) this.headersInterops.readArrayElement(keys, 0));
+          Object val = this.headersInterops.readMember(record, (String) this.headersInterops.readArrayElement(keys, 1));
           // ignore entries where key or val is null
           if (key != NullObject.INSTANCE && val != NullObject.INSTANCE) {
             headersBuilder =
@@ -134,7 +141,7 @@ public class LocationFromHttpNode extends ExpressionNode {
       }
 
       // Append Authorization header if username and password are provided
-      if (username != null && password != null) {
+      if (this.username != null && this.password != null) {
         String username = (String) this.username.executeGeneric(frame);
         String password = (String) this.password.executeGeneric(frame);
         headersBuilder =
@@ -148,7 +155,7 @@ public class LocationFromHttpNode extends ExpressionNode {
       }
 
       // Append any additional headers related to the authentication (if credential name is defined)
-      if (authCredentialName != null) {
+      if (this.authCredentialName != null) {
         String authCredentialName = (String) this.authCredentialName.executeGeneric(frame);
         Map<String, String> credHeaders = RawContext.get(this).getHttpHeaders(authCredentialName);
         for (Map.Entry<String, String> entry : credHeaders.entrySet()) {
@@ -167,10 +174,10 @@ public class LocationFromHttpNode extends ExpressionNode {
       };
       if (this.expectedStatus != null) {
         Object value = this.expectedStatus.executeGeneric(frame);
-        int size = (int) sizeNode.execute(this, value);
+        int size = (int) this.expectedStatusSizeNode.execute(this, value);
         expectedStatusArray = new int[size];
         for (int i = 0; i < size; i++) {
-          expectedStatusArray[i] = (int) getNode.execute(this, value, i);
+          expectedStatusArray[i] = (int) this.expectedStatusGetNode.execute(this, value, i);
         }
       }
 
@@ -179,7 +186,7 @@ public class LocationFromHttpNode extends ExpressionNode {
       HttpByteStreamLocation location =
           new HttpByteStreamLocation(
               url,
-              method,
+              this.method,
               (Tuple2<String, String>[]) argsBuilder.result(),
               (Tuple2<String, String>[]) headersBuilder.result(),
               maybeBody,

@@ -190,14 +190,24 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       case "args" => Right(
           ExpParam(
             Rql2ListType(
-              Rql2RecordType(Vector(Rql2AttrType("_1", Rql2StringType()), Rql2AttrType("_2", Rql2StringType())))
+              Rql2RecordType(
+                Vector(
+                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
+                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                )
+              )
             )
           )
         )
       case "headers" => Right(
           ExpParam(
             Rql2ListType(
-              Rql2RecordType(Vector(Rql2AttrType("_1", Rql2StringType()), Rql2AttrType("_2", Rql2StringType())))
+              Rql2RecordType(
+                Vector(
+                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
+                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                )
+              )
             )
           )
         )
