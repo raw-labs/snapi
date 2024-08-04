@@ -14,18 +14,13 @@ package raw.inferrer.local.json
 
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.matchers.{MatchResult, Matcher}
-import raw.creds.api.CredentialsTestContext
 import raw.inferrer.api._
 import raw.inferrer.local.LocalInferrerTestContext
 import raw.utils._
 
 import java.io.StringReader
 
-class JsonOrTypeTest
-    extends RawTestSuite
-    with SettingsTestContext
-    with LocalInferrerTestContext
-    with CredentialsTestContext {
+class JsonOrTypeTest extends RawTestSuite with SettingsTestContext with LocalInferrerTestContext {
 
   private var inferrer: JsonInferrer = _
 

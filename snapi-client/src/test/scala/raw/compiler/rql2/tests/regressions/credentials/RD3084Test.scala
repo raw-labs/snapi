@@ -12,16 +12,14 @@
 
 package raw.compiler.rql2.tests.regressions.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
-import raw.creds.jdbc.RDBMSTestCreds
+import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
 
-trait RD3084Test extends Rql2CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
+trait RD3084Test extends Rql2CompilerTestContext {
 
-  rdbms(authorizedUser, "mysql-test", mysqlCreds)
-  rdbms(authorizedUser, "postgres-test", pgsqlCreds)
-  rdbms(authorizedUser, "oracle-test", oracleCreds)
-  rdbms(authorizedUser, "mssql-test", sqlServerCreds)
+  rdbms("mysql-test", TestCredentials.mysqlCreds)
+  rdbms("postgres-test", TestCredentials.pgsqlCreds)
+  rdbms("oracle-test", TestCredentials.oracleCreds)
+  rdbms("mssql-test", TestCredentials.sqlServerCreds)
 
   test("""MySQL.InferAndQuery("mysql-test", "select * from test_types")""") {
     _ should run

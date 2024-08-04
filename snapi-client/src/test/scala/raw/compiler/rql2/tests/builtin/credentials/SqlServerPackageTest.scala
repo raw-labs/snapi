@@ -12,18 +12,18 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
-import raw.creds.jdbc.RDBMSTestCreds
+import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
 
-trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
+trait SqlServerPackageTest extends Rql2CompilerTestContext {
+
+  import TestCredentials._
 
   val sqlServDb = "rawtest"
   val sqlServRegDb = "registered-db"
   val sqlServSchema = "rdbmstest"
   val sqlServTable = "tbl1"
 
-  rdbms(authorizedUser, sqlServRegDb, sqlServerCreds)
+  rdbms( sqlServRegDb, sqlServerCreds)
 
   private val ttt = "\"\"\""
   test(s"""SQLServer.InferAndQuery("$sqlServRegDb", $ttt
@@ -110,7 +110,7 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
 
   test(
     s"""SQLServer.InferAndRead("$sqlServDb", "$sqlServSchema", "$sqlServTable",
-      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}")""".stripMargin
+      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}")""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -124,7 +124,7 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
   test(
     s"""SQLServer.Read("$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}" )""".stripMargin
+      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}" )""".stripMargin
   ) { it =>
     it should orderEvaluateTo(
       """[
@@ -140,8 +140,8 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
     |   d = Location.Describe(Location.Build(
     |      "sqlserver://$sqlServDb/$sqlServSchema/$sqlServTable",
     |      db_host = "${sqlServerCreds.host}",
-    |      db_username = "${sqlServerCreds.username.get.toString}",
-    |      db_password = "${sqlServerCreds.password.get.toString}"
+    |      db_username = "${sqlServerCreds.username}",
+    |      db_password = "${sqlServerCreds.password}"
     |   ))
     |in
     |  d.columns
@@ -170,7 +170,7 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
     s"""SQLServer.Read(
       |  "$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "does-not-exist", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}"
+      |  host = "does-not-exist", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}"
       |)""".stripMargin
   )(it => it should runErrorAs("""error connecting to database: does-not-exist""".stripMargin))
 
@@ -180,7 +180,7 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
     s"""SQLServer.Read(
       |  "$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}", port = 1234
+      |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}", port = 1234
       |)""".stripMargin
   )(it => it should runErrorAs(s"""connect timed out: ${sqlServerCreds.host}""".stripMargin))
 
@@ -198,9 +198,9 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
     s"""SQLServer.Read(
       |  "$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "wrong!"
+      |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "wrong!"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""Login failed for user '${sqlServerCreds.username.get.toString}'""".stripMargin))
+  )(it => it should runErrorAs(s"""Login failed for user '${sqlServerCreds.username}'""".stripMargin))
 
   test(s"""SQLServer.InferAndQuery("$sqlServRegDb", "SELECT * FROM $sqlServSchema.$sqlServTable")""") { it =>
     it should evaluateTo(
@@ -214,7 +214,7 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
 
   test(
     s"""SQLServer.InferAndQuery("$sqlServDb", "SELECT * FROM $sqlServSchema.$sqlServTable",
-      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}" )""".stripMargin
+      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -240,7 +240,7 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
   test(
     s"""SQLServer.Query("$sqlServDb", "SELECT * FROM $sqlServSchema.$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}" )""".stripMargin
+      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -257,8 +257,8 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext with CredentialsTestC
       |     Collection.Count(
       |      SQLServer.Query("$sqlServDb", "SELECT * FROM $sqlServSchema." + table,
       |      type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |      host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get}",
-      |      password = "${sqlServerCreds.password.get}")
+      |      host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}",
+      |      password = "${sqlServerCreds.password}")
       |     ))""".stripMargin
   ) { it =>
     val error =

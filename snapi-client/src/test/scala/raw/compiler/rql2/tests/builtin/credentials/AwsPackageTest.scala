@@ -13,15 +13,14 @@
 package raw.compiler.rql2.tests.builtin.credentials
 
 import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
 
-trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext {
+trait AwsPackageTest extends Rql2CompilerTestContext {
 
   val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
   val secretAccessKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
 
-  secret(authorizedUser, "aws-secret-key", secretAccessKey)
-  secret(authorizedUser, "aws-access-key", accessKeyId)
+  secret("aws-secret-key", secretAccessKey)
+  secret("aws-access-key", accessKeyId)
 
   def xmlImplemented: Boolean
 

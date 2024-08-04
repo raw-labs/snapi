@@ -12,16 +12,16 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
-import raw.creds.jdbc.RDBMSTestCreds
+import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
 
-trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
+trait MySQLPackageTest extends Rql2CompilerTestContext {
+
+  import TestCredentials._
 
   val mysqlRegDb = "registered-db"
   val mysqlTable = "tbl1"
 
-  rdbms(authorizedUser, mysqlRegDb, mysqlCreds)
+  rdbms(mysqlRegDb, mysqlCreds)
 
   private val ttt = "\"\"\""
   // Trying all types. Not all expressions type as wanted so that
@@ -112,7 +112,7 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
 
   test(
     s"""MySQL.InferAndRead("${mysqlCreds.database}", "$mysqlTable",
-      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}")""".stripMargin
+      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}")""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -126,7 +126,7 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
   test(
     s"""MySQL.Read("${mysqlCreds.database}", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}")""".stripMargin
+      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}")""".stripMargin
   ) { it =>
     it should orderEvaluateTo(
       """[
@@ -142,8 +142,8 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
     |   d = Location.Describe(Location.Build(
     |      "mysql://${mysqlCreds.database}/$mysqlTable",
     |      db_host = "${mysqlCreds.host}",
-    |      db_username = "${mysqlCreds.username.get.toString}",
-    |      db_password = "${mysqlCreds.password.get.toString}"
+    |      db_username = "${mysqlCreds.username}",
+    |      db_password = "${mysqlCreds.password}"
     |   ))
     |in
     |  d.columns
@@ -174,7 +174,7 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
     s"""MySQL.Read(
       |  "${badMysqlCreds.database}", "$mysqlTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${badMysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}"
+      |  host = "${badMysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}"
       |)""".stripMargin
   )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin))
 
@@ -184,7 +184,7 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
     s"""MySQL.Read(
       |  "${mysqlCreds.database}", "$mysqlTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}", port = 1234
+      |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}", port = 1234
       |)""".stripMargin
   )(it => it should runErrorAs(s"""connect timed out: ${mysqlCreds.database}""".stripMargin))
 
@@ -202,7 +202,7 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
     s"""MySQL.Read(
       |  "${mysqlCreds.database}", "$mysqlTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "wrong!"
+      |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "wrong!"
       |)""".stripMargin
   )(it => it should runErrorAs("""authentication failed""".stripMargin))
 
@@ -218,7 +218,7 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
 
   test(
     s"""MySQL.InferAndQuery("${mysqlCreds.database}", "SELECT * FROM $mysqlTable",
-      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}" )""".stripMargin
+      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -244,7 +244,7 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
   test(
     s"""MySQL.Query("${mysqlCreds.database}", "SELECT * FROM $mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}" )""".stripMargin
+      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -297,8 +297,8 @@ trait MySQLPackageTest extends Rql2CompilerTestContext with CredentialsTestConte
       |     Collection.Count(
       |      MySQL.Query("${mysqlCreds.database}", "SELECT * FROM " + table,
       |      type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |      host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get}",
-      |      password = "${mysqlCreds.password.get}")
+      |      host = "${mysqlCreds.host}", username = "${mysqlCreds.username}",
+      |      password = "${mysqlCreds.password}")
       |     ))""".stripMargin
   ) { it =>
     val error =

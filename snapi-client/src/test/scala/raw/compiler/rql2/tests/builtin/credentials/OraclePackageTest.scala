@@ -12,17 +12,17 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
-import raw.creds.jdbc.RDBMSTestCreds
+import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
 
-trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
+trait OraclePackageTest extends Rql2CompilerTestContext {
+
+  import TestCredentials._
 
   val oracleDb = "rawdb"
   val oracleSchema = "rawtest"
   val oracleTable = "tbl1"
 
-  rdbms(authorizedUser, "oracle", oracleCreds)
+  rdbms( "oracle", oracleCreds)
 
   test(s"""Oracle.InferAndRead("oracle", "$oracleSchema", "$oracleTable")""") { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -66,7 +66,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
 
   test(
     s"""Oracle.InferAndRead("$oracleDb", "$oracleSchema", "$oracleTable",
-      |   host = "${oracleCreds.host}", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}")""".stripMargin
+      |   host = "${oracleCreds.host}", username = "${oracleCreds.username}", password = "${oracleCreds.password}")""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
     it should evaluateTo(
@@ -81,7 +81,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
   test(
     s"""Oracle.Read("$oracleDb", "$oracleSchema", "$oracleTable",
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |   host = "${oracleCreds.host}", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}" )""".stripMargin
+      |   host = "${oracleCreds.host}", username = "${oracleCreds.username}", password = "${oracleCreds.password}" )""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
     it should orderEvaluateTo(
@@ -98,8 +98,8 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
     |   d = Location.Describe(Location.Build(
     |      "oracle://$oracleDb/$oracleSchema/$oracleTable",
     |      db_host = "${oracleCreds.host}",
-    |      db_username = "${oracleCreds.username.get.toString}",
-    |      db_password = "${oracleCreds.password.get.toString}"
+    |      db_username = "${oracleCreds.username}",
+    |      db_password = "${oracleCreds.password}"
     |   ))
     |in
     |  d.columns
@@ -131,7 +131,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "oracle.localdomain", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
+      |  host = "oracle.localdomain", username = "${oracleCreds.username}", password = "${oracleCreds.password}"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -143,7 +143,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "localhost", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
+      |  host = "localhost", username = "${oracleCreds.username}", password = "${oracleCreds.password}"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -156,7 +156,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}", port = 1234
+      |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.username}", password = "${oracleCreds.password}", port = 1234
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -180,7 +180,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.username.get.toString}", password = "wrong!"
+      |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.username}", password = "wrong!"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -199,7 +199,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
 
   test(
     s"""Oracle.InferAndQuery("$oracleDb", "SELECT * FROM $oracleSchema.$oracleTable",
-      |   host = "test-oracle.raw-labs.com", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}" )""".stripMargin
+      |   host = "test-oracle.raw-labs.com", username = "${oracleCreds.username}", password = "${oracleCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -225,7 +225,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext with CredentialsTestCont
   test(
     s"""Oracle.Query("$oracleDb", "SELECT * FROM $oracleSchema.$oracleTable",
       |   type collection(record(A: int, B: int, C: double, D: double, X: string, Y: string)),
-      |   host = "${oracleCreds.host}", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}" )""".stripMargin
+      |   host = "${oracleCreds.host}", username = "${oracleCreds.username}", password = "${oracleCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[

@@ -29,6 +29,88 @@ import java.nio.file.{Files, Path, StandardOpenOption}
 import scala.collection.mutable
 import scala.io.Source
 
+object TestCredentials {
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Dropbox Credentials
+  /////////////////////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////
+  // S3 Credentials
+  /////////////////////////////////////////////////////////////////////////////
+
+  val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
+  val secretKeyId = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
+
+  // Bucket with public access
+  val UnitTestPublicBucket = "rawlabs-public-test-data"
+  val UnitTestPublicBucketCred = S3Credential(None, None, Some("eu-west-1"))
+
+  // IAM user 'unit-test-private-bucket', which only has permissions only to access bucket 'rawlabs-private-test-data'
+  val UnitTestPrivateBucket = "rawlabs-private-test-data"
+  val UnitTestPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+
+  val UnitTestPrivateBucket2 = "rawlabs-unit-tests"
+  val UnitTestPrivateBucket2Cred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+
+  val UnitTestEmptyBucketPrivateBucket = "rawlabs-unit-test-empty-bucket"
+  val UnitTestEmptyBucketPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+
+  val UnitTestListRootPrivateBucket = "rawlabs-unit-test-list-root"
+  val UnitTestListRootPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+
+  val unitTestPrivateBucketUsEast1 = "rawlabs-unit-tests-us-east-1"
+  val unitTestPrivateBucketUsEast1Cred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("us-east-1"))
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Jdbc Credentials
+  ///////////////////////////////////////////////////////////////////////////
+
+  val mysqlTestHost = sys.env("RAW_MYSQL_TEST_HOST")
+  val mysqlTestDB = sys.env("RAW_MYSQL_TEST_DB")
+  val mysqlTestUser = sys.env("RAW_MYSQL_TEST_USER")
+  val mysqlTestPassword = sys.env("RAW_MYSQL_TEST_PASSWORD")
+  val mysqlCreds = MySqlJdbcLocation(mysqlTestHost, 3306, mysqlTestDB, mysqlTestUser, mysqlTestPassword)
+  val pgsqlTestHost = sys.env("RAW_PGSQL_TEST_HOST")
+  val pgsqlTestDB = sys.env("RAW_PGSQL_TEST_DB")
+  val pgsqlTestUser = sys.env("RAW_PGSQL_TEST_USER")
+  val pgsqlTestPassword = sys.env("RAW_PGSQL_TEST_PASSWORD")
+  val pgsqlCreds = PostgresJdbcLocation(pgsqlTestHost, 5432, pgsqlTestDB, pgsqlTestUser, pgsqlTestPassword)
+  val oracleTestHost = sys.env("RAW_ORACLE_TEST_HOST")
+  val oracleTestDB = sys.env("RAW_ORACLE_TEST_DB")
+  val oracleTestUser = sys.env("RAW_ORACLE_TEST_USER")
+  val oracleTestPassword = sys.env("RAW_ORACLE_TEST_PASSWORD")
+  val oracleCreds = OracleJdbcLocation(oracleTestHost, 1521, oracleTestDB, oracleTestUser, oracleTestPassword)
+  val sqlServerTestHost = sys.env("RAW_SQLSERVER_TEST_HOST")
+  val sqlserverTestDB = sys.env("RAW_SQLSERVER_TEST_DB")
+  val sqlServerTestUser = sys.env("RAW_SQLSERVER_TEST_USER")
+  val sqlServerTestPassword = sys.env("RAW_SQLSERVER_TEST_PASSWORD")
+  val sqlServerCreds = SqlServerJdbcLocation(
+    sqlServerTestHost,
+    1433,
+    sqlserverTestDB,
+    sqlServerTestUser,
+    sqlServerTestPassword
+  )
+  val teradataTestHost = sys.env("RAW_TERADATA_TEST_HOST")
+  val teradataTestUser = sys.env("RAW_TERADATA_TEST_USER")
+  val teradataTestPassword = sys.env("RAW_TERADATA_TEST_PASSWORD")
+  val teradataCreds = TeraDataJdbcLocation(teradataTestHost, 1025, teradataTestUser, teradataTestPassword)
+  val snowflakeTestHost = sys.env("RAW_SNOWFLAKE_TEST_HOST")
+  val snowflakeTestDB = sys.env("RAW_SNOWFLAKE_TEST_DB")
+  val snowflakeTestUser = sys.env("RAW_SNOWFLAKE_TEST_USER")
+  val snowflakeTestPassword = sys.env("RAW_SNOWFLAKE_TEST_PASSWORD")
+  val snowflakeCreds = SnowflakeJdbcLocation(
+    snowflakeTestHost,
+    snowflakeTestDB,
+    snowflakeTestUser,
+    snowflakeTestPassword,
+    Map("timezone" -> "UTC")
+  )
+  val badMysqlCreds = MySqlJdbcLocation("does-not-exist.raw-labs.com", 3306, "rdbmstest", "t0or", "$up3r$3cr3tValu3")
+
+}
+
 trait Rql2CompilerTestContext
     extends RawTestSuite
     with Matchers
@@ -40,6 +122,14 @@ trait Rql2CompilerTestContext
     // Simple inferrer
     with LocalInferrerTestContext {
 
+  private val secrets = new mutable.HashMap[String, String]()
+
+  private val s3Credentials = new mutable.HashMap[String, S3Credential]()
+
+  private val rdbmsServers = new mutable.HashMap[String, JdbcLocation]()
+
+  protected val programOptions = new mutable.HashMap[String, String]()
+
   def authorizedUser: InteractiveUser = InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com")
 
   def runnerScopes: Set[String] = Set.empty
@@ -48,7 +138,17 @@ trait Rql2CompilerTestContext
 
   def maybeTraceId: Option[String] = None
 
-  protected val programOptions = new mutable.HashMap[String, String]()
+  def secret(name: String, value: String): Unit = {
+    secrets.put(name, value)
+  }
+
+  def s3Bucket(name: String, bucket: S3Credential): Unit = {
+    s3Credentials.put(name, bucket)
+  }
+
+  def rdbms(name: String, db: JdbcLocation): Unit = {
+    rdbmsServers.put(name, db)
+  }
 
   def option(key: String, value: String): Unit = {
     programOptions.put(key, value)
@@ -468,18 +568,21 @@ trait Rql2CompilerTestContext
       maybeArguments: Option[Array[(String, RawValue)]] = None,
       scopes: Set[String] = Set.empty,
       options: Map[String, String] = Map.empty
-  ): ProgramEnvironment = ProgramEnvironment(
-    authorizedUser,
-    maybeArguments,
-    this.runnerScopes ++ scopes,
-    Map.empty, // secrets
-    Map.empty, // Jdbc servers
-    Map.empty, // http headers
-    Map.empty, // s3 credentials
-    this.options ++ options ++ programOptions,
-    None, // jdbcUrl
-    maybeTraceId
-  )
+  ): ProgramEnvironment = {
+    val user = authorizedUser
+    ProgramEnvironment(
+      user,
+      maybeArguments,
+      this.runnerScopes ++ scopes,
+      secrets.toMap,
+      rdbmsServers.toMap,
+      Map.empty, // http headers
+      s3Credentials.toMap,
+      this.options ++ options ++ programOptions,
+      None, // jdbcUrl
+      maybeTraceId
+    )
+  }
 
   def parseQuery(code: String): BaseProgram = tryToParse(code) match {
     case Right(p) => p
