@@ -13,12 +13,13 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
 import java.nio.file.Path
 import java.util.Base64
 
-trait BinaryPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class BinaryPackageTest extends Rql2TruffleCompilerTestContext {
 
   // FIXME (msb): This should use cast to support string to binary and do .getBytes("utf-8")
 

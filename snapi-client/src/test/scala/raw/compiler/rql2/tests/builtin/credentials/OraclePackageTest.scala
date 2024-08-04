@@ -12,9 +12,11 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
+import raw.compiler.rql2.tests.TestCredentials
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait OraclePackageTest extends Rql2CompilerTestContext {
+@TruffleTests class OraclePackageTest extends Rql2TruffleCompilerTestContext {
 
   import TestCredentials._
 
@@ -22,7 +24,7 @@ trait OraclePackageTest extends Rql2CompilerTestContext {
   val oracleSchema = "rawtest"
   val oracleTable = "tbl1"
 
-  rdbms( "oracle", oracleCreds)
+  rdbms("oracle", oracleCreds)
 
   test(s"""Oracle.InferAndRead("oracle", "$oracleSchema", "$oracleTable")""") { it =>
     assume(!compilerService.language.contains("rql2-truffle"))

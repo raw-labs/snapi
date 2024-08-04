@@ -20,7 +20,6 @@ import com.oracle.truffle.api.nodes.Node;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Set;
-
 import raw.client.api.*;
 import raw.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -100,7 +99,8 @@ public final class RawContext {
 
   @CompilerDirectives.TruffleBoundary
   public Map<String, String> getHttpHeaders(String name) {
-    scala.Option<scala.collection.immutable.Map<String, String>> maybeHttpHeaders = programEnvironment.httpHeaders().get(name);
+    scala.Option<scala.collection.immutable.Map<String, String>> maybeHttpHeaders =
+        programEnvironment.httpHeaders().get(name);
     if (maybeHttpHeaders.isEmpty()) {
       throw new RawTruffleRuntimeException("unknown http credential: " + name);
     }
@@ -122,9 +122,9 @@ public final class RawContext {
   }
 
   @CompilerDirectives.TruffleBoundary
-    public boolean existsJdbcCredential(String name) {
-        return programEnvironment.jdbcServers().contains(name);
-    }
+  public boolean existsJdbcCredential(String name) {
+    return programEnvironment.jdbcServers().contains(name);
+  }
 
   @CompilerDirectives.TruffleBoundary
   public JdbcLocation getJdbcLocation(String name) {

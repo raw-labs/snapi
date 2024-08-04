@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD5884Test extends Rql2CompilerTestContext {
+@TruffleTests class RD5884Test extends Rql2TruffleCompilerTestContext {
 
   test("""let f(x: int, y: int = 12) = 3.14 + x + y
     |in f(1)""".stripMargin)(_ should run)

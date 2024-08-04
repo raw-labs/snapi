@@ -37,9 +37,7 @@ public class RawLanguageCache {
     private final CompilerContext compilerContext;
     private final InferrerService inferrer;
 
-    Value(
-        CompilerContext compilerContext,
-        InferrerService inferrer) {
+    Value(CompilerContext compilerContext, InferrerService inferrer) {
       this.compilerContext = compilerContext;
       this.inferrer = inferrer;
     }

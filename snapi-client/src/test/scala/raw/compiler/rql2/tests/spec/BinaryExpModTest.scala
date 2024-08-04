@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait BinaryExpModTest extends Rql2CompilerTestContext with CombinationSpecTestHelper {
+@TruffleTests class BinaryExpModTest extends Rql2TruffleCompilerTestContext with CombinationSpecTestHelper {
 
   test("""5 % 3""") { it =>
     it should typeAs("int")

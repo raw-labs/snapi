@@ -12,10 +12,11 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils.SnapiInterpolator
+import raw.testing.tags.TruffleTests
 
-trait RD10801Test extends Rql2CompilerTestContext {
+@TruffleTests class RD10801Test extends Rql2TruffleCompilerTestContext {
 
   private val qqq = "\"\"\""
 

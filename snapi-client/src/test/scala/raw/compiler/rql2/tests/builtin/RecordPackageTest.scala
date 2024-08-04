@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RecordPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class RecordPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("""Record.Build(a = 1, b = "Hello")""".stripMargin)(_ should (typeAs("record(a: int, b: string)") and run))
 

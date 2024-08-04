@@ -13,12 +13,13 @@
 package raw.compiler.rql2.tests.regressions
 
 import org.scalatest.EitherValues
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
 import raw.client.api._
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
 import java.time.{Duration, LocalDate, LocalDateTime, LocalTime}
 
-trait RD9255Test extends Rql2CompilerTestContext with EitherValues {
+@TruffleTests class RD9255Test extends Rql2TruffleCompilerTestContext with EitherValues {
 
   private val declarations = """
     |string_func(x: string) = String.Length(x)

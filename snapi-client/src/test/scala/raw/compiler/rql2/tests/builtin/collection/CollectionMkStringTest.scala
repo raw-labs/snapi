@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait CollectionMkStringTest extends Rql2CompilerTestContext {
+@TruffleTests class CollectionMkStringTest extends Rql2TruffleCompilerTestContext {
 
   test("""let items = Collection.Build()
     |in Collection.MkString(items, sep="|")""".stripMargin)(_ should evaluateTo(""" "" """))

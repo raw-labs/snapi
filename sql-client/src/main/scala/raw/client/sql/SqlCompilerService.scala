@@ -31,7 +31,7 @@ import scala.util.control.NonFatal
  */
 class SqlCompilerService()(implicit protected val settings: RawSettings) extends CompilerService {
 
-  private val connectionPool = new SqlConnectionPool()
+  private val connectionPool = new SqlConnectionPool
 
   // A short lived database metadata (schema/table/column names) indexed by JDBC URL.
   private val metadataBrowsers = {

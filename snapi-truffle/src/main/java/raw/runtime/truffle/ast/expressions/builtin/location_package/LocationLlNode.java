@@ -19,7 +19,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-
 import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
@@ -52,7 +51,12 @@ public abstract class LocationLlNode extends ExpressionNode {
       for (int i = 0; i < size; i++) {
         Object topRecord = RawLanguage.get(this).createPureRecord();
         Object metadata = RawLanguage.get(this).createPureRecord();
-        addPropNode.execute(this, topRecord, "url", LocationDescription$.MODULE$.locationToUrl(values.apply(i)._1), false);
+        addPropNode.execute(
+            this,
+            topRecord,
+            "url",
+            LocationDescription$.MODULE$.locationToUrl(values.apply(i)._1),
+            false);
         if (values.apply(i)._2 instanceof DirectoryMetadata) {
           DirectoryMetadata directoryMetadata = (DirectoryMetadata) values.apply(i)._2;
           if (directoryMetadata.modifiedInstant().isDefined()) {

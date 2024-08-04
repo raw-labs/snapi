@@ -17,9 +17,10 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.utils.TestData
 import raw.compiler.rql2.FrontendSyntaxAnalyzer
 import raw.compiler.rql2.source.SourcePrettyPrinter
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD5365Test extends Rql2CompilerTestContext {
+@TruffleTests class RD5365Test extends Rql2TruffleCompilerTestContext {
 
   private class PrettyPrintAs(expected: String) extends Matcher[TestData] {
     override def apply(query: TestData): MatchResult = {

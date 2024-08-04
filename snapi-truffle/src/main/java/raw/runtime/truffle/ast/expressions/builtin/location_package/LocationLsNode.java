@@ -33,7 +33,8 @@ public abstract class LocationLsNode extends ExpressionNode {
   protected Object doLs(LocationObject locationObject) {
     try {
       FileSystemLocation fs = locationObject.getFileSystemLocation();
-      IndexedSeq<String> values = fs.ls().map(LocationDescription$.MODULE$::locationToUrl).toIndexedSeq();
+      IndexedSeq<String> values =
+          fs.ls().map(LocationDescription$.MODULE$::locationToUrl).toIndexedSeq();
       int size = values.size();
       String[] result = new String[size];
 

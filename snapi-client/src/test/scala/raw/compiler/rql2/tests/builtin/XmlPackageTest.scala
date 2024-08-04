@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait XmlPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class XmlPackageTest extends Rql2TruffleCompilerTestContext {
 
   private val allTypes = tempFile("""<items>
     | <byte>120</byte>

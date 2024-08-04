@@ -14,9 +14,10 @@ package raw.compiler.rql2.tests.spec
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.utils.TestData
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait BinaryExpOrTest extends Rql2CompilerTestContext with TableDrivenPropertyChecks {
+@TruffleTests class BinaryExpOrTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
 
   test("""true or true""")(_ should evaluateTo("true"))
   test("""true or false""")(_ should evaluateTo("true"))

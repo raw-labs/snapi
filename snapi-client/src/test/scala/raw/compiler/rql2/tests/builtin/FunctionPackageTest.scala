@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait FunctionPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class FunctionPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("""Function.InvokeAfter(() -> 1 +1, 10)""".stripMargin)(_ should evaluateTo("2"))
 

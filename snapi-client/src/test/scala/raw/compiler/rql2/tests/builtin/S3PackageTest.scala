@@ -12,10 +12,12 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.creds.s3.S3TestCreds
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait S3PackageTest extends Rql2CompilerTestContext with S3TestCreds {
+@TruffleTests class S3PackageTest extends Rql2TruffleCompilerTestContext {
+
+  import raw.compiler.rql2.tests.TestCredentials._
 
   // reading a public s3 bucket without registering or passing credentials
   test(s"""let
@@ -28,7 +30,7 @@ trait S3PackageTest extends Rql2CompilerTestContext with S3TestCreds {
 
   // reading a public s3 bucket without registering or passing credentials
   test(s"""let
-    |  data = Csv.InferAndRead(S3.Build("s3://${UnitTestPublicBucket.name}/students.csv"))
+    |  data = Csv.InferAndRead(S3.Build("s3://$UnitTestPublicBucket/students.csv"))
     |in
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))

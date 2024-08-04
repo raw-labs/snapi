@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait LetFunTest extends Rql2CompilerTestContext {
+@TruffleTests class LetFunTest extends Rql2TruffleCompilerTestContext {
 
   test("""let f(x: int) = x + 1
     |in f(0)

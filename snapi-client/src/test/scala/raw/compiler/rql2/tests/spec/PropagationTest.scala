@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait PropagationTest extends Rql2CompilerTestContext {
+@TruffleTests class PropagationTest extends Rql2TruffleCompilerTestContext {
   // lists
   test("""let l = List.Build(1,2,3,2,1)
     |in TestPackage.StrictArgs(l)""".stripMargin)(_ should (typeAs("float") and evaluateTo("5.0f")))

@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait TimePackageTest extends Rql2CompilerTestContext {
+@TruffleTests class TimePackageTest extends Rql2TruffleCompilerTestContext {
 
   test("Time.Build(9, 30)") { it =>
     it should typeAs("time")

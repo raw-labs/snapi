@@ -12,9 +12,11 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
+import raw.compiler.rql2.tests.TestCredentials
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait SqlServerPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class SqlServerPackageTest extends Rql2TruffleCompilerTestContext {
 
   import TestCredentials._
 
@@ -23,7 +25,7 @@ trait SqlServerPackageTest extends Rql2CompilerTestContext {
   val sqlServSchema = "rdbmstest"
   val sqlServTable = "tbl1"
 
-  rdbms( sqlServRegDb, sqlServerCreds)
+  rdbms(sqlServRegDb, sqlServerCreds)
 
   private val ttt = "\"\"\""
   test(s"""SQLServer.InferAndQuery("$sqlServRegDb", $ttt

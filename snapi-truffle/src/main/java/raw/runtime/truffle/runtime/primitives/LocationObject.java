@@ -25,13 +25,8 @@ import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.sources.api.Location;
 import raw.sources.bytestream.api.ByteStreamLocation;
-import raw.sources.bytestream.github.GitHubLocation;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
 import raw.sources.filesystem.api.FileSystemLocation;
-import raw.sources.filesystem.dropbox.DropboxAccessTokenPath;
-import raw.sources.filesystem.dropbox.DropboxUsernamePasswordPath;
-import raw.sources.filesystem.local.LocalPath;
-import raw.sources.filesystem.mock.MockPath;
 import raw.sources.jdbc.api.JdbcServerLocation;
 
 @ExportLibrary(InteropLibrary.class)
@@ -53,7 +48,6 @@ public final class LocationObject implements TruffleObject {
 
   public String getUrl() {
     return LocationDescription$.MODULE$.locationToUrl(location);
-
   }
 
   public ByteStreamLocation getByteStreamLocation() {

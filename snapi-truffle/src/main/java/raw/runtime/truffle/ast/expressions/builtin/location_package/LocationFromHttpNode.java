@@ -110,8 +110,12 @@ public class LocationFromHttpNode extends ExpressionNode {
         for (int i = 0; i < size; i++) {
           Object record = this.argsGetNode.execute(this, value, i);
           Object keys = this.argsInterops.getMembers(record);
-          Object key = this.argsInterops.readMember(record, (String) this.argsInterops.readArrayElement(keys, 0));
-          Object val = this.argsInterops.readMember(record, (String) this.argsInterops.readArrayElement(keys, 1));
+          Object key =
+              this.argsInterops.readMember(
+                  record, (String) this.argsInterops.readArrayElement(keys, 0));
+          Object val =
+              this.argsInterops.readMember(
+                  record, (String) this.argsInterops.readArrayElement(keys, 1));
           // ignore entries where key or val is null
           if (key != NullObject.INSTANCE && val != NullObject.INSTANCE) {
             argsBuilder =
@@ -129,8 +133,12 @@ public class LocationFromHttpNode extends ExpressionNode {
         for (int i = 0; i < size; i++) {
           Object record = this.headersGetNode.execute(this, value, i);
           Object keys = this.headersInterops.getMembers(record);
-          Object key = this.headersInterops.readMember(record, (String) this.headersInterops.readArrayElement(keys, 0));
-          Object val = this.headersInterops.readMember(record, (String) this.headersInterops.readArrayElement(keys, 1));
+          Object key =
+              this.headersInterops.readMember(
+                  record, (String) this.headersInterops.readArrayElement(keys, 0));
+          Object val =
+              this.headersInterops.readMember(
+                  record, (String) this.headersInterops.readArrayElement(keys, 1));
           // ignore entries where key or val is null
           if (key != NullObject.INSTANCE && val != NullObject.INSTANCE) {
             headersBuilder =

@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD4445Test extends Rql2CompilerTestContext {
+@TruffleTests class RD4445Test extends Rql2TruffleCompilerTestContext {
 
   import raw.compiler.rql2.tests.TestCredentials._
 

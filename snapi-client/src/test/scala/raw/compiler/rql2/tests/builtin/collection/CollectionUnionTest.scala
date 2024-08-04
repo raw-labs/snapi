@@ -13,10 +13,11 @@
 package raw.compiler.rql2.tests.builtin.collection
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
+import raw.testing.tags.TruffleTests
 
-trait CollectionUnionTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
+@TruffleTests class CollectionUnionTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   test("Collection.Union(Collection.Build(1,2,3), Collection.Build(4,5,6))")(_ should evaluateTo("[1,2,3,4,5,6]"))
 

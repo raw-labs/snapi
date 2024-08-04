@@ -14,4 +14,4 @@ package raw.compiler.rql2.truffle
 
 import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
-trait TruffleWithLocalCredentialsTestContext extends Rql2CompilerTestContext with Rql2TruffleCompilerServiceTestContext
+trait Rql2TruffleCompilerTestContext extends Rql2CompilerTestContext with Rql2TruffleCompilerServiceTestContext

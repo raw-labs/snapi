@@ -12,9 +12,11 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
+import raw.compiler.rql2.tests.TestCredentials
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait MySQLPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class MySQLPackageTest extends Rql2TruffleCompilerTestContext {
 
   import TestCredentials._
 

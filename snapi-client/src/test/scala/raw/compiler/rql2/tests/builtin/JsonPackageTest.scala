@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait JsonPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class JsonPackageTest extends Rql2TruffleCompilerTestContext {
 
   private val junkAfter10Items = tempFile("""[
     |  {"a": 1, "b": "#1", "c": 1.1},

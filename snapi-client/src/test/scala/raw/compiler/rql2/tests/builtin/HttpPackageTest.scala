@@ -14,14 +14,13 @@ package raw.compiler.rql2.tests.builtin
 
 import com.sun.net.httpserver.{BasicAuthenticator, HttpExchange, HttpServer}
 import com.typesafe.scalalogging.StrictLogging
-import org.scalatest.BeforeAndAfterAll
-import raw.creds.dropbox.DropboxTestCreds
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
 import java.net.InetSocketAddress
 import scala.collection.JavaConverters._
 
-trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with BeforeAndAfterAll {
+@TruffleTests class HttpPackageTest extends Rql2TruffleCompilerTestContext {
 
   val expectedUser = "user"
   val expectedPassword = "passwd"

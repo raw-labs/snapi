@@ -91,12 +91,7 @@ public class LocationFromS3Node extends ExpressionNode {
           (this.region != null) ? new Some(this.region.executeGeneric(frame)) : None$.empty();
       location =
           new S3Path(
-              bucket,
-              maybeRegion,
-              maybeAccessKey,
-              maybeSecretKey,
-              path,
-              context.getSettings());
+              bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
     }
 
     return new LocationObject(location);

@@ -14,11 +14,13 @@ package raw.compiler.rql2.tests.builtin
 
 import java.util.Base64
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.{FailAfterNServer, Rql2CompilerTestContext}
+import raw.compiler.rql2.tests.FailAfterNServer
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
 import java.nio.file.Path
 
-trait StringPackageTest extends Rql2CompilerTestContext with FailAfterNServer {
+@TruffleTests class StringPackageTest extends Rql2TruffleCompilerTestContext with FailAfterNServer {
 
   // Each line has 11 bytes so it will fail at line 10 more or less.
   override def failServices: Seq[FailAfter] = Seq(

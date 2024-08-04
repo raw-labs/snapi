@@ -12,9 +12,11 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
+import raw.compiler.rql2.tests.TestCredentials
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait S3PackageTest extends Rql2CompilerTestContext {
+@TruffleTests class S3PackageTest extends Rql2TruffleCompilerTestContext {
 
   import TestCredentials._
 
@@ -35,14 +37,14 @@ trait S3PackageTest extends Rql2CompilerTestContext {
     |""".stripMargin)(it => it should evaluateTo("7"))
 
   // using a private bucket registered in the credentials server
-  test(s"""String.Read(S3.Build("s3://${UnitTestPrivateBucket2}/file1.csv"))
+  test(s"""String.Read(S3.Build("s3://$UnitTestPrivateBucket2/file1.csv"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
   // listing a s3 bucket from us-east-1 (non default region)
   test(s"""let
     |  data = Location.Ls(
     |    S3.Build(
-    |      "s3://${unitTestPrivateBucketUsEast1}/csvs/01",
+    |      "s3://$unitTestPrivateBucketUsEast1/csvs/01",
     |      region = "${unitTestPrivateBucketUsEast1Cred.region.get}",
     |      accessKey = "${unitTestPrivateBucketUsEast1Cred.accessKey.get}",
     |      secretKey = "${unitTestPrivateBucketUsEast1Cred.secretKey.get}"
@@ -59,7 +61,7 @@ trait S3PackageTest extends Rql2CompilerTestContext {
   test(s"""let
     |  data = Location.Ls(
     |    S3.Build(
-    |      "s3://${unitTestPrivateBucketUsEast1}/csvs/01",
+    |      "s3://$unitTestPrivateBucketUsEast1/csvs/01",
     |      accessKey = "${unitTestPrivateBucketUsEast1Cred.accessKey.get}",
     |      secretKey = "${unitTestPrivateBucketUsEast1Cred.secretKey.get}"
     |    )

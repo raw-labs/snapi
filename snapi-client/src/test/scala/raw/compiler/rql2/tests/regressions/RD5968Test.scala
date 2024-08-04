@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD5968Test extends Rql2CompilerTestContext {
+@TruffleTests class RD5968Test extends Rql2TruffleCompilerTestContext {
 
   private val cdataFile = tempFile("""
     |<person place="world" >

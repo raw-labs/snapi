@@ -12,10 +12,12 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.{Rql2CompilerTestContext, TestCredentials}
+import raw.compiler.rql2.tests.TestCredentials
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.sources.jdbc.snowflake.SnowflakeClient
+import raw.testing.tags.TruffleTests
 
-trait SnowflakePackageTest extends Rql2CompilerTestContext {
+@TruffleTests class SnowflakePackageTest extends Rql2TruffleCompilerTestContext {
 
   import TestCredentials._
 
@@ -23,7 +25,7 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext {
   val snowflakeMainTable = "TBL1"
   val snowflakeSideTable = "TBL4"
 
-  rdbms( "snowflake", snowflakeCreds)
+  rdbms("snowflake", snowflakeCreds)
 
   private val ttt = "\"\"\""
   // Trying all types. Not all expressions type as wanted so that

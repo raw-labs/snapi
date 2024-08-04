@@ -14,9 +14,10 @@ package raw.compiler.rql2.tests.lsp
 
 import raw.client.api.ValidateResponse
 import raw.compiler.rql2.errors.OutputTypeRequiredForRecursiveFunction
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait LspAiValidateTest extends Rql2CompilerTestContext {
+@TruffleTests class LspAiValidateTest extends Rql2TruffleCompilerTestContext {
 
   test("AI validate package that does not exist") { _ =>
     val code = """let

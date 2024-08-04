@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.source.{Rql2IntType, Rql2IsNullableTypeProperty, Rql2IsTryableTypeProperty, Rql2UndefinedType}
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait MigrationTest extends Rql2CompilerTestContext {
+@TruffleTests class MigrationTest extends Rql2TruffleCompilerTestContext {
 
   test("1") { it =>
     it should typeAs("int")

@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD9616Test extends Rql2CompilerTestContext {
+@TruffleTests class RD9616Test extends Rql2TruffleCompilerTestContext {
 
   test(
     """let
