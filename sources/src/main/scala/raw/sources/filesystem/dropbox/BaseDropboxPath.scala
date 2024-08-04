@@ -23,9 +23,9 @@ object BaseDropboxPath {
   val DROPBOX_CLIENT_ID = "raw.sources.dropbox.clientId"
 }
 
-class BaseDropboxPath(dbxClientV2: DbxClientV2, path: String) extends FileSystemLocation {
+abstract class BaseDropboxPath(dbxClientV2: DbxClientV2, path: String) extends FileSystemLocation {
 
-  private val cli = new DropboxFileSystem(dbxClientV2)
+  protected val cli = new DropboxFileSystem(dbxClientV2)
 
   override def testAccess(): Unit = {
     cli.testAccess(path)
@@ -45,16 +45,6 @@ class BaseDropboxPath(dbxClientV2: DbxClientV2, path: String) extends FileSystem
 
   override def metadata(): FileSystemMetadata = {
     cli.metadata(path)
-  }
-
-  override protected def doLs(): Iterator[FileSystemLocation] = {
-    cli
-      .listContents(path)
-      .map(npath => new BaseDropboxPath(dbxClientV2, npath))
-  }
-
-  override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new BaseDropboxPath(dbxClientV2, npath), meta) }
   }
 
 }

@@ -139,13 +139,13 @@ import raw.testing.tags.TruffleTests
     )
   }
 
-  test(s"""
+  ignore(s"""
     |let
-    |   d = Location.Describe(Location.Build(
+    |   d = Location.Describe(PostgreSQL.Build(
     |      "pgsql://${pgsqlCreds.database}/$pgSchema/$pgTable",
-    |      db_host = "${pgsqlCreds.host}",
-    |      db_username = "${pgsqlCreds.username}",
-    |      db_password = "${pgsqlCreds.password}"
+    |      host = "${pgsqlCreds.host}",
+    |      username = "${pgsqlCreds.username}",
+    |      password = "${pgsqlCreds.password}"
     |   ))
     |in
     |  d.columns

@@ -15,13 +15,31 @@ package raw.sources.filesystem.dropbox
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.oauth.DbxCredential
 import com.dropbox.core.v2.DbxClientV2
+import raw.sources.filesystem.api.{FileSystemLocation, FileSystemMetadata}
 import raw.utils.RawSettings
 
-class DropboxAccessTokenPath(val accessToken: String, val path: String)(implicit settings: RawSettings)
-    extends BaseDropboxPath(
-      new DbxClientV2(
-        DbxRequestConfig.newBuilder(settings.getString(BaseDropboxPath.DROPBOX_CLIENT_ID)).build(),
-        new DbxCredential(accessToken)
-      ),
-      path
+class DropboxAccessTokenPath(val accessToken: String, val path: String, dbxClientV2: DbxClientV2)
+    extends BaseDropboxPath(dbxClientV2, path) {
+
+  def this(accessToken: String, path: String)(implicit settings: RawSettings) = this(
+    accessToken,
+    path,
+    new DbxClientV2(
+      DbxRequestConfig.newBuilder(settings.getString(BaseDropboxPath.DROPBOX_CLIENT_ID)).build(),
+      new DbxCredential(accessToken)
     )
+  )
+
+  override protected def doLs(): Iterator[FileSystemLocation] = {
+    cli
+      .listContents(path)
+      .map(npath => new DropboxAccessTokenPath(accessToken, npath, dbxClientV2))
+  }
+
+  override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
+    cli.listContentsWithMetadata(path).map {
+      case (npath, meta) => (new DropboxAccessTokenPath(accessToken, npath, dbxClientV2), meta)
+    }
+  }
+
+}

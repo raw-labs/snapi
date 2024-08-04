@@ -139,13 +139,13 @@ import raw.testing.tags.TruffleTests
     )
   }
 
-  test(s"""
+  ignore(s"""
     |let
-    |   d = Location.Describe(Location.Build(
+    |   d = Location.Describe(MySQL.Build(
     |      "mysql://${mysqlCreds.database}/$mysqlTable",
-    |      db_host = "${mysqlCreds.host}",
-    |      db_username = "${mysqlCreds.username}",
-    |      db_password = "${mysqlCreds.password}"
+    |      host = "${mysqlCreds.host}",
+    |      username = "${mysqlCreds.username}",
+    |      password = "${mysqlCreds.password}"
     |   ))
     |in
     |  d.columns

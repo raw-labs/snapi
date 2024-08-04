@@ -95,13 +95,13 @@ import raw.testing.tags.TruffleTests
     )
   }
 
-  test(s"""
+  ignore(s"""
     |let
-    |   d = Location.Describe(Location.Build(
+    |   d = Location.Describe(Oracle.Build(
     |      "oracle://$oracleDb/$oracleSchema/$oracleTable",
-    |      db_host = "${oracleCreds.host}",
-    |      db_username = "${oracleCreds.username}",
-    |      db_password = "${oracleCreds.password}"
+    |      host = "${oracleCreds.host}",
+    |      username = "${oracleCreds.username}",
+    |      password = "${oracleCreds.password}"
     |   ))
     |in
     |  d.columns

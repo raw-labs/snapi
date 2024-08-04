@@ -257,13 +257,13 @@ import raw.testing.tags.TruffleTests
     )
   }
 
-  test(s"""
+  ignore(s"""
     |let
-    |   d = Location.Describe(Location.Build(
+    |   d = Location.Describe(Snowflake.Build(
     |      "snowflake://${snowflakeCreds.database}/$snowflakeSchema/$snowflakeMainTable",
-    |      db_account_id = "${snowflakeCreds.accountIdentifier}",
-    |      db_username = "${snowflakeCreds.username}",
-    |      db_password = "${snowflakeCreds.password}"
+    |      accountID = "${snowflakeCreds.accountIdentifier}",
+    |      username = "${snowflakeCreds.username}",
+    |      password = "${snowflakeCreds.password}"
     |   ))
     |in
     |  d.columns

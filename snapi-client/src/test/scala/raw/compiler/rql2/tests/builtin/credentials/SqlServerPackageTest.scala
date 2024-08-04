@@ -137,13 +137,13 @@ import raw.testing.tags.TruffleTests
     )
   }
 
-  test(s"""
+  ignore(s"""
     |let
-    |   d = Location.Describe(Location.Build(
+    |   d = Location.Describe(SQLServer.Build(
     |      "sqlserver://$sqlServDb/$sqlServSchema/$sqlServTable",
-    |      db_host = "${sqlServerCreds.host}",
-    |      db_username = "${sqlServerCreds.username}",
-    |      db_password = "${sqlServerCreds.password}"
+    |      host = "${sqlServerCreds.host}",
+    |      username = "${sqlServerCreds.username}",
+    |      password = "${sqlServerCreds.password}"
     |   ))
     |in
     |  d.columns

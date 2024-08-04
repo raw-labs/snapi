@@ -37,17 +37,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
-import raw.client.api.{
-  JdbcLocation,
-  MySqlJdbcLocation,
-  OracleJdbcLocation,
-  PostgresJdbcLocation,
-  ProgramEnvironment,
-  SnowflakeJdbcLocation,
-  SqlServerJdbcLocation,
-  SqliteJdbcLocation,
-  TeradataJdbcLocation
-}
+import com.typesafe.scalalogging.StrictLogging
+import raw.client.api.{JdbcLocation, MySqlJdbcLocation, OracleJdbcLocation, PostgresJdbcLocation, ProgramEnvironment, SnowflakeJdbcLocation, SqlServerJdbcLocation, SqliteJdbcLocation, TeradataJdbcLocation}
 
 import java.net.{HttpURLConnection, URI, URISyntaxException}
 
@@ -266,7 +257,9 @@ final case class TeradataTableLocationDescription(
     parameters: Map[String, String]
 ) extends LocationDescription
 
-object LocationDescription {
+object LocationDescription extends StrictLogging {
+
+  val DROPBOX_REGEX = "dropbox:(?://([^/]+)?)?(.*)".r
 
   private val jsonMapper = new ObjectMapper with ClassTagExtensions {
     registerModule(DefaultScalaModule)
@@ -514,15 +507,6 @@ object LocationDescription {
   def urlToLocationDescription(url: String, programEnvironment: ProgramEnvironment)(
       implicit settings: RawSettings
   ): Either[String, LocationDescription] = {
-    // Build a URI to validate the URL.
-    val uri = {
-      try {
-        new URI(url)
-      } catch {
-        case _: URISyntaxException => return Left("invalid URL: " + url)
-      }
-    }
-
     // Extract the protocol.
     val colonIndex = url.indexOf(':')
     if (colonIndex == -1) {
@@ -549,6 +533,15 @@ object LocationDescription {
         )
       case "file" if settings.onTrainingWheels => Right(LocalPathLocationDescription(url.substring(colonIndex + 1)))
       case "s3" =>
+        // Build a URI to validate the URL.
+        val uri = {
+          try {
+            new URI(url)
+          } catch {
+            case ex: URISyntaxException => return Left("invalid S3 URL: " + url)
+          }
+        }
+
         val uriUserInfo = uri.getUserInfo
         val bucketName = uri.getHost
         val path = uri.getPath
@@ -591,6 +584,21 @@ object LocationDescription {
         } else {
           // TODO (msb): There is no way to specify the region when using a direct URL...
           Right(S3PathLocationDescription(bucketName, None, maybeAccessKey, maybeSecretKey, objectKey))
+        }
+      case "dropbox" =>
+        // In Dropbox, the host is the name of the credential
+        val DROPBOX_REGEX(name, path) = url
+        if (name == null) {
+          return Left("missing Dropbox credential")
+        }
+        programEnvironment.httpHeaders.get(name) match {
+          case Some(httpHeaders) => Right(
+              DropboxAccessTokenLocationDescription(
+                httpHeaders("Authorization").split("Bearer ")(1),
+                path
+              )
+            )
+          case None => Left("missing Dropbox credential")
         }
       case _ => Left(s"unsupported protocol: $protocol")
     }

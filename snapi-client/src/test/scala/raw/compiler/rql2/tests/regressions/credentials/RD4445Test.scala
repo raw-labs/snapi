@@ -27,27 +27,11 @@ import raw.testing.tags.TruffleTests
     _ should evaluateTo("""["Hello", "World", "Again!"]""")
   )
 
-  test("""String.ReadLines("dropbox:///New folder/New Document")""")(
-    _ should evaluateTo("""["Hello", "World", "Again!"]""")
-  )
-
-  test("""String.ReadLines("dropbox:/New folder/New Document")""")(
-    _ should evaluateTo("""["Hello", "World", "Again!"]""")
-  )
-
-  test("""String.ReadLines("dropbox:New folder/New Document")""")(
-    _ should runErrorAs("""path invalid: New folder/New Document""")
-  )
-
-  test("""Location.Ls("dropbox:/New Folder")""")(_ should evaluateTo("""["dropbox:///New Folder/New Document"]"""))
-  test("""Location.Ls("dropbox:///New Folder")""")(_ should evaluateTo("""["dropbox:///New Folder/New Document"]"""))
-  test("""Location.Ls("dropbox://rawlabs-dropbox/New Folder")""")(
+  test("""Location.Ls("dropbox:/rawlabs-dropbox/New Folder")""")(
     _ should evaluateTo("""["dropbox://rawlabs-dropbox/New Folder/New Document"]""")
   )
 
-  //Listing same folder but with trailing '/'
-  test("""Location.Ls("dropbox:/New Folder/")""")(_ should evaluateTo("""["dropbox:///New Folder/New Document"]"""))
-  test("""Location.Ls("dropbox:///New Folder/")""")(_ should evaluateTo("""["dropbox:///New Folder/New Document"]"""))
+  // Listing same folder but with trailing '/'
   test("""Location.Ls("dropbox://rawlabs-dropbox/New Folder/")""")(
     _ should evaluateTo("""["dropbox://rawlabs-dropbox/New Folder/New Document"]""")
   )
