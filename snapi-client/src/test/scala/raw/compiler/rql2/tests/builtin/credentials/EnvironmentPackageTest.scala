@@ -21,11 +21,11 @@ import raw.testing.tags.TruffleTests
 
   test("""Environment.Secret("my-secret")""")(it => it should evaluateTo(""" "my-secret-value" """))
 
-  test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("could not find secret my-typo"))
+  test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("unknown secret: my-typo"))
 
   // checking it doesn't fail if one of the secrets is not found (RD-9041)
   test("""[Environment.Secret("my-secret"), Environment.Secret("my-typo")]""")(it =>
-    it should evaluateTo("""["my-secret-value", Error.Build("could not find secret my-typo")]
+    it should evaluateTo("""["my-secret-value", Error.Build("unknown secret: my-typo")]
       |""".stripMargin)
   )
 
