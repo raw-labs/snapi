@@ -16,16 +16,6 @@ import raw.sources.bytestream.api.ByteStreamLocation
 
 trait FileSystemLocation extends ByteStreamLocation {
 
-  /**
-   * The path of the location in a format that is meant to be shared with the user.
-   * For instance, this is used for error reporting.
-   * Does NOT have to conform to any consistent format across different implementations,
-   * e.g. does not have to be a URI. It is up to the implementation to decide what to return.
-   *
-   * @return the path of the location in a format that is meant to be shared with the user.
-   */
-  def pathForUser: String
-
   def metadata(): FileSystemMetadata
 
   // This call uses the retry mechanism.

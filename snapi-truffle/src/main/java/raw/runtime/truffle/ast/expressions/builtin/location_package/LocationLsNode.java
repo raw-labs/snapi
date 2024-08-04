@@ -16,6 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
@@ -32,7 +33,7 @@ public abstract class LocationLsNode extends ExpressionNode {
   protected Object doLs(LocationObject locationObject) {
     try {
       FileSystemLocation fs = locationObject.getFileSystemLocation();
-      IndexedSeq<String> values = fs.ls().map(FileSystemLocation::pathForUser).toIndexedSeq();
+      IndexedSeq<String> values = fs.ls().map(LocationDescription$.MODULE$::locationToUrl).toIndexedSeq();
       int size = values.size();
       String[] result = new String[size];
 

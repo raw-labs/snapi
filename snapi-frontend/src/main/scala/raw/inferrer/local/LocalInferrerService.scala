@@ -14,6 +14,7 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
+import raw.compiler.rql2.api.LocationDescription
 import raw.utils.{RawException, RawSettings}
 import raw.inferrer.api._
 import raw.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
@@ -231,7 +232,7 @@ class LocalInferrerService(implicit settings: RawSettings)
                 case fs: FileSystemLocation =>
                   // Annotate actual failing file in message.
                   throw new LocalInferrerException(
-                    s"failed inferring '${fs.pathForUser}' with error '${ex.getMessage}'",
+                    s"failed inferring '${LocationDescription.locationToUrl(fs)}' with error '${ex.getMessage}'",
                     ex
                   )
                 case _ =>

@@ -35,6 +35,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import raw.client.api.ProgramEnvironment
+
+import java.net.{URI, URISyntaxException}
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
@@ -416,6 +419,214 @@ object LocationDescription {
 
   def deserialize(bytes: Array[Byte]): LocationDescription = {
     reader.readValue(new ByteArrayInputStream(bytes))
+  }
+
+  def locationDescriptionToUrl(l: LocationDescription): String = {
+    l match {
+      case GitHubLocationDescription(username, repo, file, maybeBranch) => maybeBranch match {
+          case Some(branch) => s"github://$repo/$username/$file?branch=$branch"
+          case None => s"github://$repo/$username/$file"
+        }
+      case HttpByteStreamLocationDescription(url, _, _, _, _, _) => url
+      case DropboxAccessTokenLocationDescription(_, path) => s"dropbox:$path"
+      case DropboxUsernamePasswordLocationDescription(_, _, path) => s"dropbox:$path"
+      case LocalPathLocationDescription(path) =>
+        // TODO (msb): We should move to file://
+        s"file:$path"
+      case MockPathLocationDescription(_, delegate) =>
+        // TODO (msb): We should move to mock://
+        s"mock:${locationDescriptionToUrl(delegate)}"
+      case S3PathLocationDescription(bucket, _, _, _, path) => s"s3://$bucket/$path"
+      case MySqlServerLocationDescription(host, port, dbName, _, _) => s"mysql://$host:$port/$dbName"
+      case MySqlSchemaLocationDescription(host, port, dbName, _, _) => s"mysql://$host:$port/$dbName"
+      case MySqlTableLocationDescription(host, port, dbName, _, _, tableName) =>
+        s"mysql://$host:$port/$dbName/$tableName"
+      case OracleServerLocationDescription(host, port, dbName, _, _) => s"oracle://$host:$port/$dbName"
+      case OracleSchemaLocationDescription(host, port, dbName, _, _, schemaName) =>
+        s"oracle://$host:$port/$dbName/$schemaName"
+      case OracleTableLocationDescription(host, port, dbName, _, _, schemaName, tableName) =>
+        s"oracle://$host:$port/$dbName/$schemaName/$tableName"
+      case PostgresqlServerLocationDescription(host, port, dbName, _, _) => s"pgsql://$host:$port/$dbName"
+      case PostgresqlSchemaLocationDescription(host, port, dbName, _, _, schemaName) =>
+        s"pgsql://$host:$port/$dbName/$schemaName"
+      case PostgresqlTableLocationDescription(host, port, dbName, _, _, schemaName, tableName) =>
+        s"pgsql://$host:$port/$dbName/$schemaName/$tableName"
+      case SnowflakeServerLocationDescription(dbName, _, _, _, _) => s"snowflake://$dbName"
+      case SnowflakeSchemaLocationDescription(dbName, _, _, _, _, schemaName) => s"snowflake://$dbName/$schemaName"
+      case SnowflakeTableLocationDescription(dbName, _, _, _, _, schemaName, tableName) =>
+        s"snowflake://$dbName/$schemaName/$tableName"
+      case SqliteServerLocationDescription(path) => s"sqlite://$path"
+      case SqliteSchemaLocationDescription(path) => s"sqlite://$path"
+      case SqliteTableLocationDescription(path, tableName) => s"sqlite://$path/$tableName"
+      case SqlServerServerLocationDescription(host, port, dbName, _, _) => s"sqlserver://$host:$port/$dbName"
+      case SqlServerSchemaLocationDescription(host, port, dbName, _, _, schemaName) =>
+        s"sqlserver://$host:$port/$dbName/$schemaName"
+      case SqlServerTableLocationDescription(host, port, dbName, _, _, schemaName, tableName) =>
+        s"sqlserver://$host:$port/$dbName/$schemaName/$tableName"
+      case TeradataServerLocationDescription(host, port, dbName, _, _, _) => s"teradata://$host:$port/$dbName"
+      case TeradataSchemaLocationDescription(host, port, dbName, _, _, schemaName, _) =>
+        s"teradata://$host:$port/$dbName/$schemaName"
+      case TeradataTableLocationDescription(host, port, dbName, _, _, schemaName, tableName, _) =>
+        s"teradata://$host:$port/$dbName/$schemaName/$tableName"
+    }
+  }
+
+  def locationToUrl(l: Location): String = {
+    locationDescriptionToUrl(toLocationDescription(l))
+  }
+
+  def urlToLocationDescription(url: String, programEnvironment: ProgramEnvironment)(
+      implicit settings: RawSettings
+  ): Either[String, LocationDescription] = {
+    // Build a URI to validate the URL.
+    val uri = {
+      try {
+        new URI(url)
+      } catch {
+        case _: URISyntaxException => return Left("invalid URL: " + url)
+      }
+    }
+
+    // Extract the protocol.
+    val colonIndex = url.indexOf(':')
+    if (colonIndex == -1) {
+      return Left(s"missing protocol: $url")
+    }
+    val protocol = url.substring(0, colonIndex)
+
+    // Parse the URL based on the protocol.
+    protocol match {
+      case "http" => Right(HttpByteStreamLocationDescription(url, "GET", Array.empty, Array.empty, None, Array.empty))
+      case "https" => Right(HttpByteStreamLocationDescription(url, "GET", Array.empty, Array.empty, None, Array.empty))
+      case "file" if settings.onTrainingWheels => Right(LocalPathLocationDescription(url.substring(colonIndex + 1)))
+      case "s3" =>
+        val uriUserInfo = uri.getUserInfo
+        val bucketName = uri.getHost
+        val path = uri.getPath
+        val objectKey = if (path.startsWith("/")) path.substring(1) else path
+
+        var maybeAccessKey: Option[String] = None
+        var maybeSecretKey: Option[String] = None
+        if (uriUserInfo != null) {
+          val userInfoParts = uriUserInfo.split(":")
+          maybeAccessKey = Some(userInfoParts(0))
+          if (maybeAccessKey.get.isEmpty) {
+            return Left("missing S3 access key")
+          }
+          if (userInfoParts.length > 1) {
+            maybeSecretKey = Some(userInfoParts(1))
+            if (maybeSecretKey.get.isEmpty) {
+              return Left("missing S3 secret key")
+            }
+          } else {
+            return Left("missing S3 secret key")
+          }
+        }
+
+        if (maybeAccessKey.isEmpty) {
+          // If the access key/secret key are not defined, then the "host" is actually the bucket name
+          // in the program environment credentials set.
+          val s3Credential =
+            programEnvironment.s3Credentials.getOrElse(bucketName, return Left("missing S3 credentials"))
+          Right(
+            S3PathLocationDescription(
+              bucketName,
+              s3Credential.region,
+              s3Credential.accessKey,
+              s3Credential.secretKey,
+              objectKey
+            )
+          )
+        } else {
+          // TODO (msb): There is no way to specify the region when using a direct URL...
+          Right(S3PathLocationDescription(bucketName, None, maybeAccessKey, maybeSecretKey, objectKey))
+        }
+      case _ => Left(s"unsupported protocol: $protocol")
+    }
+  }
+
+  //  @CompilerDirectives.TruffleBoundary
+//  private Location getPgsqlLocation(String url, RawContext context) {
+//    try {
+//      URI uri = new URI(url);
+//      String uriUserInfo = uri.getUserInfo();
+//      String uriHost = uri.getHost();
+//      int uriPort = uri.getPort();
+//      String uriPath = uri.getPath();
+//
+//      String host = null;
+//      Integer port = null;
+//      String username = null;
+//      String password = null;
+//      String dbname = null;
+//      String schema = null;
+//      String table = null;
+//
+//      if (uriUserInfo != null) {
+//        String[] userInfoParts = uriUserInfo.split(":");
+//        username = userInfoParts[0];
+//        if (username.isEmpty()) {
+//          throw new RawTruffleRuntimeException("missing PostgreSQL username");
+//        }
+//        if (userInfoParts.length > 1) {
+//          password = userInfoParts[1];
+//          if (password.isEmpty()) {
+//            throw new RawTruffleRuntimeException("missing PostgreSQL password");
+//          }
+//        } else {
+//          throw new RawTruffleRuntimeException("missing PostgreSQL password");
+//        }
+//      }
+//
+//      if (username == null) {
+//        // If the username/password are not defined, then the "host" is actually the database name
+//        // in the program environment credentials set.
+//        JdbcLocation jdbcLocation =
+//            RawContext.get(this).getProgramEnvironment().jdbcServers().get(uriHost).get();
+//        if (jdbcLocation instanceof PostgresJdbcLocation) {
+//          PostgresJdbcLocation pgsqlLocation = (PostgresJdbcLocation) jdbcLocation;
+//          host = pgsqlLocation.host();
+//          port = pgsqlLocation.port();
+//          username = pgsqlLocation.username();
+//          password = pgsqlLocation.password();
+//        } else {
+//          throw new RawTruffleRuntimeException("not a PostgreSQL credential: " + uriHost);
+//        }
+//      } else {
+//        // If the username/password are defined, then the "host" is the actual host.
+//
+//        host = uriHost;
+//        port = uriPort;
+//
+//        if (uriPath != null) {
+//          String[] pathParts = uriPath.split("/");
+//          dbname = pathParts.length > 1 ? pathParts[1] : null;
+//          schema = pathParts.length > 2 ? pathParts[2] : null;
+//          table = pathParts.length > 3 ? pathParts[3] : null;
+//        }
+//      }
+//
+//      if (dbname != null && schema != null && table != null) {
+//        return new PostgresqlTableLocation(
+//            host, port, dbname, username, password, schema, table, context.getSettings());
+//      } else if (dbname != null && schema != null) {
+//        return new PostgresqlSchemaLocation(
+//            host, port, dbname, username, password, schema, context.getSettings());
+//      } else if (dbname != null) {
+//        return new PostgresqlServerLocation(host, port, dbname, username, password, context.getSettings());
+//      } else {
+//        throw new RawTruffleRuntimeException("invalid PostgreSQL URL: " + url);
+//      }
+//
+//    } catch (URISyntaxException e) {
+//      throw new RawTruffleRuntimeException("invalid PostgreSQL URL: " + url);
+//    }
+//  }
+
+  def urlToLocation(url: String, programEnvironment: ProgramEnvironment)(
+      implicit settings: RawSettings
+  ): Either[String, Location] = {
+    urlToLocationDescription(url, programEnvironment).right.map(toLocation)
   }
 
 }

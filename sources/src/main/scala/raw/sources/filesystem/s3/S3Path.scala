@@ -42,10 +42,6 @@ class S3Path private (cli: S3FileSystem, val path: String)(implicit settings: Ra
     )
   }
 
-  override def pathForUser: String = {
-    cli.bucket + "/" + path
-  }
-
   override def testAccess(): Unit = {
     cli.testAccess(path)
   }

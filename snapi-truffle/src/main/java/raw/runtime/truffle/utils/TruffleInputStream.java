@@ -18,9 +18,7 @@ import java.io.Reader;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Encoding;
-import raw.sources.api.Location;
 import raw.sources.bytestream.api.ByteStreamLocation;
-import raw.sources.filesystem.api.FileSystemLocation;
 import raw.utils.RawException;
 import scala.util.Either;
 
@@ -33,13 +31,7 @@ public class TruffleInputStream {
 
   @TruffleBoundary
   public String getUrl() {
-    Location location = locationObject.getLocation();
-    if (location instanceof FileSystemLocation) {
-      return ((FileSystemLocation) location).pathForUser();
-    } else {
-      // FIXME (msb): What should getUrl return for non-FileSystemLocations?
-      return "";
-    }
+    return locationObject.getUrl();
   }
 
   @TruffleBoundary

@@ -27,8 +27,6 @@ class BaseDropboxPath(dbxClientV2: DbxClientV2, path: String) extends FileSystem
 
   private val cli = new DropboxFileSystem(dbxClientV2)
 
-  override def pathForUser: String = path
-
   override def testAccess(): Unit = {
     cli.testAccess(path)
   }

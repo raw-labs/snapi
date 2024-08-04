@@ -19,8 +19,6 @@ import java.io.Closeable
 
 abstract class JdbcServerLocation(val jdbcClient: JdbcClient) extends Location {
 
-  def hostForUser: String = jdbcClient.hostname
-
   def listSchemas(): Iterator[JdbcSchemaLocation] with Closeable
 
   final def getJdbcConnection(): Connection = {

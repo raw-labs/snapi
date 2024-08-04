@@ -36,10 +36,6 @@ class MockPath(val delayMillis: Long, val delegate: FileSystemLocation)(implicit
     logger.info(s"Continuing")
   }
 
-  override def pathForUser: String = {
-    delegate.pathForUser
-  }
-
   override def testAccess(): Unit = {
     doDelay()
     delegate.testAccess()

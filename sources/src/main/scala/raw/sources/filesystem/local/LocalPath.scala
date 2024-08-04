@@ -23,8 +23,6 @@ class LocalPath(val pathName: String) extends FileSystemLocation {
 
   protected def path: Path = Paths.get(pathName)
 
-  override def pathForUser: String = pathName
-
   override def testAccess(): Unit = {
     LocalFileSystem.testAccess(pathName)
   }
