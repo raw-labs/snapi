@@ -32,8 +32,11 @@ import scala.io.Source
 object TestCredentials {
 
   /////////////////////////////////////////////////////////////////////////////
-  // Dropbox Credentials
+  // HTTP Headers
   /////////////////////////////////////////////////////////////////////////////
+
+  val dropboxLongLivedAccessToken = sys.env("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN")
+  val dropboxClientId = sys.env("RAW_DROPBOX_TEST_CLIENT_ID")
 
   /////////////////////////////////////////////////////////////////////////////
   // S3 Credentials
@@ -92,10 +95,6 @@ object TestCredentials {
     sqlServerTestUser,
     sqlServerTestPassword
   )
-  val teradataTestHost = sys.env("RAW_TERADATA_TEST_HOST")
-  val teradataTestUser = sys.env("RAW_TERADATA_TEST_USER")
-  val teradataTestPassword = sys.env("RAW_TERADATA_TEST_PASSWORD")
-  val teradataCreds = TeraDataJdbcLocation(teradataTestHost, 1025, teradataTestUser, teradataTestPassword)
   val snowflakeTestHost = sys.env("RAW_SNOWFLAKE_TEST_HOST")
   val snowflakeTestDB = sys.env("RAW_SNOWFLAKE_TEST_DB")
   val snowflakeTestUser = sys.env("RAW_SNOWFLAKE_TEST_USER")
@@ -128,6 +127,8 @@ trait Rql2CompilerTestContext
 
   private val rdbmsServers = new mutable.HashMap[String, JdbcLocation]()
 
+  private val credHttpHeaders = new mutable.HashMap[String, Map[String, String]]()
+
   protected val programOptions = new mutable.HashMap[String, String]()
 
   def authorizedUser: InteractiveUser = InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com")
@@ -148,6 +149,10 @@ trait Rql2CompilerTestContext
 
   def rdbms(name: String, db: JdbcLocation): Unit = {
     rdbmsServers.put(name, db)
+  }
+
+  def httpHeaders(name: String, headers: Map[String, String]): Unit = {
+    credHttpHeaders.put(name, headers)
   }
 
   def option(key: String, value: String): Unit = {
@@ -576,7 +581,7 @@ trait Rql2CompilerTestContext
       this.runnerScopes ++ scopes,
       secrets.toMap,
       rdbmsServers.toMap,
-      Map.empty, // http headers
+      credHttpHeaders.toMap,
       s3Credentials.toMap,
       this.options ++ options ++ programOptions,
       None, // jdbcUrl

@@ -16,8 +16,11 @@ import raw.compiler.rql2.tests.Rql2CompilerTestContext
 
 trait RD4445Test extends Rql2CompilerTestContext {
 
-  dropbox(authorizedUser, dropboxToken)
-  oauth(authorizedUser, "rawlabs-dropbox", dropboxAccessTokenCredential)
+  import raw.compiler.rql2.tests.TestCredentials._
+
+  property("raw.sources.dropbox.clientId", dropboxClientId)
+
+  httpHeaders("rawlabs-dropbox", Map("Authorization" -> ("Bearer " + dropboxLongLivedAccessToken)))
 
   test("""String.ReadLines("dropbox://rawlabs-dropbox/New folder/New Document")""")(
     _ should evaluateTo("""["Hello", "World", "Again!"]""")

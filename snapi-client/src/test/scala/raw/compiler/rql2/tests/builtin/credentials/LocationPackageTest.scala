@@ -18,7 +18,7 @@ trait LocationPackageTest extends Rql2CompilerTestContext {
 
   import raw.compiler.rql2.tests.TestCredentials._
 
-  oauth(authorizedUser, "dropbox-refresh-token", dropboxRefreshTokenCredential)
+  httpHeaders("dropbox-token", Map("Authorization" -> ("Bearer " + dropboxLongLivedAccessToken)))
 
   s3Bucket(UnitTestPrivateBucket2, UnitTestPrivateBucket2Cred)
 
@@ -28,7 +28,7 @@ trait LocationPackageTest extends Rql2CompilerTestContext {
     |String.Read(
     |    Http.Post(
     |        "https://api.dropboxapi.com/2/users/get_space_usage",
-    |        authCredentialName = "dropbox-refresh-token"
+    |        authCredentialName = "dropbox-token"
     |    )
     |)""".stripMargin)(it => it should run)
 

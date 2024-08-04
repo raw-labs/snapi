@@ -13,6 +13,12 @@
 package raw.compiler.rql2.truffle
 
 import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.creds.api.CredentialsTestContext
+import raw.creds.local.LocalCredentialsTestContext
 
 // FIXME (msb): Rename this to TruffleTestContext
-trait TruffleWithLocalCredentialsTestContext extends Rql2CompilerTestContext with Rql2TruffleCompilerServiceTestContext
+trait TruffleWithLocalCredentialsTestContext
+    extends Rql2CompilerTestContext
+    with LocalCredentialsTestContext
+    with CredentialsTestContext
+    with Rql2TruffleCompilerServiceTestContext
