@@ -199,7 +199,7 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: SnowflakeJdbcLocation) =>
-            new SnowflakeTableLocation(db, l.username, l.password, l.accountIdentifier, l.parameters, schema, table)(
+            new SnowflakeTableLocation(l.database, l.username, l.password, l.accountIdentifier, l.parameters, schema, table)(
               programContext.settings
             )
           case Some(_) => return Left("not a Snowflake server")
@@ -463,7 +463,7 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: SnowflakeJdbcLocation) =>
-            new SnowflakeServerLocation(db, l.username, l.password, l.accountIdentifier, l.parameters)(
+            new SnowflakeServerLocation(l.database, l.username, l.password, l.accountIdentifier, l.parameters)(
               programContext.settings
             )
           case Some(_) => return Left("not a Snowflake server")

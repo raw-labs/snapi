@@ -167,7 +167,7 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension {
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: SqlServerJdbcLocation) =>
-            new SqlServerTableLocation(l.host, l.port, db, l.username, l.password, schema, table)(
+            new SqlServerTableLocation(l.host, l.port, l.database, l.username, l.password, schema, table)(
               programContext.settings
             )
           case Some(_) => return Left("not an Oracle server")
@@ -422,7 +422,7 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension {
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: SqlServerJdbcLocation) =>
-            new SqlServerServerLocation(l.host, l.port, db, l.username, l.password)(programContext.settings)
+            new SqlServerServerLocation(l.host, l.port, l.database, l.username, l.password)(programContext.settings)
           case Some(_) => return Left("not an Oracle server")
           case None => return Left(s"unknown database credential: $db")
         }

@@ -195,7 +195,7 @@ import raw.testing.tags.TruffleTests
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${mysqlCreds.host}"
       |)""".stripMargin
-  )(it => it should runErrorAs("""authentication failed""".stripMargin))
+  )(it => it should runErrorAs("""username is required""".stripMargin))
 
   // wrong password
   test(

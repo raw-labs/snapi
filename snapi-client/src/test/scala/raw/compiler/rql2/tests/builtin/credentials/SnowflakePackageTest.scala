@@ -311,7 +311,7 @@ import raw.testing.tags.TruffleTests
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  accountID = "${snowflakeCreds.accountIdentifier}"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""authentication failed""".stripMargin))
+  )(it => it should runErrorAs(s"""username is required""".stripMargin))
 
   // wrong password
   test(

@@ -174,7 +174,7 @@ import raw.testing.tags.TruffleTests
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
-    it should runErrorAs("""authentication failed""".stripMargin)
+    it should runErrorAs("""username is required""".stripMargin)
   }
 
   // wrong password

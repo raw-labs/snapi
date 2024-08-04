@@ -147,7 +147,7 @@ class MySQLInferAndReadEntry extends SugarEntryExtension {
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: MySqlJdbcLocation) =>
-            new MySqlTableLocation(l.host, l.port, db, l.username, l.password, table)(programContext.settings)
+            new MySqlTableLocation(l.host, l.port, l.database, l.username, l.password, table)(programContext.settings)
           case Some(_) => return Left("not a MySQL server")
           case None => return Left(s"unknown database credential: $db")
         }
@@ -388,7 +388,7 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension {
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
           case Some(l: MySqlJdbcLocation) =>
-            new MySqlServerLocation(l.host, l.port, db, l.username, l.password)(programContext.settings)
+            new MySqlServerLocation(l.host, l.port, l.database, l.username, l.password)(programContext.settings)
           case Some(_) => return Left("not a MySQL server")
           case None => return Left(s"unknown database credential: $db")
         }
