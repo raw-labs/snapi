@@ -42,7 +42,7 @@ final case class ProgramEnvironment(
     new JsonType(value = classOf[SqlServerJdbcLocation], name = "sqlserver"),
     new JsonType(value = classOf[SnowflakeJdbcLocation], name = "snowflake"),
     new JsonType(value = classOf[SqliteJdbcLocation], name = "sqlite"),
-    new JsonType(value = classOf[TeraDataJdbcLocation], name = "teradata")
+    new JsonType(value = classOf[TeradataJdbcLocation], name = "teradata")
   )
 )
 trait JdbcLocation
@@ -84,7 +84,7 @@ final case class SnowflakeJdbcLocation(
 final case class SqliteJdbcLocation(
     path: String
 ) extends JdbcLocation
-final case class TeraDataJdbcLocation(
+final case class TeradataJdbcLocation(
     host: String,
     port: Int,
     database: String,

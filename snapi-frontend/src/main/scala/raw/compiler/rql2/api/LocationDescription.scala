@@ -37,7 +37,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
-import raw.client.api.ProgramEnvironment
+import raw.client.api.{
+  JdbcLocation,
+  MySqlJdbcLocation,
+  OracleJdbcLocation,
+  PostgresJdbcLocation,
+  ProgramEnvironment,
+  SnowflakeJdbcLocation,
+  SqlServerJdbcLocation,
+  SqliteJdbcLocation,
+  TeradataJdbcLocation
+}
 
 import java.net.{HttpURLConnection, URI, URISyntaxException}
 
@@ -266,6 +276,24 @@ object LocationDescription {
 
   private val reader = jsonMapper.readerFor[LocationDescription]
   private val writer = jsonMapper.writerFor[LocationDescription]
+
+  def toLocationDescription(l: JdbcLocation): LocationDescription = {
+    l match {
+      case MySqlJdbcLocation(host, port, database, username, password) =>
+        MySqlServerLocationDescription(host, port, database, username, password)
+      case OracleJdbcLocation(host, port, database, username, password) =>
+        OracleServerLocationDescription(host, port, database, username, password)
+      case PostgresJdbcLocation(host, port, database, username, password) =>
+        PostgresqlServerLocationDescription(host, port, database, username, password)
+      case SnowflakeJdbcLocation(database, username, password, accountIdentifier, parameters) =>
+        SnowflakeServerLocationDescription(database, username, password, accountIdentifier, parameters)
+      case SqliteJdbcLocation(path) => SqliteServerLocationDescription(path)
+      case SqlServerJdbcLocation(host, port, database, username, password) =>
+        SqlServerServerLocationDescription(host, port, database, username, password)
+      case TeradataJdbcLocation(host, port, database, username, password, parameters) =>
+        TeradataServerLocationDescription(host, port, database, username, password, parameters)
+    }
+  }
 
   def toLocationDescription(l: Location): LocationDescription = {
     l match {
