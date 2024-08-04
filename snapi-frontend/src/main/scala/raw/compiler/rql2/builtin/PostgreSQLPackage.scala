@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.base.errors.ErrorCompilerMessage
+import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
@@ -280,6 +280,25 @@ class PostgreSQLReadEntry extends SugarEntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
+    // Check that host/port/username/password are all present if any of them is present.
+    if (
+      optionalArgs.exists(_._1 == "host") || optionalArgs
+        .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+    ) {
+      if (!optionalArgs.exists(_._1 == "host")) {
+        return Left(Seq(InvalidSemantic(node, "host is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "port")) {
+        return Left(Seq(InvalidSemantic(node, "port is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "username")) {
+        return Left(Seq(InvalidSemantic(node, "username is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "password")) {
+        return Left(Seq(InvalidSemantic(node, "password is required")))
+      }
+    }
+
     val t = mandatoryArgs(3).t
     validateTableType(t)
   }
@@ -387,8 +406,11 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension {
     val db = getStringValue(mandatoryArgs(0))
     val query = getStringValue(mandatoryArgs(1))
     val location =
-      if (optionalArgs.exists(_._1 == "host")) {
-        val host = getStringValue(optionalArgs.find(_._1 == "host").get._2)
+      if (
+        optionalArgs.exists(_._1 == "host") || optionalArgs
+          .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+      ) {
+        val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("host is required"))._2)
         val port = getIntValue(optionalArgs.find(_._1 == "port").getOrElse(return Left("port is required"))._2)
         val username =
           getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
@@ -526,6 +548,25 @@ class PostgreSQLQueryEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
+    // Check that host/port/username/password are all present if any of them is present.
+    if (
+      optionalArgs.exists(_._1 == "host") || optionalArgs
+        .exists(_._1 == "port") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+    ) {
+      if (!optionalArgs.exists(_._1 == "host")) {
+        return Left(Seq(InvalidSemantic(node, "host is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "port")) {
+        return Left(Seq(InvalidSemantic(node, "port is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "username")) {
+        return Left(Seq(InvalidSemantic(node, "username is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "password")) {
+        return Left(Seq(InvalidSemantic(node, "password is required")))
+      }
+    }
+
     val t = mandatoryArgs(2).t
     validateTableType(t)
   }

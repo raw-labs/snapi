@@ -181,7 +181,7 @@ import raw.testing.tags.TruffleTests
   )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin))
 
   // wrong port
-  // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
+  // Note that when there is a wrong port supplied, the test takes a long time to run and we get a connect time out error.
   ignore(
     s"""MySQL.Read(
       |  "${mysqlCreds.database}", "$mysqlTable",

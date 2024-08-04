@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.base.errors.ErrorCompilerMessage
+import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.source._
@@ -182,8 +182,13 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
     val parameters =
       optionalArgs.collectFirst { case a if a._1 == "options" => getListKVValue(a._2) }.getOrElse(Seq.empty)
     val location =
-      if (optionalArgs.exists(_._1 == "accountID")) {
-        val accountID = getStringValue(optionalArgs.find(_._1 == "accountID").get._2)
+      if (
+        optionalArgs.exists(_._1 == "accountID") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(
+          _._1 == "password"
+        )
+      ) {
+        val accountID =
+          getStringValue(optionalArgs.find(_._1 == "accountID").getOrElse(return Left("accountID is required"))._2)
         val username =
           getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
         val password =
@@ -611,6 +616,22 @@ class SnowflakeQueryEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
+    // Check that host/port/username/password are all present if any of them is present.
+    if (
+      optionalArgs.exists(_._1 == "accountID") || optionalArgs
+        .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+    ) {
+      if (!optionalArgs.exists(_._1 == "accountID")) {
+        return Left(Seq(InvalidSemantic(node, "accountID is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "username")) {
+        return Left(Seq(InvalidSemantic(node, "username is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "password")) {
+        return Left(Seq(InvalidSemantic(node, "password is required")))
+      }
+    }
+
     val t = mandatoryArgs(2).t
     validateTableType(t)
   }
