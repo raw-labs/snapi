@@ -145,8 +145,8 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
         // If no connection is currently available, just check if this specific db location is maxed out.
         if (maybeConn.isEmpty && conns.size >= maxConnectionsPerDb) {
           // No connection was available to borrow, and too many being used for this db location, so we cannot open
-          // any more!
-          throw new SQLException("too many connections active")
+          // any more! We throw with code 08000 (SQLSTATE "connection exception" in SQL standard).
+          throw new SQLException("too many connections active", "08000")
         }
       }
 
@@ -165,7 +165,7 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
 
       // We could not successfully release any connection, so bail out.
       if (getTotalActiveConnections() >= maxConnections) {
-        throw new SQLException("no connections available")
+        throw new SQLException("no connections available", "08000")
       }
 
       // Create a new connection.

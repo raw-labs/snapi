@@ -30,7 +30,6 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
     new JsonType(value = classOf[RawBoolType], name = "bool"),
     new JsonType(value = classOf[RawStringType], name = "string"),
     new JsonType(value = classOf[RawBinaryType], name = "binary"),
-    new JsonType(value = classOf[RawLocationType], name = "location"),
     new JsonType(value = classOf[RawDateType], name = "date"),
     new JsonType(value = classOf[RawTimeType], name = "time"),
     new JsonType(value = classOf[RawTimestampType], name = "timestamp"),
@@ -99,10 +98,6 @@ final case class RawStringType(nullable: Boolean, triable: Boolean) extends RawP
 final case class RawBinaryType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawBinaryType(nullable, triable)
 }
-final case class RawLocationType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawLocationType(nullable, triable)
-}
-
 sealed abstract class RawTemporalType extends RawPrimitiveType
 
 final case class RawDateType(nullable: Boolean, triable: Boolean) extends RawTemporalType {
