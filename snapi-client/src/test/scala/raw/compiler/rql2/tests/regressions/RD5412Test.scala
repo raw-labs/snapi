@@ -41,6 +41,6 @@ trait RD5412Test extends Rql2CompilerTestContext {
     |    List.Union(
     |        read_logs("s3://bucketA/*.json", awsAccountA),
     |        read_logs("s3://bucketB/*.json", awsAccountB))""".stripMargin)(
-    _ should runErrorAs("could not find secret")
+    _ should runErrorAs("unknown secret")
   )
 }

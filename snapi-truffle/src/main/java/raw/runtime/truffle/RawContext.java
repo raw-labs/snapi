@@ -108,6 +108,11 @@ public final class RawContext {
   }
 
   @CompilerDirectives.TruffleBoundary
+  public boolean existsSecret(String key) {
+    return programEnvironment.secrets().contains(key);
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public String getSecret(String key) {
     scala.Option<String> maybeSecret = programEnvironment.secrets().get(key);
     if (maybeSecret.isEmpty()) {
@@ -115,6 +120,11 @@ public final class RawContext {
     }
     return maybeSecret.get();
   }
+
+  @CompilerDirectives.TruffleBoundary
+    public boolean existsJdbcCredential(String name) {
+        return programEnvironment.jdbcServers().contains(name);
+    }
 
   @CompilerDirectives.TruffleBoundary
   public JdbcLocation getJdbcLocation(String name) {
@@ -127,11 +137,7 @@ public final class RawContext {
 
   @CompilerDirectives.TruffleBoundary
   public boolean existsS3Credential(String bucket) {
-    if (programEnvironment.s3Credentials().contains(bucket)) {
-      return true;
-    } else {
-      return false;
-    }
+    return programEnvironment.s3Credentials().contains(bucket);
   }
 
   @CompilerDirectives.TruffleBoundary

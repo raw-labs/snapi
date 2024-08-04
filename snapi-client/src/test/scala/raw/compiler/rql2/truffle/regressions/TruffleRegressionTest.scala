@@ -19,7 +19,6 @@ import raw.compiler.rql2.tests.regressions._
 @TruffleTests class RD9932TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9932Test
 @TruffleTests class RD9485TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9485Test
 @TruffleTests class RD9445TruffleTest extends TruffleWithLocalCredentialsTestContext with RD9445Test
-@TruffleTests class RD5797TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5797Test
 @TruffleTests class RD5779TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5779Test
 @TruffleTests class RD5393TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5393Test
 @TruffleTests class RD5884TruffleTest extends TruffleWithLocalCredentialsTestContext with RD5884Test

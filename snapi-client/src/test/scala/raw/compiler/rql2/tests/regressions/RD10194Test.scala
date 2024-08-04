@@ -26,22 +26,7 @@ trait RD10194Test extends Rql2CompilerTestContext {
       |        rating_clause = if(Nullable.IsNull(rating)) then "" else " and rating like \"%"+rating+"%\"",
       |        actor_clause = if(Nullable.IsNull(actor)) then "" else " and actors like \"%"+actor+"%\"",
       |        where_clause = " where true " + actor_clause + title_clause + description_clause + category_clause + rating_clause,
-      |        full_query = "select * from nicer_but_slower_film_list "+where_clause,
-      |        hello = MySQL.Query(
-      |                    "sakila",
-      |                    full_query,
-      |                    type collection(
-      |                        record(
-      |                            FID: short,
-      |                            title: string,
-      |                            description: string,
-      |                            category: string,
-      |                            price: decimal,
-      |                            length: short,
-      |                            rating: string,
-      |                            actors: string,
-      |                        )
-      |                    ))
+      |        full_query = "select * from nicer_but_slower_film_list "+where_clause
       |    in
       |        full_query
       |

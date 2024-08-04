@@ -18,6 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.NoSuchElementException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
@@ -32,10 +33,9 @@ public abstract class EnvironmentSecretNode extends ExpressionNode {
       @Bind("$node") Node thisNode,
       @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context) {
     try {
-      String v = context.getSecret(key);
-      return v;
-    } catch (NoSuchElementException e) {
-      return new ErrorObject("could not find secret " + key);
+      return context.getSecret(key);
+    } catch (RawTruffleRuntimeException e) {
+      return new ErrorObject(e.getMessage());
     }
   }
 }
