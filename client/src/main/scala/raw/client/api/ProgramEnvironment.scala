@@ -15,6 +15,8 @@ package raw.client.api
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import raw.utils.AuthenticatedUser
 
@@ -101,6 +103,8 @@ object ProgramEnvironment {
 
   private val jsonMapper = new ObjectMapper with ClassTagExtensions {
     registerModule(DefaultScalaModule)
+    registerModule(new JavaTimeModule())
+    registerModule(new Jdk8Module())
   }
 
   private val reader = jsonMapper.readerFor[ProgramEnvironment]

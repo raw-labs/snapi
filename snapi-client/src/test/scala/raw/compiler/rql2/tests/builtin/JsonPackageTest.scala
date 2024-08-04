@@ -169,7 +169,7 @@ trait JsonPackageTest extends Rql2CompilerTestContext {
   )(it => it should typeErrorAs("unsupported type"))
 
   test(
-    """Json.Print(Location.Build("http://something"))"""
+    """Json.Print(Http.Get("http://something"))"""
   )(it => it should typeErrorAs("unsupported type"))
 
   test(snapi"""Json.InferAndRead("$data")""".stripMargin)(it => it should run)

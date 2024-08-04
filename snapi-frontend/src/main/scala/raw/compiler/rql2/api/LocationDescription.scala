@@ -34,10 +34,12 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import raw.client.api.ProgramEnvironment
 
-import java.net.{URI, URISyntaxException}
+import java.net.{HttpURLConnection, URI, URISyntaxException}
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
@@ -258,6 +260,8 @@ object LocationDescription {
 
   private val jsonMapper = new ObjectMapper with ClassTagExtensions {
     registerModule(DefaultScalaModule)
+    registerModule(new JavaTimeModule())
+    registerModule(new Jdk8Module())
   }
 
   private val reader = jsonMapper.readerFor[LocationDescription]
@@ -496,8 +500,21 @@ object LocationDescription {
 
     // Parse the URL based on the protocol.
     protocol match {
-      case "http" => Right(HttpByteStreamLocationDescription(url, "GET", Array.empty, Array.empty, None, Array.empty))
-      case "https" => Right(HttpByteStreamLocationDescription(url, "GET", Array.empty, Array.empty, None, Array.empty))
+      case "http" | "https" => Right(
+          HttpByteStreamLocationDescription(
+            url,
+            method = "GET",
+            args = Array.empty,
+            headers = Array.empty,
+            maybeBody = None,
+            expectedStatus = Array(
+              HttpURLConnection.HTTP_OK,
+              HttpURLConnection.HTTP_ACCEPTED,
+              HttpURLConnection.HTTP_CREATED,
+              HttpURLConnection.HTTP_PARTIAL
+            )
+          )
+        )
       case "file" if settings.onTrainingWheels => Right(LocalPathLocationDescription(url.substring(colonIndex + 1)))
       case "s3" =>
         val uriUserInfo = uri.getUserInfo
@@ -524,19 +541,21 @@ object LocationDescription {
         }
 
         if (maybeAccessKey.isEmpty) {
-          // If the access key/secret key are not defined, then the "host" is actually the bucket name
-          // in the program environment credentials set.
-          val s3Credential =
-            programEnvironment.s3Credentials.getOrElse(bucketName, return Left("missing S3 credentials"))
-          Right(
-            S3PathLocationDescription(
-              bucketName,
-              s3Credential.region,
-              s3Credential.accessKey,
-              s3Credential.secretKey,
-              objectKey
-            )
-          )
+          // If the access key/secret key are not defined, check if credential exists.
+          programEnvironment.s3Credentials.get(bucketName) match {
+            case Some(s3Credential) => Right(
+                S3PathLocationDescription(
+                  bucketName,
+                  s3Credential.region,
+                  s3Credential.accessKey,
+                  s3Credential.secretKey,
+                  objectKey
+                )
+              )
+            case None =>
+              // Anonymous access.
+              Right(S3PathLocationDescription(bucketName, None, None, None, objectKey))
+          }
         } else {
           // TODO (msb): There is no way to specify the region when using a direct URL...
           Right(S3PathLocationDescription(bucketName, None, maybeAccessKey, maybeSecretKey, objectKey))

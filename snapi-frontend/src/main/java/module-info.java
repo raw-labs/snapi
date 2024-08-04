@@ -17,6 +17,8 @@ module raw.snapi.frontend {
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.scala;
+  requires com.fasterxml.jackson.datatype.jsr310;
+  requires com.fasterxml.jackson.datatype.jdk8;
   requires java.xml;
   requires java.sql;
   requires com.ctc.wstx;
@@ -34,8 +36,6 @@ module raw.snapi.frontend {
   requires ch.qos.logback.classic;
   requires com.google.common;
   requires jul.to.slf4j;
-  requires com.fasterxml.jackson.datatype.jsr310;
-  requires com.fasterxml.jackson.datatype.jdk8;
   requires org.graalvm.polyglot;
   requires raw.utils;
   requires raw.client;

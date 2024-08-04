@@ -14,9 +14,12 @@ module raw.client {
   requires scala.library;
   requires org.slf4j;
   requires org.graalvm.polyglot;
+  requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.dataformat.csv;
-  requires com.fasterxml.jackson.core;
+  requires com.fasterxml.jackson.scala;
+  requires com.fasterxml.jackson.datatype.jsr310;
+  requires com.fasterxml.jackson.datatype.jdk8;
   requires raw.utils;
 
   exports raw.client.api;

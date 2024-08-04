@@ -29,10 +29,9 @@ trait LocationPackageTest
 
   test("""
     |String.Read(
-    |    Location.Build(
+    |    Http.Post(
     |        "https://api.dropboxapi.com/2/users/get_space_usage",
-    |        http_method = "POST",
-    |        http_auth_cred_name = "dropbox-refresh-token"
+    |        authCredentialName = "dropbox-refresh-token"
     |    )
     |)""".stripMargin)(it => it should run)
 
@@ -87,11 +86,11 @@ trait LocationPackageTest
   // reading a non public s3 bucket passing credentials in the location settings
   test(s"""let
     |  data = Csv.InferAndRead(
-    |    Location.Build(
+    |    S3.Build(
     |      "s3://${UnitTestPrivateBucket.name}/students.csv",
-    |      s3_region = "${UnitTestPrivateBucket.region.get}",
-    |      s3_access_key = "${UnitTestPrivateBucket.credentials.get.accessKey}",
-    |      s3_secret_key = "${UnitTestPrivateBucket.credentials.get.secretKey}"
+    |      region = "${UnitTestPrivateBucket.region.get}",
+    |      accessKey = "${UnitTestPrivateBucket.credentials.get.accessKey}",
+    |      secretKey = "${UnitTestPrivateBucket.credentials.get.secretKey}"
     |    )
     |  )
     |in
@@ -101,7 +100,7 @@ trait LocationPackageTest
   s3Bucket(authorizedUser, UnitTestPrivateBucket2)
 
   // using a private bucket registered in the credentials server
-  test(s"""String.Read(Location.Build("s3://${UnitTestPrivateBucket2.name}/file1.csv"))
+  test(s"""String.Read(S3.Build("s3://${UnitTestPrivateBucket2.name}/file1.csv"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
 }
