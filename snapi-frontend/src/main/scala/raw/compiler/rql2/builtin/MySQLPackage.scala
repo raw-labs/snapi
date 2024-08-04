@@ -133,7 +133,8 @@ class MySQLInferAndReadEntry extends SugarEntryExtension {
     val table = getStringValue(mandatoryArgs(1))
     val location =
       if (
-        optionalArgs.exists(_._1 == "host")  || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+        optionalArgs.exists(_._1 == "host") || optionalArgs
+          .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
       ) {
         val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("host is required"))._2)
         val port = optionalArgs.find(_._1 == "port").map(v => getIntValue(v._2)).getOrElse(3306)
@@ -515,7 +516,8 @@ class MySQLQueryEntry extends EntryExtension {
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     // Check that host/port/username/password are all present if any of them is present.
     if (
-      optionalArgs.exists(_._1 == "host") || optionalArgs.exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+      optionalArgs.exists(_._1 == "host") || optionalArgs
+        .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
     ) {
       if (!optionalArgs.exists(_._1 == "host")) {
         return Left(Seq(InvalidSemantic(node, "host is required")))
