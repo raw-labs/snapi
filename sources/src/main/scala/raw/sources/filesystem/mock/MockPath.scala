@@ -20,9 +20,7 @@ import java.io.InputStream
 import java.lang.StackWalker.StackFrame
 import java.nio.file.Path
 
-class MockPath(val delayMillis: Long, val delegate: FileSystemLocation)
-    extends FileSystemLocation
-    with StrictLogging {
+class MockPath(val delayMillis: Long, val delegate: FileSystemLocation) extends FileSystemLocation with StrictLogging {
 
   private def doDelay(): Unit = {
     val sw = StackWalker.getInstance()
