@@ -21,7 +21,7 @@ import raw.utils._
  */
 class CompilerContext(
     val language: String,
-    val user: AuthenticatedUser,
+    val user: RawUid,
     val inferrer: InferrerService
 )(
     implicit val settings: RawSettings

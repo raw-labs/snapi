@@ -36,7 +36,7 @@ class TestSqlCompilerServiceAirports
   private var jdbcUrl: String = _
 
   // Username equals the database
-  private var user: InteractiveUser = _
+  private var user: RawUid = _
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -49,7 +49,7 @@ class TestSqlCompilerServiceAirports
     val stmt = conn.createStatement()
     stmt.execute(sql)
 
-    user = InteractiveUser(Uid(container.databaseName), "fdw user", "email", Seq.empty)
+    user = RawUid(container.databaseName)
 
     jdbcUrl = {
       val dbPort = container.mappedPort(5432).toString

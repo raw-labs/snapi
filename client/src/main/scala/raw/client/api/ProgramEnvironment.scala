@@ -18,10 +18,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
-import raw.utils.AuthenticatedUser
+import raw.utils.RawUid
 
 final case class ProgramEnvironment(
-    user: AuthenticatedUser,
+    uid: RawUid,
     maybeArguments: Option[Array[(String, RawValue)]],
     scopes: Set[String],
     secrets: Map[String, String],

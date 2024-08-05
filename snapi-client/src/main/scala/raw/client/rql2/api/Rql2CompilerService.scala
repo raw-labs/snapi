@@ -15,13 +15,13 @@ package raw.client.rql2.api
 import raw.client.api.{CompilerService, Message, ProgramEnvironment}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.SourceProgram
-import raw.utils.AuthenticatedUser
+import raw.utils.RawUid
 
 trait Rql2CompilerService extends CompilerService {
 
-  def prettyPrint(node: BaseNode, user: AuthenticatedUser): String
+  def prettyPrint(node: BaseNode, user: RawUid): String
 
-  def parseType(tipe: String, user: AuthenticatedUser, internal: Boolean = false): ParseTypeResponse
+  def parseType(tipe: String, user: RawUid, internal: Boolean = false): ParseTypeResponse
 
   def parse(source: String, environment: ProgramEnvironment): ParseResponse
 

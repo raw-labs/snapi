@@ -15,15 +15,12 @@ package raw.sources.filesystem.mock
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.filesystem.api._
-import raw.utils.RawSettings
 
 import java.io.InputStream
 import java.lang.StackWalker.StackFrame
 import java.nio.file.Path
 
-class MockPath(val delayMillis: Long, val delegate: FileSystemLocation)(implicit settings: RawSettings)
-    extends FileSystemLocation
-    with StrictLogging {
+class MockPath(val delayMillis: Long, val delegate: FileSystemLocation) extends FileSystemLocation with StrictLogging {
 
   private def doDelay(): Unit = {
     val sw = StackWalker.getInstance()
