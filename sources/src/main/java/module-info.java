@@ -79,11 +79,4 @@ module raw.sources {
   exports raw.sources.jdbc.sqlserver;
   exports raw.sources.jdbc.oracle;
   exports raw.sources.jdbc.teradata;
-
-  opens raw.auth.api to
-      com.fasterxml.jackson.databind;
-  opens raw.rest.common to
-      com.fasterxml.jackson.databind;
-  opens raw.creds.api to
-      com.fasterxml.jackson.databind;
 }

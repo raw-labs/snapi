@@ -16,7 +16,7 @@ import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import raw.client.api.*;
-import raw.utils.InteractiveUser;
+import raw.utils.RawUid;
 import raw.utils.RawException;
 import raw.utils.RawSettings;
 import scala.Option;

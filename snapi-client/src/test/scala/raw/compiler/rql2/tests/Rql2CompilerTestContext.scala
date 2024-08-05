@@ -134,7 +134,7 @@ trait Rql2CompilerTestContext
 
   protected val programOptions = new mutable.HashMap[String, String]()
 
-  def authorizedUser: InteractiveUser = InteractiveUser(RawUid("janeUid"), "Jane Smith", "jane@example.com")
+  def authorizedUser: RawUid = RawUid("janeUid")
 
   def runnerScopes: Set[String] = Set.empty
 

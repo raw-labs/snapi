@@ -48,7 +48,7 @@ class TestSqlConnectionFailures
   )
   Class.forName("org.postgresql.Driver")
 
-  private var users: Set[InteractiveUser] = _
+  private var users: Set[RawUid] = _
 
   private def jdbcUrl(user: RawUid) = {
     val dbPort = container.mappedPort(5432).toString
@@ -63,7 +63,7 @@ class TestSqlConnectionFailures
 
     // For each user we create a specific database and load the example schema.
     users = {
-      val items = for (i <- 1 to nUsers) yield InteractiveUser(RawUid(s"db$i"), "fdw user", "email", Seq.empty)
+      val items = for (i <- 1 to nUsers) yield RawUid(s"db$i")
       items.toSet
     }
 
@@ -80,7 +80,7 @@ class TestSqlConnectionFailures
     try {
       val stmt = conn.createStatement()
       for (user <- users) {
-        val r = stmt.executeUpdate(s"CREATE DATABASE ${user.uid.uid}")
+        val r = stmt.executeUpdate(s"CREATE DATABASE ${user.uid}")
         assert(r == 0)
       }
     } finally {
