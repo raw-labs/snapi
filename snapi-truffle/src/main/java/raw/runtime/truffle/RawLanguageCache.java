@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import raw.compiler.base.CompilerContext;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
-import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
+import raw.utils.RawUid;
 import raw.utils.RawUtils;
 import scala.runtime.BoxedUnit;
 
@@ -31,7 +31,7 @@ public class RawLanguageCache {
   private final Object activeContextsLock = new Object();
   private final Set<RawContext> activeContexts = new HashSet<RawContext>();
 
-  private final ConcurrentHashMap<AuthenticatedUser, Value> map = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<RawUid, Value> map = new ConcurrentHashMap<>();
 
   private static class Value {
     private final CompilerContext compilerContext;
@@ -52,7 +52,7 @@ public class RawLanguageCache {
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Value get(AuthenticatedUser user, RawSettings rawSettings) {
+  private Value get(RawUid user, RawSettings rawSettings) {
     return map.computeIfAbsent(
         user,
         k -> {
@@ -63,11 +63,11 @@ public class RawLanguageCache {
         });
   }
 
-  public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
+  public CompilerContext getCompilerContext(RawUid user, RawSettings rawSettings) {
     return get(user, rawSettings).getCompilerContext();
   }
 
-  public InferrerService getInferrer(AuthenticatedUser user, RawSettings rawSettings) {
+  public InferrerService getInferrer(RawUid user, RawSettings rawSettings) {
     return get(user, rawSettings).getInferrer();
   }
 

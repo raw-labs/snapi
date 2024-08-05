@@ -43,8 +43,8 @@ import raw.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
-import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
+import raw.utils.RawUid;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(
@@ -122,7 +122,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     ProgramContext programContext =
         new Rql2ProgramContext(
             context.getProgramEnvironment(),
-            getCompilerContext(context.getUser(), context.getSettings()));
+            getCompilerContext(context.getUid(), context.getSettings()));
 
     String source = request.getSource().getCharacters().toString();
 
@@ -237,11 +237,11 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return context.getFunctionRegistry().asPolyglot();
   }
 
-  public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
+  public CompilerContext getCompilerContext(RawUid user, RawSettings rawSettings) {
     return languageCache.getCompilerContext(user, rawSettings);
   }
 
-  public InferrerService getInferrer(AuthenticatedUser user, RawSettings rawSettings) {
+  public InferrerService getInferrer(RawUid user, RawSettings rawSettings) {
     return languageCache.getInferrer(user, rawSettings);
   }
 

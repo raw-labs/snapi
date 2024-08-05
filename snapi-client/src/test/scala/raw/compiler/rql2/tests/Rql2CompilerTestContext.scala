@@ -31,20 +31,22 @@ import scala.io.Source
 
 object TestCredentials {
 
+  private def getEnv(name: String): String = sys.env.getOrElse(name, "credential_not_defined_missing_env_file")
+
   /////////////////////////////////////////////////////////////////////////////
   // HTTP Headers
   /////////////////////////////////////////////////////////////////////////////
 
-  val dropboxLongLivedAccessToken = sys.env("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN")
+  val dropboxLongLivedAccessToken = getEnv("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN")
   // The client ID to use for Dropbox API calls, once the access token is obtained.
-  val dropboxClientId = sys.env("RAW_DROPBOX_TEST_CLIENT_ID")
+  val dropboxClientId = getEnv("RAW_DROPBOX_TEST_CLIENT_ID")
 
   /////////////////////////////////////////////////////////////////////////////
   // S3 Credentials
   /////////////////////////////////////////////////////////////////////////////
 
-  val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
-  val secretKeyId = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
+  val accessKeyId = getEnv("RAW_AWS_ACCESS_KEY_ID")
+  val secretKeyId = getEnv("RAW_AWS_SECRET_ACCESS_KEY")
 
   // Bucket with public access
   val UnitTestPublicBucket = "rawlabs-public-test-data"
@@ -70,25 +72,25 @@ object TestCredentials {
   // Jdbc Credentials
   ///////////////////////////////////////////////////////////////////////////
 
-  val mysqlTestHost = sys.env("RAW_MYSQL_TEST_HOST")
-  val mysqlTestDB = sys.env("RAW_MYSQL_TEST_DB")
-  val mysqlTestUser = sys.env("RAW_MYSQL_TEST_USER")
-  val mysqlTestPassword = sys.env("RAW_MYSQL_TEST_PASSWORD")
+  val mysqlTestHost = getEnv("RAW_MYSQL_TEST_HOST")
+  val mysqlTestDB = getEnv("RAW_MYSQL_TEST_DB")
+  val mysqlTestUser = getEnv("RAW_MYSQL_TEST_USER")
+  val mysqlTestPassword = getEnv("RAW_MYSQL_TEST_PASSWORD")
   val mysqlCreds = MySqlJdbcLocation(mysqlTestHost, 3306, mysqlTestDB, mysqlTestUser, mysqlTestPassword)
-  val pgsqlTestHost = sys.env("RAW_PGSQL_TEST_HOST")
-  val pgsqlTestDB = sys.env("RAW_PGSQL_TEST_DB")
-  val pgsqlTestUser = sys.env("RAW_PGSQL_TEST_USER")
-  val pgsqlTestPassword = sys.env("RAW_PGSQL_TEST_PASSWORD")
+  val pgsqlTestHost = getEnv("RAW_PGSQL_TEST_HOST")
+  val pgsqlTestDB = getEnv("RAW_PGSQL_TEST_DB")
+  val pgsqlTestUser = getEnv("RAW_PGSQL_TEST_USER")
+  val pgsqlTestPassword = getEnv("RAW_PGSQL_TEST_PASSWORD")
   val pgsqlCreds = PostgresJdbcLocation(pgsqlTestHost, 5432, pgsqlTestDB, pgsqlTestUser, pgsqlTestPassword)
-  val oracleTestHost = sys.env("RAW_ORACLE_TEST_HOST")
-  val oracleTestDB = sys.env("RAW_ORACLE_TEST_DB")
-  val oracleTestUser = sys.env("RAW_ORACLE_TEST_USER")
-  val oracleTestPassword = sys.env("RAW_ORACLE_TEST_PASSWORD")
+  val oracleTestHost = getEnv("RAW_ORACLE_TEST_HOST")
+  val oracleTestDB = getEnv("RAW_ORACLE_TEST_DB")
+  val oracleTestUser = getEnv("RAW_ORACLE_TEST_USER")
+  val oracleTestPassword = getEnv("RAW_ORACLE_TEST_PASSWORD")
   val oracleCreds = OracleJdbcLocation(oracleTestHost, 1521, oracleTestDB, oracleTestUser, oracleTestPassword)
-  val sqlServerTestHost = sys.env("RAW_SQLSERVER_TEST_HOST")
-  val sqlserverTestDB = sys.env("RAW_SQLSERVER_TEST_DB")
-  val sqlServerTestUser = sys.env("RAW_SQLSERVER_TEST_USER")
-  val sqlServerTestPassword = sys.env("RAW_SQLSERVER_TEST_PASSWORD")
+  val sqlServerTestHost = getEnv("RAW_SQLSERVER_TEST_HOST")
+  val sqlserverTestDB = getEnv("RAW_SQLSERVER_TEST_DB")
+  val sqlServerTestUser = getEnv("RAW_SQLSERVER_TEST_USER")
+  val sqlServerTestPassword = getEnv("RAW_SQLSERVER_TEST_PASSWORD")
   val sqlServerCreds = SqlServerJdbcLocation(
     sqlServerTestHost,
     1433,
@@ -96,10 +98,10 @@ object TestCredentials {
     sqlServerTestUser,
     sqlServerTestPassword
   )
-  val snowflakeTestHost = sys.env("RAW_SNOWFLAKE_TEST_HOST")
-  val snowflakeTestDB = sys.env("RAW_SNOWFLAKE_TEST_DB")
-  val snowflakeTestUser = sys.env("RAW_SNOWFLAKE_TEST_USER")
-  val snowflakeTestPassword = sys.env("RAW_SNOWFLAKE_TEST_PASSWORD")
+  val snowflakeTestHost = getEnv("RAW_SNOWFLAKE_TEST_HOST")
+  val snowflakeTestDB = getEnv("RAW_SNOWFLAKE_TEST_DB")
+  val snowflakeTestUser = getEnv("RAW_SNOWFLAKE_TEST_USER")
+  val snowflakeTestPassword = getEnv("RAW_SNOWFLAKE_TEST_PASSWORD")
   val snowflakeCreds = SnowflakeJdbcLocation(
     snowflakeTestDB,
     snowflakeTestUser,
@@ -132,7 +134,7 @@ trait Rql2CompilerTestContext
 
   protected val programOptions = new mutable.HashMap[String, String]()
 
-  def authorizedUser: InteractiveUser = InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com")
+  def authorizedUser: InteractiveUser = InteractiveUser(RawUid("janeUid"), "Jane Smith", "jane@example.com")
 
   def runnerScopes: Set[String] = Set.empty
 

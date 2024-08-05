@@ -10,9 +10,8 @@
  * licenses/APL.txt.
  */
 
-package raw.creds.api
+package raw.utils
 
-import raw.utils.RawServiceException
-
-class CredentialsException(message: String, cause: Throwable = null)
-    extends RawServiceException(s"credentials error: $message", cause)
+final case class RawUid(uid: String) {
+  override def toString: String = uid
+}

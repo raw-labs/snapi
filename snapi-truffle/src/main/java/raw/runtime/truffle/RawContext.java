@@ -24,8 +24,8 @@ import raw.client.api.*;
 import raw.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
-import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
+import raw.utils.RawUid;
 import scala.collection.JavaConverters;
 
 public final class RawContext {
@@ -86,7 +86,7 @@ public final class RawContext {
   }
 
   public InferrerService getInferrer() {
-    return language.getInferrer(getUser(), rawSettings);
+    return language.getInferrer(getUid(), rawSettings);
   }
 
   public OutputStream getOutput() {
@@ -150,8 +150,8 @@ public final class RawContext {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public AuthenticatedUser getUser() {
-    return programEnvironment.user();
+  public RawUid getUid() {
+    return programEnvironment.uid();
   }
 
   @CompilerDirectives.TruffleBoundary

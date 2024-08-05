@@ -61,13 +61,6 @@ module raw.sources {
   requires dropbox.core.sdk;
   requires raw.utils;
 
-  exports raw.auth.api;
-  exports raw.rest.client;
-  exports raw.rest.common;
-  exports raw.creds.api;
-  exports raw.creds.client;
-  exports raw.creds.local;
-  exports raw.creds.protocol;
   exports raw.sources.api;
   exports raw.sources.bytestream.api;
   exports raw.sources.bytestream.github;

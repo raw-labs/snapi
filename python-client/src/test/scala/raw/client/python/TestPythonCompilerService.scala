@@ -13,7 +13,7 @@
 package raw.client.python
 
 import raw.client.api.{CompilerService, ExecutionSuccess, ProgramEnvironment, RawInt}
-import raw.utils.{InteractiveUser, RawTestSuite, SettingsTestContext, TrainingWheelsContext, Uid}
+import raw.utils.{InteractiveUser, RawTestSuite, SettingsTestContext, TrainingWheelsContext, RawUid}
 
 import java.io.ByteArrayOutputStream
 
@@ -21,7 +21,7 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
 
   var compilerService: CompilerService = _
 
-  val user = InteractiveUser(Uid("uid"), "name", "email", Seq.empty)
+  val user = InteractiveUser(RawUid("uid"), "name", "email", Seq.empty)
 
   override def beforeAll(): Unit = {
     super.beforeAll()

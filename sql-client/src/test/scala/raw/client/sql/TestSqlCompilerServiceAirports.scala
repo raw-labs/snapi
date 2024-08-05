@@ -49,7 +49,7 @@ class TestSqlCompilerServiceAirports
     val stmt = conn.createStatement()
     stmt.execute(sql)
 
-    user = InteractiveUser(Uid(container.databaseName), "fdw user", "email", Seq.empty)
+    user = InteractiveUser(RawUid(container.databaseName), "fdw user", "email", Seq.empty)
 
     jdbcUrl = {
       val dbPort = container.mappedPort(5432).toString
