@@ -19,6 +19,7 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.HashMap;
 import java.util.Map;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
@@ -65,17 +66,19 @@ public class LocationFromSnowflakeNode extends ExpressionNode {
       String accountID = (String) this.accountID.executeGeneric(frame);
 
       // Build args vector
-      Map<String, String> parameters = java.util.Map.of();
-      Object value = this.options.executeGeneric(frame);
-      int size = (int) sizeNode.execute(this, value);
-      for (int i = 0; i < size; i++) {
-        Object record = getNode.execute(this, value, i);
-        Object keys = interops.getMembers(record);
-        Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
-        Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
-        // ignore entries where key or val is null
-        if (key != NullObject.INSTANCE && val != NullObject.INSTANCE) {
-          parameters.put((String) key, (String) val);
+      Map<String, String> parameters = new HashMap<>();
+      if (this.options != null) {
+        Object value = this.options.executeGeneric(frame);
+        int size = (int) sizeNode.execute(this, value);
+        for (int i = 0; i < size; i++) {
+          Object record = getNode.execute(this, value, i);
+          Object keys = interops.getMembers(record);
+          Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
+          Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
+          // ignore entries where key or val is null
+          if (key != NullObject.INSTANCE && val != NullObject.INSTANCE) {
+            parameters.put((String) key, (String) val);
+          }
         }
       }
 

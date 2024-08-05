@@ -41,7 +41,7 @@ public class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry
     } else {
       ExpressionNode username = arg(args, "username").get();
       ExpressionNode password = arg(args, "password").get();
-      ExpressionNode options = arg(args, "options").get();
+      ExpressionNode options = arg(args, "options").orElse(null);
       location = new LocationFromSnowflakeNode(db, username, password, accountID, options);
     }
 

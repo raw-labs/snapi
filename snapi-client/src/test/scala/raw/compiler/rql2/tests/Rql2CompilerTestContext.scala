@@ -101,10 +101,10 @@ object TestCredentials {
   val snowflakeTestUser = sys.env("RAW_SNOWFLAKE_TEST_USER")
   val snowflakeTestPassword = sys.env("RAW_SNOWFLAKE_TEST_PASSWORD")
   val snowflakeCreds = SnowflakeJdbcLocation(
-    snowflakeTestHost,
     snowflakeTestDB,
     snowflakeTestUser,
     snowflakeTestPassword,
+    snowflakeTestHost,
     Map("timezone" -> "UTC")
   )
   val badMysqlCreds = MySqlJdbcLocation("does-not-exist.raw-labs.com", 3306, "rdbmstest", "t0or", "$up3r$3cr3tValu3")
