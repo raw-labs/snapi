@@ -56,7 +56,7 @@ public class LocationFromOracleNode extends ExpressionNode {
         getJdbcServerLocation(
             host, port, db, username, password, RawContext.get(this).getSettings());
 
-    return new LocationObject(location, "oracle:" + host);
+    return new LocationObject(location, "oracle:" + db);
   }
 
   @CompilerDirectives.TruffleBoundary

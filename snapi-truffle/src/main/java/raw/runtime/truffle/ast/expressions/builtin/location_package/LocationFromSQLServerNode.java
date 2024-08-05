@@ -56,7 +56,7 @@ public class LocationFromSQLServerNode extends ExpressionNode {
         getJdbcServerLocation(
             host, port, db, username, password, RawContext.get(this).getSettings());
 
-    return new LocationObject(location, "sqlserver:" + host);
+    return new LocationObject(location, "sqlserver:" + db);
   }
 
   @CompilerDirectives.TruffleBoundary

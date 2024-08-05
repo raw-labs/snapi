@@ -56,7 +56,7 @@ public class LocationFromMySQLNode extends ExpressionNode {
         getJdbcServerLocation(
             host, port, db, username, password, RawContext.get(this).getSettings());
 
-    return new LocationObject(location, "mysql:" + host);
+    return new LocationObject(location, "mysql:" + db);
   }
 
   @CompilerDirectives.TruffleBoundary

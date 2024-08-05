@@ -56,7 +56,7 @@ public class LocationFromPostgreSQLNode extends ExpressionNode {
         getJdbcServerLocation(
             host, port, db, username, password, RawContext.get(this).getSettings());
 
-    return new LocationObject(location, "pgsql:" + host);
+    return new LocationObject(location, "pgsql:" + db);
   }
 
   @CompilerDirectives.TruffleBoundary
