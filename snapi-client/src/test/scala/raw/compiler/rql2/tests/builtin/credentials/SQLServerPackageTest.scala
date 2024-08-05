@@ -16,7 +16,7 @@ import raw.compiler.rql2.tests.TestCredentials
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
-@TruffleTests class SqlServerPackageTest extends Rql2TruffleCompilerTestContext {
+@TruffleTests class SQLServerPackageTest extends Rql2TruffleCompilerTestContext {
 
   import TestCredentials._
 
@@ -193,7 +193,7 @@ import raw.testing.tags.TruffleTests
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${sqlServerCreds.host}"
       |)""".stripMargin
-  )(it => it should runErrorAs("""Login failed for user ''""".stripMargin))
+  )(it => it should runErrorAs("username is required"))
 
   // wrong password
   test(

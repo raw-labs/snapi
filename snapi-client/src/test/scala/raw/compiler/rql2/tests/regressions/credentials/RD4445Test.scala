@@ -27,13 +27,13 @@ import raw.testing.tags.TruffleTests
     _ should evaluateTo("""["Hello", "World", "Again!"]""")
   )
 
-  test("""Location.Ls("dropbox:/rawlabs-dropbox/New Folder")""")(
-    _ should evaluateTo("""["dropbox://rawlabs-dropbox/New Folder/New Document"]""")
+  test("""Location.Ls("dropbox://rawlabs-dropbox/New Folder")""")(
+    _ should evaluateTo("""["dropbox:/New Folder/New Document"]""")
   )
 
   // Listing same folder but with trailing '/'
   test("""Location.Ls("dropbox://rawlabs-dropbox/New Folder/")""")(
-    _ should evaluateTo("""["dropbox://rawlabs-dropbox/New Folder/New Document"]""")
+    _ should evaluateTo("""["dropbox:/New Folder/New Document"]""")
   )
 
 }

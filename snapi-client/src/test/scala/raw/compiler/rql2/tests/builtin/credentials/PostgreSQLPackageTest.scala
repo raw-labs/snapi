@@ -195,7 +195,7 @@ import raw.testing.tags.TruffleTests
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${pgsqlCreds.host}"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""error connecting to database: ${pgsqlCreds.host}""".stripMargin))
+  )(it => it should runErrorAs("username is required"))
 
   // wrong password
   test(
@@ -204,7 +204,7 @@ import raw.testing.tags.TruffleTests
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "wrong!"
       |)""".stripMargin
-  )(it => it should runErrorAs("""authentication failed""".stripMargin))
+  )(it => it should runErrorAs("authentication failed"))
 
   test(s"""PostgreSQL.InferAndQuery("pgsql", "SELECT * FROM $pgSchema.$pgTable")""") { it =>
     it should evaluateTo(
