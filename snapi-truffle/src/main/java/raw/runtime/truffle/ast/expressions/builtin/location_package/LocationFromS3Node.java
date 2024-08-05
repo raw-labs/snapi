@@ -94,6 +94,6 @@ public class LocationFromS3Node extends ExpressionNode {
               bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
     }
 
-    return new LocationObject(location);
+    return new LocationObject(location, url);
   }
 }

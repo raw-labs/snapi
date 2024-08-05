@@ -38,7 +38,17 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{JdbcLocation, MySqlJdbcLocation, OracleJdbcLocation, PostgresJdbcLocation, ProgramEnvironment, SnowflakeJdbcLocation, SqlServerJdbcLocation, SqliteJdbcLocation, TeradataJdbcLocation}
+import raw.client.api.{
+  JdbcLocation,
+  MySqlJdbcLocation,
+  OracleJdbcLocation,
+  PostgresJdbcLocation,
+  ProgramEnvironment,
+  SnowflakeJdbcLocation,
+  SqlServerJdbcLocation,
+  SqliteJdbcLocation,
+  TeradataJdbcLocation
+}
 
 import java.net.{HttpURLConnection, URI, URISyntaxException}
 
@@ -450,7 +460,7 @@ object LocationDescription extends StrictLogging {
     reader.readValue(new ByteArrayInputStream(bytes))
   }
 
-  def locationDescriptionToUrl(l: LocationDescription): String = {
+  def locationDescriptionToPublicUrl(l: LocationDescription): String = {
     l match {
       case GitHubLocationDescription(username, repo, file, maybeBranch) => maybeBranch match {
           case Some(branch) => s"github://$repo/$username/$file?branch=$branch"
@@ -464,7 +474,7 @@ object LocationDescription extends StrictLogging {
         s"file:$path"
       case MockPathLocationDescription(_, delegate) =>
         // TODO (msb): We should move to mock://
-        s"mock:${locationDescriptionToUrl(delegate)}"
+        s"mock:${locationDescriptionToPublicUrl(delegate)}"
       case S3PathLocationDescription(bucket, _, _, _, path) => s"s3://$bucket/$path"
       case MySqlServerLocationDescription(host, port, dbName, _, _) => s"mysql://$host:$port/$dbName"
       case MySqlSchemaLocationDescription(host, port, dbName, _, _) => s"mysql://$host:$port/$dbName"
@@ -500,8 +510,8 @@ object LocationDescription extends StrictLogging {
     }
   }
 
-  def locationToUrl(l: Location): String = {
-    locationDescriptionToUrl(toLocationDescription(l))
+  def locationToPublicUrl(l: Location): String = {
+    locationDescriptionToPublicUrl(toLocationDescription(l))
   }
 
   def urlToLocationDescription(url: String, programEnvironment: ProgramEnvironment)(
@@ -516,7 +526,9 @@ object LocationDescription extends StrictLogging {
 
     // Parse the URL based on the protocol.
     protocol match {
-      case "http" | "https" => Right(
+      case "http" | "https" =>
+        // FIXME: This is ignoring query parameters!!!
+        Right(
           HttpByteStreamLocationDescription(
             url,
             method = "GET",
@@ -538,7 +550,7 @@ object LocationDescription extends StrictLogging {
           try {
             new URI(url)
           } catch {
-            case ex: URISyntaxException => return Left("invalid S3 URL: " + url)
+            case _: URISyntaxException => return Left("invalid S3 URL: " + url)
           }
         }
 

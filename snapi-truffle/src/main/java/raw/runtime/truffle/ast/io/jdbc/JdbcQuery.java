@@ -26,7 +26,7 @@ import raw.utils.RawSettings;
 
 public class JdbcQuery {
 
-  private final String url;
+  private final String publicDescription;
   private final Connection connection;
   private final ResultSet rs;
   private final JdbcExceptionHandler exceptionHandler;
@@ -37,7 +37,7 @@ public class JdbcQuery {
       String query,
       RawSettings rawSettings,
       JdbcExceptionHandler exceptionHandler) {
-    this.url = locationObject.getUrl();
+    this.publicDescription = locationObject.getPublicDescription();
     this.exceptionHandler = exceptionHandler;
     try {
       PreparedStatement stmt;
@@ -208,7 +208,7 @@ public class JdbcQuery {
     }
   }
 
-  public String getUrl() {
-    return url;
+  public String getPublicDescription() {
+    return publicDescription;
   }
 }

@@ -337,6 +337,6 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             expectedStatusArray,
             rawSettings);
 
-    return new LocationObject(location);
+    return new LocationObject(location, "aws:" + service + ":" + region + ":" + path);
   }
 }

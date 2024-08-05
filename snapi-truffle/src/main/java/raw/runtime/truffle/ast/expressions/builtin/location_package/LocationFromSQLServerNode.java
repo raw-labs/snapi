@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
@@ -19,6 +20,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.sqlserver.SqlServerServerLocation;
+import raw.utils.RawSettings;
 
 @NodeInfo(shortName = "Location.FromSQLServer")
 public class LocationFromSQLServerNode extends ExpressionNode {
@@ -51,9 +53,15 @@ public class LocationFromSQLServerNode extends ExpressionNode {
     String password = (String) this.password.executeGeneric(frame);
 
     JdbcServerLocation location =
-        new SqlServerServerLocation(
+        getJdbcServerLocation(
             host, port, db, username, password, RawContext.get(this).getSettings());
 
-    return new LocationObject(location);
+    return new LocationObject(location, "sqlserver:" + host);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public JdbcServerLocation getJdbcServerLocation(
+      String host, int port, String db, String username, String password, RawSettings rawSettings) {
+    return new SqlServerServerLocation(host, port, db, username, password, rawSettings);
   }
 }

@@ -21,6 +21,9 @@ public class JdbcReaderRawTruffleException extends RawTruffleRuntimeException {
 
   @CompilerDirectives.TruffleBoundary
   public JdbcReaderRawTruffleException(String message, JdbcQuery rs, Throwable e, Node location) {
-    super(String.format("failed to read from database %s: %s", rs.getUrl(), message), e, location);
+    super(
+        String.format("failed to read from database %s: %s", rs.getPublicDescription(), message),
+        e,
+        location);
   }
 }

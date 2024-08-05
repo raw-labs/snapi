@@ -36,6 +36,7 @@ object TestCredentials {
   /////////////////////////////////////////////////////////////////////////////
 
   val dropboxLongLivedAccessToken = sys.env("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN")
+  // The client ID to use for Dropbox API calls, once the access token is obtained.
   val dropboxClientId = sys.env("RAW_DROPBOX_TEST_CLIENT_ID")
 
   /////////////////////////////////////////////////////////////////////////////

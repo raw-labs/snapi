@@ -30,8 +30,8 @@ public class TruffleInputStream {
   }
 
   @TruffleBoundary
-  public String getUrl() {
-    return locationObject.getUrl();
+  public String getPublicDescription() {
+    return locationObject.getPublicDescription();
   }
 
   @TruffleBoundary

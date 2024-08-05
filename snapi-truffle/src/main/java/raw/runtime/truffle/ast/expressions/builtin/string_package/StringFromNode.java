@@ -95,4 +95,10 @@ public abstract class StringFromNode extends ExpressionNode {
   protected String fromInterval(IntervalObject value) {
     return value.toString();
   }
+
+  @Specialization
+  @TruffleBoundary
+  protected String fromLocation(LocationObject value) {
+    return value.getPublicDescription();
+  }
 }

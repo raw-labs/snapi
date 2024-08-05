@@ -34,7 +34,7 @@ public abstract class LocationLsNode extends ExpressionNode {
     try {
       FileSystemLocation fs = locationObject.getFileSystemLocation();
       IndexedSeq<String> values =
-          fs.ls().map(LocationDescription$.MODULE$::locationToUrl).toIndexedSeq();
+          fs.ls().map(LocationDescription$.MODULE$::locationToPublicUrl).toIndexedSeq();
       int size = values.size();
       String[] result = new String[size];
 

@@ -34,6 +34,6 @@ public class LocationConstNode extends ExpressionNode {
     Location location =
         LocationDescription$.MODULE$.toLocation(
             LocationDescription$.MODULE$.deserialize(value), rawSettings);
-    return new LocationObject(location);
+    return new LocationObject(location, "<value>");
   }
 }

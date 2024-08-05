@@ -55,7 +55,7 @@ public abstract class LocationLlNode extends ExpressionNode {
             this,
             topRecord,
             "url",
-            LocationDescription$.MODULE$.locationToUrl(values.apply(i)._1),
+            LocationDescription$.MODULE$.locationToPublicUrl(values.apply(i)._1),
             false);
         if (values.apply(i)._2 instanceof DirectoryMetadata) {
           DirectoryMetadata directoryMetadata = (DirectoryMetadata) values.apply(i)._2;

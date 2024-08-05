@@ -198,8 +198,15 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
         )
       } else {
         programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: SnowflakeJdbcLocation) =>
-            new SnowflakeTableLocation(l.database, l.username, l.password, l.accountIdentifier, l.parameters, schema, table)(
+          case Some(l: SnowflakeJdbcLocation) => new SnowflakeTableLocation(
+              l.database,
+              l.username,
+              l.password,
+              l.accountIdentifier,
+              l.parameters,
+              schema,
+              table
+            )(
               programContext.settings
             )
           case Some(_) => return Left("not a Snowflake server")

@@ -32,12 +32,14 @@ import raw.sources.jdbc.api.JdbcServerLocation;
 @ExportLibrary(InteropLibrary.class)
 public final class LocationObject implements TruffleObject {
   private final Location location;
+  private final String publicDescription;
   private final LocationDescription locationDescription;
   private final byte[] byteArray;
 
   @TruffleBoundary
-  public LocationObject(Location location) {
+  public LocationObject(Location location, String publicDescription) {
     this.location = location;
+    this.publicDescription = publicDescription;
     this.locationDescription = LocationDescription$.MODULE$.toLocationDescription(location);
     this.byteArray = LocationDescription$.MODULE$.serialize(this.locationDescription);
   }
@@ -46,8 +48,9 @@ public final class LocationObject implements TruffleObject {
     return location;
   }
 
-  public String getUrl() {
-    return LocationDescription$.MODULE$.locationToUrl(location);
+  @TruffleBoundary
+  public String getPublicDescription() {
+    return publicDescription;
   }
 
   public ByteStreamLocation getByteStreamLocation() {

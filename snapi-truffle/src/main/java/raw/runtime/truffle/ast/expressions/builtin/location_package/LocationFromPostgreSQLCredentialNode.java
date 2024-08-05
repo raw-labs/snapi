@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.client.api.JdbcLocation;
@@ -22,6 +23,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.pgsql.PostgresqlServerLocation;
+import raw.utils.RawSettings;
 
 @NodeInfo(shortName = "Location.FromPostgreSQLCredential")
 public class LocationFromPostgreSQLCredentialNode extends ExpressionNode {
@@ -38,13 +40,16 @@ public class LocationFromPostgreSQLCredentialNode extends ExpressionNode {
 
     String credentialName = (String) this.credentialName.executeGeneric(frame);
     JdbcLocation l = context.getJdbcLocation(credentialName);
+    JdbcServerLocation location = getJdbcServerLocation(l, context.getSettings());
+
+    return new LocationObject(location, "pgsql:" + credentialName);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public JdbcServerLocation getJdbcServerLocation(JdbcLocation l, RawSettings rawSettings) {
     PostgresqlServerLocationDescription d =
         (PostgresqlServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
-
-    JdbcServerLocation location =
-        new PostgresqlServerLocation(
-            d.host(), d.port(), d.dbName(), d.username(), d.password(), context.getSettings());
-
-    return new LocationObject(location);
+    return new PostgresqlServerLocation(
+        d.host(), d.port(), d.dbName(), d.username(), d.password(), rawSettings);
   }
 }

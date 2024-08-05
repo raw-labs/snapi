@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.client.api.JdbcLocation;
@@ -22,6 +23,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.oracle.OracleServerLocation;
+import raw.utils.RawSettings;
 
 @NodeInfo(shortName = "Location.FromOracleCredential")
 public class LocationFromOracleCredentialNode extends ExpressionNode {
@@ -38,13 +40,16 @@ public class LocationFromOracleCredentialNode extends ExpressionNode {
 
     String credentialName = (String) this.credentialName.executeGeneric(frame);
     JdbcLocation l = context.getJdbcLocation(credentialName);
+    JdbcServerLocation location = getJdbcServerLocation(l, context.getSettings());
+
+    return new LocationObject(location, "oracle:" + credentialName);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public JdbcServerLocation getJdbcServerLocation(JdbcLocation l, RawSettings rawSettings) {
     OracleServerLocationDescription d =
         (OracleServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
-
-    JdbcServerLocation location =
-        new OracleServerLocation(
-            d.host(), d.port(), d.dbName(), d.username(), d.password(), context.getSettings());
-
-    return new LocationObject(location);
+    return new OracleServerLocation(
+        d.host(), d.port(), d.dbName(), d.username(), d.password(), rawSettings);
   }
 }

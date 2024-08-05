@@ -39,7 +39,7 @@ public class LocationFromStringNode extends ExpressionNode {
     RawContext context = RawContext.get(this);
 
     Location location = getLocationFromUrl(url, context);
-    return new LocationObject(location);
+    return new LocationObject(location, url);
   }
 
   @CompilerDirectives.TruffleBoundary

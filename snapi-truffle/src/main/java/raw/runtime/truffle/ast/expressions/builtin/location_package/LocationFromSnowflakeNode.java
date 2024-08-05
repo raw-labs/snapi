@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
@@ -27,6 +28,7 @@ import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.snowflake.SnowflakeServerLocation;
+import raw.utils.RawSettings;
 
 @NodeInfo(shortName = "Location.FromSnowflake")
 public class LocationFromSnowflakeNode extends ExpressionNode {
@@ -78,14 +80,25 @@ public class LocationFromSnowflakeNode extends ExpressionNode {
       }
 
       JdbcServerLocation location =
-          new SnowflakeServerLocation(
+          getJdbcServerLocation(
               db, username, password, accountID, parameters, RawContext.get(this).getSettings());
 
-      return new LocationObject(location);
+      return new LocationObject(location, "snowflake:" + db);
     } catch (UnsupportedMessageException
         | InvalidArrayIndexException
         | UnknownIdentifierException e) {
       throw new RawTruffleInternalErrorException(e, this);
     }
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public JdbcServerLocation getJdbcServerLocation(
+      String db,
+      String username,
+      String password,
+      String accountID,
+      Map<String, String> parameters,
+      RawSettings rawSettings) {
+    return new SnowflakeServerLocation(db, username, password, accountID, parameters, rawSettings);
   }
 }

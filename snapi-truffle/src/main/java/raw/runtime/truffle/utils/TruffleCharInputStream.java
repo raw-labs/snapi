@@ -32,6 +32,6 @@ public class TruffleCharInputStream extends RawTruffleCharStream {
 
   @TruffleBoundary
   public String positionDescription() {
-    return "url: " + stream.getUrl();
+    return "location: " + stream.getPublicDescription();
   }
 }

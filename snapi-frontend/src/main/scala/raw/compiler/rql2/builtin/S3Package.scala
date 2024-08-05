@@ -48,7 +48,7 @@ class S3BuildEntry extends EntryExtension {
     info = Some(
       "If the S3 bucket is not registered in the credentials storage, then the region, accessKey and secretKey must be provided as arguments."
     ),
-    examples = List(ExampleDoc("""S3.Location("S3://my-bucket/folder/sub-folder/file")""")),
+    examples = List(ExampleDoc("""S3.Build("S3://my-bucket/folder/sub-folder/file")""")),
     ret = Some(ReturnDoc("The S3 location.", retType = Some(TypeDoc(List("location")))))
   )
 

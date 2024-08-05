@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.client.api.JdbcLocation;
@@ -22,6 +23,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.mysql.MySqlServerLocation;
+import raw.utils.RawSettings;
 
 @NodeInfo(shortName = "Location.FromMySQLCredential")
 public class LocationFromMySQLCredentialNode extends ExpressionNode {
@@ -38,13 +40,16 @@ public class LocationFromMySQLCredentialNode extends ExpressionNode {
 
     String credentialName = (String) this.credentialName.executeGeneric(frame);
     JdbcLocation l = context.getJdbcLocation(credentialName);
+    JdbcServerLocation location = getJdbcServerLocation(l, context.getSettings());
+
+    return new LocationObject(location, "mysql:" + credentialName);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public JdbcServerLocation getJdbcServerLocation(JdbcLocation l, RawSettings rawSettings) {
     MySqlServerLocationDescription d =
         (MySqlServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
-
-    JdbcServerLocation location =
-        new MySqlServerLocation(
-            d.host(), d.port(), d.dbName(), d.username(), d.password(), context.getSettings());
-
-    return new LocationObject(location);
+    return new MySqlServerLocation(
+        d.host(), d.port(), d.dbName(), d.username(), d.password(), rawSettings);
   }
 }

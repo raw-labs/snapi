@@ -46,7 +46,7 @@ class StringFromEntry extends EntryExtension {
    * Documentation.
    */
   override def docs: EntryDoc = EntryDoc(
-    "Builds a string from a number, bool or temporal.",
+    "Builds a string from a number, bool, temporal or location.",
     params = List(
       ParamDoc("value", TypeDoc(List("number", "bool", "temporal")), "The value to convert to string.")
     ),
@@ -75,7 +75,8 @@ class StringFromEntry extends EntryExtension {
           Rql2DateType(),
           Rql2TimeType(),
           Rql2TimestampType(),
-          Rql2IntervalType()
+          Rql2IntervalType(),
+          Rql2LocationType()
         )
       )
     )

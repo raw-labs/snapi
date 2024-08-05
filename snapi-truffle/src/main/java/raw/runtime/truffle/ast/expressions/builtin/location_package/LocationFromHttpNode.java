@@ -201,7 +201,7 @@ public class LocationFromHttpNode extends ExpressionNode {
               expectedStatusArray,
               rawSettings);
 
-      return new LocationObject(location);
+      return new LocationObject(location, url);
     } catch (UnsupportedMessageException
         | InvalidArrayIndexException
         | UnknownIdentifierException e) {
