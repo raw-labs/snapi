@@ -528,7 +528,7 @@ import raw.testing.tags.TruffleTests
 
   test(snapi"""Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""")(
     _ should runErrorAs(
-      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (location: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 
@@ -552,7 +552,7 @@ import raw.testing.tags.TruffleTests
     snapi"""Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
   )(
     _ should runErrorAs(
-      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (location: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 
@@ -560,7 +560,7 @@ import raw.testing.tags.TruffleTests
     snapi"""Collection.Count(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
   )(
     _ should runErrorAs(
-      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (location: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 

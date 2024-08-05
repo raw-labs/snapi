@@ -59,13 +59,13 @@ import raw.testing.tags.TruffleTests
   test(snapi"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter="|")""")(it =>
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read CSV (line 2 column 9) (url: $badData): not enough columns found"
+        snapi"failed to read CSV (line 2 column 9) (location: $badData): not enough columns found"
       )
     } else {
       // scala engine: columns are given as "CSV column index" instead of "character index"
       // + duplicates the location
       it should runErrorAs(
-        snapi"""failed to read CSV (line 2 column 4) (url: $badData): failed to parse CSV (line 2, col 4), not enough columns found"""
+        snapi"""failed to read CSV (line 2 column 4) (location: $badData): failed to parse CSV (line 2, col 4), not enough columns found"""
       )
     }
   )
@@ -73,13 +73,13 @@ import raw.testing.tags.TruffleTests
   test(snapi"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter=";")""")(it =>
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read CSV (line 1 column 14) (url: $badData): not enough columns found"
+        snapi"failed to read CSV (line 1 column 14) (location: $badData): not enough columns found"
       )
     } else {
       // scala engine: columns are given as "CSV column index" instead of "character index"
       // + duplicates the location
       it should runErrorAs(
-        snapi"""failed to read CSV (line 1 column 2) (url: $badData): failed to parse CSV (line 1, col 2), not enough columns found"""
+        snapi"""failed to read CSV (line 1 column 2) (location: $badData): failed to parse CSV (line 1, col 2), not enough columns found"""
       )
     }
   )
@@ -241,9 +241,9 @@ import raw.testing.tags.TruffleTests
     if (isTruffle) {
       it should evaluateTo(
         snapi"""[{
-          |  a : Error.Build("failed to parse CSV (url: $csvWithNulls: line 1002, col 1), cannot parse 'NA' as an int"),
+          |  a : Error.Build("failed to parse CSV (location: $csvWithNulls: line 1002, col 1), cannot parse 'NA' as an int"),
           |  b : "NA", // it's not parsed as a null in that test since we didn't pass it in the nulls list
-          |  c : Error.Build("failed to parse CSV (url: $csvWithNulls: line 1002, col 7), cannot parse 'NA' as a double")
+          |  c : Error.Build("failed to parse CSV (location: $csvWithNulls: line 1002, col 7), cannot parse 'NA' as a double")
           |}] """.stripMargin
       )
     } else {
@@ -273,9 +273,9 @@ import raw.testing.tags.TruffleTests
     if (isTruffle) {
       it should evaluateTo(
         snapi"""[{
-          |  a : Error.Build("failed to parse CSV (url: $csvWithTypeChange: line 1002, col 1), cannot parse 'hello' as an int"),
+          |  a : Error.Build("failed to parse CSV (location: $csvWithTypeChange: line 1002, col 1), cannot parse 'hello' as an int"),
           |  b : null,
-          |  c : Error.Build("failed to parse CSV (url: $csvWithTypeChange: line 1002, col 8), cannot parse 'world' as a double")
+          |  c : Error.Build("failed to parse CSV (location: $csvWithTypeChange: line 1002, col 8), cannot parse 'world' as a double")
           |}] """.stripMargin
       )
     } else {
@@ -296,11 +296,11 @@ import raw.testing.tags.TruffleTests
     // ideally it would be line 11, column 30 (end of line 11)
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+        snapi"failed to read CSV (line 11 column 173) (location: $junkAfter10Items): not enough columns found"
       )
     } else {
       it should runErrorAs(
-        snapi"failed to read CSV (line 10 column 2) (url: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
+        snapi"failed to read CSV (line 10 column 2) (location: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
       )
     }
   }
@@ -327,11 +327,11 @@ import raw.testing.tags.TruffleTests
     // ideally it would be line 11, column 30 (end of line 11)
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+        snapi"failed to read CSV (line 11 column 173) (location: $junkAfter10Items): not enough columns found"
       )
     } else {
       it should runErrorAs(
-        snapi"failed to read CSV (line 10 column 2) (url: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
+        snapi"failed to read CSV (line 10 column 2) (location: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
       )
     }
   }
@@ -342,11 +342,11 @@ import raw.testing.tags.TruffleTests
     // ideally it would be line 11, column 30 (end of line 11)
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+        snapi"failed to read CSV (line 11 column 173) (location: $junkAfter10Items): not enough columns found"
       )
     } else {
       it should runErrorAs(
-        snapi"failed to read CSV (line 10 column 2) (url: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
+        snapi"failed to read CSV (line 10 column 2) (location: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
       )
     }
   }
@@ -448,17 +448,17 @@ import raw.testing.tags.TruffleTests
     |), delimiter = ";", skip = 0)""".stripMargin)(it =>
     if (isTruffle) {
       it should evaluateTo(snapi"""[
-        |{byteCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte"),
-        | shortCol:Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short"),
-        | intCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int"),
-        | longCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long"),
-        | floatCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float"),
-        | doubleCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double"),
-        | decimalCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal"),
-        | boolCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool"),
-        | dateCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 71), string 'dateCol' does not match date template 'yyyy-M-d'"),
-        | timeCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 79), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'"),
-        | timestampCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 87), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'")},
+        |{byteCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte"),
+        | shortCol:Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short"),
+        | intCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int"),
+        | longCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long"),
+        | floatCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float"),
+        | doubleCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double"),
+        | decimalCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal"),
+        | boolCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool"),
+        | dateCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 71), string 'dateCol' does not match date template 'yyyy-M-d'"),
+        | timeCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 79), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'"),
+        | timestampCol: Error.Build("failed to parse CSV (location: $csvWithAllTypes: line 1, col 87), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'")},
         |{byteCol: Byte.From(1), shortCol:Short.From(10), intCol: Int.From(100), longCol: Long.From(1000),
         | floatCol: Float.From(3.14), doubleCol: Double.From(6.28), decimalCol: Decimal.From("9.42"), boolCol: true,
         | dateCol: Date.Parse("12/25/2023", "M/d/yyyy"), timeCol: Time.Parse("01:02:03", "H:m:s"),

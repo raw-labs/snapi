@@ -250,15 +250,15 @@ import java.nio.file.Path
   }
 
   test(s"""String.ReadLines("$testServerUrl/fail-after-10")""")(
-    _ should runErrorAs(s"failed to read lines (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(s"failed to read lines (location: $testServerUrl/fail-after-10): closed")
   )
 
   test(s"""Collection.Take(String.ReadLines("$testServerUrl/fail-after-10"), 11)""")(
-    _ should runErrorAs(s"failed to read lines (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(s"failed to read lines (location: $testServerUrl/fail-after-10): closed")
   )
 
   test(s"""Collection.Count(String.ReadLines("$testServerUrl/fail-after-10"))""".stripMargin)(
-    _ should runErrorAs(s"failed to read lines (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(s"failed to read lines (location: $testServerUrl/fail-after-10): closed")
   )
 
   test(s"""Try.IsError(Collection.Count(String.ReadLines("$testServerUrl/fail-after-10")) ) """) {

@@ -423,11 +423,11 @@ import raw.testing.tags.TruffleTests
   test(snapi"""Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""") { it =>
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+        snapi"failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35))"
       )
     } else {
       it should runErrorAs(
-        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+        snapi"""failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
           | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
       )
     }
@@ -454,11 +454,11 @@ import raw.testing.tags.TruffleTests
   ) { it =>
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+        snapi"failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35))"
       )
     } else {
       it should runErrorAs(
-        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+        snapi"""failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
           | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
       )
     }
@@ -469,11 +469,11 @@ import raw.testing.tags.TruffleTests
   ) { it =>
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+        snapi"failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35))"
       )
     } else {
       it should runErrorAs(
-        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+        snapi"""failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
           | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
       )
     }
@@ -615,7 +615,7 @@ import raw.testing.tags.TruffleTests
     snapi"""Json.Read("$xmlFile", type collection(record(name: string, birthYear: int)))"""
   ) { it =>
     it should runErrorAs(
-      s"failed to read JSON (line 1 column 2) (url: file:${xmlFile.toAbsolutePath}): Unexpected character ('<' (code 60)): expected a valid value (JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]"
+      s"failed to read JSON (line 1 column 2) (location: file:${xmlFile.toAbsolutePath}): Unexpected character ('<' (code 60)): expected a valid value (JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]"
     )
   }
 
