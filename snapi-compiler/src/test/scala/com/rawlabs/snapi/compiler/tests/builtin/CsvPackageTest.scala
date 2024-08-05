@@ -34,6 +34,8 @@ class CsvPackageTest extends SnapiTestContext {
     |2|20|200
     |3|30|300""".stripMargin)
 
+  private val directory = headerLessData.getParent
+
   test(
     """Csv.Parse("1;tralala\n12;ploum\n3;ploum;\n4;NULL", type collection(record(a: int, b: string, c: string, d: string, e: string)),
       |skip = 0, delimiter = ";", nulls=["NULL", "12"])""".stripMargin
@@ -82,6 +84,19 @@ class CsvPackageTest extends SnapiTestContext {
       )
     }
   )
+
+  // Failure when opening a directory
+  test(snapi"""Csv.InferAndRead("$directory")""".stripMargin) { it =>
+    // The location is built successfully, and CSV inference fails
+    it should runErrorAs(s"inference error: file system error: path is not a file: $directory")
+  }
+
+  test(
+    snapi"""Csv.Read("$directory", type collection(record(a:int, b:int, c:int)), skip = 1, delimiter = "|")""".stripMargin
+  ) { it =>
+    // The location is built successfully, and the CSV reader fails when finding the directory
+    it should runErrorAs(s"file system error: path is not a file: $directory")
+  }
 
   // Each line has 11 bytes so it will fail at line 10 more or less.
   private val junkAfter10Items = tempFile(
