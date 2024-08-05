@@ -589,7 +589,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
     val codeData = getStringValue(mandatoryArgs.head)
     for (
       inferrerProperties <- getCsvInferrerProperties(
-        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData)), Rql2LocationType())),
+        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
         optionalArgs
       );
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
@@ -636,7 +636,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
 
     val r = for (
       inferrerProperties <- getCsvInferrerProperties(
-        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData)), Rql2LocationType())),
+        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
         optionalArgs
       );
       inputFormatDescriptor <- programContext.infer(inferrerProperties)

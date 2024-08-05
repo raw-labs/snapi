@@ -287,7 +287,7 @@ final case class BinaryConst(bytes: Array[Byte]) extends Const {
   }
 }
 
-final case class LocationConst(bytes: Array[Byte]) extends Const
+final case class LocationConst(bytes: Array[Byte], publicDescription: String) extends Const
 
 /**
  * Number Constants

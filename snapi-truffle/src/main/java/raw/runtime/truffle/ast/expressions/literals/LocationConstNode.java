@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.ExpressionNode;
@@ -23,17 +24,23 @@ import raw.utils.RawSettings;
 public class LocationConstNode extends ExpressionNode {
 
   private final byte[] value;
+  private final String publicDescription;
 
-  public LocationConstNode(byte[] value) {
+  public LocationConstNode(byte[] value, String publicDescription) {
     this.value = value;
+    this.publicDescription = publicDescription;
   }
 
   @Override
   public final Object executeGeneric(VirtualFrame virtualFrame) {
     RawSettings rawSettings = RawContext.get(this).getSettings();
-    Location location =
-        LocationDescription$.MODULE$.toLocation(
-            LocationDescription$.MODULE$.deserialize(value), rawSettings);
-    return new LocationObject(location, "<value>");
+    Location location = getLocation(rawSettings);
+    return new LocationObject(location, publicDescription);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public Location getLocation(RawSettings rawSettings) {
+    return LocationDescription$.MODULE$.toLocation(
+        LocationDescription$.MODULE$.deserialize(value), rawSettings);
   }
 }

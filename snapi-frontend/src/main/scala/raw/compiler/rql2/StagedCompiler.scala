@@ -205,7 +205,8 @@ trait StagedCompiler {
           byteArray(i) = v.readBufferByte(i)
         }
         val location = LocationDescription.toLocation(LocationDescription.deserialize(byteArray))
-        Rql2LocationValue(location)
+        val publicDescription = v.asString()
+        Rql2LocationValue(location, publicDescription)
     }
   }
 

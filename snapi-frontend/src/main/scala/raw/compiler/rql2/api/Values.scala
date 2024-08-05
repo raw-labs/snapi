@@ -38,7 +38,7 @@ final case class Rql2IntervalValue(
     seconds: Int,
     millis: Int
 ) extends Rql2Value
-final case class Rql2LocationValue(l: Location) extends Rql2Value
+final case class Rql2LocationValue(l: Location, publicDescription: String) extends Rql2Value
 final case class Rql2RecordValue(v: Seq[Rql2RecordAttr]) extends Rql2Value
 final case class Rql2RecordAttr(name: String, value: Rql2Value)
 final case class Rql2TryValue(v: Either[String, Rql2Value]) extends Rql2Value

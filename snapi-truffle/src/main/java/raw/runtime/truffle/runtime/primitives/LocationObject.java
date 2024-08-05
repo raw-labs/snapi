@@ -29,6 +29,12 @@ import raw.sources.bytestream.http.HttpByteStreamLocation;
 import raw.sources.filesystem.api.FileSystemLocation;
 import raw.sources.jdbc.api.JdbcServerLocation;
 
+/**
+ * Truffle object representing a location.
+ *
+ * <p>The location is represented in Interop as a serialized byte array. The public description is
+ * represented in Interop as a string.
+ */
 @ExportLibrary(InteropLibrary.class)
 public final class LocationObject implements TruffleObject {
   private final Location location;
@@ -87,6 +93,16 @@ public final class LocationObject implements TruffleObject {
 
   public byte[] getBytes() {
     return byteArray;
+  }
+
+  @ExportMessage
+  final boolean isString() {
+    return true;
+  }
+
+  @ExportMessage
+  final String asString() {
+    return publicDescription;
   }
 
   @ExportMessage

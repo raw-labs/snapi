@@ -181,21 +181,19 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
 
   final protected def getBoolValue(v: Arg): Boolean = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2BoolValue].v }
 
-  private def getLocation(v: Arg): Location = {
-    v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2LocationValue].l
-  }
-
   final protected def getByteStreamLocation(v: Arg): Either[String, ByteStreamLocation] = {
-    getLocation(v) match {
+    val locationValue = v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2LocationValue]
+    locationValue.l match {
       case l: ByteStreamLocation => Right(l)
       case _ => Left("expected a bytestream")
     }
   }
 
   final protected def locationValueToExp(v: Arg): Exp = {
-    val location = getLocation(v)
+    val locationValue = v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2LocationValue]
+    val location = locationValue.l
     val locationDescription = LocationDescription.toLocationDescription(location)
-    LocationConst(LocationDescription.serialize(locationDescription))
+    LocationConst(LocationDescription.serialize(locationDescription), locationValue.publicDescription)
   }
 
   final protected def getListStringValue(v: Arg): Seq[String] = {

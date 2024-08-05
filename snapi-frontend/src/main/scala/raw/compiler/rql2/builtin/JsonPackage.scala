@@ -365,7 +365,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
     val codeData = getStringValue(mandatoryArgs.head)
     val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
     val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InputFormatDescriptor] = getJsonInferrerProperties(
-      Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData)), Rql2LocationType())),
+      Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
       optionalArgs
     )
       .flatMap(programContext.infer)
@@ -397,7 +397,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
 
     val inputFormatDescriptor = for (
       inferrerProperties <- getJsonInferrerProperties(
-        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData)), Rql2LocationType())),
+        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
         optionalArgs
       );
       inputFormatDescriptor <- programContext.infer(inferrerProperties)
