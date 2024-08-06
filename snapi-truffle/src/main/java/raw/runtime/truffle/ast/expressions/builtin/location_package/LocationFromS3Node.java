@@ -50,7 +50,6 @@ public class LocationFromS3Node extends ExpressionNode {
     String bucket = (String) this.bucket.executeGeneric(frame);
     String path = (String) this.path.executeGeneric(frame);
 
-
     // The docs say:
     // "If the S3 bucket is not registered in the credentials storage, then the region, accessKey
     // and secretKey must be provided as arguments."
