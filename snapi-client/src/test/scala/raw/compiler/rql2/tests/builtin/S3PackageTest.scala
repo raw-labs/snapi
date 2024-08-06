@@ -22,7 +22,7 @@ import raw.testing.tags.TruffleTests
   // reading a public s3 bucket without registering or passing credentials
   test(s"""let
     |  data = Csv.InferAndRead(
-    |    S3.Build("s3://rawlabs-public-test-data/students.csv")
+    |    S3.Build("$UnitTestPublicBucket", "students.csv")
     |  )
     |in
     |  Collection.Count(data)
@@ -30,9 +30,10 @@ import raw.testing.tags.TruffleTests
 
   // reading a public s3 bucket without registering or passing credentials
   test(s"""let
-    |  data = Csv.InferAndRead(S3.Build("s3://$UnitTestPublicBucket/students.csv"))
-    |in
-    |  Collection.Count(data)
-    |""".stripMargin)(it => it should evaluateTo("7"))
-
+          |  data = Csv.InferAndRead(
+          |    S3.Build("$UnitTestPublicBucket", "/students.csv")
+          |  )
+          |in
+          |  Collection.Count(data)
+          |""".stripMargin)(it => it should evaluateTo("7"))
 }
