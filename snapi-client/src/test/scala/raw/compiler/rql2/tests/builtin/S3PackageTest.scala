@@ -55,13 +55,13 @@ import raw.testing.tags.TruffleTests
 
   // Reading a private bucket using a registered credential
   test(s"""let
-          |  data = Csv.InferAndRead(
-          |    S3.Build(
-          |      "$UnitTestPrivateBucket",
-          |      "/students.csv"
-          |    )
-          |  )
-          |in
-          |  Collection.Count(data)
-          |""".stripMargin)(it => it should evaluateTo("7"))
+    |  data = Csv.InferAndRead(
+    |    S3.Build(
+    |      "$UnitTestPrivateBucket",
+    |      "/students.csv"
+    |    )
+    |  )
+    |in
+    |  Collection.Count(data)
+    |""".stripMargin)(it => it should evaluateTo("7"))
 }
