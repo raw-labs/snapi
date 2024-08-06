@@ -25,6 +25,7 @@ import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription,
 import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2._
 import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
+import raw.compiler.rql2.api.Rql2ProgramEnvironment
 import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.CompilerLspService
@@ -88,8 +89,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
     new CompilerContext(language, user, inferrer)
   }
 
-  private def getProgramContext(user: RawUid, environment: ProgramEnvironment): ProgramContext = {
-    val compilerContext = getCompilerContext(user)
+  private def getProgramContext(environment: Rql2ProgramEnvironment): ProgramContext = {
+    val compilerContext = getCompilerContext(environment.uid)
     new Rql2ProgramContext(environment, compilerContext)
   }
 
@@ -106,8 +107,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
     }
   }
 
-  override def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
-    val programContext = getProgramContext(environment.uid, environment)
+  override def parse(source: String, environment: Rql2ProgramEnvironment): ParseResponse = {
+    val programContext = getProgramContext(environment)
     try {
       val positions = new Positions()
       val parser = new Antlr4SyntaxAnalyzer(positions, true)
@@ -124,12 +125,12 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
 
   override def getType(
       source: String,
-      environment: ProgramEnvironment
+      environment: Rql2ProgramEnvironment
   ): GetTypeResponse = {
     withTruffleContext(
       environment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(environment)
         try {
           val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
           if (tree.valid) {
@@ -148,10 +149,11 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       source: String,
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse = {
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
     withTruffleContext(
-      environment,
+      rql2ProgramEnvironment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
           val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
           if (tree.valid) {
@@ -193,7 +195,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       outputStream: OutputStream,
       maxRows: Option[Long]
   ): ExecutionResponse = {
-    val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
+    val ctx = buildTruffleContext(rql2ProgramEnvironment, maybeOutputStream = Some(outputStream))
     ctx.initialize("rql")
     ctx.enter()
     try {
@@ -211,7 +214,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           // its type is found in the polyglot bindings as '@type:<name>'
           val funType = {
             val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
-            val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.uid, internal = true)
+            val ParseTypeSuccess(tipe: FunType) = parseType(rawType, rql2ProgramEnvironment.uid, internal = true)
             tipe
           }
           // Prior to .execute, some checks on parameters since we may have
@@ -267,7 +270,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           if (!CsvPackage.outputWriteSupport(tipe)) {
             return ExecutionRuntimeFailure("unsupported type")
           }
-          val programContext = getProgramContext(environment.uid, environment)
+          val programContext = getProgramContext(rql2ProgramEnvironment)
           val windowsLineEnding = environment.options.get("windows-line-ending") match {
             case Some("true") => true
             case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
@@ -339,7 +342,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           if (ex.isInternalError) {
             // An internal error. It means a regular Exception thrown from the language (e.g. a Java Exception,
             // or a RawTruffleInternalErrorException, which isn't an AbstractTruffleException)
-            val programContext = getProgramContext(environment.uid, environment)
+            val programContext = getProgramContext(rql2ProgramEnvironment)
             throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
           } else {
             val err = ex.getGuestObject
@@ -384,7 +387,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       maybeIndent: Option[Int],
       maybeWidth: Option[Int]
   ): FormatCodeResponse = {
-    val programContext = getProgramContext(environment.uid, environment)
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
+    val programContext = getProgramContext(rql2ProgramEnvironment)
     try {
       val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
       pretty.prettyCode(source) match {
@@ -401,12 +405,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       environment: ProgramEnvironment,
       position: Pos
   ): AutoCompleteResponse = {
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
     withTruffleContext(
-      environment,
+      rql2ProgramEnvironment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
-          withLspTree(source, lspService => lspService.dotAutoComplete(source, environment, position))(
+          withLspTree(source, lspService => lspService.dotAutoComplete(source, rql2ProgramEnvironment, position))(
             programContext
           ) match {
             case Right(value) => value
@@ -425,12 +430,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       prefix: String,
       position: Pos
   ): AutoCompleteResponse = {
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
     withTruffleContext(
-      environment,
+      rql2ProgramEnvironment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
-          withLspTree(source, lspService => lspService.wordAutoComplete(source, environment, prefix, position))(
+          withLspTree(source, lspService => lspService.wordAutoComplete(source, rql2ProgramEnvironment, prefix, position))(
             programContext
           ) match {
             case Right(value) => value
@@ -444,18 +450,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
-    /*
-    withLspTree(source, lspService => lspService.hover(source, environment, position)) match {
-      case Right(value) => value
-      case Left((err, pos)) => HoverResponse(None, parseError(err, pos))
-    }
-     */
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
     withTruffleContext(
-      environment,
+      rql2ProgramEnvironment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
-          withLspTree(source, lspService => lspService.hover(source, environment, position))(programContext) match {
+          withLspTree(source, lspService => lspService.hover(source, rql2ProgramEnvironment, position))(programContext) match {
             case Right(value) => value
             case Left(_) => HoverResponse(None)
           }
@@ -467,12 +468,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
     withTruffleContext(
-      environment,
+      rql2ProgramEnvironment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
-          withLspTree(source, lspService => lspService.rename(source, environment, position))(programContext) match {
+          withLspTree(source, lspService => lspService.rename(source, rql2ProgramEnvironment, position))(programContext) match {
             case Right(value) => value
             case Left(_) => RenameResponse(Array.empty)
           }
@@ -488,12 +490,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       environment: ProgramEnvironment,
       position: Pos
   ): GoToDefinitionResponse = {
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
     withTruffleContext(
-      environment,
+      rql2ProgramEnvironment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
-          withLspTree(source, lspService => lspService.definition(source, environment, position))(
+          withLspTree(source, lspService => lspService.definition(source, rql2ProgramEnvironment, position))(
             programContext
           ) match {
             case Right(value) => value
@@ -507,10 +510,11 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
     withTruffleContext(
-      environment,
+      rql2ProgramEnvironment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
           withLspTree(
             source,
@@ -527,10 +531,11 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
+    val rql2ProgramEnvironment = environment.asInstanceOf[Rql2ProgramEnvironment]
     withTruffleContext(
-      environment,
+      rql2ProgramEnvironment,
       _ => {
-        val programContext = getProgramContext(environment.uid, environment)
+        val programContext = getProgramContext(rql2ProgramEnvironment)
         // Will analyze the code and return only unknown declarations errors.
         val positions = new Positions()
         val parser = new Antlr4SyntaxAnalyzer(positions, true)
@@ -636,14 +641,14 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   private def buildTruffleContext(
-      environment: ProgramEnvironment,
+      environment: Rql2ProgramEnvironment,
       maybeOutputStream: Option[OutputStream] = None
   ): Context = {
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
       .newBuilder("rql")
       .engine(engine)
-      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
+      .environment("RAW_PROGRAM_ENVIRONMENT", Rql2ProgramEnvironment.serializeToString(environment))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     environment.options.get("staged-compiler").foreach { stagedCompiler =>
@@ -663,7 +668,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   private def withTruffleContext[T](
-      environment: ProgramEnvironment,
+      environment: Rql2ProgramEnvironment,
       f: Context => T
   ): T = {
     val ctx = buildTruffleContext(environment)

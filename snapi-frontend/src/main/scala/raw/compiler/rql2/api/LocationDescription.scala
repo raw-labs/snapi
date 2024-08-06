@@ -38,17 +38,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{
-  JdbcLocation,
-  MySqlJdbcLocation,
-  OracleJdbcLocation,
-  PostgresJdbcLocation,
-  ProgramEnvironment,
-  SnowflakeJdbcLocation,
-  SqlServerJdbcLocation,
-  SqliteJdbcLocation,
-  TeradataJdbcLocation
-}
 
 import java.net.{HttpURLConnection, URI, URISyntaxException}
 
@@ -514,7 +503,7 @@ object LocationDescription extends StrictLogging {
     locationDescriptionToPublicUrl(toLocationDescription(l))
   }
 
-  def urlToLocationDescription(url: String, programEnvironment: ProgramEnvironment)(
+  def urlToLocationDescription(url: String, programEnvironment: Rql2ProgramEnvironment)(
       implicit settings: RawSettings
   ): Either[String, LocationDescription] = {
     // Extract the protocol.
@@ -694,7 +683,7 @@ object LocationDescription extends StrictLogging {
 //    }
 //  }
 
-  def urlToLocation(url: String, programEnvironment: ProgramEnvironment)(
+  def urlToLocation(url: String, programEnvironment: Rql2ProgramEnvironment)(
       implicit settings: RawSettings
   ): Either[String, Location] = {
     urlToLocationDescription(url, programEnvironment).right.map(toLocation)

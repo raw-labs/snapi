@@ -470,16 +470,13 @@ class TestSqlConnectionFailures
       code: String,
       arg: Int
   ): ExecutionResponse = {
-    val env = ProgramEnvironment(
+    val env = SqlProgramEnvironment(
       user,
       Some(Array("arg" -> RawInt(arg))),
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
+      jdbcUrl(user),
       Map("output-format" -> "json"),
-      jdbcUrl = Some(jdbcUrl(user))
+      None
     )
     val baos = new ByteArrayOutputStream()
     try {
@@ -495,16 +492,13 @@ class TestSqlConnectionFailures
       code: String,
       pos: Pos
   ): HoverResponse = {
-    val env = ProgramEnvironment(
+    val env = SqlProgramEnvironment(
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
+      jdbcUrl(user),
       Map("output-format" -> "json"),
-      jdbcUrl = Some(jdbcUrl(user))
+      None
     )
     compilerService.hover(code, env, pos)
   }
@@ -516,16 +510,13 @@ class TestSqlConnectionFailures
       prefix: String,
       pos: Pos
   ): AutoCompleteResponse = {
-    val env = ProgramEnvironment(
+    val env = SqlProgramEnvironment(
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
+      jdbcUrl(user),
       Map("output-format" -> "json"),
-      jdbcUrl = Some(jdbcUrl(user))
+      None
     )
     compilerService.wordAutoComplete(code, env, prefix, pos)
   }
@@ -536,16 +527,13 @@ class TestSqlConnectionFailures
       code: String,
       pos: Pos
   ): AutoCompleteResponse = {
-    val env = ProgramEnvironment(
+    val env = SqlProgramEnvironment(
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
+      jdbcUrl(user),
       Map("output-format" -> "json"),
-      jdbcUrl = Some(jdbcUrl(user))
+      None
     )
     compilerService.dotAutoComplete(code, env, pos)
   }
@@ -555,16 +543,13 @@ class TestSqlConnectionFailures
       user: RawUid,
       code: String
   ): GetProgramDescriptionResponse = {
-    val env = ProgramEnvironment(
+    val env = SqlProgramEnvironment(
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
+      jdbcUrl(user),
       Map("output-format" -> "json"),
-      jdbcUrl = Some(jdbcUrl(user))
+      None
     )
     compilerService.getProgramDescription(code, env)
   }
@@ -574,16 +559,13 @@ class TestSqlConnectionFailures
       user: RawUid,
       code: String
   ): ValidateResponse = {
-    val env = ProgramEnvironment(
+    val env = SqlProgramEnvironment(
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
+      jdbcUrl(user),
       Map("output-format" -> "json"),
-      jdbcUrl = Some(jdbcUrl(user))
+      None
     )
     compilerService.validate(code, env)
   }

@@ -20,7 +20,7 @@ import com.oracle.truffle.api.nodes.Node;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Set;
-import raw.client.api.*;
+import raw.compiler.rql2.api.*;
 import raw.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
@@ -34,7 +34,7 @@ public final class RawContext {
   private final Env env;
   private final RawSettings rawSettings;
   private final OutputStream output;
-  private final ProgramEnvironment programEnvironment;
+  private final Rql2ProgramEnvironment programEnvironment;
   private final RawFunctionRegistry functionRegistry;
 
   @CompilerDirectives.TruffleBoundary
@@ -56,7 +56,7 @@ public final class RawContext {
 
     // Set program environment.
     this.programEnvironment =
-        ProgramEnvironment$.MODULE$.deserializeFromString(
+        Rql2ProgramEnvironment$.MODULE$.deserializeFromString(
             env.getEnvironment().get("RAW_PROGRAM_ENVIRONMENT"));
 
     // The function registry holds snapi methods (top level functions). It is the data
@@ -77,7 +77,7 @@ public final class RawContext {
     return env;
   }
 
-  public ProgramEnvironment getProgramEnvironment() {
+  public Rql2ProgramEnvironment getProgramEnvironment() {
     return programEnvironment;
   }
 

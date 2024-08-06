@@ -81,13 +81,14 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       source: String,
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse = {
+    val sqlProgramEnvironment = environment.asInstanceOf[SqlProgramEnvironment]
     try {
       logger.debug(s"Getting program description: $source")
       safeParse(source) match {
         case Left(errors) => GetProgramDescriptionFailure(errors)
         case Right(parsedTree) =>
           try {
-            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+            val conn = connectionPool.getConnection(sqlProgramEnvironment.jdbcUrl)
             try {
               val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
               val description = stmt.queryMetadata match {
@@ -169,12 +170,13 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       outputStream: OutputStream,
       maxRows: Option[Long]
   ): ExecutionResponse = {
+    val sqlProgramEnvironment = environment.asInstanceOf[SqlProgramEnvironment]
     try {
       logger.debug(s"Executing: $source")
       safeParse(source) match {
         case Left(errors) => ExecutionValidationFailure(errors)
         case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+          val conn = connectionPool.getConnection(sqlProgramEnvironment.jdbcUrl)
           try {
             val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
             try {
@@ -267,6 +269,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   }
 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
+    val sqlProgramEnvironment = environment.asInstanceOf[SqlProgramEnvironment]
     try {
       logger.debug(s"dotAutoComplete at position: $position")
       val analyzer = new SqlCodeUtils(parse(source))
@@ -274,7 +277,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       // So we call the identifier with +1 column
       analyzer.identifierUnder(Pos(position.line, position.column + 1)) match {
         case Some(idn: SqlIdnNode) =>
-          val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
+          val metadataBrowser = metadataBrowsers.get(sqlProgramEnvironment.jdbcUrl)
           val matches = metadataBrowser.getDotCompletionMatches(idn)
           val collectedValues = matches.collect {
             case (idns, tipe) =>
@@ -299,6 +302,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       prefix: String,
       position: Pos
   ): AutoCompleteResponse = {
+    val sqlProgramEnvironment = environment.asInstanceOf[SqlProgramEnvironment]
     try {
       logger.debug(s"wordAutoComplete at position: $position")
       val tree = parse(source)
@@ -307,7 +311,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       logger.debug(s"idn $item")
       val matches: Seq[Completion] = item match {
         case Some(idn: SqlIdnNode) =>
-          val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
+          val metadataBrowser = metadataBrowsers.get(sqlProgramEnvironment.jdbcUrl)
           val matches = metadataBrowser.getWordCompletionMatches(idn)
           matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
         case Some(use: SqlParamUseNode) => tree.params.collect {
@@ -323,6 +327,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
+    val sqlProgramEnvironment = environment.asInstanceOf[SqlProgramEnvironment]
     try {
       logger.debug(s"Hovering at position: $position")
       val tree = parse(source)
@@ -331,14 +336,14 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         .identifierUnder(position)
         .map {
           case identifier: SqlIdnNode =>
-            val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
+            val metadataBrowser = metadataBrowsers.get(sqlProgramEnvironment.jdbcUrl)
             val matches = metadataBrowser.getWordCompletionMatches(identifier)
             matches.headOption
               .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
               .getOrElse(HoverResponse(None))
           case use: SqlParamUseNode =>
             try {
-              val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+              val conn = connectionPool.getConnection(sqlProgramEnvironment.jdbcUrl)
               try {
                 val pstmt = new NamedParametersPreparedStatement(conn, tree)
                 try {
@@ -391,13 +396,14 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
+    val sqlProgramEnvironment = environment.asInstanceOf[SqlProgramEnvironment]
     try {
       logger.debug(s"Validating: $source")
       safeParse(source) match {
         case Left(errors) => ValidateResponse(errors)
         case Right(parsedTree) =>
           try {
-            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+            val conn = connectionPool.getConnection(sqlProgramEnvironment.jdbcUrl)
             try {
               val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
               try {

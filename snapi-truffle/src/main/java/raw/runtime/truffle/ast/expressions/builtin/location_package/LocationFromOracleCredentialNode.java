@@ -15,7 +15,7 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.client.api.JdbcLocation;
+import raw.compiler.rql2.api.JdbcLocation;
 import raw.compiler.rql2.api.LocationDescription$;
 import raw.compiler.rql2.api.OracleServerLocationDescription;
 import raw.runtime.truffle.ExpressionNode;

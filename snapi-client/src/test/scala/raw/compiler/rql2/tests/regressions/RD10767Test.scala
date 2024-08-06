@@ -12,7 +12,8 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.client.api.{GetProgramDescriptionSuccess, ProgramEnvironment}
+import raw.client.api.GetProgramDescriptionSuccess
+import raw.compiler.rql2.api.Rql2ProgramEnvironment
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils.SnapiInterpolator
 
@@ -28,7 +29,7 @@ class RD10767Test extends Rql2TruffleCompilerTestContext {
     |
     |Json.Read("$data", data_type())
     |""".stripMargin) { it =>
-    val programEnvironment = ProgramEnvironment(
+    val programEnvironment = Rql2ProgramEnvironment(
       authorizedUser,
       None,
       Set.empty,
@@ -53,7 +54,7 @@ class RD10767Test extends Rql2TruffleCompilerTestContext {
     |
     |func()(1)
     |""".stripMargin) { it =>
-    val programEnvironment = ProgramEnvironment(
+    val programEnvironment = Rql2ProgramEnvironment(
       authorizedUser,
       None,
       Set.empty,

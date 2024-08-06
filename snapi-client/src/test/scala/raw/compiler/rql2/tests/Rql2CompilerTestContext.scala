@@ -576,9 +576,9 @@ trait Rql2CompilerTestContext
       maybeArguments: Option[Array[(String, RawValue)]] = None,
       scopes: Set[String] = Set.empty,
       options: Map[String, String] = Map.empty
-  ): ProgramEnvironment = {
+  ): Rql2ProgramEnvironment = {
     val user = authorizedUser
-    ProgramEnvironment(
+    Rql2ProgramEnvironment(
       user,
       maybeArguments,
       this.runnerScopes ++ scopes,
@@ -641,15 +641,15 @@ trait Rql2CompilerTestContext
     }
   }
 
-  def validate(s: String, environment: ProgramEnvironment = getQueryEnvironment()): ValidateResponse = {
+  def validate(s: String, environment: Rql2ProgramEnvironment = getQueryEnvironment()): ValidateResponse = {
     compilerService.validate(s, environment)
   }
 
-  def aiValidate(s: String, environment: ProgramEnvironment = getQueryEnvironment()): ValidateResponse = {
+  def aiValidate(s: String, environment: Rql2ProgramEnvironment = getQueryEnvironment()): ValidateResponse = {
     compilerService.aiValidate(s, environment)
   }
 
-  def hover(s: String, position: Pos, environment: ProgramEnvironment = getQueryEnvironment()): HoverResponse = {
+  def hover(s: String, position: Pos, environment: Rql2ProgramEnvironment = getQueryEnvironment()): HoverResponse = {
     compilerService.hover(s, environment, position)
   }
 
@@ -657,7 +657,7 @@ trait Rql2CompilerTestContext
       s: String,
       maybeIndent: Option[Int] = None,
       maybeWidth: Option[Int] = None,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      environment: Rql2ProgramEnvironment = getQueryEnvironment()
   ): FormatCodeResponse = {
     compilerService.formatCode(s, environment, maybeIndent, maybeWidth)
   }
@@ -665,7 +665,7 @@ trait Rql2CompilerTestContext
   def dotAutoComplete(
       s: String,
       position: Pos,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      environment: Rql2ProgramEnvironment = getQueryEnvironment()
   ): AutoCompleteResponse = {
     compilerService.dotAutoComplete(s, environment, position)
   }
@@ -674,7 +674,7 @@ trait Rql2CompilerTestContext
       s: String,
       prefix: String,
       position: Pos,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      environment: Rql2ProgramEnvironment = getQueryEnvironment()
   ): AutoCompleteResponse = {
     compilerService.wordAutoComplete(s, environment, prefix, position)
   }
@@ -682,7 +682,7 @@ trait Rql2CompilerTestContext
   def goToDefinition(
       s: String,
       position: Pos,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      environment: Rql2ProgramEnvironment = getQueryEnvironment()
   ): GoToDefinitionResponse = {
     compilerService.goToDefinition(s, environment, position)
   }
@@ -690,7 +690,7 @@ trait Rql2CompilerTestContext
   def rename(
       s: String,
       position: Pos,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      environment: Rql2ProgramEnvironment = getQueryEnvironment()
   ): RenameResponse = {
     compilerService.rename(s, environment, position)
   }

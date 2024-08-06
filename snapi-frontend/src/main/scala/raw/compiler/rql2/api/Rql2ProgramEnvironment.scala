@@ -1,0 +1,121 @@
+/*
+ * Copyright 2024 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+package raw.compiler.rql2.api
+
+import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import raw.client.api.{ProgramEnvironment, RawValue}
+import raw.utils.RawUid
+
+final case class Rql2ProgramEnvironment(
+    uid: RawUid,
+    maybeArguments: Option[Array[(String, RawValue)]],
+    scopes: Set[String],
+    secrets: Map[String, String],
+    jdbcServers: Map[String, JdbcLocation],
+    httpHeaders: Map[String, Map[String, String]],
+    s3Credentials: Map[String, S3Credential],
+    options: Map[String, String],
+    jdbcUrl: Option[String] = None,
+    maybeTraceId: Option[String] = None
+) extends ProgramEnvironment
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[MySqlJdbcLocation], name = "mysql"),
+    new JsonType(value = classOf[OracleJdbcLocation], name = "oracle"),
+    new JsonType(value = classOf[PostgresJdbcLocation], name = "postgres"),
+    new JsonType(value = classOf[SqlServerJdbcLocation], name = "sqlserver"),
+    new JsonType(value = classOf[SnowflakeJdbcLocation], name = "snowflake"),
+    new JsonType(value = classOf[SqliteJdbcLocation], name = "sqlite"),
+    new JsonType(value = classOf[TeradataJdbcLocation], name = "teradata")
+  )
+)
+sealed trait JdbcLocation
+final case class MySqlJdbcLocation(
+    host: String,
+    port: Int,
+    database: String,
+    username: String,
+    password: String
+) extends JdbcLocation
+final case class OracleJdbcLocation(
+    host: String,
+    port: Int,
+    database: String,
+    username: String,
+    password: String
+) extends JdbcLocation
+final case class PostgresJdbcLocation(
+    host: String,
+    port: Int,
+    database: String,
+    username: String,
+    password: String
+) extends JdbcLocation
+final case class SqlServerJdbcLocation(
+    host: String,
+    port: Int,
+    database: String,
+    username: String,
+    password: String
+) extends JdbcLocation
+final case class SnowflakeJdbcLocation(
+    database: String,
+    username: String,
+    password: String,
+    accountIdentifier: String,
+    parameters: Map[String, String]
+) extends JdbcLocation
+final case class SqliteJdbcLocation(
+    path: String
+) extends JdbcLocation
+final case class TeradataJdbcLocation(
+    host: String,
+    port: Int,
+    database: String,
+    username: String,
+    password: String,
+    parameters: Map[String, String]
+) extends JdbcLocation
+
+final case class S3Credential(
+    accessKey: Option[String],
+    secretKey: Option[String],
+    region: Option[String]
+)
+
+object Rql2ProgramEnvironment {
+  private val jsonMapper = new ObjectMapper with ClassTagExtensions {
+    registerModule(DefaultScalaModule)
+    registerModule(new JavaTimeModule())
+    registerModule(new Jdk8Module())
+  }
+
+  private val reader = jsonMapper.readerFor[Rql2ProgramEnvironment]
+
+  private val writer = jsonMapper.writerFor[Rql2ProgramEnvironment]
+
+  def serializeToString(env: Rql2ProgramEnvironment): String = {
+    writer.writeValueAsString(env)
+  }
+
+  def deserializeFromString(str: String): Rql2ProgramEnvironment = {
+    reader.readValue(str)
+  }
+}

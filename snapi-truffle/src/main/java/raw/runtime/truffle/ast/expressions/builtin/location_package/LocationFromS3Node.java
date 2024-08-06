@@ -14,7 +14,7 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.client.api.S3Credential;
+import raw.compiler.rql2.api.S3Credential;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;

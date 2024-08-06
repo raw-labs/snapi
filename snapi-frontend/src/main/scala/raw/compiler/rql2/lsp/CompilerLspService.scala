@@ -20,6 +20,7 @@ import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source.{BaseIdnNode, BaseNode}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
+import raw.compiler.rql2.api.Rql2ProgramEnvironment
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 
@@ -70,7 +71,7 @@ class CompilerLspService(
 
   def wordAutoComplete(
       source: String,
-      environment: ProgramEnvironment,
+      environment: Rql2ProgramEnvironment,
       prefix: String,
       position: Pos
   ): AutoCompleteResponse = {
@@ -199,7 +200,7 @@ class CompilerLspService(
 
   }
 
-  def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
+  def dotAutoComplete(source: String, environment: Rql2ProgramEnvironment, position: Pos): AutoCompleteResponse = {
     val currentPosition = Position(
       position.line,
       position.column,
@@ -253,7 +254,7 @@ class CompilerLspService(
     }
   }
 
-  def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
+  def hover(source: String, environment: Rql2ProgramEnvironment, position: Pos): HoverResponse = {
     val currentPosition = Position(position.line, position.column, StringSource(source))
     val nodes = getNodesAtPosition(currentPosition)
     val res = nodes
@@ -321,7 +322,7 @@ class CompilerLspService(
     }
   }
 
-  def definition(source: String, environment: ProgramEnvironment, position: Pos): GoToDefinitionResponse = {
+  def definition(source: String, environment: Rql2ProgramEnvironment, position: Pos): GoToDefinitionResponse = {
     val currentPosition = Position(
       position.line,
       position.column,
@@ -409,7 +410,7 @@ class CompilerLspService(
     }
   }
 
-  def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
+  def rename(source: String, environment: Rql2ProgramEnvironment, position: Pos): RenameResponse = {
     val currentPosition = Position(
       position.line,
       position.column,

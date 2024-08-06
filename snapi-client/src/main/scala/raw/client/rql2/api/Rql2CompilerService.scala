@@ -12,9 +12,10 @@
 
 package raw.client.rql2.api
 
-import raw.client.api.{CompilerService, Message, ProgramEnvironment}
+import raw.client.api.{CompilerService, Message}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.SourceProgram
+import raw.compiler.rql2.api.Rql2ProgramEnvironment
 import raw.utils.RawUid
 
 trait Rql2CompilerService extends CompilerService {
@@ -23,11 +24,11 @@ trait Rql2CompilerService extends CompilerService {
 
   def parseType(tipe: String, user: RawUid, internal: Boolean = false): ParseTypeResponse
 
-  def parse(source: String, environment: ProgramEnvironment): ParseResponse
+  def parse(source: String, environment: Rql2ProgramEnvironment): ParseResponse
 
   def getType(
       source: String,
-      environment: ProgramEnvironment
+      environment: Rql2ProgramEnvironment
   ): GetTypeResponse
 
 }

@@ -12,7 +12,7 @@
 
 package raw.client.python
 
-import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
+import org.graalvm.polyglot.{Context, Engine, PolyglotException, Source, Value}
 import raw.client.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import raw.utils.{RawSettings, RawUtils}
@@ -266,16 +266,17 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
       environment: ProgramEnvironment,
       maybeOutputStream: Option[OutputStream]
   ): Context = {
-    // Add environment settings as hardcoded environment variables.
-    val ctxBuilder = Context
-      .newBuilder("python")
-      .engine(engine)
-      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
-      .allowExperimentalOptions(true)
-      .allowPolyglotAccess(PolyglotAccess.ALL)
-    maybeOutputStream.foreach(os => ctxBuilder.out(os))
-    val ctx = ctxBuilder.build()
-    ctx
+    ???
+//    // Add environment settings as hardcoded environment variables.
+//    val ctxBuilder = Context
+//      .newBuilder("python")
+//      .engine(engine)
+//      .environment("RAW_PROGRAM_ENVIRONMENT", PythonProgramEnvironment.serializeToString(environment))
+//      .allowExperimentalOptions(true)
+//      .allowPolyglotAccess(PolyglotAccess.ALL)
+//    maybeOutputStream.foreach(os => ctxBuilder.out(os))
+//    val ctx = ctxBuilder.build()
+//    ctx
   }
 
 //  private def withTruffleContext[T](

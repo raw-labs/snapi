@@ -13,7 +13,7 @@
 package raw.compiler.rql2
 
 import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
-import raw.client.api.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment}
+import raw.client.api.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange}
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.antlr4.ParserErrors
 import raw.compiler.rql2.api._
@@ -47,7 +47,7 @@ trait StagedCompiler {
    * @param settings    The settings to use for the evaluation.
    * @return A StagedCompilerResponse.
    */
-  def eval(source: String, tipe: Type, environment: ProgramEnvironment)(
+  def eval(source: String, tipe: Type, environment: Rql2ProgramEnvironment)(
       implicit settings: RawSettings
   ): StagedCompilerResponse = {
     val (engine, _) = CompilerService.getEngine()
@@ -56,7 +56,7 @@ trait StagedCompiler {
     val ctxBuilder = Context
       .newBuilder("rql")
       .engine(engine)
-      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
+      .environment("RAW_PROGRAM_ENVIRONMENT", Rql2ProgramEnvironment.serializeToString(environment))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     environment.options.get("staged-compiler").foreach { stagedCompiler =>

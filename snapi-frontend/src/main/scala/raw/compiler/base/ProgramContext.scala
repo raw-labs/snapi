@@ -13,14 +13,15 @@
 package raw.compiler.base
 
 import raw.utils.RawSettings
-import raw.client.api.{CompilerService, ProgramEnvironment}
+import raw.client.api.CompilerService
+import raw.compiler.rql2.api.Rql2ProgramEnvironment
 
 /**
  * Contains state that is shared between compilation phases of a single program.
  */
 trait ProgramContext {
 
-  def programEnvironment: ProgramEnvironment
+  def programEnvironment: Rql2ProgramEnvironment
 
   def compilerContext: CompilerContext
 

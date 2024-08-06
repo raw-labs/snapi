@@ -73,30 +73,24 @@ class TestSqlCompilerServiceAirports
     super.afterAll()
   }
 
-  private def asJson(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): ProgramEnvironment = {
-    ProgramEnvironment(
+  private def asJson(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): SqlProgramEnvironment = {
+    SqlProgramEnvironment(
       user,
       if (params.isEmpty) None else Some(params.toArray),
       scopes,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
+      jdbcUrl = jdbcUrl,
       Map("output-format" -> "json"),
-      jdbcUrl = Some(jdbcUrl)
+      None
     )
   }
-  private def asCsv(params: Map[String, RawValue], scopes: Set[String] = Set.empty): ProgramEnvironment = {
-    ProgramEnvironment(
+  private def asCsv(params: Map[String, RawValue], scopes: Set[String] = Set.empty): SqlProgramEnvironment = {
+    SqlProgramEnvironment(
       user,
       if (params.isEmpty) None else Some(params.toArray),
       scopes,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
+      jdbcUrl = jdbcUrl,
       Map("output-format" -> "csv"),
-      jdbcUrl = Some(jdbcUrl)
+      None
     )
   }
 

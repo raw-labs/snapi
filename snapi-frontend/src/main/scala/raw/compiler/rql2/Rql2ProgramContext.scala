@@ -12,10 +12,10 @@
 
 package raw.compiler.rql2
 
-import raw.client.api.ProgramEnvironment
 import raw.compiler.base.CompilerContext
+import raw.compiler.rql2.api.Rql2ProgramEnvironment
 
 class Rql2ProgramContext(
-    override val programEnvironment: ProgramEnvironment,
+    override val programEnvironment: Rql2ProgramEnvironment,
     override val compilerContext: CompilerContext
 ) extends ProgramContext
