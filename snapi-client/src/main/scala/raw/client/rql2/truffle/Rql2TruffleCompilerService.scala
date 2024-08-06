@@ -436,7 +436,10 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       _ => {
         val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
-          withLspTree(source, lspService => lspService.wordAutoComplete(source, rql2ProgramEnvironment, prefix, position))(
+          withLspTree(
+            source,
+            lspService => lspService.wordAutoComplete(source, rql2ProgramEnvironment, prefix, position)
+          )(
             programContext
           ) match {
             case Right(value) => value
@@ -456,7 +459,9 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       _ => {
         val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
-          withLspTree(source, lspService => lspService.hover(source, rql2ProgramEnvironment, position))(programContext) match {
+          withLspTree(source, lspService => lspService.hover(source, rql2ProgramEnvironment, position))(
+            programContext
+          ) match {
             case Right(value) => value
             case Left(_) => HoverResponse(None)
           }
@@ -474,7 +479,9 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
       _ => {
         val programContext = getProgramContext(rql2ProgramEnvironment)
         try {
-          withLspTree(source, lspService => lspService.rename(source, rql2ProgramEnvironment, position))(programContext) match {
+          withLspTree(source, lspService => lspService.rename(source, rql2ProgramEnvironment, position))(
+            programContext
+          ) match {
             case Right(value) => value
             case Left(_) => RenameResponse(Array.empty)
           }

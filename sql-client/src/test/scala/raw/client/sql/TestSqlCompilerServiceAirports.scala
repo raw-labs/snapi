@@ -73,7 +73,10 @@ class TestSqlCompilerServiceAirports
     super.afterAll()
   }
 
-  private def asJson(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): SqlProgramEnvironment = {
+  private def asJson(
+      params: Map[String, RawValue] = Map.empty,
+      scopes: Set[String] = Set.empty
+  ): SqlProgramEnvironment = {
     SqlProgramEnvironment(
       user,
       if (params.isEmpty) None else Some(params.toArray),
