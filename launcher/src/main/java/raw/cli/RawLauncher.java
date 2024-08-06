@@ -16,8 +16,7 @@ import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import raw.client.api.*;
-import raw.utils.AuthenticatedUser;
-import raw.utils.InteractiveUser;
+import raw.utils.RawUid;
 import raw.utils.RawException;
 import raw.utils.RawSettings;
 import scala.Option;
@@ -44,7 +43,6 @@ public class RawLauncher implements Closeable {
         RawSettings rawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
 
         this.compilerService = CompilerServiceProvider.apply(language, rawSettings);
-        AuthenticatedUser user = new InteractiveUser("uid", "name", "email", (Seq<String>) Seq$.MODULE$.empty());
 
         HashMap<String, String> javaOptions = new HashMap<String, String>();
         javaOptions.put("output-format", "json");
@@ -54,7 +52,7 @@ public class RawLauncher implements Closeable {
                         .asScala()
                         .toMap(scala.Predef.<scala.Tuple2<String, String>>conforms());
 
-        this.env = new ProgramEnvironment(user, Option.empty(), (Set<String>) Set$.MODULE$.empty(), scalaOptions, Option.empty());
+        this.env = new ProgramEnvironment(RawUid("uid"), Option.empty(), (Set<String>) Set$.MODULE$.empty(), scalaOptions, Option.empty());
 
     }
 

@@ -48,9 +48,9 @@ class TestSqlConnectionFailures
   )
   Class.forName("org.postgresql.Driver")
 
-  private var users: Set[InteractiveUser] = _
+  private var users: Set[RawUid] = _
 
-  private def jdbcUrl(user: AuthenticatedUser) = {
+  private def jdbcUrl(user: RawUid) = {
     val dbPort = container.mappedPort(5432).toString
     val dbName = user.uid
     val username = container.username
@@ -63,7 +63,7 @@ class TestSqlConnectionFailures
 
     // For each user we create a specific database and load the example schema.
     users = {
-      val items = for (i <- 1 to nUsers) yield InteractiveUser(Uid(s"db$i"), "fdw user", "email", Seq.empty)
+      val items = for (i <- 1 to nUsers) yield RawUid(s"db$i")
       items.toSet
     }
 
@@ -80,7 +80,7 @@ class TestSqlConnectionFailures
     try {
       val stmt = conn.createStatement()
       for (user <- users) {
-        val r = stmt.executeUpdate(s"CREATE DATABASE ${user.uid.uid}")
+        val r = stmt.executeUpdate(s"CREATE DATABASE ${user.uid}")
         assert(r == 0)
       }
     } finally {
@@ -466,7 +466,7 @@ class TestSqlConnectionFailures
 
   private def runExecute(
       compilerService: CompilerService,
-      user: AuthenticatedUser,
+      user: RawUid,
       code: String,
       arg: Int
   ): ExecutionResponse = {
@@ -474,6 +474,10 @@ class TestSqlConnectionFailures
       user,
       Some(Array("arg" -> RawInt(arg))),
       Set.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -487,7 +491,7 @@ class TestSqlConnectionFailures
 
   private def runHover(
       compilerService: CompilerService,
-      user: AuthenticatedUser,
+      user: RawUid,
       code: String,
       pos: Pos
   ): HoverResponse = {
@@ -495,6 +499,10 @@ class TestSqlConnectionFailures
       user,
       None,
       Set.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -503,7 +511,7 @@ class TestSqlConnectionFailures
 
   private def runWordCompletion(
       compilerService: CompilerService,
-      user: AuthenticatedUser,
+      user: RawUid,
       code: String,
       prefix: String,
       pos: Pos
@@ -512,6 +520,10 @@ class TestSqlConnectionFailures
       user,
       None,
       Set.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -520,7 +532,7 @@ class TestSqlConnectionFailures
 
   private def runDotCompletion(
       compilerService: CompilerService,
-      user: AuthenticatedUser,
+      user: RawUid,
       code: String,
       pos: Pos
   ): AutoCompleteResponse = {
@@ -528,6 +540,10 @@ class TestSqlConnectionFailures
       user,
       None,
       Set.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -536,13 +552,17 @@ class TestSqlConnectionFailures
 
   private def runGetProgramDescription(
       compilerService: CompilerService,
-      user: AuthenticatedUser,
+      user: RawUid,
       code: String
   ): GetProgramDescriptionResponse = {
     val env = ProgramEnvironment(
       user,
       None,
       Set.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -551,13 +571,17 @@ class TestSqlConnectionFailures
 
   private def runValidate(
       compilerService: CompilerService,
-      user: AuthenticatedUser,
+      user: RawUid,
       code: String
   ): ValidateResponse = {
     val env = ProgramEnvironment(
       user,
       None,
       Set.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )

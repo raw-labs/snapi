@@ -20,7 +20,7 @@ import raw.inferrer.local.json.JsonUtils
 import raw.inferrer.local.text.TextLineIterator
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.RawException
+import raw.utils.{RawException, RawSettings}
 
 import java.io.Reader
 import scala.util.control.NonFatal
@@ -29,7 +29,7 @@ object HjsonInferrer {
   private val HJSON_SAMPLE_SIZE = "raw.inferrer.local.hjson.sample-size"
 }
 
-class HjsonInferrer(implicit protected val sourceContext: SourceContext)
+class HjsonInferrer(implicit protected val settings: RawSettings)
     extends InferrerErrorHandler
     with EncodingInferrer
     with JsonUtils {

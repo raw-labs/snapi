@@ -14,10 +14,11 @@ package raw.compiler.rql2.tests.builtin.collection
 
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.KeyNotComparable
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
+import raw.testing.tags.TruffleTests
 
-trait CollectionJoinTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
+@TruffleTests class CollectionJoinTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    nations = Csv.InferAndRead("$tpchNationCsvLocal")

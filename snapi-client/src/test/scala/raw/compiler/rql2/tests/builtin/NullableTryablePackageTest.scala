@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait NullableTryablePackageTest extends Rql2CompilerTestContext {
+@TruffleTests class NullableTryablePackageTest extends Rql2TruffleCompilerTestContext {
   test("""1 / null""")(_ should evaluateTo("null"))
   test(""" 1.0 / (if true then null else 2)""")(_ should evaluateTo("null"))
   test(""" 1.0 / (if false then null else 2)""")(_ should evaluateTo("0.5"))

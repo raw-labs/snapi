@@ -14,7 +14,6 @@ package raw.sources.jdbc.oracle
 
 import oracle.net.ns.NetException
 import raw.utils.RawSettings
-import raw.creds.api.OracleCredential
 import raw.sources.jdbc.api._
 
 import java.io.Closeable
@@ -28,36 +27,38 @@ import java.util.concurrent.{Executors, TimeUnit}
 import scala.util.control.NonFatal
 
 object OracleClient {
-  val timestampRegex: Regex = """timestamp\(\d+\)""".r
-  val interval1Regex: Regex = """interval year\(\d+\) to month""".r
-  val interval2Regex: Regex = """interval day\(\d+\) to second\(\d+\)""".r
+  private val TIMESTAMP_REGEX: Regex = """timestamp\(\d+\)""".r
+  private val INTERVAL1_REGEX: Regex = """interval year\(\d+\) to month""".r
+  private val INTERVAL2_REGEX: Regex = """interval day\(\d+\) to second\(\d+\)""".r
 }
 
-class OracleClient(db: OracleCredential)(implicit settings: RawSettings) extends JdbcClient {
+class OracleClient(val hostname: String, val port: Int, dbName: String, username: String, password: String)(
+    implicit settings: RawSettings
+) extends JdbcClient {
 
   import OracleClient._
 
   Class.forName("oracle.jdbc.OracleDriver")
 
   override val vendor: String = "oracle"
+
+  override val maybeDatabase: Option[String] = Some(dbName)
+
+  override val maybeUsername: Option[String] = Some(username)
+
+  override val maybePassword: Option[String] = Some(password)
+
   override val connectionString: String = {
-    val port = db.port.map(p => ":" + p).getOrElse(":1521")
-    s"jdbc:$vendor:thin:@${db.host}$port:${db.database}"
+    s"jdbc:$vendor:thin:@$hostname:$port:$dbName"
   }
-
-  override val username: Option[String] = db.username
-  override val password: Option[String] = db.password
-
-  override val hostname: String = db.host
-  override def database: Option[String] = Some(db.database)
 
   override def getConnection: Connection = {
     // For connection pool:
     //    wrapSQLException(datasource.getConnection())
     wrapSQLException {
       val props = new Properties()
-      username.foreach(user => props.setProperty("user", user))
-      password.foreach(passwd => props.setProperty("password", passwd))
+      maybeUsername.foreach(user => props.setProperty("user", user))
+      maybePassword.foreach(passwd => props.setProperty("password", passwd))
 
       // This property is defined in interface oracle.jdbc.OracleConnection.CONNECTION_PROPERTY_THIN_NET_CONNECT_TIMEOUT
       // see https://docs.oracle.com/cd/E18283_01/appdev.112/e13995/oracle/jdbc/OracleConnection.html#CONNECTION_PROPERTY_THIN_READ_TIMEOUT
@@ -76,7 +77,7 @@ class OracleClient(db: OracleCredential)(implicit settings: RawSettings) extends
     super.listTables(sch)
   }
 
-  override def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
+  override def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
     val schema = maybeSchema.get
     val conn = getConnection
     try {
@@ -117,8 +118,8 @@ class OracleClient(db: OracleCredential)(implicit settings: RawSettings) extends
             case "long" => JdbcColumnType(INTEGER, if (nullable) 1 else 0)
             case "binary_float" => JdbcColumnType(REAL, if (nullable) 1 else 0)
             case "binary_double" => JdbcColumnType(DOUBLE, if (nullable) 1 else 0)
-            case timestampRegex() => JdbcColumnType(TIMESTAMP, if (nullable) 1 else 0)
-            case interval1Regex() | interval2Regex() => NativeIntervalType(nullable)
+            case TIMESTAMP_REGEX() => JdbcColumnType(TIMESTAMP, if (nullable) 1 else 0)
+            case INTERVAL1_REGEX() | INTERVAL2_REGEX() => NativeIntervalType(nullable)
             case "raw" => JdbcColumnType(BLOB, if (nullable) 1 else 0)
             case "blob" => JdbcColumnType(BLOB, if (nullable) 1 else 0)
             case _ => UnsupportedColumnType
@@ -144,7 +145,7 @@ class OracleClient(db: OracleCredential)(implicit settings: RawSettings) extends
               case _: SocketTimeoutException => throw new RDBMSConnectTimeoutException(hostname, ex)
               case _: ConnectException => throw new RDBMSConnectErrorException(hostname, ex)
             }
-          case int: InterruptedException => throw int
+          case ex: InterruptedException => throw ex
           case _ =>
             // TODO (ctm): Find documentation of Oracle error codes and check if it is best to map ORA-<errorCode> here.
             if (ex.getErrorCode == 1017) {
@@ -166,9 +167,8 @@ class OracleClient(db: OracleCredential)(implicit settings: RawSettings) extends
             }
         }
       case ex: JdbcLocationException => throw ex
-      case NonFatal(t) =>
-        logger.warn("Unexpected SQL error.", t)
-        throw new JdbcLocationException(s"unexpected database error", t)
+      case ex: InterruptedException => throw ex
+      case NonFatal(t) => throw new JdbcLocationException(s"unexpected database error", t)
     }
   }
 

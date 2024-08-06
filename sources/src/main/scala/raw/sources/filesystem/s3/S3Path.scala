@@ -12,28 +12,34 @@
 
 package raw.sources.filesystem.s3
 
-import com.typesafe.scalalogging.StrictLogging
-import raw.creds.api.S3Bucket
 import raw.sources.bytestream.api.{ByteStreamException, SeekableInputStream}
-import raw.sources.filesystem.api._
-import raw.client.api.LocationDescription
+import raw.sources.filesystem.api.{FileSystemLocation, FileSystemMetadata}
+import raw.utils.RawSettings
 
 import java.io.InputStream
 import java.nio.file.Path
 
-class S3Path(
-    cli: S3FileSystem,
-    protected val path: String,
-    locationDescription: LocationDescription
-) extends FileSystemLocation
-    with StrictLogging {
+class S3Path private (cli: S3FileSystem, val path: String)(implicit settings: RawSettings) extends FileSystemLocation {
 
-  val bucket: S3Bucket = cli.bucket
+  val bucket: String = cli.bucket
 
-  // TODO (msb): Shouldn't we sanitize path?
-  override val rawUri: String = {
-    val sep = if (path.startsWith("/")) "" else "/"
-    s"s3://${cli.bucketName}$sep$path"
+  val region: Option[String] = cli.maybeRegion
+
+  val maybeAccessKey: Option[String] = cli.maybeAccessKey
+
+  val maybeSecretKey: Option[String] = cli.maybeSecretKey
+
+  def this(
+      bucket: String,
+      maybeRegion: Option[String],
+      maybeAccessKey: Option[String],
+      maybeSecretKey: Option[String],
+      path: String
+  )(implicit settings: RawSettings) = {
+    this(
+      new S3FileSystem(bucket, maybeRegion, maybeAccessKey, maybeSecretKey),
+      path
+    )
   }
 
   override def testAccess(): Unit = {
@@ -59,11 +65,11 @@ class S3Path(
   override protected def doLs(): Iterator[FileSystemLocation] = {
     cli
       .listContents(path)
-      .map(npath => new S3Path(cli, npath, locationDescription))
+      .map(npath => new S3Path(cli, npath))
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new S3Path(cli, npath, locationDescription), meta) }
+    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new S3Path(cli, npath), meta) }
   }
 
 }

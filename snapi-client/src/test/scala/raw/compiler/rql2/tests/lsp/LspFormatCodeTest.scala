@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.lsp
 
 import raw.client.api.FormatCodeResponse
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait LspFormatCodeTest extends Rql2CompilerTestContext {
+@TruffleTests class LspFormatCodeTest extends Rql2TruffleCompilerTestContext {
 
   def assertFormattedCode(code: String, expected: String) = {
     val FormatCodeResponse(Some(formattedCode)) = formatCode(code)

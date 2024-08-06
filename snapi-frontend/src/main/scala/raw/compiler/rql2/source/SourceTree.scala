@@ -15,6 +15,7 @@ package raw.compiler.rql2.source
 import org.bitbucket.inkytonik.kiama.output._
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
+import raw.sources.api.Location
 
 ///////////////////////////////////////////////////////////////////////////
 // RQL2
@@ -276,6 +277,7 @@ final case class BoolConst(value: Boolean) extends Const
 final case class StringConst(value: String) extends Const
 
 final case class TripleQuotedStringConst(value: String) extends Const
+
 final case class BinaryConst(bytes: Array[Byte]) extends Const {
   override def equals(obj: Any): Boolean = {
     obj match {
@@ -284,6 +286,8 @@ final case class BinaryConst(bytes: Array[Byte]) extends Const {
     }
   }
 }
+
+final case class LocationConst(bytes: Array[Byte], publicDescription: String) extends Const
 
 /**
  * Number Constants

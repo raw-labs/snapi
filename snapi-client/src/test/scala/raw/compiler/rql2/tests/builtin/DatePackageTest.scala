@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait DatePackageTest extends Rql2CompilerTestContext {
+@TruffleTests class DatePackageTest extends Rql2TruffleCompilerTestContext {
 
   test("Date.Build(2022, 1, 15)") { it =>
     it should typeAs("date")

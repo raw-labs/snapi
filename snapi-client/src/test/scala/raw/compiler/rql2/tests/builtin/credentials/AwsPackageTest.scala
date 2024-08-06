@@ -12,18 +12,16 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext {
+@TruffleTests class AwsPackageTest extends Rql2TruffleCompilerTestContext {
 
   val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
   val secretAccessKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
 
-  secret(authorizedUser, "aws-secret-key", secretAccessKey)
-  secret(authorizedUser, "aws-access-key", accessKeyId)
-
-  def xmlImplemented: Boolean
+  secret("aws-secret-key", secretAccessKey)
+  secret("aws-access-key", accessKeyId)
 
   val triple = "\"\"\""
 
@@ -41,7 +39,6 @@ trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext
     |)
     |in List.Filter(data.regionInfo.item, x -> x.regionName == "us-east-1")
     |""".stripMargin) { it =>
-    assume(xmlImplemented)
     it should evaluateTo("""[ {regionName: "us-east-1", regionEndpoint: "ec2.us-east-1.amazonaws.com"} ]""")
   }
 
@@ -61,7 +58,6 @@ trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext
     |)
     |in List.Filter(data.regionInfo.item, x -> x.regionName == "us-east-1")
     |""".stripMargin) { it =>
-    assume(xmlImplemented)
     it should evaluateTo("""[ {regionName: "us-east-1", regionEndpoint: "ec2.us-east-1.amazonaws.com"} ]""")
   }
 
@@ -82,7 +78,6 @@ trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext
     |  )
     |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
     |""".stripMargin) { it =>
-    assume(xmlImplemented)
     it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
   }
 
@@ -99,7 +94,6 @@ trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext
     |)
     |in Collection.Filter(data.regionInfo.item, x -> x.regionName == "us-east-1")
     |""".stripMargin) { it =>
-    assume(xmlImplemented)
     it should evaluateTo("""[ {regionName: "us-east-1", regionEndpoint: "ec2.us-east-1.amazonaws.com"} ]""")
   }
 
@@ -179,7 +173,6 @@ trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext
     |in Collection.Count(data.reservationSet.item)
     |
     |""".stripMargin) { it =>
-    assume(xmlImplemented)
     // it should run
     it should evaluateTo("""0""")
   }
@@ -211,10 +204,7 @@ trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext
     |)
     |in List.Filter(data.ListUsersResult.Users.member, x -> x.UserName == "dummy-user").UserName
     |
-    |""".stripMargin) { it =>
-    assume(xmlImplemented)
-    it should evaluateTo(""" [] """)
-  }
+    |""".stripMargin)(it => it should evaluateTo(""" [] """))
 
   // querying monitoring aka could-watch to get cpu usage
   // this test was failing with Non-terminating decimal expansion; no exact representable decimal result.
@@ -270,7 +260,7 @@ trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext
     |       ]
     |    )
     |)
-    |""".stripMargin)(it => it should runErrorAs("http error: host not found for https://iam.us-east-1.amazonaws.com/"))
+    |""".stripMargin)(it => it should runErrorAs("host not found for https://iam.us-east-1.amazonaws.com/"))
 
   // Wrong path.
   test("""String.Read(
@@ -304,7 +294,7 @@ trait AwsPackageTest extends Rql2CompilerTestContext with CredentialsTestContext
     |)
     |
     |""".stripMargin)(
-    _ should runErrorAs("http error: host not found for https://does-not-exist.amazonaws.com/")
+    _ should runErrorAs("host not found for https://does-not-exist.amazonaws.com/")
   )
 
   // Wrong service but with correct host.

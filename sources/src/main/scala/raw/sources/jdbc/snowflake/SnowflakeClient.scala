@@ -14,7 +14,6 @@ package raw.sources.jdbc.snowflake
 
 import net.snowflake.client.jdbc.SnowflakeSQLException
 import net.snowflake.client.jdbc.internal.snowflake.common.core.SqlState
-import raw.creds.api.SnowflakeCredential
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
@@ -23,28 +22,39 @@ import java.util.concurrent.{Executors, TimeUnit}
 import java.util.{Properties, TimeZone}
 import scala.util.control.NonFatal
 
-class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) extends JdbcClient {
+class SnowflakeClient(
+    dbName: String,
+    username: String,
+    password: String,
+    val accountIdentifier: String,
+    val parameters: Map[String, String]
+)(
+    implicit settings: RawSettings
+) extends JdbcClient {
 
   Class.forName("net.snowflake.client.jdbc.SnowflakeDriver")
 
+  override val hostname: String = s"$accountIdentifier.snowflakecomputing.com"
+
   override val vendor: String = "snowflake"
 
-  override val connectionString: String = s"jdbc:snowflake://${db.host}/"
+  override val maybeDatabase: Option[String] = Some(dbName)
 
-  override val username: Option[String] = db.username
-  override val password: Option[String] = db.password
+  override val maybeUsername: Option[String] = Some(username)
 
-  override val hostname: String = db.host
-  override val database: Option[String] = Some(db.database)
+  override val maybePassword: Option[String] = Some(password)
+
+  override val connectionString: String = s"jdbc:snowflake://$hostname/"
+
   override def getConnection: Connection = {
     wrapSQLException {
-      val parameters = db.parameters ++ Seq("db" -> db.database)
+      val params = parameters ++ Seq("db" -> dbName)
       val props = new Properties()
-      username.foreach(user => props.setProperty("user", user))
-      password.foreach(passwd => props.setProperty("password", passwd))
+      maybeUsername.foreach(user => props.setProperty("user", user))
+      maybePassword.foreach(passwd => props.setProperty("password", passwd))
       props.setProperty("JDBC_QUERY_RESULT_FORMAT", "JSON")
 
-      for ((key, value) <- parameters) props.setProperty(key, value)
+      for ((key, value) <- params) props.setProperty(key, value)
 
       // (CTM) I am having issues with sql.Time with timezones. I am seeing a shift if the timezone was not set to UTC.
       TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
@@ -55,8 +65,18 @@ class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) e
     }
   }
 
-  override def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
-    super.tableMetadata(None, maybeSchema, table)
+  override def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
+    val conn = getConnection
+    try {
+      val res = getTableMetadata(conn, None, maybeSchema, table)
+      try {
+        getTableTypeFromTableMetadata(res)
+      } finally {
+        wrapSQLException(res.close())
+      }
+    } finally {
+      wrapSQLException(conn.close())
+    }
   }
 
   override def wrapSQLException[T](f: => T): T = {
@@ -70,11 +90,11 @@ class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) e
           case SqlState.INVALID_PASSWORD | SqlState.INVALID_AUTHORIZATION_SPECIFICATION =>
             throw new AuthenticationFailedException(ex)
           case SqlState.IO_ERROR => throw new JdbcLocationException(
-              s"IO error connecting to ${db.accountIdentifier}: ${ex.getMessage}",
+              s"IO error connecting to $accountIdentifier: ${ex.getMessage}",
               ex
             )
           case SqlState.SQLCLIENT_UNABLE_TO_ESTABLISH_SQLCONNECTION => throw new JdbcLocationException(
-              s"unable to establish connection to ${db.accountIdentifier}: ${ex.getMessage}",
+              s"unable to establish connection to $accountIdentifier: ${ex.getMessage}",
               ex
             )
           case SqlState.CONNECTION_EXCEPTION | SqlState.CONNECTION_FAILURE =>
@@ -86,10 +106,8 @@ class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) e
             logger.warn(s"Unexpected SQL error (code: ${ex.getErrorCode}; state: ${ex.getSQLState}).", ex)
             throw new JdbcLocationException(ex.getMessage, ex)
         }
-
-      case NonFatal(t) =>
-        logger.warn("Unexpected SQL error.", t)
-        throw new JdbcLocationException(s"unexpected database error", t)
+      case ex: InterruptedException => throw ex
+      case NonFatal(t) => throw new JdbcLocationException(s"unexpected database error", t)
     }
   }
 }

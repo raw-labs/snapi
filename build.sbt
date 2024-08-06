@@ -24,7 +24,7 @@ ThisBuild / credentials += Credentials(
   "raw-labs",
   sys.env.getOrElse("GITHUB_TOKEN", "")
 )
-ThisBuild/ resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/raw-labs/raw"
+ThisBuild / resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/raw-labs/raw"
 
 ThisBuild / javaHome := {
   val javaHomePath = sys.env.getOrElse("JAVA_HOME", sys.props("java.home"))
@@ -83,20 +83,9 @@ lazy val utils = (project in file("utils"))
       jacksonDeps
   )
 
-lazy val client = (project in file("client"))
-  .dependsOn(
-    utils % "compile->compile;test->test"
-  )
-  .settings(
-    commonSettings,
-    scalaCompileSettings,
-    testSettings,
-    libraryDependencies += trufflePolyglot
-  )
-
 lazy val sources = (project in file("sources"))
   .dependsOn(
-    client % "compile->compile;test->test"
+    utils % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -119,6 +108,17 @@ lazy val sources = (project in file("sources"))
     )
   )
 
+lazy val client = (project in file("client"))
+  .dependsOn(
+    utils % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    scalaCompileSettings,
+    testSettings,
+    libraryDependencies += trufflePolyglot
+  )
+
 lazy val snapiParser = (project in file("snapi-parser"))
   .enablePlugins(GenParserPlugin)
   .settings(
@@ -126,16 +126,18 @@ lazy val snapiParser = (project in file("snapi-parser"))
     commonCompileSettings,
     javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
-      (s"${javaSrcBasePath.value}/raw/compiler/rql2/generated",
+      (
+        s"${javaSrcBasePath.value}/raw/compiler/rql2/generated",
         "raw.compiler.rql2.generated",
         s"${javaSrcBasePath.value}/raw/snapi/grammar",
-        "Snapi")
+        "Snapi"
+      )
     ),
     Compile / doc := { file("/dev/null") },
     compileOrder := CompileOrder.JavaThenScala,
     libraryDependencies ++= Seq(
       antlr4Runtime
-    ),
+    )
   )
 
 lazy val snapiFrontend = (project in file("snapi-frontend"))
@@ -249,7 +251,6 @@ lazy val snapiClient = (project in file("snapi-client"))
     testSettings
   )
 
-
 lazy val sqlParser = (project in file("sql-parser"))
   .enablePlugins(GenParserPlugin)
   .settings(
@@ -257,22 +258,24 @@ lazy val sqlParser = (project in file("sql-parser"))
     commonCompileSettings,
     javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
-      (s"${javaSrcBasePath.value}/raw/client/sql/generated",
-      "raw.client.sql.generated",
-      s"${javaSrcBasePath.value}/raw/psql/grammar",
-      "Psql")
+      (
+        s"${javaSrcBasePath.value}/raw/client/sql/generated",
+        "raw.client.sql.generated",
+        s"${javaSrcBasePath.value}/raw/psql/grammar",
+        "Psql"
+      )
     ),
     Compile / doc := { file("/dev/null") },
     compileOrder := CompileOrder.JavaThenScala,
     libraryDependencies ++= Seq(
-      antlr4Runtime,
+      antlr4Runtime
     )
   )
 
 lazy val sqlClient = (project in file("sql-client"))
   .dependsOn(
     client % "compile->compile;test->test",
-    sqlParser % "compile->compile;test->test",
+    sqlParser % "compile->compile;test->test"
   )
   .settings(
     commonSettings,

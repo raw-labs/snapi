@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait ShortPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class ShortPackageTest extends Rql2TruffleCompilerTestContext {
 
   test(""" Short.From(1)""")(it => it should evaluateTo("1s"))
 

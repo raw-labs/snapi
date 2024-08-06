@@ -14,11 +14,13 @@ package raw.compiler.rql2.tests.builtin
 
 import java.util.Base64
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.{FailAfterNServer, Rql2CompilerTestContext}
+import raw.compiler.rql2.tests.FailAfterNServer
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
 import java.nio.file.Path
 
-trait StringPackageTest extends Rql2CompilerTestContext with FailAfterNServer {
+@TruffleTests class StringPackageTest extends Rql2TruffleCompilerTestContext with FailAfterNServer {
 
   // Each line has 11 bytes so it will fail at line 10 more or less.
   override def failServices: Seq[FailAfter] = Seq(
@@ -248,15 +250,15 @@ trait StringPackageTest extends Rql2CompilerTestContext with FailAfterNServer {
   }
 
   test(s"""String.ReadLines("$testServerUrl/fail-after-10")""")(
-    _ should runErrorAs(s"failed to read lines (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(s"failed to read lines (location: $testServerUrl/fail-after-10): closed")
   )
 
   test(s"""Collection.Take(String.ReadLines("$testServerUrl/fail-after-10"), 11)""")(
-    _ should runErrorAs(s"failed to read lines (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(s"failed to read lines (location: $testServerUrl/fail-after-10): closed")
   )
 
   test(s"""Collection.Count(String.ReadLines("$testServerUrl/fail-after-10"))""".stripMargin)(
-    _ should runErrorAs(s"failed to read lines (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(s"failed to read lines (location: $testServerUrl/fail-after-10): closed")
   )
 
   test(s"""Try.IsError(Collection.Count(String.ReadLines("$testServerUrl/fail-after-10")) ) """) {

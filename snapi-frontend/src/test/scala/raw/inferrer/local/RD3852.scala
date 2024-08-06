@@ -13,9 +13,7 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.LocationDescription
 import raw.inferrer.api.{AutoInferrerProperties, CsvInputFormatDescriptor, TextInputStreamFormatDescriptor}
-import raw.sources.api.SourceContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
 import raw.sources.filesystem.local.LocalPath
@@ -26,14 +24,12 @@ class RD3852 extends RawTestSuite with SettingsTestContext with StrictLogging wi
   // So inferring this a csv file means that the other inferrers threw  correctly
   // a LocalInferrerException  while trying to parse the file
   test("Auto inferring CSV") { _ =>
-    implicit val sourceContext = new SourceContext(null, null, settings)
     val inferrer = new LocalInferrerService
     val p = RawUtils.getResource("data/students/students.csv")
     val l1 = new LocalPath(p)
     try {
 
-      val TextInputStreamFormatDescriptor(_, _, format) =
-        inferrer.infer(AutoInferrerProperties(LocationDescription(l1.rawUri), None))
+      val TextInputStreamFormatDescriptor(_, _, format) = inferrer.infer(AutoInferrerProperties(l1, None))
       assert(format.isInstanceOf[CsvInputFormatDescriptor])
 
     } finally {

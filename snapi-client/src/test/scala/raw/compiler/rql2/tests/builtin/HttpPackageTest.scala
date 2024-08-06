@@ -11,16 +11,16 @@
  */
 
 package raw.compiler.rql2.tests.builtin
+
 import com.sun.net.httpserver.{BasicAuthenticator, HttpExchange, HttpServer}
 import com.typesafe.scalalogging.StrictLogging
-import org.scalatest.BeforeAndAfterAll
-import raw.creds.dropbox.DropboxTestCreds
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
 import java.net.InetSocketAddress
 import scala.collection.JavaConverters._
 
-trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with BeforeAndAfterAll {
+@TruffleTests class HttpPackageTest extends Rql2TruffleCompilerTestContext {
 
   val expectedUser = "user"
   val expectedPassword = "passwd"
@@ -136,10 +136,7 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  Http.Get("http://localhost:$testPort/hello")
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
-      |        "http://localhost:$testPort/hello",
-      |        http_method = "GET"
-      |    )
+      |    Http.Get("http://localhost:$testPort/hello")
       |)""".stripMargin)
     it should evaluateTo(""" "Hello World" """)
   }
@@ -149,10 +146,7 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  Http.Post("http://localhost:$testPort/hello")
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
-      |        "http://localhost:$testPort/hello",
-      |        http_method = "POST"
-      |    )
+      |    Http.Post("http://localhost:$testPort/hello")
       |)""".stripMargin)
     it should evaluateTo(""" "Hello World" """)
   }
@@ -162,9 +156,8 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  Http.Put("http://localhost:$testPort/hello")
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
-      |        "http://localhost:$testPort/hello",
-      |        http_method = "PUT"
+      |    Http.Put(
+      |        "http://localhost:$testPort/hello"
       |    )
       |)""".stripMargin)
     it should evaluateTo(""" "Hello World" """)
@@ -175,9 +168,8 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  Http.Delete("http://localhost:$testPort/hello")
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
-      |        "http://localhost:$testPort/hello",
-      |        http_method = "DELETE"
+      |    Http.Delete(
+      |        "http://localhost:$testPort/hello"
       |    )
       |)""".stripMargin)
     it should evaluateTo(""" "Hello World" """)
@@ -189,9 +181,8 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  Http.Head("http://localhost:$testPort/hello")
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
-      |        "http://localhost:$testPort/hello",
-      |        http_method = "HEAD"
+      |    Http.Head(
+      |        "http://localhost:$testPort/hello"
       |    )
       |)""".stripMargin)
   }
@@ -201,9 +192,8 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  Http.Options("http://localhost:$testPort/hello")
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
-      |        "http://localhost:$testPort/hello",
-      |        http_method = "OPTIONS"
+      |    Http.Options(
+      |        "http://localhost:$testPort/hello"
       |    )
       |)""".stripMargin)
     it should evaluateTo(""" "Hello World" """)
@@ -214,9 +204,8 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  Http.Patch("http://localhost:$testPort/hello")
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
-      |        "http://localhost:$testPort/hello",
-      |        http_method = "PATCH"
+      |    Http.Patch(
+      |        "http://localhost:$testPort/hello"
       |    )
       |)""".stripMargin)
     it should evaluateTo(""" "Hello World" """)
@@ -232,12 +221,11 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  )
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
+      |    Http.Post(
       |        "http://localhost:$testPort/return-body",
-      |        http_method = "Post",
-      |        http_user_name = "$expectedUser",
-      |        http_password = "$expectedPassword",
-      |        http_body_string = "Hello World"
+      |        username = "$expectedUser",
+      |        password = "$expectedPassword",
+      |        bodyString = "Hello World"
       |    )
       |)""".stripMargin)
     it should evaluateTo(""" "Hello World" """)
@@ -253,12 +241,11 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |  )
     |)""".stripMargin) { it =>
     it should evaluateTo(s"""String.Read(
-      |    Location.Build(
+      |    Http.Post(
       |        "http://localhost:$testPort/return-body",
-      |        http_method = "Post",
-      |        http_user_name = "$expectedUser",
-      |        http_password = "$expectedPassword",
-      |        http_body_string = "Hello World"
+      |        username = "$expectedUser",
+      |        password = "$expectedPassword",
+      |        bodyString = "Hello World"
       |    )
       |)""".stripMargin)
     it should evaluateTo(""" "Hello World" """)
@@ -300,7 +287,7 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |""".stripMargin)(it => it should evaluateTo(s"""
     |List.Build(
     | Record.Build(url="http://localhost:$wrongPort/hello",
-    |              r=Error.Build("http error: host not found for http://localhost:$wrongPort/hello")),
+    |              r=Error.Build("host not found for http://localhost:$wrongPort/hello")),
     | Record.Build(url="http://localhost:$testPort/hello", r=200),
     | Record.Build(url="http://localhost:$testPort/darkness", r=404)
     |)""".stripMargin))
@@ -340,31 +327,16 @@ trait HttpPackageTest extends Rql2CompilerTestContext with DropboxTestCreds with
     |)""".stripMargin)(it => it should evaluateTo(s""" ${triple}Header1:value1
     |Header2:value2$triple """.stripMargin))
 
-  test(s"""String.Read(
-    |  Location.Build(
-    |      "http://localhost:$testPort/return-headers",
-    |      http_headers = [
-    |       {"Header1", "value1"},
-    |       {"Header2", "value2"}
-    |     ]
-    |  )
-    |)""".stripMargin)(it =>
-    it should evaluateTo(
-      s""" ${triple}Header1:value1
-        |Header2:value2$triple """.stripMargin
-    )
-  )
-
   // Restricted headers are properly leading to an error (RD-6871)
   test(s"""String.Read(
-    |  Location.Build(
+    |  Http.Get(
     |      "http://localhost:$testPort/return-headers",
-    |      http_headers = [
+    |      headers = [
     |       {"Host", "value1"},
     |       {"Header2", "value2"}
     |     ]
     |  )
-    |)""".stripMargin)(it => it should runErrorAs("http error: restricted header name: \"Host\""))
+    |)""".stripMargin)(it => it should runErrorAs("restricted header name: \"Host\""))
 
   test(s"""let
     |  query = $triple SELECT DISTINCT (?country as ?wikidata_country) ?countryLabel ?code

@@ -12,13 +12,14 @@
 
 package raw.compiler.rql2.tests.output
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils._
+import raw.testing.tags.TruffleTests
 import raw.utils._
 
 import java.nio.file.Files
 
-trait CsvOutputTest extends Rql2CompilerTestContext {
+@TruffleTests class CsvOutputTest extends Rql2TruffleCompilerTestContext {
 
   option("output-format", "csv")
 
@@ -121,7 +122,7 @@ trait CsvOutputTest extends Rql2CompilerTestContext {
       if (compilerService.language.contains("rql2-truffle")) {
         path should contain(
           snapi"""byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,nullBoolCol,dateCol,timeCol,timestampCol
-            |"failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte","failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short","failed to parse CSV (url: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int","failed to parse CSV (url: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long","failed to parse CSV (url: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float","failed to parse CSV (url: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double","failed to parse CSV (url: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal","failed to parse CSV (url: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool","failed to parse CSV (url: $csvWithAllTypes: line 1, col 71), cannot parse 'nullBoolCol' as a bool","failed to parse CSV (url: $csvWithAllTypes: line 1, col 83), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 91), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 99), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'"
+            |"failed to parse CSV (location: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte","failed to parse CSV (location: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short","failed to parse CSV (location: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int","failed to parse CSV (location: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long","failed to parse CSV (location: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float","failed to parse CSV (location: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double","failed to parse CSV (location: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal","failed to parse CSV (location: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool","failed to parse CSV (location: $csvWithAllTypes: line 1, col 71), cannot parse 'nullBoolCol' as a bool","failed to parse CSV (location: $csvWithAllTypes: line 1, col 83), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (location: $csvWithAllTypes: line 1, col 91), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (location: $csvWithAllTypes: line 1, col 99), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'"
             |1,10,100,1000,3.14,6.28,9.42,true,false,2023-12-25,01:02:03,2023-12-25T01:02:03
             |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,,2023-02-05,11:12:13,2023-02-05T11:12:13
             |""".stripMargin

@@ -23,13 +23,16 @@ import raw.compiler.rql2.api.{
   ExpParam,
   PackageExtension,
   Param,
+  Rql2LocationValue,
   SugarEntryExtension,
   TypeParam,
+  ValueArg,
   ValueParam
 }
 import raw.compiler.rql2.source._
 import raw.client.api._
 import raw.inferrer.api._
+import raw.sources.bytestream.inmemory.InMemoryByteStreamLocation
 
 class CsvPackage extends PackageExtension {
 
@@ -303,7 +306,6 @@ class CsvInferAndReadEntry extends SugarEntryExtension with CsvEntryExtensionHel
       Proj(PackageIdnExp("Csv"), "Read"),
       l0Args
     )
-
   }
 
 }
@@ -584,11 +586,12 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-
-    val (locationArg, _) = InMemoryLocationValueBuilder.build(mandatoryArgs)
-
+    val codeData = getStringValue(mandatoryArgs.head)
     for (
-      inferrerProperties <- getCsvInferrerProperties(Seq(locationArg), optionalArgs);
+      inferrerProperties <- getCsvInferrerProperties(
+        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
+        optionalArgs
+      );
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
       TextInputStreamFormatDescriptor(
         _,
@@ -629,11 +632,13 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-
-    val (locationArg, codeData) = InMemoryLocationValueBuilder.build(mandatoryArgs)
+    val codeData = getStringValue(mandatoryArgs.head)
 
     val r = for (
-      inferrerProperties <- getCsvInferrerProperties(Seq(locationArg), optionalArgs);
+      inferrerProperties <- getCsvInferrerProperties(
+        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
+        optionalArgs
+      );
       inputFormatDescriptor <- programContext.infer(inferrerProperties)
     ) yield {
       inputFormatDescriptor
@@ -832,9 +837,9 @@ trait CsvEntryExtensionHelper extends EntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
   ): Either[String, CsvInferrerProperties] = {
-    Right(
+    getByteStreamLocation(mandatoryArgs.head).right.map { location =>
       CsvInferrerProperties(
-        getLocationValue(mandatoryArgs.head),
+        location,
         optionalArgs.collectFirst { case a if a._1 == "sampleSize" => a._2 }.map(getIntValue),
         optionalArgs
           .collectFirst { case a if a._1 == "encoding" => a._2 }
@@ -851,7 +856,7 @@ trait CsvEntryExtensionHelper extends EntryExtensionHelper {
           .collectFirst { case a if a._1 == "quotes" => a._2 }
           .map(v => getListOptionStringValue(v).map(_.map(_.head)))
       )
-    )
+    }
   }
 
   protected def validateCsvType(t: Type): Either[Seq[UnsupportedType], Rql2IterableType] = {

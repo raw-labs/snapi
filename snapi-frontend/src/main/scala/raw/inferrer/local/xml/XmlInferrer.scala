@@ -17,7 +17,7 @@ import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.RawException
+import raw.utils.{RawException, RawSettings}
 
 import java.io.Reader
 import javax.xml.stream.XMLStreamException
@@ -27,7 +27,7 @@ object XmlInferrer {
   private val XML_SAMPLE_SIZE = "raw.inferrer.local.xml.sample-size"
 }
 
-class XmlInferrer(implicit protected val sourceContext: SourceContext)
+class XmlInferrer(implicit protected val settings: RawSettings)
     extends InferrerErrorHandler
     with XmlMergeTypes
     with EncodingInferrer

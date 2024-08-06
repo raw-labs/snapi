@@ -21,9 +21,9 @@ import raw.inferrer.local.hjson.HjsonInferrer
 import raw.inferrer.local.json.JsonInferrer
 import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.XmlInferrer
-import raw.sources.api._
 import raw.sources.bytestream.api.ByteStreamLocation
 import raw.sources.filesystem.api.{DirectoryMetadata, FileSystemLocation}
+import raw.utils.RawSettings
 
 object AutoInferrer {
   private val USE_BUFFERED_SEEKABLE_IS = "raw.inferrer.local.use-buffered-seekable-is"
@@ -35,7 +35,7 @@ class AutoInferrer(
     jsonInferrer: JsonInferrer,
     hjsonInferrer: HjsonInferrer,
     xmlInferrer: XmlInferrer
-)(implicit protected val sourceContext: SourceContext)
+)(implicit protected val settings: RawSettings)
     extends InferrerErrorHandler
     with EncodingInferrer
     with StrictLogging {
@@ -43,33 +43,19 @@ class AutoInferrer(
   import AutoInferrer._
 
   def infer(location: ByteStreamLocation, maybeSampleSize: Option[Int]): InputStreamFormatDescriptor = {
-    val maybeFileExtension = {
-      val i = location.rawUri.lastIndexOf('.')
-      if (i != -1) {
-        val ext = location.rawUri.substring(i + 1)
-        // If it looks like an extension, pass it to the inferrer
-        if (ext.length >= 3 && ext.length <= 8) Some(ext)
-        else None
-      } else {
-        None
-      }
-    }
-
-    maybeFileExtension match {
-      case _ => location match {
-          case fs: FileSystemLocation =>
-            // If it is a file system, check if it is a directory, to attempt to detect Hadoop-like files.
-            fs.metadata() match {
-              case DirectoryMetadata(_) =>
-                throw new LocalInferrerException("automatic inference failed: location is a directory!")
-              case _ =>
-                // Not a directory.
-                inferTextFormats(location, maybeSampleSize)
-            }
+    location match {
+      case fs: FileSystemLocation =>
+        // If it is a file system, check if it is a directory, to attempt to detect Hadoop-like files.
+        fs.metadata() match {
+          case DirectoryMetadata(_) =>
+            throw new LocalInferrerException("automatic inference failed: location is a directory!")
           case _ =>
-            // Not a file system.
+            // Not a directory.
             inferTextFormats(location, maybeSampleSize)
         }
+      case _ =>
+        // Not a file system.
+        inferTextFormats(location, maybeSampleSize)
     }
   }
 
@@ -85,7 +71,7 @@ class AutoInferrer(
     // and pass those to inferrers.
 
     val is =
-      if (sourceContext.settings.getBoolean(USE_BUFFERED_SEEKABLE_IS)) {
+      if (settings.getBoolean(USE_BUFFERED_SEEKABLE_IS)) {
         new InferrerBufferedSeekableIS(location.getSeekableInputStream)
       } else {
         location.getSeekableInputStream

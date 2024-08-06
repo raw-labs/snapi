@@ -19,7 +19,7 @@ import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.RawException
+import raw.utils.{RawException, RawSettings}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.NonFatal
@@ -28,7 +28,7 @@ object JsonInferrer {
   private val JSON_SAMPLE_SIZE = "raw.inferrer.local.json.sample-size"
 }
 
-class JsonInferrer(implicit protected val sourceContext: SourceContext)
+class JsonInferrer(implicit protected val settings: RawSettings)
     extends InferrerErrorHandler
     with EncodingInferrer
     with TextTypeInferrer

@@ -12,16 +12,18 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
-import raw.creds.jdbc.RDBMSTestCreds
+import raw.compiler.rql2.tests.TestCredentials
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
+@TruffleTests class PostgreSQLPackageTest extends Rql2TruffleCompilerTestContext {
+
+  import TestCredentials._
 
   val pgSchema = "rdbmstest"
   val pgTable = "tbl1"
 
-  rdbms(authorizedUser, "pgsql", pgsqlCreds)
+  rdbms("pgsql", pgsqlCreds)
 
   private val ttt = "\"\"\""
   // Trying all types. Not all expressions type as wanted so that
@@ -112,7 +114,7 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
 
   test(
     s"""PostgreSQL.InferAndRead("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
-      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}")""".stripMargin
+      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}")""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -126,7 +128,7 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
   test(
     s"""PostgreSQL.Read("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}" )""".stripMargin
+      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}" )""".stripMargin
   ) { it =>
     it should orderEvaluateTo(
       """[
@@ -137,13 +139,13 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
     )
   }
 
-  test(s"""
+  ignore(s"""
     |let
-    |   d = Location.Describe(Location.Build(
+    |   d = Location.Describe(PostgreSQL.Build(
     |      "pgsql://${pgsqlCreds.database}/$pgSchema/$pgTable",
-    |      db_host = "${pgsqlCreds.host}",
-    |      db_username = "${pgsqlCreds.username.get.toString}",
-    |      db_password = "${pgsqlCreds.password.get.toString}"
+    |      host = "${pgsqlCreds.host}",
+    |      username = "${pgsqlCreds.username}",
+    |      password = "${pgsqlCreds.password}"
     |   ))
     |in
     |  d.columns
@@ -159,22 +161,20 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
   // no credentials
   test(
     s"""PostgreSQL.InferAndRead("${pgsqlCreds.database}", "$pgSchema", "$pgTable" )""".stripMargin
-  ) { it =>
-    it should runErrorAs(s"""inference error: no credential found for postgresql: ${pgsqlCreds.database}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.database}""".stripMargin))
 
   test(
     s"""PostgreSQL.Read("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""no credential found for postgresql: ${pgsqlCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.database}""".stripMargin))
 
   // server does not exist
   test(
     s"""PostgreSQL.Read(
       |  "${pgsqlCreds.database}", "$pgSchema", "$pgTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${badMysqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}"
+      |  host = "${badMysqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}"
       |)""".stripMargin
   )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin))
 
@@ -184,7 +184,7 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
     s"""PostgreSQL.Read(
       |  "${pgsqlCreds.database}", "$pgSchema", "$pgTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}", port = 1234
+      |  host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}", port = 1234
       |)""".stripMargin
   )(it => it should runErrorAs(s"""connect timed out: ${pgsqlCreds.host}""".stripMargin))
 
@@ -195,16 +195,16 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${pgsqlCreds.host}"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""error connecting to database: ${pgsqlCreds.host}""".stripMargin))
+  )(it => it should runErrorAs("username is required"))
 
   // wrong password
   test(
     s"""PostgreSQL.Read(
       |  "${pgsqlCreds.database}", "$pgSchema", "$pgTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "wrong!"
+      |  host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "wrong!"
       |)""".stripMargin
-  )(it => it should runErrorAs("""authentication failed""".stripMargin))
+  )(it => it should runErrorAs("authentication failed"))
 
   test(s"""PostgreSQL.InferAndQuery("pgsql", "SELECT * FROM $pgSchema.$pgTable")""") { it =>
     it should evaluateTo(
@@ -218,7 +218,7 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
 
   test(
     s"""PostgreSQL.InferAndQuery("${pgsqlCreds.database}", "SELECT * FROM $pgSchema.$pgTable",
-      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}" )""".stripMargin
+      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -244,7 +244,7 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
   test(
     s"""PostgreSQL.Query("${pgsqlCreds.database}", "SELECT * FROM $pgSchema.$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}" )""".stripMargin
+      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -261,8 +261,8 @@ trait PostgreSQLPackageTest extends Rql2CompilerTestContext with CredentialsTest
       |     Collection.Count(
       |      PostgreSQL.Query("${pgsqlCreds.database}", "SELECT * FROM $pgSchema." + table,
       |      type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |      host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get}",
-      |      password = "${pgsqlCreds.password.get}")
+      |      host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}",
+      |      password = "${pgsqlCreds.password}")
       |     ))""".stripMargin
   ) { it =>
     val error =

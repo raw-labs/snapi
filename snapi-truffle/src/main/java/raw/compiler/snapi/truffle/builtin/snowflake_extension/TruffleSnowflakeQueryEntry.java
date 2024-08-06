@@ -13,58 +13,38 @@
 package raw.compiler.snapi.truffle.builtin.snowflake_extension;
 
 import java.util.List;
-import java.util.stream.IntStream;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.SnowflakeQueryEntry;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
+import raw.compiler.snapi.truffle.builtin.WithArgs;
 import raw.compiler.snapi.truffle.builtin.jdbc.Jdbc;
-import raw.compiler.snapi.truffle.builtin.jdbc.WithJdbcArgs;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.binary.PlusNode;
-import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode;
-import raw.runtime.truffle.ast.expressions.literals.StringNode;
-import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler;
+import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromSnowflakeCredentialNode;
+import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromSnowflakeNode;
+import raw.runtime.truffle.runtime.exceptions.rdbms.SnowflakeExceptionHandler;
 
 public class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry
-    implements TruffleEntryExtension, WithJdbcArgs {
+    implements TruffleEntryExtension, WithArgs {
+
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode db = args.get(0).exprNode();
-    String[] allKeys =
-        new String[] {
-          "db-host", "db-port", "db-username", "db-password", "db-account-id", "db-options"
-        };
-    ExpressionNode[] allValues =
-        new ExpressionNode[] {
-          host(args), port(args), username(args), password(args), accountID(args), options(args)
-        };
+    ExpressionNode query = args.get(1).exprNode();
 
-    String[] keys =
-        IntStream.range(0, allKeys.length)
-            .filter(i -> allValues[i] != null)
-            .mapToObj(i -> allKeys[i])
-            .toArray(String[]::new);
+    ExpressionNode location;
 
-    ExpressionNode[] values =
-        IntStream.range(0, allValues.length)
-            .filter(i -> allValues[i] != null)
-            .mapToObj(i -> allValues[i])
-            .toArray(ExpressionNode[]::new);
+    ExpressionNode accountID = arg(args, "accountID").orElse(null);
+    if (accountID == null) {
+      location = new LocationFromSnowflakeCredentialNode(db);
+    } else {
+      ExpressionNode username = arg(args, "username").get();
+      ExpressionNode password = arg(args, "password").get();
+      ExpressionNode options = arg(args, "options").orElse(null);
+      location = new LocationFromSnowflakeNode(db, username, password, accountID, options);
+    }
 
-    Rql2TypeWithProperties[] types =
-        args.stream()
-            .skip(1)
-            .filter(a -> a.identifier() != null)
-            .map(a -> (Rql2TypeWithProperties) a.type())
-            .toArray(Rql2TypeWithProperties[]::new);
-
-    LocationBuildNode location =
-        new LocationBuildNode(new PlusNode(new StringNode("snowflake:"), db), keys, values, types);
-
-    return Jdbc.query(
-        location, args.get(1).exprNode(), type, new MySQLExceptionHandler(), rawLanguage);
+    return Jdbc.query(location, query, type, new SnowflakeExceptionHandler(), rawLanguage);
   }
 }

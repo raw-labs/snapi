@@ -18,19 +18,9 @@ sealed trait InputFormatDescriptor {
   def tipe: SourceType
 }
 
-final case class SqlTableInputFormatDescriptor(
-    vendor: String,
-    dbName: String,
-    maybeSchema: Option[String],
-    table: String,
-    tipe: SourceType
-) extends InputFormatDescriptor
+final case class SqlTableInputFormatDescriptor(tipe: SourceType) extends InputFormatDescriptor
 
-final case class SqlQueryInputFormatDescriptor(
-    vendor: String,
-    dbName: String,
-    tipe: SourceType
-) extends InputFormatDescriptor
+final case class SqlQueryInputFormatDescriptor(tipe: SourceType) extends InputFormatDescriptor
 
 sealed trait InputStreamFormatDescriptor extends InputFormatDescriptor
 

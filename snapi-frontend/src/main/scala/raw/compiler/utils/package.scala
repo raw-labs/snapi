@@ -12,8 +12,6 @@
 
 package raw.compiler
 
-import raw.sources.api.Location
-
 import java.nio.file.Path
 
 package object utils {
@@ -37,7 +35,6 @@ package object utils {
 
     private def doLookup(arg: Any): String = {
       arg match {
-        case l: Location => l.rawUri
         case p: Path => "file:" + p.toAbsolutePath.toString.replace("\\", "\\\\")
         case s: String => s
         case _ => arg.toString

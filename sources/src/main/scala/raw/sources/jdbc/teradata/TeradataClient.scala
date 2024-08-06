@@ -13,7 +13,6 @@
 package raw.sources.jdbc.teradata
 
 import raw.utils.RawSettings
-import raw.creds.api.TeradataCredential
 import raw.sources.jdbc.api._
 
 import java.net.{NoRouteToHostException, SocketTimeoutException, UnknownHostException}
@@ -21,35 +20,40 @@ import java.sql.{Connection, DriverManager, ResultSetMetaData, SQLException}
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
-class TeradataClient(db: TeradataCredential)(implicit settings: RawSettings) extends JdbcClient {
+class TeradataClient(
+    val hostname: String,
+    val port: Int,
+    dbName: String,
+    username: String,
+    password: String,
+    val parameters: Map[String, String]
+)(
+    implicit settings: RawSettings
+) extends JdbcClient {
 
   Class.forName("com.teradata.jdbc.TeraDriver")
 
   override val vendor: String = "teradata"
-  override val connectionString: String = {
-    // (ctm) Received null parameters while running rawcli tests.
-    val params: Seq[(String, String)] = Option(db.parameters).getOrElse(Map.empty).toSeq ++
-      db.port.map(port => Seq(("DBS_PORT", port.toString))).getOrElse(Seq.empty)
-    if (params.nonEmpty) {
-      s"jdbc:$vendor://${db.host}/${params.map(p => s"${p._1}=${p._2}").mkString(",")}"
-    } else {
-      s"jdbc:$vendor://${db.host}"
-    }
-  }
-  override val username: Option[String] = db.username
-  override val password: Option[String] = db.password
 
-  override val hostname: String = db.host
-  override val database: Option[String] = None
+  override val maybeDatabase: Option[String] = Some(dbName)
+
+  override val maybeUsername: Option[String] = Some(username)
+
+  override val maybePassword: Option[String] = Some(password)
+
+  override val connectionString: String = {
+    val params = parameters + ("DBS_PORT" -> port.toString)
+    s"jdbc:$vendor://$hostname/${params.map(p => s"${p._1}=${p._2}").mkString(",")}"
+  }
 
   override def getConnection: Connection = {
     wrapSQLException {
       // Teradata jdbc connections does not have the setNetworkTimeout
-      DriverManager.getConnection(connectionString, username.orNull, password.orNull)
+      DriverManager.getConnection(connectionString, maybeUsername.orNull, maybePassword.orNull)
     }
   }
 
-  override def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
+  override def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
     val schema = maybeSchema.get
     val conn = getConnection
     try {
@@ -85,7 +89,7 @@ class TeradataClient(db: TeradataCredential)(implicit settings: RawSettings) ext
             // RuntimeErrorsSourceTeradataTestCase.test_register_bad_port_timeout the host is correct but the port is wrong.
             throw new RDBMSUnknownHostException(hostname, ex)
           case _: SocketTimeoutException => throw new RDBMSConnectTimeoutException(hostname, ex)
-          case int: InterruptedException => throw int
+          case ex: InterruptedException => throw ex
           case _ =>
             // Some more codes here (DB2 Universal Messages manual), various databases have varying degrees of compliance
             //https://www.ibm.com/support/knowledgecenter/en/SS6NHC/com.ibm.swg.im.dashdb.messages.doc/doc/rdb2stt.html
@@ -105,9 +109,8 @@ class TeradataClient(db: TeradataCredential)(implicit settings: RawSettings) ext
             }
         }
       case ex: JdbcLocationException => throw ex
-      case NonFatal(t) =>
-        logger.warn("Unexpected SQL error.", t)
-        throw new JdbcLocationException(s"unexpected database error", t)
+      case ex: InterruptedException => throw ex
+      case NonFatal(t) => throw new JdbcLocationException(s"unexpected database error", t)
     }
   }
 

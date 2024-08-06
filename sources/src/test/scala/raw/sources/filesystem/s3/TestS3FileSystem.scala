@@ -13,8 +13,6 @@
 package raw.sources.filesystem.s3
 
 import raw.utils.RawTestSuite
-import raw.creds.api.S3Bucket
-import raw.creds.s3.S3TestCreds
 import raw.sources.filesystem.api.{FileSystem, TestFileSystems}
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
 import software.amazon.awssdk.core.exception.SdkClientException
@@ -25,25 +23,32 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 
 import java.nio.charset.StandardCharsets
 
-trait TestS3FileSystem extends TestFileSystems with S3TestCreds {
+trait TestS3FileSystem extends TestFileSystems {
   this: RawTestSuite =>
 
-  def bucket: S3Bucket = UnitTestPrivateBucket
+  val bucketName: String
+
+  val bucketRegion: String
+
+  val bucketAccessKey: String
+
+  val bucketSecretKey: String
 
   lazy val awsClient = {
     val credentials = AwsBasicCredentials.create(
-      bucket.credentials.get.accessKey,
-      bucket.credentials.get.secretKey
+      bucketAccessKey,
+      bucketSecretKey
     )
 
     S3Client
       .builder()
       .credentialsProvider(StaticCredentialsProvider.create(credentials))
-      .region(Region.of(bucket.region.get))
+      .region(Region.of(bucketRegion))
       .build()
   }
 
-  override val newFileSystem: FileSystem = new S3FileSystem(bucket)
+  override lazy val newFileSystem: FileSystem =
+    new S3FileSystem(bucketName, Some(bucketRegion), Some(bucketAccessKey), Some(bucketSecretKey))
 
   override def writeTestFile(fs: FileSystem, parts: String*): Unit = {
     val s3Path = buildPath(fs, parts.mkString(fs.fileSeparator))
@@ -54,7 +59,7 @@ trait TestS3FileSystem extends TestFileSystems with S3TestCreds {
       try {
         val putRequest = PutObjectRequest
           .builder()
-          .bucket(bucket.name)
+          .bucket(bucketName)
           .key(s3Path)
           .build()
 
@@ -79,21 +84,32 @@ trait TestS3FileSystem extends TestFileSystems with S3TestCreds {
 }
 
 class TestForwardSlashS3FileSystem extends RawTestSuite with TestS3FileSystem {
+  override val bucketName = "rawlabs-private-test-data"
+  override val bucketRegion = "eu-west-1"
+  override val bucketAccessKey = sys.env("RAW_AWS_ACCESS_KEY_ID")
+  override val bucketSecretKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
   override val basePath = "/s3-test"
   override def filterResults(p: String): Boolean = !p.startsWith(s"${basePath.stripPrefix("/")}/tmp-")
 }
 
 class TestNoForwardSlashS3FileSystem extends RawTestSuite with TestS3FileSystem {
+  override val bucketName = "rawlabs-private-test-data"
+  override val bucketRegion = "eu-west-1"
+  override val bucketAccessKey = sys.env("RAW_AWS_ACCESS_KEY_ID")
+  override val bucketSecretKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
   override val basePath = "s3-test"
   override def filterResults(p: String): Boolean = !p.startsWith(s"$basePath/tmp-")
 }
 
 class TestRootOfBucketS3FileSystem extends RawTestSuite with TestS3FileSystem {
+  override val bucketName = "rawlabs-unit-tests\""
+  override val bucketRegion = "eu-west-1"
+  override val bucketAccessKey = sys.env("RAW_AWS_ACCESS_KEY_ID")
+  override val bucketSecretKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
+
   override val basePath = ""
 
   override def filterResults(p: String): Boolean = !p.startsWith("tmp-")
-
-  override def bucket: S3Bucket = UnitTestPrivateBucket2
 
   override def buildPath(fs: FileSystem, relativePath: String): String = relativePath
 }

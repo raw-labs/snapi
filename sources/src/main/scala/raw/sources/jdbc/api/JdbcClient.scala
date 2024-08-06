@@ -54,12 +54,14 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
 
   import JdbcClient._
 
+  DriverManager.setLoginTimeout(getLoginTimeout(TimeUnit.SECONDS).toInt)
+
   def hostname: String
 
   def vendor: String
 
   // Database is optional because some databases do not have the concept of database (Teradata and Sqlite).
-  def database: Option[String]
+  def maybeDatabase: Option[String]
 
   // Wrap vendor-specific calls and ensure only RelationalDatabaseException is thrown.
   def wrapSQLException[T](f: => T): T
@@ -75,17 +77,15 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
   //    new PoolingDataSource(connectionPool)
   //  }
 
-  def username: Option[String]
+  def maybeUsername: Option[String]
 
-  def password: Option[String]
-
-  DriverManager.setLoginTimeout(getLoginTimeout(TimeUnit.SECONDS).toInt)
+  def maybePassword: Option[String]
 
   def getConnection: Connection = {
     // For connection pool:
     //    wrapSQLException(datasource.getConnection())
     wrapSQLException {
-      val conn = DriverManager.getConnection(connectionString, username.orNull, password.orNull)
+      val conn = DriverManager.getConnection(connectionString, maybeUsername.orNull, maybePassword.orNull)
       conn.setNetworkTimeout(Executors.newSingleThreadExecutor(), getNetworkTimeout(TimeUnit.MILLISECONDS).toInt)
       conn
     }
@@ -104,8 +104,8 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     listTables(schema).close()
   }
 
-  def testAccess(database: Option[String], maybeSchema: Option[String], table: String): Unit = {
-    tableMetadata(database, maybeSchema, table)
+  def testAccess(maybeSchema: Option[String], table: String): Unit = {
+    tableMetadata(maybeSchema, table)
   }
 
   def listSchemas: Iterator[String] with Closeable = {
@@ -124,10 +124,10 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     SchemaMetadata()
   }
 
-  def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
+  def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
     val conn = getConnection
     try {
-      val res = getTableMetadata(conn, database, maybeSchema, table)
+      val res = getTableMetadata(conn, maybeDatabase, maybeSchema, table)
       try {
         getTableTypeFromTableMetadata(res)
       } finally {
@@ -138,7 +138,7 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     }
   }
 
-  private def getTableMetadata(
+  protected def getTableMetadata(
       conn: Connection,
       maybeDatabase: Option[String],
       maybeSchema: Option[String],
@@ -155,11 +155,9 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     }
   }
 
-  /**
-   * Infer schema from table.
-   * Skip silently fields we do not understand (except if can't understand any field, in which case, fire an error.)
-   */
-  private def getTableTypeFromTableMetadata(res: ResultSet): TableMetadata = {
+  // Infer schema from table.
+  // Skip silently fields we do not understand (except if can't understand any field, in which case, fire an error.)
+  protected def getTableTypeFromTableMetadata(res: ResultSet): TableMetadata = {
     val columns = mutable.ListBuffer[TableColumn]()
     while (wrapSQLException(res.next)) {
       val columnName = wrapSQLException(res.getString("COLUMN_NAME"))

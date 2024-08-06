@@ -13,23 +13,7 @@
 package raw.compiler.rql2
 
 import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
-import raw.client.api.{
-  CompilerService,
-  ErrorMessage,
-  ErrorPosition,
-  ErrorRange,
-  LocationBinarySetting,
-  LocationBooleanSetting,
-  LocationDescription,
-  LocationDurationSetting,
-  LocationIntArraySetting,
-  LocationIntSetting,
-  LocationKVSetting,
-  LocationSettingKey,
-  LocationSettingValue,
-  LocationStringSetting,
-  ProgramEnvironment
-}
+import raw.client.api.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment}
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.antlr4.ParserErrors
 import raw.compiler.rql2.api._
@@ -72,9 +56,7 @@ trait StagedCompiler {
     val ctxBuilder = Context
       .newBuilder("rql")
       .engine(engine)
-      .environment("RAW_USER", environment.user.uid.toString)
-      .environment("RAW_TRACE_ID", environment.user.uid.toString)
-      .environment("RAW_SCOPES", environment.scopes.mkString(","))
+      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     environment.options.get("staged-compiler").foreach { stagedCompiler =>
@@ -138,7 +120,7 @@ trait StagedCompiler {
     }
   }
 
-  private def polyglotValueToRql2Value(v: Value, t: Type): Rql2Value = {
+  private def polyglotValueToRql2Value(v: Value, t: Type)(implicit settings: RawSettings): Rql2Value = {
     t match {
       case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
         if (v.isException) {
@@ -157,7 +139,6 @@ trait StagedCompiler {
         } else {
           Rql2OptionValue(Some(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(Rql2IsNullableTypeProperty()))))
         }
-
       case _: Rql2UndefinedType => throw new AssertionError("Rql2Undefined is not triable and is not nullable.")
       case _: Rql2BoolType => Rql2BoolValue(v.asBoolean())
       case _: Rql2StringType => Rql2StringValue(v.asString())
@@ -191,7 +172,7 @@ trait StagedCompiler {
         }
         Rql2BinaryValue(byteArray)
       case Rql2RecordType(atts, _) =>
-        val vs = atts.map(att => polyglotValueToRql2Value(v.getMember(att.idn), att.tipe))
+        val vs = atts.map(att => Rql2RecordAttr(att.idn, polyglotValueToRql2Value(v.getMember(att.idn), att.tipe)))
         Rql2RecordValue(vs)
       case Rql2ListType(innerType, _) =>
         val seq = mutable.ArrayBuffer[Rql2Value]()
@@ -218,51 +199,14 @@ trait StagedCompiler {
         val tipe = tipes(idx)
         polyglotValueToRql2Value(v1, tipe)
       case _: Rql2LocationType =>
-        val url = v.asString
-        assert(v.hasMembers);
-        val members = v.getMemberKeys
-        val settings = mutable.Map.empty[LocationSettingKey, LocationSettingValue]
-        val keys = members.iterator()
-        while (keys.hasNext) {
-          val key = keys.next()
-          val tv = v.getMember(key)
-          val value =
-            if (tv.isNumber) LocationIntSetting(tv.asInt)
-            else if (tv.isBoolean) LocationBooleanSetting(tv.asBoolean)
-            else if (tv.isString) LocationStringSetting(tv.asString)
-            else if (tv.hasBufferElements) {
-              val bufferSize = tv.getBufferSize.toInt
-              val byteArray = new Array[Byte](bufferSize)
-              for (i <- 0 until bufferSize) {
-                byteArray(i) = tv.readBufferByte(i)
-              }
-              LocationBinarySetting(byteArray)
-            } else if (tv.isDuration) LocationDurationSetting(tv.asDuration())
-            else if (tv.hasArrayElements) {
-              // in the context of a location, it's int-array for sure
-              val size = tv.getArraySize
-              val array = new Array[Int](size.toInt)
-              for (i <- 0L until size) {
-                array(i.toInt) = tv.getArrayElement(i).asInt
-              }
-              LocationIntArraySetting(array)
-            } else if (tv.hasHashEntries) {
-              // kv settings
-              val iterator = tv.getHashEntriesIterator
-              val keyValues = mutable.ArrayBuffer.empty[(String, String)]
-              while (iterator.hasIteratorNextElement) {
-                val kv = iterator.getIteratorNextElement // array with two elements: key and value
-                val key = kv.getArrayElement(0).asString
-                val value = kv.getArrayElement(1).asString
-                keyValues += ((key, value))
-              }
-              LocationKVSetting(keyValues)
-            } else {
-              throw new AssertionError("Unexpected value type: " + tv)
-            }
-          settings.put(LocationSettingKey(key), value)
+        val bufferSize = v.getBufferSize.toInt
+        val byteArray = new Array[Byte](bufferSize)
+        for (i <- 0 until bufferSize) {
+          byteArray(i) = v.readBufferByte(i)
         }
-        Rql2LocationValue(LocationDescription(url, settings.toMap))
+        val location = LocationDescription.toLocation(LocationDescription.deserialize(byteArray))
+        val publicDescription = v.asString()
+        Rql2LocationValue(location, publicDescription)
     }
   }
 

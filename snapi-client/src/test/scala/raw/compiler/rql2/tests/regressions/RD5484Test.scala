@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.utils.TestData
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD5484Test extends Rql2CompilerTestContext {
+@TruffleTests class RD5484Test extends Rql2TruffleCompilerTestContext {
 
   // top-level and correct.
   test("""Timestamp.Build(2015, 1, 4, 22, 0)""")(_ should run)

@@ -16,6 +16,34 @@ import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import raw.client.api._
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.common.source._
+import raw.compiler.rql2.api.{
+  Rql2BoolValue,
+  Rql2ByteValue,
+  Rql2DateValue,
+  Rql2DoubleValue,
+  Rql2FloatValue,
+  Rql2IntValue,
+  Rql2IntervalValue,
+  Rql2ListValue,
+  Rql2LongValue,
+  Rql2OptionValue,
+  Rql2RecordAttr,
+  Rql2RecordValue,
+  Rql2ShortValue,
+  Rql2StringValue,
+  Rql2TimeValue,
+  Rql2TimestampValue,
+  Rql2Value
+}
+import raw.compiler.rql2.builtin.{
+  DatePackageBuilder,
+  IntervalPackageBuilder,
+  ListPackageBuilder,
+  NullablePackageBuilder,
+  RecordPackageBuilder,
+  TimePackageBuilder,
+  TimestampPackageBuilder
+}
 import raw.compiler.rql2.source._
 import raw.inferrer.api._
 
@@ -163,6 +191,44 @@ trait Rql2TypeUtils {
     } catch {
       case _: IllegalArgumentException => None
     }
+  }
+
+  final def valueToExp(value: Rql2Value, t: Type): Exp = value match {
+    case Rql2ByteValue(v) => ByteConst(v.toString)
+    case Rql2ShortValue(v) => ShortConst(v.toString)
+    case Rql2IntValue(v) => IntConst(v.toString)
+    case Rql2LongValue(v) => LongConst(v.toString)
+    case Rql2FloatValue(v) => FloatConst(v.toString)
+    case Rql2DoubleValue(v) => DoubleConst(v.toString)
+    case Rql2StringValue(v) => StringConst(v)
+    case Rql2BoolValue(v) => BoolConst(v)
+    case Rql2OptionValue(option) =>
+      val innerType = resetProps(t, Set.empty)
+      option
+        .map(v => valueToExp(v, innerType))
+        .map(NullablePackageBuilder.Build(_))
+        .getOrElse(NullablePackageBuilder.Empty(innerType))
+    case Rql2RecordValue(vs) =>
+      val Rql2RecordType(atts, _) = t
+      RecordPackageBuilder.Build(
+        vs.zip(atts).map { case (Rql2RecordAttr(idn, v1), att) => idn -> valueToExp(v1, att.tipe) }.toVector
+      )
+    case Rql2ListValue(v) =>
+      val Rql2ListType(innerType, _) = t
+      ListPackageBuilder.Build(v.map(x => valueToExp(x, innerType)): _*)
+    case Rql2DateValue(v) => DatePackageBuilder.FromLocalDate(v)
+    case Rql2TimeValue(v) => TimePackageBuilder.FromLocalTime(v)
+    case Rql2TimestampValue(v) => TimestampPackageBuilder.FromLocalDateTime(v)
+    case Rql2IntervalValue(
+          years,
+          month,
+          weeks,
+          days,
+          hours,
+          minutes,
+          seconds,
+          millis
+        ) => IntervalPackageBuilder.FromRawInterval(years, month, weeks, days, hours, minutes, seconds, millis)
   }
 
 }

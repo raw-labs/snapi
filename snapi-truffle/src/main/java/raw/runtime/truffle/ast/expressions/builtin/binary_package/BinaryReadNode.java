@@ -14,7 +14,6 @@ package raw.runtime.truffle.ast.expressions.builtin.binary_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +25,6 @@ import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleInputStream;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "Binary.Read")
 @NodeChild(value = "binary")
@@ -35,13 +33,10 @@ public abstract class BinaryReadNode extends ExpressionNode {
 
   @Specialization
   @TruffleBoundary
-  protected Object doExecute(
-      LocationObject locationObject,
-      @Bind("$node") Node thisNode,
-      @Cached(value = "getSourceContext(thisNode)", neverDefault = true) SourceContext context) {
+  protected Object doExecute(LocationObject locationObject) {
     InputStream stream = null;
     try {
-      stream = (new TruffleInputStream(locationObject, context)).getInputStream();
+      stream = (new TruffleInputStream(locationObject)).getInputStream();
       return new BinaryObject(stream.readAllBytes());
     } catch (IOException | RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());

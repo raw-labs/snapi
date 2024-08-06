@@ -17,12 +17,9 @@ import java.nio.file.{Path, Paths}
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.filesystem.api._
 
-// TODO (msb): Remove dependency on LocalFileSystem in the few places where it's still needed.
-class LocalPath(pathName: String) extends FileSystemLocation {
+class LocalPath(val pathName: String) extends FileSystemLocation {
 
   def this(path: Path) = this(path.toAbsolutePath.toString)
-
-  override def rawUri: String = s"file:$pathName"
 
   protected def path: Path = Paths.get(pathName)
 

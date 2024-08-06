@@ -22,14 +22,11 @@ import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import scala.collection.mutable.ArrayBuffer
 
-class LocalFileSystem extends BaseFileSystem {
+object LocalFileSystem extends BaseFileSystem {
 
   private[sources] val fileSeparator: String = File.separator
 
   private val fileSeparatorRegex: String = RawUtils.descape(fileSeparator)
-
-  // TODO (msb): This should fail to create if not on developer mode?
-  // TODO (msb): And if so, should require all paths to be under some certain base path?
 
   private def sanitizePath(path: String): String = {
     // Currently there's no need to sanitize path because the Java APIs handle it for us.
@@ -111,7 +108,6 @@ class LocalFileSystem extends BaseFileSystem {
           getPath(pathBeforeGlob),
           new SimpleFileVisitor[Path] {
             override def visitFileFailed(file: Path, exc: IOException): FileVisitResult = {
-              logger.trace(s"Cannot access path, skipping: $file: ${exc.toString}")
               FileVisitResult.SKIP_SUBTREE
             }
             override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
@@ -164,5 +160,3 @@ class LocalFileSystem extends BaseFileSystem {
   }
 
 }
-
-object LocalFileSystem extends LocalFileSystem

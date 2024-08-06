@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.parser
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait ListSugarTest extends Rql2CompilerTestContext {
+@TruffleTests class ListSugarTest extends Rql2TruffleCompilerTestContext {
 
   test("""[1,2,3]""") { it =>
     it should typeAs("list(int)")

@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait XmlPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class XmlPackageTest extends Rql2TruffleCompilerTestContext {
 
   private val allTypes = tempFile("""<items>
     | <byte>120</byte>
@@ -527,7 +528,7 @@ trait XmlPackageTest extends Rql2CompilerTestContext {
 
   test(snapi"""Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""")(
     _ should runErrorAs(
-      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (location: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 
@@ -551,7 +552,7 @@ trait XmlPackageTest extends Rql2CompilerTestContext {
     snapi"""Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
   )(
     _ should runErrorAs(
-      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (location: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 
@@ -559,7 +560,7 @@ trait XmlPackageTest extends Rql2CompilerTestContext {
     snapi"""Collection.Count(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
   )(
     _ should runErrorAs(
-      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (location: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 

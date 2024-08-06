@@ -14,8 +14,7 @@ package raw.inferrer.api
 
 import com.google.common.base.Stopwatch
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
-import raw.sources.api.SourceContext
-import raw.utils.{RawException, RawService, RawUtils}
+import raw.utils.{RawException, RawService, RawSettings, RawUtils}
 
 import java.util.concurrent.{ExecutionException, Executors, TimeUnit, TimeoutException}
 
@@ -30,11 +29,9 @@ object InferrerService {
   private val prettyPrinter = new SourceTypePrettyPrinter
 }
 
-abstract class InferrerService(implicit sourceContext: SourceContext) extends RawService {
+abstract class InferrerService(implicit settings: RawSettings) extends RawService {
 
   import InferrerService._
-
-  private val settings = sourceContext.settings
 
   private val inferrerTimeoutMillis = settings.getDuration(INFERRER_TIMEOUT).toMillis
   private val inferrerExpirySeconds = settings.getDuration(INFERRER_EXPIRY).toSeconds

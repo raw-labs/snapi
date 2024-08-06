@@ -81,7 +81,7 @@ object CompilerService {
       "Arguments" -> environment.maybeArguments
         .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
         .getOrElse("<undefined>"),
-      "User" -> environment.user.toString,
+      "Uid" -> environment.uid.toString,
       "Scopes" -> environment.scopes.mkString(","),
       "Options" -> environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
       //"Settings" -> runtimeContext.settings.toString

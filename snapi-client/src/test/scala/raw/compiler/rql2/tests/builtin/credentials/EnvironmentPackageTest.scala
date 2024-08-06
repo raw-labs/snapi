@@ -12,20 +12,20 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait EnvironmentPackageTest extends Rql2CompilerTestContext with CredentialsTestContext {
+@TruffleTests class EnvironmentPackageTest extends Rql2TruffleCompilerTestContext {
 
-  secret(authorizedUser, "my-secret", "my-secret-value")
+  secret("my-secret", "my-secret-value")
 
   test("""Environment.Secret("my-secret")""")(it => it should evaluateTo(""" "my-secret-value" """))
 
-  test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("could not find secret my-typo"))
+  test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("unknown secret: my-typo"))
 
   // checking it doesn't fail if one of the secrets is not found (RD-9041)
   test("""[Environment.Secret("my-secret"), Environment.Secret("my-typo")]""")(it =>
-    it should evaluateTo("""["my-secret-value", Error.Build("could not find secret my-typo")]
+    it should evaluateTo("""["my-secret-value", Error.Build("unknown secret: my-typo")]
       |""".stripMargin)
   )
 

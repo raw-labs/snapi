@@ -13,13 +13,14 @@
 package raw.compiler.rql2.tests.output
 
 import org.apache.commons.io.FileUtils
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
+import raw.testing.tags.TruffleTests
 
 import java.io.File
 import java.nio.file.Files
 
-trait BinaryOutputTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
+@TruffleTests class BinaryOutputTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   option("output-format", "binary")
 

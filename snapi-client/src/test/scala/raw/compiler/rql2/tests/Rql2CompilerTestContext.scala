@@ -29,6 +29,90 @@ import java.nio.file.{Files, Path, StandardOpenOption}
 import scala.collection.mutable
 import scala.io.Source
 
+object TestCredentials {
+
+  private def getEnv(name: String): String = sys.env.getOrElse(name, "credential_not_defined_missing_env_file")
+
+  /////////////////////////////////////////////////////////////////////////////
+  // HTTP Headers
+  /////////////////////////////////////////////////////////////////////////////
+
+  val dropboxLongLivedAccessToken = getEnv("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN")
+  // The client ID to use for Dropbox API calls, once the access token is obtained.
+  val dropboxClientId = getEnv("RAW_DROPBOX_TEST_CLIENT_ID")
+
+  /////////////////////////////////////////////////////////////////////////////
+  // S3 Credentials
+  /////////////////////////////////////////////////////////////////////////////
+
+  val accessKeyId = getEnv("RAW_AWS_ACCESS_KEY_ID")
+  val secretKeyId = getEnv("RAW_AWS_SECRET_ACCESS_KEY")
+
+  // Bucket with public access
+  val UnitTestPublicBucket = "rawlabs-public-test-data"
+  val UnitTestPublicBucketCred = S3Credential(None, None, Some("eu-west-1"))
+
+  // IAM user 'unit-test-private-bucket', which only has permissions only to access bucket 'rawlabs-private-test-data'
+  val UnitTestPrivateBucket = "rawlabs-private-test-data"
+  val UnitTestPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+
+  val UnitTestPrivateBucket2 = "rawlabs-unit-tests"
+  val UnitTestPrivateBucket2Cred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+
+  val UnitTestEmptyBucketPrivateBucket = "rawlabs-unit-test-empty-bucket"
+  val UnitTestEmptyBucketPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+
+  val UnitTestListRootPrivateBucket = "rawlabs-unit-test-list-root"
+  val UnitTestListRootPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+
+  val unitTestPrivateBucketUsEast1 = "rawlabs-unit-tests-us-east-1"
+  val unitTestPrivateBucketUsEast1Cred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("us-east-1"))
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Jdbc Credentials
+  ///////////////////////////////////////////////////////////////////////////
+
+  val mysqlTestHost = getEnv("RAW_MYSQL_TEST_HOST")
+  val mysqlTestDB = getEnv("RAW_MYSQL_TEST_DB")
+  val mysqlTestUser = getEnv("RAW_MYSQL_TEST_USER")
+  val mysqlTestPassword = getEnv("RAW_MYSQL_TEST_PASSWORD")
+  val mysqlCreds = MySqlJdbcLocation(mysqlTestHost, 3306, mysqlTestDB, mysqlTestUser, mysqlTestPassword)
+  val pgsqlTestHost = getEnv("RAW_PGSQL_TEST_HOST")
+  val pgsqlTestDB = getEnv("RAW_PGSQL_TEST_DB")
+  val pgsqlTestUser = getEnv("RAW_PGSQL_TEST_USER")
+  val pgsqlTestPassword = getEnv("RAW_PGSQL_TEST_PASSWORD")
+  val pgsqlCreds = PostgresJdbcLocation(pgsqlTestHost, 5432, pgsqlTestDB, pgsqlTestUser, pgsqlTestPassword)
+  val oracleTestHost = getEnv("RAW_ORACLE_TEST_HOST")
+  val oracleTestDB = getEnv("RAW_ORACLE_TEST_DB")
+  val oracleTestUser = getEnv("RAW_ORACLE_TEST_USER")
+  val oracleTestPassword = getEnv("RAW_ORACLE_TEST_PASSWORD")
+  val oracleCreds = OracleJdbcLocation(oracleTestHost, 1521, oracleTestDB, oracleTestUser, oracleTestPassword)
+  val sqlServerTestHost = getEnv("RAW_SQLSERVER_TEST_HOST")
+  val sqlserverTestDB = getEnv("RAW_SQLSERVER_TEST_DB")
+  val sqlServerTestUser = getEnv("RAW_SQLSERVER_TEST_USER")
+  val sqlServerTestPassword = getEnv("RAW_SQLSERVER_TEST_PASSWORD")
+  val sqlServerCreds = SqlServerJdbcLocation(
+    sqlServerTestHost,
+    1433,
+    sqlserverTestDB,
+    sqlServerTestUser,
+    sqlServerTestPassword
+  )
+  val snowflakeTestHost = getEnv("RAW_SNOWFLAKE_TEST_HOST")
+  val snowflakeTestDB = getEnv("RAW_SNOWFLAKE_TEST_DB")
+  val snowflakeTestUser = getEnv("RAW_SNOWFLAKE_TEST_USER")
+  val snowflakeTestPassword = getEnv("RAW_SNOWFLAKE_TEST_PASSWORD")
+  val snowflakeCreds = SnowflakeJdbcLocation(
+    snowflakeTestDB,
+    snowflakeTestUser,
+    snowflakeTestPassword,
+    snowflakeTestHost,
+    Map("timezone" -> "UTC")
+  )
+  val badMysqlCreds = MySqlJdbcLocation("does-not-exist.raw-labs.com", 3306, "rdbmstest", "t0or", "$up3r$3cr3tValu3")
+
+}
+
 trait Rql2CompilerTestContext
     extends RawTestSuite
     with Matchers
@@ -40,7 +124,17 @@ trait Rql2CompilerTestContext
     // Simple inferrer
     with LocalInferrerTestContext {
 
-  def authorizedUser: InteractiveUser = InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com")
+  private val secrets = new mutable.HashMap[String, String]()
+
+  private val s3Credentials = new mutable.HashMap[String, S3Credential]()
+
+  private val rdbmsServers = new mutable.HashMap[String, JdbcLocation]()
+
+  private val credHttpHeaders = new mutable.HashMap[String, Map[String, String]]()
+
+  protected val programOptions = new mutable.HashMap[String, String]()
+
+  def authorizedUser: RawUid = RawUid("janeUid")
 
   def runnerScopes: Set[String] = Set.empty
 
@@ -48,7 +142,21 @@ trait Rql2CompilerTestContext
 
   def maybeTraceId: Option[String] = None
 
-  protected val programOptions = new mutable.HashMap[String, String]()
+  def secret(name: String, value: String): Unit = {
+    secrets.put(name, value)
+  }
+
+  def s3Bucket(name: String, bucket: S3Credential): Unit = {
+    s3Credentials.put(name, bucket)
+  }
+
+  def rdbms(name: String, db: JdbcLocation): Unit = {
+    rdbmsServers.put(name, db)
+  }
+
+  def httpHeaders(name: String, headers: Map[String, String]): Unit = {
+    credHttpHeaders.put(name, headers)
+  }
 
   def option(key: String, value: String): Unit = {
     programOptions.put(key, value)
@@ -468,13 +576,21 @@ trait Rql2CompilerTestContext
       maybeArguments: Option[Array[(String, RawValue)]] = None,
       scopes: Set[String] = Set.empty,
       options: Map[String, String] = Map.empty
-  ): ProgramEnvironment = ProgramEnvironment(
-    authorizedUser,
-    maybeArguments,
-    this.runnerScopes ++ scopes,
-    this.options ++ options ++ programOptions,
-    maybeTraceId
-  )
+  ): ProgramEnvironment = {
+    val user = authorizedUser
+    ProgramEnvironment(
+      user,
+      maybeArguments,
+      this.runnerScopes ++ scopes,
+      secrets.toMap,
+      rdbmsServers.toMap,
+      credHttpHeaders.toMap,
+      s3Credentials.toMap,
+      this.options ++ options ++ programOptions,
+      None, // jdbcUrl
+      maybeTraceId
+    )
+  }
 
   def parseQuery(code: String): BaseProgram = tryToParse(code) match {
     case Right(p) => p

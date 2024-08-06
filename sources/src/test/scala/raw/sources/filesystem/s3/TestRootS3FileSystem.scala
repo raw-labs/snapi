@@ -14,41 +14,54 @@ package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.utils.{RawTestSuite, SettingsTestContext}
-import raw.creds.api.S3Bucket
-import raw.creds.s3.S3TestCreds
 
-class TestRootS3FileSystem extends RawTestSuite with S3TestCreds with SettingsTestContext with StrictLogging {
+class TestRootS3FileSystem extends RawTestSuite with SettingsTestContext with StrictLogging {
 
   test("list ''") { _ =>
-    val fs = new S3FileSystem(UnitTestPrivateBucket)
+    val fs = new S3FileSystem(
+      "rawlabs-private-test-data",
+      Some("eu-west-1"),
+      Some(sys.env("RAW_AWS_ACCESS_KEY_ID")),
+      Some(sys.env("RAW_AWS_SECRET_ACCESS_KEY"))
+    )
 
     val list = fs.listContents("").toList
     logger.debug("Result: " + list)
   }
 
   test("list bucket region us-east-1") { _ =>
-    val fs = new S3FileSystem(unitTestPrivateBucketUsEast1)
+    val fs = new S3FileSystem(
+      "rawlabs-unit-tests-us-east-1",
+      Some("us-east-1"),
+      Some(sys.env("RAW_AWS_ACCESS_KEY_ID")),
+      Some(sys.env("RAW_AWS_SECRET_ACCESS_KEY"))
+    )
     val list = fs.listContents("").toList
     logger.debug("Result: " + list)
   }
 
   test("list bucket us-east-1 without specifying a region") { _ =>
-    val bucket = S3Bucket(unitTestPrivateBucketUsEast1.name, None, unitTestPrivateBucketUsEast1.credentials)
-    val fs = new S3FileSystem(bucket)
+    val fs = new S3FileSystem(
+      "rawlabs-unit-tests-us-east-1",
+      None,
+      Some(sys.env("RAW_AWS_ACCESS_KEY_ID")),
+      Some(sys.env("RAW_AWS_SECRET_ACCESS_KEY"))
+    )
     val list = fs.listContents("").toList
     logger.debug("Result: " + list)
   }
 
 }
 
-class TestRootOfEmptyBucketS3FileSystem
-    extends RawTestSuite
-    with S3TestCreds
-    with SettingsTestContext
-    with StrictLogging {
+class TestRootOfEmptyBucketS3FileSystem extends RawTestSuite with SettingsTestContext with StrictLogging {
 
   test("list ''") { _ =>
-    val fs = new S3FileSystem(UnitTestEmptyBucketPrivateBucket)
+    val fs = new S3FileSystem(
+      "rawlabs-unit-test-empty-bucket",
+      Some("eu-west-1"),
+      Some(sys.env("RAW_AWS_ACCESS_KEY_ID")),
+      Some(sys.env("RAW_AWS_SECRET_ACCESS_KEY"))
+    )
     val list = fs.listContents("").toList
     assert(list.isEmpty)
   }

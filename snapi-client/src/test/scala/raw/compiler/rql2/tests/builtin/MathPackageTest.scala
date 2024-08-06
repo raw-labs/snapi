@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait MathPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class MathPackageTest extends Rql2TruffleCompilerTestContext {
 
   // Nullable - Tryable tests
   test("""Math.Sin(if(true) then 3.13 else null)""")(_ should beCloseTo("0.011592393936158275"))

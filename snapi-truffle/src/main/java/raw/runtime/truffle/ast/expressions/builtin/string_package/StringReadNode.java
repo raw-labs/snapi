@@ -14,7 +14,6 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import java.io.Reader;
@@ -25,7 +24,6 @@ import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleInputStream;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "String.Read")
 @NodeChild("location")
@@ -34,12 +32,8 @@ import raw.sources.api.SourceContext;
 public abstract class StringReadNode extends ExpressionNode {
   @Specialization
   @TruffleBoundary
-  protected static Object doExecute(
-      LocationObject locationObject,
-      String encoding,
-      @Bind("$node") Node thisNode,
-      @Cached(value = "getSourceContext(thisNode)", neverDefault = true) SourceContext context) {
-    TruffleInputStream stream = new TruffleInputStream(locationObject, context);
+  protected static Object doExecute(LocationObject locationObject, String encoding) {
+    TruffleInputStream stream = new TruffleInputStream(locationObject);
     try {
       Reader reader = stream.getReader(encoding);
       try {

@@ -17,6 +17,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -28,18 +29,23 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import raw.client.api.*;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.sources.bytestream.http.HttpByteStreamLocation;
+import raw.utils.RawSettings;
+import scala.None$;
+import scala.Option;
+import scala.Some;
 import scala.Tuple2;
-import scala.collection.immutable.HashMap;
-import scala.collection.immutable.Map;
-import scala.collection.immutable.VectorBuilder;
+import scala.collection.mutable.ArrayBuilder;
+import scala.reflect.ClassTag;
+import scala.reflect.ClassTag$;
 
 @NodeInfo(shortName = "Aws.V4SignedRequest")
 @NodeChild("key")
@@ -132,9 +138,12 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     String amzdate = formatterWithTimeZone().format(t);
     String datestamp = getDateFormatter().format(t);
 
+    ClassTag<Tuple2<String, String>> tupleClassTag =
+        (ClassTag<Tuple2<String, String>>) (ClassTag<?>) ClassTag$.MODULE$.apply(Tuple2.class);
+
     // Task 1: create canonical request with all request settings: method, canonicalUri,
     // canonicalQueryString etc.
-    VectorBuilder<Tuple2<String, String>> urlParamsVec = new VectorBuilder<>();
+    ArrayBuilder<Tuple2<String, String>> argsBuilder = new ArrayBuilder.ofRef(tupleClassTag);
     StringBuilder canonicalQueryBuilder = new StringBuilder();
 
     Object urlParamsSorted = sortNode.execute(this, urlParams);
@@ -153,7 +162,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
                       getValueNode.execute(this, getNode.execute(this, urlParamsSorted, i), "_2"),
                   StandardCharsets.UTF_8))
           .append("&");
-      urlParamsVec.$plus$eq(
+      argsBuilder.$plus$eq(
           new Tuple2<>(
               (String) getValueNode.execute(this, getNode.execute(this, urlParamsSorted, i), "_1"),
               (String)
@@ -173,7 +182,8 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     // always required.
     StringBuilder canonicalHeadersBuilder = new StringBuilder();
     StringBuilder signedHeadersBuilder = new StringBuilder();
-    VectorBuilder<Tuple2<String, String>> headersParamsVec = new VectorBuilder<>();
+
+    ArrayBuilder<Tuple2<String, String>> headersBuilder = new ArrayBuilder.ofRef(tupleClassTag);
 
     int headersSize = (int) sizeNode.execute(this, headers);
     // Adding space for host and "x-amz-date", "host" and "x-amz-security-token" if it is
@@ -223,7 +233,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     }
 
     for (int i = 0; i < sizeNode.execute(this, headers); i++) {
-      headersParamsVec.$plus$eq(
+      headersBuilder.$plus$eq(
           new Tuple2<>(
               getValueNode
                   .execute(this, getNode.execute(this, headers, i), "_1")
@@ -293,41 +303,40 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             + "Signature="
             + signature;
 
-    VectorBuilder<Tuple2<String, String>> newHeaders = new VectorBuilder<>();
-    newHeaders.$plus$eq(new Tuple2<>("x-amz-date", amzdate));
-    newHeaders.$plus$eq(new Tuple2<>("Authorization", authorizationHeader));
+    headersBuilder.$plus$eq(new Tuple2<>("x-amz-date", amzdate));
+    headersBuilder.$plus$eq(new Tuple2<>("Authorization", authorizationHeader));
     if (!sessionToken.isEmpty()) {
-      newHeaders.$plus$eq(new Tuple2<>("x-amz-security-token", sessionToken));
+      headersBuilder.$plus$eq(new Tuple2<>("x-amz-security-token", sessionToken));
     }
 
-    VectorBuilder<Tuple2<String, String>> requestHeaders =
-        newHeaders.$plus$plus$eq(headersParamsVec.result());
-
-    // host is added automatically
-    Map<LocationSettingKey, LocationSettingValue> map = new HashMap<>();
-    map =
-        map.$plus(
-            Tuple2.apply(new LocationSettingKey("http-method"), new LocationStringSetting(method)));
-    map =
-        map.$plus(
-            Tuple2.apply(
-                new LocationSettingKey("http-args"), new LocationKVSetting(urlParamsVec.result())));
-    map =
-        map.$plus(
-            Tuple2.apply(
-                new LocationSettingKey("http-headers"),
-                new LocationKVSetting(requestHeaders.result())));
-
+    Option<byte[]> maybeBody;
     if (!bodyString.isEmpty()) {
-      map =
-          map.$plus(
-              Tuple2.apply(
-                  new LocationSettingKey("http-body-string"),
-                  new LocationStringSetting(bodyString)));
+      maybeBody = new Some(bodyString.getBytes());
+    } else {
+      maybeBody = None$.empty();
     }
 
     String url = "https://" + host + "/" + path.replaceAll("^/+", "");
 
-    return new LocationObject(url, map);
+    int[] expectedStatusArray = {
+      HttpURLConnection.HTTP_OK,
+      HttpURLConnection.HTTP_ACCEPTED,
+      HttpURLConnection.HTTP_CREATED,
+      HttpURLConnection.HTTP_PARTIAL
+    };
+
+    RawSettings rawSettings = RawContext.get(this).getSettings();
+
+    HttpByteStreamLocation location =
+        new HttpByteStreamLocation(
+            url,
+            method,
+            (Tuple2<String, String>[]) argsBuilder.result(),
+            (Tuple2<String, String>[]) headersBuilder.result(),
+            maybeBody,
+            expectedStatusArray,
+            rawSettings);
+
+    return new LocationObject(location, "aws:" + service + ":" + region + ":" + path);
   }
 }

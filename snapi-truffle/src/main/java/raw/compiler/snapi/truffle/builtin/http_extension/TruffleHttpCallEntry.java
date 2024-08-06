@@ -13,21 +13,17 @@
 package raw.compiler.snapi.truffle.builtin.http_extension;
 
 import java.util.List;
-import java.util.stream.Stream;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.HttpCallEntry;
-import raw.compiler.rql2.source.Rql2StringType;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
+import raw.compiler.snapi.truffle.builtin.WithArgs;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode;
-import raw.runtime.truffle.ast.expressions.literals.StringNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import scala.collection.immutable.HashSet;
+import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFromHttpNode;
 
-public abstract class TruffleHttpCallEntry extends HttpCallEntry implements TruffleEntryExtension {
+public abstract class TruffleHttpCallEntry extends HttpCallEntry
+    implements TruffleEntryExtension, WithArgs {
 
   private final String method;
 
@@ -36,56 +32,29 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
     this.method = method;
   }
 
-  private String replaceKey(String idn) {
-    return switch (idn) {
-      case "method" -> "http-method";
-      case "bodyString" -> "http-body-string";
-      case "bodyBinary" -> "http-body";
-      case "token" -> "http-token";
-      case "authCredentialName" -> "http-auth-cred-name";
-      case "clientId" -> "http-client-id";
-      case "clientSecret" -> "http-client-secret";
-      case "authProvider" -> "http-auth-provider";
-      case "tokenUrl" -> "http-token-url";
-      case "useBasicAuth" -> "http-use-basic-auth";
-      case "username" -> "http-user-name";
-      case "password" -> "http-password";
-      case "args" -> "http-args";
-      case "headers" -> "http-headers";
-      case "expectedStatus" -> "http-expected-status";
-      default -> throw new RawTruffleInternalErrorException();
-    };
-  }
-
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode url = args.get(0).exprNode();
 
-    String[] keys =
-        Stream.concat(
-                args.stream()
-                    .skip(1)
-                    .filter(e -> e.identifier() != null)
-                    .map(e -> replaceKey(e.identifier())),
-                Stream.of("http-method"))
-            .toArray(String[]::new);
+    ExpressionNode bodyString = arg(args, "bodyString").orElse(null);
+    ExpressionNode bodyBinary = arg(args, "bodyBinary").orElse(null);
+    ExpressionNode authCredentialName = arg(args, "authCredentialName").orElse(null);
+    ExpressionNode username = arg(args, "username").orElse(null);
+    ExpressionNode password = arg(args, "password").orElse(null);
+    ExpressionNode httpArgs = arg(args, "args").orElse(null);
+    ExpressionNode headers = arg(args, "headers").orElse(null);
+    ExpressionNode expectedStatus = arg(args, "expectedStatus").orElse(null);
 
-    ExpressionNode[] values =
-        Stream.concat(
-                args.stream().skip(1).map(TruffleArg::exprNode),
-                Stream.of(new StringNode(this.method)))
-            .toArray(ExpressionNode[]::new);
-
-    Rql2TypeWithProperties[] types =
-        Stream.concat(
-                args.stream()
-                    .skip(1)
-                    .filter(e -> e.identifier() != null && e.exprNode() != null)
-                    .map(e -> (Rql2TypeWithProperties) e.type()),
-                Stream.of(
-                    (Rql2TypeWithProperties) Rql2StringType.apply(new HashSet<>())))
-            .toArray(Rql2TypeWithProperties[]::new);
-
-    return new LocationBuildNode(url, keys, values, types);
+    return new LocationFromHttpNode(
+        method,
+        url,
+        bodyString,
+        bodyBinary,
+        authCredentialName,
+        username,
+        password,
+        httpArgs,
+        headers,
+        expectedStatus);
   }
 }

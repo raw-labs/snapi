@@ -270,10 +270,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
     val ctxBuilder = Context
       .newBuilder("python")
       .engine(engine)
-      .environment("RAW_SETTINGS", settings.renderAsString)
-      .environment("RAW_USER", environment.user.uid.toString)
-      .environment("RAW_TRACE_ID", environment.user.uid.toString)
-      .environment("RAW_SCOPES", environment.scopes.mkString(","))
+      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     maybeOutputStream.foreach(os => ctxBuilder.out(os))

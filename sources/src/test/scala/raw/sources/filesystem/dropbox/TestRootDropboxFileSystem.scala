@@ -12,14 +12,21 @@
 
 package raw.sources.filesystem.dropbox
 
+import com.dropbox.core.DbxRequestConfig
+import com.dropbox.core.oauth.DbxCredential
+import com.dropbox.core.v2.DbxClientV2
 import com.typesafe.scalalogging.StrictLogging
-import raw.creds.dropbox.DropboxTestCreds
 import raw.utils.{RawTestSuite, SettingsTestContext}
 
-class TestRootDropboxFileSystem extends RawTestSuite with DropboxTestCreds with SettingsTestContext with StrictLogging {
+class TestRootDropboxFileSystem extends RawTestSuite with SettingsTestContext with StrictLogging {
 
   test("list /") { _ =>
-    val fs = new DropboxFileSystem(bearerToken)
+    val fs = new DropboxFileSystem(
+      new DbxClientV2(
+        DbxRequestConfig.newBuilder(settings.getString(BaseDropboxPath.DROPBOX_CLIENT_ID)).build(),
+        new DbxCredential(sys.env("RAW_DROPBOX_TEST_LONG_LIVED_ACCESS_TOKEN"))
+      )
+    )
     logger.debug("Result: " + fs.listContents("/").toList)
     assert(fs.listContents("/").nonEmpty)
   }

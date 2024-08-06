@@ -136,7 +136,7 @@ object EntryExtensionProvider {
     new raw.compiler.rql2.builtin.ContainsListEntry,
     new raw.compiler.rql2.builtin.ZipListEntry,
     new raw.compiler.rql2.builtin.MkStringListEntry,
-    new raw.compiler.rql2.builtin.LocationBuildEntry,
+    new raw.compiler.rql2.builtin.LocationFromStringEntry,
     new raw.compiler.rql2.builtin.LocationDescribeEntry,
     new raw.compiler.rql2.builtin.LocationLsEntry,
     new raw.compiler.rql2.builtin.LocationLlEntry,

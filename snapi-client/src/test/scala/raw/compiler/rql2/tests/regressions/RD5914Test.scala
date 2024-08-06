@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD5914Test extends Rql2CompilerTestContext {
+@TruffleTests class RD5914Test extends Rql2TruffleCompilerTestContext {
 
   test("""let item1 = {name: "coffee machine", price: 200, price: 199}, // price is duplicated, price is an int
     |    item2 = {name: "coffee machine", price: 200.00, price: 199.99} // price is duplicated, price is a double

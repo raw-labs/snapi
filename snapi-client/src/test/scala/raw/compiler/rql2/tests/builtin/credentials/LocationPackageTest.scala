@@ -12,38 +12,35 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.creds.dropbox.DropboxTestCreds
-import raw.creds.s3.S3TestCreds
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait LocationPackageTest
-    extends Rql2CompilerTestContext
-    with CredentialsTestContext
-    with DropboxTestCreds
-    with S3TestCreds {
+@TruffleTests class LocationPackageTest extends Rql2TruffleCompilerTestContext {
 
-  oauth(authorizedUser, "dropbox-refresh-token", dropboxRefreshTokenCredential)
+  import raw.compiler.rql2.tests.TestCredentials._
+
+  httpHeaders("dropbox-token", Map("Authorization" -> ("Bearer " + dropboxLongLivedAccessToken)))
+
+  s3Bucket(UnitTestPrivateBucket2, UnitTestPrivateBucket2Cred)
 
   property("raw.sources.dropbox.clientId", dropboxClientId)
 
   test("""
     |String.Read(
-    |    Location.Build(
+    |    Http.Post(
     |        "https://api.dropboxapi.com/2/users/get_space_usage",
-    |        http_method = "POST",
-    |        http_auth_cred_name = "dropbox-refresh-token"
+    |        authCredentialName = "dropbox-token"
     |    )
     |)""".stripMargin)(it => it should run)
 
   // reading a public s3 bucket without registering or passing credentials
   test(s"""let
-    |  data = Csv.InferAndRead("s3://${UnitTestPublicBucket.name}/students.csv")
+    |  data = Csv.InferAndRead("s3://$UnitTestPublicBucket/students.csv")
     |in
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))
 
-  test(s"""Location.Ls("s3://${UnitTestPublicBucket.name}/publications/")""") { it =>
+  test(s"""Location.Ls("s3://$UnitTestPublicBucket/publications/")""") { it =>
     it should evaluateTo("""Collection.Build(
       |  "s3://rawlabs-public-test-data/publications/authors.parquet",
       |  "s3://rawlabs-public-test-data/publications/authors.hjson",
@@ -61,7 +58,7 @@ trait LocationPackageTest
       |""".stripMargin)
   }
 
-  test(s"""Location.Ll("s3://${UnitTestPublicBucket.name}/publications/authors.hjson")
+  test(s"""Location.Ll("s3://$UnitTestPublicBucket/publications/authors.hjson")
     |""".stripMargin) { it =>
     it should evaluateTo("""Collection.Build(
       |  Record.Build(
@@ -79,7 +76,7 @@ trait LocationPackageTest
   // Cannot count lists
   test(s"""
     |let
-    |  data = Location.Ll("s3://${UnitTestPublicBucket.name}/publications")
+    |  data = Location.Ll("s3://$UnitTestPublicBucket/publications")
     |in
     |  List.Count(data)
     |""".stripMargin)(it => it should evaluateTo("""12L""".stripMargin))
@@ -87,21 +84,19 @@ trait LocationPackageTest
   // reading a non public s3 bucket passing credentials in the location settings
   test(s"""let
     |  data = Csv.InferAndRead(
-    |    Location.Build(
-    |      "s3://${UnitTestPrivateBucket.name}/students.csv",
-    |      s3_region = "${UnitTestPrivateBucket.region.get}",
-    |      s3_access_key = "${UnitTestPrivateBucket.credentials.get.accessKey}",
-    |      s3_secret_key = "${UnitTestPrivateBucket.credentials.get.secretKey}"
+    |    S3.Build(
+    |      "s3://$UnitTestPrivateBucket/students.csv",
+    |      region = "${UnitTestPrivateBucketCred.region.get}",
+    |      accessKey = "${UnitTestPrivateBucketCred.accessKey.get}",
+    |      secretKey = "${UnitTestPrivateBucketCred.secretKey.get}"
     |    )
     |  )
     |in
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))
 
-  s3Bucket(authorizedUser, UnitTestPrivateBucket2)
-
   // using a private bucket registered in the credentials server
-  test(s"""String.Read(Location.Build("s3://${UnitTestPrivateBucket2.name}/file1.csv"))
+  test(s"""String.Read(S3.Build("s3://$UnitTestPrivateBucket2/file1.csv"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
 }

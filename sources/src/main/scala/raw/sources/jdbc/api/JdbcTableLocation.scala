@@ -12,24 +12,20 @@
 
 package raw.sources.jdbc.api
 
-import com.typesafe.scalalogging.StrictLogging
 import raw.sources.api.Location
 
 abstract class JdbcTableLocation(
     val jdbcClient: JdbcClient,
-    val vendor: String,
-    val dbName: String,
-    val table: String,
-    val maybeSchema: Option[String]
-) extends Location
-    with StrictLogging {
+    maybeSchema: Option[String],
+    table: String
+) extends Location {
 
   final override def testAccess(): Unit = {
-    jdbcClient.testAccess(Some(dbName), maybeSchema, table)
+    jdbcClient.testAccess(maybeSchema, table)
   }
 
   final def getType(): TableMetadata = {
-    jdbcClient.tableMetadata(Some(dbName), maybeSchema, table)
+    jdbcClient.tableMetadata(maybeSchema, table)
   }
 
 }

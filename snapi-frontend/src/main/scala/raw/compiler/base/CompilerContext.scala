@@ -13,7 +13,6 @@
 package raw.compiler.base
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.sources.api.SourceContext
 import raw.inferrer.api.{InferrerProperties, InferrerService, InputFormatDescriptor}
 import raw.utils._
 
@@ -22,9 +21,8 @@ import raw.utils._
  */
 class CompilerContext(
     val language: String,
-    val user: AuthenticatedUser,
-    val inferrer: InferrerService,
-    val sourceContext: SourceContext
+    val user: RawUid,
+    val inferrer: InferrerService
 )(
     implicit val settings: RawSettings
 ) extends StrictLogging {

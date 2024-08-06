@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.regressions
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD8764Test extends Rql2CompilerTestContext with StrictLogging {
+@TruffleTests class RD8764Test extends Rql2TruffleCompilerTestContext with StrictLogging {
 
   test("""
     |let f: (record(_1: int, _2: int)) -> bool = (x: int, y: int) -> x == y

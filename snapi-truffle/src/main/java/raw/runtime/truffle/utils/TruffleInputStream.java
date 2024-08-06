@@ -18,31 +18,26 @@ import java.io.Reader;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Encoding;
-import raw.sources.api.SourceContext;
 import raw.sources.bytestream.api.ByteStreamLocation;
-import raw.sources.bytestream.api.ByteStreamLocationProvider;
 import raw.utils.RawException;
 import scala.util.Either;
 
 public class TruffleInputStream {
   private final LocationObject locationObject;
 
-  private final SourceContext context;
-
-  public TruffleInputStream(LocationObject locationObject, SourceContext context) {
-    this.context = context;
+  public TruffleInputStream(LocationObject locationObject) {
     this.locationObject = locationObject;
   }
 
   @TruffleBoundary
-  public String getUrl() {
-    return locationObject.getLocationDescription().url();
+  public String getPublicDescription() {
+    return locationObject.getPublicDescription();
   }
 
   @TruffleBoundary
   public ByteStreamLocation getLocation() {
     try {
-      return ByteStreamLocationProvider.build(locationObject.getLocationDescription(), context);
+      return locationObject.getByteStreamLocation();
     } catch (RawException ex) {
       throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
     }

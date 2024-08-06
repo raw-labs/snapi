@@ -13,7 +13,6 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api._
 import raw.utils._
 import raw.inferrer.api._
 import raw.sources.api._
@@ -42,11 +41,10 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
       out.write(s)
       out.close()
       val l1 = new LocalPath(f.toPath)
-      implicit val sourceContext = new SourceContext(null, null, settings)
       val inferrer = new LocalInferrerService
       try {
         val TextInputStreamFormatDescriptor(detectedEncoding, _, LinesInputFormatDescriptor(_, _, _)) =
-          inferrer.infer(AutoInferrerProperties(LocationDescription(l1.rawUri), None))
+          inferrer.infer(AutoInferrerProperties(l1, None))
         assert(detectedEncoding == encoding)
       } finally {
         RawUtils.withSuppressNonFatalException(inferrer.stop())
@@ -66,14 +64,13 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
 
     ex.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy)
 
-    implicit val sourceContext = new SourceContext(null, null, settings)
     val inferrer = new LocalInferrerService
     try {
       for (i <- 0 to 100) {
         ex.submit(new Runnable {
           override def run(): Unit = {
             val file = files(Random.nextInt(3))
-            inferrer.infer(AutoInferrerProperties(LocationDescription(file.rawUri), None))
+            inferrer.infer(AutoInferrerProperties(file, None))
           }
         })
       }
@@ -159,7 +156,6 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
       ),
       false
     )
-    implicit val sourceContext = new SourceContext(null, null, settings)
     val inferrer = new LocalInferrerService
     try {
       val result = inferrer.prettyPrint(tipe)

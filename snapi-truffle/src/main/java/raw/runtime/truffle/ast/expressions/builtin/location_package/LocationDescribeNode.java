@@ -54,7 +54,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       InputFormatDescriptor descriptor =
           inferrer.infer(
               AutoInferrerProperties.apply(
-                  locationObject.getLocationDescription(),
+                  locationObject.getLocation(),
                   sampleSize == Integer.MAX_VALUE ? Some.empty() : Some.apply(sampleSize)));
 
       String format = "";

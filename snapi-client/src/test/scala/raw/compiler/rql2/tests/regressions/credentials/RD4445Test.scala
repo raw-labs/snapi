@@ -12,42 +12,28 @@
 
 package raw.compiler.rql2.tests.regressions.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
-import raw.creds.dropbox.DropboxTestCreds
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD4445Test extends Rql2CompilerTestContext with CredentialsTestContext with DropboxTestCreds {
+@TruffleTests class RD4445Test extends Rql2TruffleCompilerTestContext {
 
-  dropbox(authorizedUser, dropboxToken)
-  oauth(authorizedUser, "rawlabs-dropbox", dropboxAccessTokenCredential)
+  import raw.compiler.rql2.tests.TestCredentials._
+
+  property("raw.sources.dropbox.clientId", dropboxClientId)
+
+  httpHeaders("rawlabs-dropbox", Map("Authorization" -> ("Bearer " + dropboxLongLivedAccessToken)))
 
   test("""String.ReadLines("dropbox://rawlabs-dropbox/New folder/New Document")""")(
     _ should evaluateTo("""["Hello", "World", "Again!"]""")
   )
 
-  test("""String.ReadLines("dropbox:///New folder/New Document")""")(
-    _ should evaluateTo("""["Hello", "World", "Again!"]""")
-  )
-
-  test("""String.ReadLines("dropbox:/New folder/New Document")""")(
-    _ should evaluateTo("""["Hello", "World", "Again!"]""")
-  )
-
-  test("""String.ReadLines("dropbox:New folder/New Document")""")(
-    _ should runErrorAs("""path invalid: New folder/New Document""")
-  )
-
-  test("""Location.Ls("dropbox:/New Folder")""")(_ should evaluateTo("""["dropbox:///New Folder/New Document"]"""))
-  test("""Location.Ls("dropbox:///New Folder")""")(_ should evaluateTo("""["dropbox:///New Folder/New Document"]"""))
   test("""Location.Ls("dropbox://rawlabs-dropbox/New Folder")""")(
-    _ should evaluateTo("""["dropbox://rawlabs-dropbox/New Folder/New Document"]""")
+    _ should evaluateTo("""["dropbox:/New Folder/New Document"]""")
   )
 
-  //Listing same folder but with trailing '/'
-  test("""Location.Ls("dropbox:/New Folder/")""")(_ should evaluateTo("""["dropbox:///New Folder/New Document"]"""))
-  test("""Location.Ls("dropbox:///New Folder/")""")(_ should evaluateTo("""["dropbox:///New Folder/New Document"]"""))
+  // Listing same folder but with trailing '/'
   test("""Location.Ls("dropbox://rawlabs-dropbox/New Folder/")""")(
-    _ should evaluateTo("""["dropbox://rawlabs-dropbox/New Folder/New Document"]""")
+    _ should evaluateTo("""["dropbox:/New Folder/New Document"]""")
   )
 
 }

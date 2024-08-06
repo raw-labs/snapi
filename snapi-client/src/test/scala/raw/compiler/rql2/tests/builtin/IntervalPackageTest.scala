@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait IntervalPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class IntervalPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("Interval.Build(months=12) == Interval.Build(years=1)")(_ should evaluateTo("true"))
   test("Interval.Build(hours=24) == Interval.Build(days=1)")(_ should evaluateTo("true"))

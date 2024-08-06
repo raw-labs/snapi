@@ -17,13 +17,11 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "XmlReadValue")
 public class XmlReadValueNode extends ExpressionNode {
@@ -36,8 +34,6 @@ public class XmlReadValueNode extends ExpressionNode {
   @Child private ExpressionNode datetimeFormatExp;
 
   @Child private DirectCallNode childDirectCall;
-
-  private final SourceContext sourceContext = RawContext.get(this).getSourceContext();
 
   public XmlReadValueNode(
       ExpressionNode locationExp,
@@ -60,8 +56,7 @@ public class XmlReadValueNode extends ExpressionNode {
     try {
       LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
       String encoding = (String) encodingExp.executeGeneric(virtualFrame);
-      TruffleInputStream truffleInputStream =
-          new TruffleInputStream(locationObject, this.sourceContext);
+      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject);
       TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
       String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
       String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);

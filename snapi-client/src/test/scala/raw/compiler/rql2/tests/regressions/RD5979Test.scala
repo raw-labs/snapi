@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD5979Test extends Rql2CompilerTestContext {
+@TruffleTests class RD5979Test extends Rql2TruffleCompilerTestContext {
 
   test("""[{a: 12, b: 14}, {c: 23, d: 54}]""")(_ should runErrorAs("expected compatible with"))
   test("""[{a: 12, b: 14}, {a: 23, d: 54}]""")(_ should runErrorAs("expected compatible with"))

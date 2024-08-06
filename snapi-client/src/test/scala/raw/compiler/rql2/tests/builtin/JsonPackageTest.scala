@@ -13,9 +13,10 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait JsonPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class JsonPackageTest extends Rql2TruffleCompilerTestContext {
 
   private val junkAfter10Items = tempFile("""[
     |  {"a": 1, "b": "#1", "c": 1.1},
@@ -169,7 +170,7 @@ trait JsonPackageTest extends Rql2CompilerTestContext {
   )(it => it should typeErrorAs("unsupported type"))
 
   test(
-    """Json.Print(Location.Build("http://something"))"""
+    """Json.Print(Http.Get("http://something"))"""
   )(it => it should typeErrorAs("unsupported type"))
 
   test(snapi"""Json.InferAndRead("$data")""".stripMargin)(it => it should run)
@@ -422,11 +423,11 @@ trait JsonPackageTest extends Rql2CompilerTestContext {
   test(snapi"""Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""") { it =>
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+        snapi"failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35))"
       )
     } else {
       it should runErrorAs(
-        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+        snapi"""failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
           | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
       )
     }
@@ -453,11 +454,11 @@ trait JsonPackageTest extends Rql2CompilerTestContext {
   ) { it =>
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+        snapi"failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35))"
       )
     } else {
       it should runErrorAs(
-        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+        snapi"""failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
           | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
       )
     }
@@ -468,11 +469,11 @@ trait JsonPackageTest extends Rql2CompilerTestContext {
   ) { it =>
     if (isTruffle) {
       it should runErrorAs(
-        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+        snapi"failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35))"
       )
     } else {
       it should runErrorAs(
-        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+        snapi"""failed to read JSON (line 11 column 37) (location: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
           | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
       )
     }
@@ -614,7 +615,7 @@ trait JsonPackageTest extends Rql2CompilerTestContext {
     snapi"""Json.Read("$xmlFile", type collection(record(name: string, birthYear: int)))"""
   ) { it =>
     it should runErrorAs(
-      s"failed to read JSON (line 1 column 2) (url: file:${xmlFile.toAbsolutePath}): Unexpected character ('<' (code 60)): expected a valid value (JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]"
+      s"failed to read JSON (line 1 column 2) (location: file:${xmlFile.toAbsolutePath}): Unexpected character ('<' (code 60)): expected a valid value (JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]"
     )
   }
 

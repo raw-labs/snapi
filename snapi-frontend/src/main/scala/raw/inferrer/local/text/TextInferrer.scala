@@ -18,7 +18,7 @@ import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.RawException
+import raw.utils.{RawException, RawSettings}
 
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
@@ -29,7 +29,7 @@ object TextInferrer {
   private val TEXT_SAMPLE_SIZE = "raw.inferrer.local.text.sample-size"
 }
 
-class TextInferrer(implicit protected val sourceContext: SourceContext)
+class TextInferrer(implicit protected val settings: RawSettings)
     extends InferrerErrorHandler
     with EncodingInferrer
     with StrictLogging {

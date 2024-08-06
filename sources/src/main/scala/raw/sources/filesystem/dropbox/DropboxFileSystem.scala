@@ -13,46 +13,22 @@
 package raw.sources.filesystem.dropbox
 
 import com.dropbox.core._
-import com.dropbox.core.oauth.DbxCredential
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.{DownloadErrorException, FolderMetadata, Metadata, FileMetadata => DropboxFileMetadata}
 import org.springframework.util.AntPathMatcher
-import raw.creds.api.{BasicAuth, BearerToken, NewHttpAuth}
 import raw.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
 import raw.sources.filesystem.api._
-import raw.utils.RawSettings
 
 import java.io.InputStream
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-object DropboxFileSystem {
-  private val DROPBOX_CLIENT_ID = "raw.sources.dropbox.clientId"
+// TODO (msb): Catch unauthorized and throw specific exception?
+class DropboxFileSystem(private[raw] val client: DbxClientV2) extends BaseFileSystem {
 
-  // Method also used by testing infrastructure
-  private[sources] def buildDbxClientV2(cred: NewHttpAuth)(implicit settings: RawSettings): DbxClientV2 = {
-    val clientId = settings.getString(DROPBOX_CLIENT_ID)
-    val dropboxConfig = DbxRequestConfig.newBuilder(clientId).build()
-    val dbxCred = cred match {
-      case BasicAuth(user, password, _) => new DbxCredential(null, null, null, user, password)
-      case BearerToken(token, _) => new DbxCredential(token)
-      case _ => ???
-    }
-    new DbxClientV2(dropboxConfig, dbxCred)
-  }
-}
+  val fileSeparator: String = "/"
 
-// TODO: Catch unauthorized to throw specific exception?
-class DropboxFileSystem(cred: NewHttpAuth, val name: String = "")(implicit settings: RawSettings)
-    extends BaseFileSystem {
-
-  import DropboxFileSystem._
-
-  // TODO: this is arguable for Windows users...
-  private[sources] val fileSeparator: String = "/"
   private val fileSeparatorRegex: String = "/"
-
-  private lazy val client = buildDbxClientV2(cred)
 
   private def sanitizePath(path: String): String = {
     val p = path.replaceAll(s"$fileSeparatorRegex+", fileSeparator).stripSuffix(fileSeparator)
@@ -63,13 +39,8 @@ class DropboxFileSystem(cred: NewHttpAuth, val name: String = "")(implicit setti
     try {
       client.files().getMetadata(path)
     } catch {
-      case ex: DbxException =>
-        logger.warn(s"Failed gracefully to get Dropbox path metadata: $path.", ex)
-        throwSourceException(ex, path)
-      case ex: IllegalArgumentException =>
-        // Dropbox fails "other exceptions" as well when path isn't accessible/correct.
-        logger.warn(s"Failed unexpectedly to get Dropbox path metadata: $path.", ex)
-        throw new PathNotFoundException(path, ex)
+      case ex: DbxException => throwSourceException(ex, path)
+      case ex: IllegalArgumentException => throw new PathNotFoundException(path, ex)
     }
   }
 
@@ -88,9 +59,7 @@ class DropboxFileSystem(cred: NewHttpAuth, val name: String = "")(implicit setti
       client.files().download(sanitizePath(file)).getInputStream
     } catch {
       // TODO: This misses NotAFileException I believe?
-      case ex: DbxException =>
-        logger.warn(s"Failed to get Dropbox file inputstream: $file.", ex)
-        throwSourceException(ex, file)
+      case ex: DbxException => throwSourceException(ex, file)
       case ex: IllegalArgumentException => throw new PathInvalidException(file, ex)
 
     }
@@ -151,9 +120,7 @@ class DropboxFileSystem(cred: NewHttpAuth, val name: String = "")(implicit setti
         if (recursive) client.files().listFolderBuilder(path).withRecursive(true).start()
         else client.files().listFolder(path)
       } catch {
-        case ex: DbxException =>
-          logger.warn(s"Failed to list Dropbox folder: $path.", ex)
-          throwSourceException(ex, path)
+        case ex: DbxException => throwSourceException(ex, path)
       }
     while (continue) {
       lfr.getEntries.asScala.foreach {
@@ -168,9 +135,7 @@ class DropboxFileSystem(cred: NewHttpAuth, val name: String = "")(implicit setti
           try {
             client.files().listFolderContinue(lfr.getCursor)
           } catch {
-            case ex: DbxException =>
-              logger.warn(s"Failed to continue to list Dropbox folder: $path.", ex)
-              throwSourceException(ex, path)
+            case ex: DbxException => throwSourceException(ex, path)
           }
       } else {
         continue = false

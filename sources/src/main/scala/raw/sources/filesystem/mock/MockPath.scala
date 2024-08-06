@@ -20,11 +20,7 @@ import java.io.InputStream
 import java.lang.StackWalker.StackFrame
 import java.nio.file.Path
 
-class MockPath(
-    delayMillis: Long,
-    delegate: FileSystemLocation
-) extends FileSystemLocation
-    with StrictLogging {
+class MockPath(val delayMillis: Long, val delegate: FileSystemLocation) extends FileSystemLocation with StrictLogging {
 
   private def doDelay(): Unit = {
     val sw = StackWalker.getInstance()
@@ -36,8 +32,6 @@ class MockPath(
     Thread.sleep(delayMillis)
     logger.info(s"Continuing")
   }
-
-  override def rawUri: String = s"mock:${delegate.rawUri}"
 
   override def testAccess(): Unit = {
     doDelay()

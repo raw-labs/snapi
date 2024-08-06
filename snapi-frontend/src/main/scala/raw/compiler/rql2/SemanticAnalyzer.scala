@@ -544,8 +544,9 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             // Use getValue to confirm Environment.Secret succeeds. The getValue function also handles potentially unexpected nullables and tryables.
             // We give it a dummy report which states the expected type is the actual type, so that is skips these checks
             val report = CompatibilityReport(tipe(e), tipe(e))
-            // Try execute  "Environment.Secret(<secret_name>)"
-            getValue(report, e) match {
+            // Try execute "Environment.Secret(<secret_name>)"
+            val v = getValue(report, e)
+            v match {
               // If getValue returns an error which means the staged compiler failed to execute "Environment.Secret(<secret_name>)" code
               // We return a warning that the secret is missing.
               case Right(Rql2TryValue(Left(error))) => Seq(MissingSecretWarning(e))
@@ -838,6 +839,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         case _: TripleQuotedStringConst => Rql2StringType()
         case _: BoolConst => Rql2BoolType()
         case _: BinaryConst => Rql2BinaryType()
+        case _: LocationConst => Rql2LocationType()
       }
     case l: Let => actualType(l.e)
     case TypeExp(t) => ExpType(t)

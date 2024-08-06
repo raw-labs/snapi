@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.benchmark
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait StressTests extends Rql2CompilerTestContext {
+@TruffleTests class StressTests extends Rql2TruffleCompilerTestContext {
 
   val shouldBeExecuted = false
 

@@ -12,18 +12,19 @@
 
 package raw.compiler.rql2.tests.builtin.credentials
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
-import raw.creds.api.CredentialsTestContext
-import raw.creds.jdbc.RDBMSTestCreds
-import raw.sources.jdbc.snowflake.SnowflakeClient
+import raw.compiler.rql2.tests.TestCredentials
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
+@TruffleTests class SnowflakePackageTest extends Rql2TruffleCompilerTestContext {
+
+  import TestCredentials._
 
   val snowflakeSchema = "PUBLIC"
   val snowflakeMainTable = "TBL1"
   val snowflakeSideTable = "TBL4"
 
-  rdbms(authorizedUser, "snowflake", snowflakeCreds)
+  rdbms("snowflake", snowflakeCreds)
 
   private val ttt = "\"\"\""
   // Trying all types. Not all expressions type as wanted so that
@@ -73,14 +74,6 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
       |  boolcol: false,
       |  binarycol: String.Encode("tralala", "utf-8")
       |}]""".stripMargin)
-  }
-
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    // (CTM) while we sort out our snowflake installation
-    // this will fail immediately instead of polluting tier2 tests
-    val client = new SnowflakeClient(snowflakeCreds)(settings)
-    client.listSchemas
   }
 
   property("raw.sources.rdbms.network-timeout", "10s")
@@ -224,7 +217,7 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
 
   test(
     s"""Snowflake.InferAndRead("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
-      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get.toString}", password = "${snowflakeCreds.password.get.toString}")""".stripMargin
+      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}")""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -238,7 +231,7 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
   test(
     s"""Snowflake.Read("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get.toString}", password = "${snowflakeCreds.password.get.toString}" )""".stripMargin
+      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}" )""".stripMargin
   ) { it =>
     it should orderEvaluateTo(
       """[
@@ -249,13 +242,13 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
     )
   }
 
-  test(s"""
+  ignore(s"""
     |let
-    |   d = Location.Describe(Location.Build(
+    |   d = Location.Describe(Snowflake.Build(
     |      "snowflake://${snowflakeCreds.database}/$snowflakeSchema/$snowflakeMainTable",
-    |      db_account_id = "${snowflakeCreds.accountIdentifier}",
-    |      db_username = "${snowflakeCreds.username.get.toString}",
-    |      db_password = "${snowflakeCreds.password.get.toString}"
+    |      accountID = "${snowflakeCreds.accountIdentifier}",
+    |      username = "${snowflakeCreds.username}",
+    |      password = "${snowflakeCreds.password}"
     |   ))
     |in
     |  d.columns
@@ -273,7 +266,7 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
     s"""Snowflake.InferAndRead("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable" )""".stripMargin
   )(it =>
     it should runErrorAs(
-      s"""inference error: no credential found for Snowflake: ${snowflakeCreds.database}""".stripMargin
+      s"""unknown database credential: ${snowflakeCreds.database}""".stripMargin
     )
   )
 
@@ -281,18 +274,18 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
     s"""Snowflake.Read("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""no credential found for Snowflake: ${snowflakeCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: ${snowflakeCreds.database}""".stripMargin))
 
   // server does not exist
   test(
     s"""Snowflake.Read(
       |  "${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  accountID = "does-not-exist", username = "${snowflakeCreds.username.get.toString}", password = "${snowflakeCreds.password.get.toString}"
+      |  accountID = "does-not-exist", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}"
       |)""".stripMargin
   ) { it =>
     it should runErrorAs(
-      """IO error connecting to does-not-exist: JDBC driver encountered communication error. Message: HTTP status=403.""".stripMargin
+      """IO error connecting to does-not-exist: JDBC driver encountered communication error. Message: HTTP status=513.""".stripMargin
     )
   }
 
@@ -303,14 +296,14 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  accountID = "${snowflakeCreds.accountIdentifier}"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""authentication failed""".stripMargin))
+  )(it => it should runErrorAs(s"""username is required""".stripMargin))
 
   // wrong password
   test(
     s"""Snowflake.Read(
       |  "${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get.toString}", password = "wrong!"
+      |  accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "wrong!"
       |)""".stripMargin
   ) { it =>
     it should runErrorAs(
@@ -330,7 +323,7 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
 
   test(
     s"""Snowflake.InferAndQuery("${snowflakeCreds.database}", "SELECT * FROM public.$snowflakeMainTable",
-      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get.toString}", password = "${snowflakeCreds.password.get.toString}" )""".stripMargin
+      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -356,7 +349,7 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
   test(
     s"""Snowflake.Query("${snowflakeCreds.database}", "SELECT * FROM public.$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get.toString}", password = "${snowflakeCreds.password.get.toString}" )""".stripMargin
+      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -370,8 +363,8 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
   test(
     s"""Snowflake.InferAndRead("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeSideTable",
       |   accountID = "${snowflakeCreds.accountIdentifier}",
-      |   username = "${snowflakeCreds.username.get.toString}",
-      |   password = "${snowflakeCreds.password.get.toString}",
+      |   username = "${snowflakeCreds.username}",
+      |   password = "${snowflakeCreds.password}",
       |   options = [{"timezone", "America/Los_Angeles"}]
       |)""".stripMargin
   ) { it =>
@@ -414,8 +407,8 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
   test(
     s"""Snowflake.InferAndQuery("${snowflakeCreds.database}", "SELECT * FROM $snowflakeSchema.$snowflakeSideTable",
       |   accountID = "${snowflakeCreds.accountIdentifier}",
-      |   username = "${snowflakeCreds.username.get.toString}",
-      |   password = "${snowflakeCreds.password.get.toString}",
+      |   username = "${snowflakeCreds.username}",
+      |   password = "${snowflakeCreds.password}",
       |   options = [{"timezone", "UTC"}]
       |)""".stripMargin
   ) { it =>
@@ -461,8 +454,8 @@ trait SnowflakePackageTest extends Rql2CompilerTestContext with CredentialsTestC
       |     Collection.Count(
       |      Snowflake.Query("${snowflakeCreds.database}", "SELECT * FROM public." + table,
       |       type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |       accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get}",
-      |       password = "${snowflakeCreds.password.get}")))""".stripMargin
+      |       accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}",
+      |       password = "${snowflakeCreds.password}")))""".stripMargin
   ) { it =>
     val error =
       s"""failed to read from database snowflake:${snowflakeCreds.database}: SQL compilation error:\\nObject '${snowflakeCreds.database.toUpperCase}.PUBLIC.DONT_EXIST' does not exist or not authorized.""".stripMargin

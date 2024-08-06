@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD5775Test extends Rql2CompilerTestContext {
+@TruffleTests class RD5775Test extends Rql2TruffleCompilerTestContext {
   test("""let data = Http.Get("https://jira.atlassian.com/rest/api/latest/search", args=[{"jql", "fixVersion=9.0.0"}]),
     |    r = Json.InferAndRead(data),
     |    issues = Collection.Transform(r.issues, i -> {

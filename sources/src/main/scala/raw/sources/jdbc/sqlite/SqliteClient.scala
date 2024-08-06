@@ -12,38 +12,47 @@
 
 package raw.sources.jdbc.sqlite
 
+import raw.sources.api.LocationException
 import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
-import java.nio.file.{InvalidPathException, Path}
+import java.nio.file.{InvalidPathException, Path, Paths}
 import java.sql.SQLException
 import scala.util.control.NonFatal
 
-class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClient {
+class SqliteClient(val path: String)(implicit settings: RawSettings) extends JdbcClient {
+
+  private val localPath =
+    try {
+      Paths.get(path)
+    } catch {
+      case _: InvalidPathException => throw new LocationException("invalid path")
+    }
+
+  // The JDBC driver requires a local path.
+  // Opted to validate here instead of having constructor take a Path and force all the callers to valid the path,
+  // so that we have more coherent error handling.
+  // This way, if there is any error with the "connection string" (the path in this case), we throw early an exception.
+  val sqlitePath: Path =
+    try {
+      localPath.toAbsolutePath
+    } catch {
+      case ex: InvalidPathException => throw new JdbcLocationException(s"invalid local path: $localPath", ex)
+    }
 
   Class.forName("org.sqlite.JDBC")
 
-  /**
-   * The JDBC driver requires a local path. Opted to validate here instead of having constructor take a Path and
-   * force all the callers to valid the path, so that we have more coherent error handling. This way, if there is
-   * any error with the "connection string" (the path), we throw the proper exception.
-   * It is possible the "path" is a RAW URI to the local file, when the reader/writer exp is coming from
-   * readOrCacheCreate
-   */
-  val sqlitePath: Path =
-    try {
-      path.toAbsolutePath
-    } catch {
-      case ex: InvalidPathException => throw new JdbcLocationException(s"invalid local path: $path", ex)
-    }
-
   override val vendor: String = "sqlite"
-  override val connectionString: String = s"jdbc:$vendor:$sqlitePath"
-  override val username: Option[String] = None
-  override val password: Option[String] = None
-  override val database: Option[String] = None
 
-  override val hostname: String = path.toAbsolutePath.toString
+  override val maybeUsername: Option[String] = None
+
+  override val maybePassword: Option[String] = None
+
+  override val maybeDatabase: Option[String] = None
+
+  override val connectionString: String = s"jdbc:$vendor:$sqlitePath"
+
+  override val hostname: String = localPath.toAbsolutePath.toString
 
   override def wrapSQLException[T](f: => T): T = {
     try {
@@ -51,7 +60,7 @@ class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClien
     } catch {
       // TODO (ctm): check Sqlite exceptions
       case ex: SQLException => ex.getCause match {
-          case int: InterruptedException => throw int
+          case ex: InterruptedException => throw ex
           case _ =>
             // Some more codes here (DB2 Universal Messages manual), various databases have varying degrees of compliance
             //https://www.ibm.com/support/knowledgecenter/en/SS6NHC/com.ibm.swg.im.dashdb.messages.doc/doc/rdb2stt.html
@@ -69,9 +78,8 @@ class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClien
             }
         }
       case ex: JdbcLocationException => throw ex
-      case NonFatal(t) =>
-        logger.warn("Unexpected SQL error.", t)
-        throw new JdbcLocationException(s"unexpected database error", t)
+      case ex: InterruptedException => throw ex
+      case NonFatal(t) => throw new JdbcLocationException(s"unexpected database error", t)
     }
   }
 

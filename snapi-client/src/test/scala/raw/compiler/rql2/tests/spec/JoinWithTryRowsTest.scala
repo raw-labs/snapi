@@ -12,11 +12,12 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 import raw.compiler.utils._
+import raw.testing.tags.TruffleTests
 
-trait JoinWithTryRowsTest extends Rql2CompilerTestContext with LocalLocationsTestContext {
+@TruffleTests class JoinWithTryRowsTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   /* testing joins with failed rows. How a dataset of failed rows is built: by engineering
        a dataset of nested list of records, and pick one using List.Get so that it sometimes

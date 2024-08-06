@@ -12,12 +12,13 @@
 
 package raw.compiler.rql2.tests.output
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 import raw.utils._
 
 import java.nio.file.{Files, Path}
 
-trait JsonOutputTest extends Rql2CompilerTestContext {
+@TruffleTests class JsonOutputTest extends Rql2TruffleCompilerTestContext {
 
   option("output-format", "json")
 

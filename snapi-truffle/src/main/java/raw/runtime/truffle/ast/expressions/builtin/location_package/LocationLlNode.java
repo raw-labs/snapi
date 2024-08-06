@@ -19,8 +19,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.list.StringList;
@@ -29,7 +29,6 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.*;
 import raw.utils.RawException;
 import scala.Tuple2;
@@ -43,9 +42,7 @@ public abstract class LocationLlNode extends ExpressionNode {
   protected Object doLl(
       LocationObject locationObject, @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
     try {
-      SourceContext context = RawContext.get(this).getSourceContext();
-      FileSystemLocation fs =
-          FileSystemLocationProvider.build(locationObject.getLocationDescription(), context);
+      FileSystemLocation fs = locationObject.getFileSystemLocation();
       IndexedSeq<Tuple2<FileSystemLocation, FileSystemMetadata>> values =
           fs.lsWithMetadata().toIndexedSeq();
       int size = values.size();
@@ -54,7 +51,12 @@ public abstract class LocationLlNode extends ExpressionNode {
       for (int i = 0; i < size; i++) {
         Object topRecord = RawLanguage.get(this).createPureRecord();
         Object metadata = RawLanguage.get(this).createPureRecord();
-        addPropNode.execute(this, topRecord, "url", values.apply(i)._1.rawUri(), false);
+        addPropNode.execute(
+            this,
+            topRecord,
+            "url",
+            LocationDescription$.MODULE$.locationToPublicUrl(values.apply(i)._1),
+            false);
         if (values.apply(i)._2 instanceof DirectoryMetadata) {
           DirectoryMetadata directoryMetadata = (DirectoryMetadata) values.apply(i)._2;
           if (directoryMetadata.modifiedInstant().isDefined()) {

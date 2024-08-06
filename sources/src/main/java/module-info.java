@@ -57,21 +57,15 @@ module raw.sources {
   requires com.microsoft.sqlserver.jdbc;
   requires mysql.connector.j;
   requires ojdbc10;
+  requires snowflake.jdbc;
+  requires dropbox.core.sdk;
   requires raw.utils;
-  requires raw.client;
 
-  exports raw.auth.api;
-  exports raw.rest.client;
-  exports raw.rest.common;
-  exports raw.creds.api;
-  exports raw.creds.client;
-  exports raw.creds.local;
-  exports raw.creds.protocol;
   exports raw.sources.api;
   exports raw.sources.bytestream.api;
   exports raw.sources.bytestream.github;
   exports raw.sources.bytestream.http;
-  exports raw.sources.bytestream.in_memory;
+  exports raw.sources.bytestream.inmemory;
   exports raw.sources.filesystem.api;
   exports raw.sources.filesystem.dropbox;
   exports raw.sources.filesystem.local;
@@ -85,11 +79,4 @@ module raw.sources {
   exports raw.sources.jdbc.sqlserver;
   exports raw.sources.jdbc.oracle;
   exports raw.sources.jdbc.teradata;
-
-  opens raw.auth.api to
-      com.fasterxml.jackson.databind;
-  opens raw.rest.common to
-      com.fasterxml.jackson.databind;
-  opens raw.creds.api to
-      com.fasterxml.jackson.databind;
 }

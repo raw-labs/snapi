@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait BasicStagedCompilerTest extends Rql2CompilerTestContext {
+@TruffleTests class BasicStagedCompilerTest extends Rql2TruffleCompilerTestContext {
 
   test("""TestPackage.ByteValueArg(22b)""")(_ should evaluateTo("{arg: 22b}"))
   test("""TestPackage.ShortValueArg(22s)""")(_ should evaluateTo("{arg: 22s}"))

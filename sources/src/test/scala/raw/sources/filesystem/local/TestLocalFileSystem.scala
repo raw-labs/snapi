@@ -22,7 +22,7 @@ class TestLocalFileSystem extends RawTestSuite with TestFileSystems {
 
   override val basePath: String = Files.createTempDirectory("test-local").toFile.getAbsolutePath
 
-  override def newFileSystem: FileSystem = new LocalFileSystem
+  override def newFileSystem: FileSystem = LocalFileSystem
 
   override def writeTestFile(fs: FileSystem, parts: String*): Unit = {
     val f = new File(buildPath(fs, parts.mkString(fs.fileSeparator)))

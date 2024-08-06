@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait RD10194Test extends Rql2CompilerTestContext {
+@TruffleTests class RD10194Test extends Rql2TruffleCompilerTestContext {
 
   private val q =
     """main(title: string = null, description: string = null, category: string = null, rating: string = null, actor: string = null) =
@@ -26,22 +27,7 @@ trait RD10194Test extends Rql2CompilerTestContext {
       |        rating_clause = if(Nullable.IsNull(rating)) then "" else " and rating like \"%"+rating+"%\"",
       |        actor_clause = if(Nullable.IsNull(actor)) then "" else " and actors like \"%"+actor+"%\"",
       |        where_clause = " where true " + actor_clause + title_clause + description_clause + category_clause + rating_clause,
-      |        full_query = "select * from nicer_but_slower_film_list "+where_clause,
-      |        hello = MySQL.Query(
-      |                    "sakila",
-      |                    full_query,
-      |                    type collection(
-      |                        record(
-      |                            FID: short,
-      |                            title: string,
-      |                            description: string,
-      |                            category: string,
-      |                            price: decimal,
-      |                            length: short,
-      |                            rating: string,
-      |                            actors: string,
-      |                        )
-      |                    ))
+      |        full_query = "select * from nicer_but_slower_film_list "+where_clause
       |    in
       |        full_query
       |

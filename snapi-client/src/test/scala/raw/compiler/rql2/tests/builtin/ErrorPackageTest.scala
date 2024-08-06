@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait ErrorPackageTest extends Rql2CompilerTestContext {
+@TruffleTests class ErrorPackageTest extends Rql2TruffleCompilerTestContext {
   test(""" Error.Build("an error")""")(it => it should runErrorAs("an error"))
   test(""" Error.Build("an error") == Error.Build("an error")""")(it => it should runErrorAs("an error"))
   test(""" Error.Build("an error") == Error.Build("another error")""")(it => it should runErrorAs("an error"))

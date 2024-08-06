@@ -12,9 +12,10 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.Rql2CompilerTestContext
+import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
 
-trait ClosureTest extends Rql2CompilerTestContext {
+@TruffleTests class ClosureTest extends Rql2TruffleCompilerTestContext {
 
   test("""let functions =
     |   List.Transform([1,2,3],

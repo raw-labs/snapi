@@ -14,7 +14,6 @@ package raw.compiler.rql2.builtin
 
 import raw.client.api._
 import raw.compiler.base.source.Type
-import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param, ShortEntryExtension}
 import raw.compiler.rql2.source._
@@ -124,45 +123,9 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
         isOptional = true
       ),
       ParamDoc(
-        "token",
-        TypeDoc(List("string")),
-        "The bearer token to be passed as the Authorization header of the request.",
-        isOptional = true
-      ),
-      ParamDoc(
         "authCredentialName",
         TypeDoc(List("string")),
         "The name of the HTTP credential registered in the credentials storage.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "clientId",
-        TypeDoc(List("string")),
-        "The client ID to use for the client credentials OAuth flow. Requires `clientSecret` and `tokenUrl`.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "clientSecret",
-        TypeDoc(List("string")),
-        "The client secret to use for the client credentials OAuth flow. Requires `clientId` and either `authProvider` or `tokenUrl`.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "authProvider",
-        TypeDoc(List("string")),
-        "The provider for client ID client secret OAuth flow. Requires `clientId` and `clientSecret`.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "tokenUrl",
-        TypeDoc(List("string")),
-        "The URL to be used for the client credentials OAuth flow. Requires `clientId` and `clientSecret`.",
-        isOptional = true
-      ),
-      ParamDoc(
-        "useBasicAuth",
-        TypeDoc(List("bool")),
-        "If true, uses basic auth for the client credentials OAuth flow. Requires `clientId`, `clientSecret` and `tokenUrl`.",
         isOptional = true
       ),
       ParamDoc(
@@ -208,13 +171,7 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
     Set(
       "bodyString",
       "bodyBinary",
-      "token",
       "authCredentialName",
-      "clientId",
-      "clientSecret",
-      "authProvider",
-      "tokenUrl",
-      "useBasicAuth",
       "username",
       "password",
       "args",
@@ -224,26 +181,38 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
   )
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    Right(
-      ExpParam(
-        OneOfType(
-          Rql2IntType(),
-          Rql2StringType(),
-          Rql2BinaryType(),
-          Rql2BoolType(),
-          Rql2IntervalType(),
-          Rql2ListType(
-            Rql2RecordType(
-              Vector(
-                Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+    idn match {
+      case "bodyString" => Right(ExpParam(Rql2StringType()))
+      case "bodyBinary" => Right(ExpParam(Rql2BinaryType()))
+      case "authCredentialName" => Right(ExpParam(Rql2StringType()))
+      case "username" => Right(ExpParam(Rql2StringType()))
+      case "password" => Right(ExpParam(Rql2StringType()))
+      case "args" => Right(
+          ExpParam(
+            Rql2ListType(
+              Rql2RecordType(
+                Vector(
+                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
+                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                )
               )
             )
-          ),
-          Rql2ListType(Rql2IntType())
+          )
         )
-      )
-    )
+      case "headers" => Right(
+          ExpParam(
+            Rql2ListType(
+              Rql2RecordType(
+                Vector(
+                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
+                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                )
+              )
+            )
+          )
+        )
+      case "expectedStatus" => Right(ExpParam(Rql2ListType(Rql2IntType())))
+    }
   }
 
   override def returnType(

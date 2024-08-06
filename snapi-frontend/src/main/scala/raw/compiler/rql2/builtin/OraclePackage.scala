@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.base.errors.ErrorCompilerMessage
+import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.api.{
@@ -32,7 +32,13 @@ import raw.compiler.rql2.api.{
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.ProgramContext
 import raw.client.api._
-import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
+import raw.inferrer.api.{
+  SqlQueryInferrerProperties,
+  SqlQueryInputFormatDescriptor,
+  SqlTableInferrerProperties,
+  SqlTableInputFormatDescriptor
+}
+import raw.sources.jdbc.oracle.{OracleServerLocation, OracleTableLocation}
 
 class OraclePackage extends PackageExtension {
 
@@ -44,7 +50,7 @@ class OraclePackage extends PackageExtension {
 
 }
 
-class OracleInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class OracleInferAndReadEntry extends SugarEntryExtension {
 
   override def packageName: String = "Oracle"
 
@@ -138,22 +144,54 @@ class OracleInferAndReadEntry extends SugarEntryExtension with SqlTableExtension
     )
   }
 
+  private def getTableInferrerProperties(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)]
+  )(implicit programContext: ProgramContext): Either[String, SqlTableInferrerProperties] = {
+    val db = getStringValue(mandatoryArgs(0))
+    val schema = getStringValue(mandatoryArgs(1))
+    val table = getStringValue(mandatoryArgs(2))
+    val location =
+      if (
+        optionalArgs.exists(_._1 == "host") || optionalArgs
+          .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+      ) {
+        val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("host is required"))._2)
+        val port = optionalArgs.find(_._1 == "port").map(v => getIntValue(v._2)).getOrElse(1521)
+        val username =
+          getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
+        val password =
+          getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
+        new OracleTableLocation(host, port, db, username, password, schema, table)(programContext.settings)
+      } else {
+        programContext.programEnvironment.jdbcServers.get(db) match {
+          case Some(l: OracleJdbcLocation) =>
+            new OracleTableLocation(l.host, l.port, l.database, l.username, l.password, schema, table)(
+              programContext.settings
+            )
+          case Some(_) => return Left("not an Oracle server")
+          case None => return Left(s"unknown database credential: $db")
+        }
+      }
+    Right(SqlTableInferrerProperties(location, None))
+  }
+
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
-      inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs, OracleVendor());
+      inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
+      SqlTableInputFormatDescriptor(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, false, false)
     }
   }
 }
 
-class OracleReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class OracleReadEntry extends SugarEntryExtension {
 
   override def packageName: String = "Oracle"
 
@@ -242,6 +280,22 @@ class OracleReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
+    // Check that host/port/username/password are all present if any of them is present.
+    if (
+      optionalArgs.exists(_._1 == "host") || optionalArgs
+        .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+    ) {
+      if (!optionalArgs.exists(_._1 == "host")) {
+        return Left(Seq(InvalidSemantic(node, "host is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "username")) {
+        return Left(Seq(InvalidSemantic(node, "username is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "password")) {
+        return Left(Seq(InvalidSemantic(node, "password is required")))
+      }
+    }
+
     val t = mandatoryArgs(3).t
     validateTableType(t)
   }
@@ -273,7 +327,7 @@ class OracleReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
   }
 }
 
-class OracleInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensionHelper {
+class OracleInferAndQueryEntry extends SugarEntryExtension {
 
   override def packageName: String = "Oracle"
 
@@ -343,15 +397,44 @@ class OracleInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensio
     }
   }
 
+  private def getQueryInferrerProperties(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)]
+  )(implicit programContext: ProgramContext): Either[String, SqlQueryInferrerProperties] = {
+    val db = getStringValue(mandatoryArgs(0))
+    val query = getStringValue(mandatoryArgs(1))
+    val location =
+      if (
+        optionalArgs.exists(_._1 == "host") || optionalArgs
+          .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+      ) {
+        val host = getStringValue(optionalArgs.find(_._1 == "host").getOrElse(return Left("host is required"))._2)
+        val port = optionalArgs.find(_._1 == "port").map(v => getIntValue(v._2)).getOrElse(1521)
+        val username =
+          getStringValue(optionalArgs.find(_._1 == "username").getOrElse(return Left("username is required"))._2)
+        val password =
+          getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
+        new OracleServerLocation(host, port, db, username, password)(programContext.settings)
+      } else {
+        programContext.programEnvironment.jdbcServers.get(db) match {
+          case Some(l: OracleJdbcLocation) =>
+            new OracleServerLocation(l.host, l.port, l.database, l.username, l.password)(programContext.settings)
+          case Some(_) => return Left("not an Oracle server")
+          case None => return Left(s"unknown database credential: $db")
+        }
+      }
+    Right(SqlQueryInferrerProperties(location, query, None))
+  }
+
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
-      inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs, OracleVendor());
+      inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
+      SqlQueryInputFormatDescriptor(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, false, false)
     }
@@ -377,7 +460,7 @@ class OracleInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensio
 
 }
 
-class OracleQueryEntry extends EntryExtension with SqlTableExtensionHelper {
+class OracleQueryEntry extends EntryExtension {
 
   override def packageName: String = "Oracle"
 
@@ -463,6 +546,22 @@ class OracleQueryEntry extends EntryExtension with SqlTableExtensionHelper {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
+    // Check that host/port/username/password are all present if any of them is present.
+    if (
+      optionalArgs.exists(_._1 == "host") || optionalArgs
+        .exists(_._1 == "username") || optionalArgs.exists(_._1 == "password")
+    ) {
+      if (!optionalArgs.exists(_._1 == "host")) {
+        return Left(Seq(InvalidSemantic(node, "host is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "username")) {
+        return Left(Seq(InvalidSemantic(node, "username is required")))
+      }
+      if (!optionalArgs.exists(_._1 == "password")) {
+        return Left(Seq(InvalidSemantic(node, "password is required")))
+      }
+    }
+
     val t = mandatoryArgs(2).t
     validateTableType(t)
   }

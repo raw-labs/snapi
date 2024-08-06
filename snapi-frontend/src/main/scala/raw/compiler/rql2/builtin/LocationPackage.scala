@@ -14,7 +14,6 @@ package raw.compiler.rql2.builtin
 
 import raw.client.api._
 import raw.compiler.base.source.Type
-import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 import raw.compiler.rql2.source._
@@ -29,12 +28,13 @@ class LocationPackage extends PackageExtension {
 
 }
 
-class LocationBuildEntry extends EntryExtension {
+class LocationFromStringEntry extends EntryExtension {
 
   override def packageName: String = "Location"
 
-  override def entryName: String = "Build"
+  override def entryName: String = "FromString"
 
+  // FIXME (msb): Make this a user-visible node and take advantage to document the exact format of the URLs allowed.
   override def docs: EntryDoc = ???
 
   override def nrMandatoryParams: Int = 1
@@ -44,30 +44,7 @@ class LocationBuildEntry extends EntryExtension {
     Right(ExpParam(Rql2StringType()))
   }
 
-  override def optionalParams: Option[Set[String]] = Some(Set.empty)
-
-  override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    Right(
-      ExpParam(
-        OneOfType(
-          Rql2IntType(),
-          Rql2StringType(),
-          Rql2BinaryType(),
-          Rql2BoolType(),
-          Rql2IntervalType(),
-          Rql2ListType(
-            Rql2RecordType(
-              Vector(
-                Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
-              )
-            )
-          ),
-          Rql2ListType(Rql2IntType())
-        )
-      )
-    )
-  }
+  override def optionalParams: Option[Set[String]] = None
 
   override def returnType(
       mandatoryArgs: Seq[Arg],
