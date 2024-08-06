@@ -106,7 +106,8 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
         isOptional = true
       )
     ),
-    examples = List(ExampleDoc("""Snowflake.InferAndRead("database", "schema", "table", options=[{"timezone", "UTC"}])""")),
+    examples =
+      List(ExampleDoc("""Snowflake.InferAndRead("database", "schema", "table", options=[{"timezone", "UTC"}])""")),
     ret = Some(
       ReturnDoc("A table with the data read from the Snowflake table.", retType = Some(TypeDoc(List("collection"))))
     )
@@ -432,7 +433,9 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
         isOptional = true
       )
     ),
-    examples = List(ExampleDoc("""Snowflake.InferAndQuery("database", "SELECT * FROM schema.table", options=[{"timezone", "UTC"}])""")),
+    examples = List(
+      ExampleDoc("""Snowflake.InferAndQuery("database", "SELECT * FROM schema.table", options=[{"timezone", "UTC"}])""")
+    ),
     ret = Some(
       ReturnDoc("A table with the data read from the Snowflake table.", retType = Some(TypeDoc(List("collection"))))
     )
