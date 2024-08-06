@@ -25,12 +25,13 @@ import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationFrom
 public class TruffleS3BuildEntry extends S3BuildEntry implements TruffleEntryExtension, WithArgs {
 
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode url = args.get(0).exprNode();
+    ExpressionNode bucket = args.get(0).exprNode();
+    ExpressionNode path = args.get(1).exprNode();
 
     ExpressionNode accessKey = arg(args, "accessKey").orElse(null);
     ExpressionNode secretKey = arg(args, "secretKey").orElse(null);
     ExpressionNode region = arg(args, "region").orElse(null);
 
-    return new LocationFromS3Node(url, accessKey, secretKey, region);
+    return new LocationFromS3Node(bucket, path, accessKey, secretKey, region);
   }
 }

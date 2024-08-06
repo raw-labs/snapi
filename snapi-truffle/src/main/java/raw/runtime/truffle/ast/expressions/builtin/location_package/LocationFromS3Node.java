@@ -17,7 +17,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.client.api.S3Credential;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.filesystem.s3.S3Path;
 import scala.None$;
@@ -27,17 +26,20 @@ import scala.Some;
 @NodeInfo(shortName = "Location.FromS3")
 public class LocationFromS3Node extends ExpressionNode {
 
-  @Child private ExpressionNode url;
+  @Child private ExpressionNode bucket;
+  @Child private ExpressionNode path;
   @Child private ExpressionNode accessKey;
   @Child private ExpressionNode secretKey;
   @Child private ExpressionNode region;
 
   public LocationFromS3Node(
-      ExpressionNode url,
+      ExpressionNode bucket,
+      ExpressionNode path,
       ExpressionNode accessKey,
       ExpressionNode secretKey,
       ExpressionNode region) {
-    this.url = url;
+    this.bucket = bucket;
+    this.path = path;
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.region = region;
@@ -45,24 +47,9 @@ public class LocationFromS3Node extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    String url = (String) this.url.executeGeneric(frame);
+    String bucket = (String) this.bucket.executeGeneric(frame);
+    String path = (String) this.path.executeGeneric(frame);
 
-    // Parse S3 URL to obtain S3 bucket and path
-    if (!url.startsWith("s3://")) {
-      throw new RawTruffleRuntimeException("invalid S3 URL format: " + url);
-    }
-
-    // Remove the "s3://" prefix
-    String urlWithoutPrefix = url.substring(5);
-
-    // Split the remaining part into bucket and path
-    int slashIndex = urlWithoutPrefix.indexOf('/');
-    if (slashIndex == -1) {
-      throw new IllegalArgumentException("invalid S3 URL format: " + url);
-    }
-
-    String bucket = urlWithoutPrefix.substring(0, slashIndex);
-    String path = urlWithoutPrefix.substring(slashIndex + 1);
 
     // The docs say:
     // "If the S3 bucket is not registered in the credentials storage, then the region, accessKey
@@ -94,6 +81,7 @@ public class LocationFromS3Node extends ExpressionNode {
               bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
     }
 
+    String url = "s3://" + bucket + path;
     return new LocationObject(location, url);
   }
 }
