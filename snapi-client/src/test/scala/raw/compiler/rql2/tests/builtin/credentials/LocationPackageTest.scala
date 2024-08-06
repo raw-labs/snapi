@@ -85,7 +85,8 @@ import raw.testing.tags.TruffleTests
   test(s"""let
     |  data = Csv.InferAndRead(
     |    S3.Build(
-    |      "s3://$UnitTestPrivateBucket/students.csv",
+    |      "$UnitTestPrivateBucket",
+    |      "students.csv",
     |      region = "${UnitTestPrivateBucketCred.region.get}",
     |      accessKey = "${UnitTestPrivateBucketCred.accessKey.get}",
     |      secretKey = "${UnitTestPrivateBucketCred.secretKey.get}"
@@ -96,7 +97,7 @@ import raw.testing.tags.TruffleTests
     |""".stripMargin)(it => it should evaluateTo("7"))
 
   // using a private bucket registered in the credentials server
-  test(s"""String.Read(S3.Build("s3://$UnitTestPrivateBucket2/file1.csv"))
+  test(s"""String.Read(S3.Build("$UnitTestPrivateBucket2", "/file1.csv"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
 }

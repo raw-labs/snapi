@@ -26,7 +26,8 @@ import raw.testing.tags.TruffleTests
   test(s"""let
     |  data = Csv.InferAndRead(
     |    S3.Build(
-    |      "s3://rawlabs-private-test-data/students.csv",
+    |      "$UnitTestPrivateBucket",
+    |      "/students.csv",
     |      region = "${UnitTestPrivateBucketCred.region.get}",
     |      accessKey = "${UnitTestPrivateBucketCred.accessKey.get}",
     |      secretKey = "${UnitTestPrivateBucketCred.secretKey.get}"
@@ -37,14 +38,15 @@ import raw.testing.tags.TruffleTests
     |""".stripMargin)(it => it should evaluateTo("7"))
 
   // using a private bucket registered in the credentials server
-  test(s"""String.Read(S3.Build("s3://$UnitTestPrivateBucket2/file1.csv"))
+  test(s"""String.Read(S3.Build("$UnitTestPrivateBucket2", "/file1.csv"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
   // listing a s3 bucket from us-east-1 (non default region)
   test(s"""let
     |  data = Location.Ls(
     |    S3.Build(
-    |      "s3://$unitTestPrivateBucketUsEast1/csvs/01",
+    |      "$unitTestPrivateBucketUsEast1",
+    |      "/csvs/01",
     |      region = "${unitTestPrivateBucketUsEast1Cred.region.get}",
     |      accessKey = "${unitTestPrivateBucketUsEast1Cred.accessKey.get}",
     |      secretKey = "${unitTestPrivateBucketUsEast1Cred.secretKey.get}"
@@ -61,7 +63,8 @@ import raw.testing.tags.TruffleTests
   test(s"""let
     |  data = Location.Ls(
     |    S3.Build(
-    |      "s3://$unitTestPrivateBucketUsEast1/csvs/01",
+    |      "$unitTestPrivateBucketUsEast1",
+    |      "/csvs/01",
     |      accessKey = "${unitTestPrivateBucketUsEast1Cred.accessKey.get}",
     |      secretKey = "${unitTestPrivateBucketUsEast1Cred.secretKey.get}"
     |    )
