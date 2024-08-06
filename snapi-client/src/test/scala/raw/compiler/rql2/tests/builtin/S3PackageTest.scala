@@ -19,7 +19,17 @@ import raw.testing.tags.TruffleTests
 
   import raw.compiler.rql2.tests.TestCredentials._
 
-  // reading a public s3 bucket without registering or passing credentials
+  s3Bucket(UnitTestPrivateBucket, UnitTestPrivateBucketCred)
+  // Reading a public bucket without credentials
+  test(s"""let
+    |  data = Csv.InferAndRead(
+    |    S3.Build("$UnitTestPublicBucket", "/students.csv")
+    |  )
+    |in
+    |  Collection.Count(data)
+    |""".stripMargin)(it => it should evaluateTo("7"))
+
+  // Reading the same file without putting leading slash
   test(s"""let
     |  data = Csv.InferAndRead(
     |    S3.Build("$UnitTestPublicBucket", "students.csv")
@@ -28,10 +38,28 @@ import raw.testing.tags.TruffleTests
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))
 
-  // reading a public s3 bucket without registering or passing credentials
+  // Reading a private bucket with credentials in the code
+  test(s"""let
+    |  data = Csv.InferAndRead(
+    |    S3.Build(
+    |      "$UnitTestPrivateBucket",
+    |      "/students.csv",
+    |      region = "${UnitTestPrivateBucketCred.region.get}",
+    |      accessKey = "${UnitTestPrivateBucketCred.accessKey.get}",
+    |      secretKey = "${UnitTestPrivateBucketCred.secretKey.get}"
+    |    )
+    |  )
+    |in
+    |  Collection.Count(data)
+    |""".stripMargin)(it => it should evaluateTo("7"))
+
+  // Reading a private bucket using a registered credential
   test(s"""let
           |  data = Csv.InferAndRead(
-          |    S3.Build("$UnitTestPublicBucket", "/students.csv")
+          |    S3.Build(
+          |      "$UnitTestPrivateBucket",
+          |      "/students.csv"
+          |    )
           |  )
           |in
           |  Collection.Count(data)
