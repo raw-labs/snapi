@@ -19,7 +19,7 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.client.api._
 import raw.client.rql2.api._
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
+import raw.compiler.rql2.api._
 import raw.inferrer.local.LocalInferrerTestContext
 import raw.utils._
 

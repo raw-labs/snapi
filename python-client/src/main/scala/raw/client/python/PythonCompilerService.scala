@@ -12,7 +12,7 @@
 
 package raw.client.python
 
-import org.graalvm.polyglot.{Context, Engine, PolyglotException, Source, Value}
+import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
 import raw.client.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import raw.utils.{RawSettings, RawUtils}
@@ -107,7 +107,8 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
       outputStream: OutputStream,
       maxRows: Option[Long]
   ): ExecutionResponse = {
-    val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
+    val pythonProgramEnvironment = environment.asInstanceOf[PythonProgramEnvironment]
+    val ctx = buildTruffleContext(pythonProgramEnvironment, maybeOutputStream = Some(outputStream))
     ctx.initialize("python")
     ctx.enter()
     try {
@@ -263,24 +264,23 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
   }
 
   private def buildTruffleContext(
-      environment: ProgramEnvironment,
+      environment: PythonProgramEnvironment,
       maybeOutputStream: Option[OutputStream]
   ): Context = {
-    ???
-//    // Add environment settings as hardcoded environment variables.
-//    val ctxBuilder = Context
-//      .newBuilder("python")
-//      .engine(engine)
-//      .environment("RAW_PROGRAM_ENVIRONMENT", PythonProgramEnvironment.serializeToString(environment))
-//      .allowExperimentalOptions(true)
-//      .allowPolyglotAccess(PolyglotAccess.ALL)
-//    maybeOutputStream.foreach(os => ctxBuilder.out(os))
-//    val ctx = ctxBuilder.build()
-//    ctx
+    // Add environment settings as hardcoded environment variables.
+    val ctxBuilder = Context
+      .newBuilder("python")
+      .engine(engine)
+      .environment("RAW_PROGRAM_ENVIRONMENT", PythonProgramEnvironment.serializeToString(environment))
+      .allowExperimentalOptions(true)
+      .allowPolyglotAccess(PolyglotAccess.ALL)
+    maybeOutputStream.foreach(os => ctxBuilder.out(os))
+    val ctx = ctxBuilder.build()
+    ctx
   }
 
 //  private def withTruffleContext[T](
-//      environment: ProgramEnvironment,
+//      environment: PythonProgramEnvironment,
 //      f: Context => T
 //  ): T = {
 //    val ctx = buildTruffleContext(environment)

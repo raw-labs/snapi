@@ -12,8 +12,8 @@
 
 package raw.client.python
 
-import raw.client.api.{CompilerService, ExecutionSuccess, ProgramEnvironment, RawInt}
-import raw.utils.{RawTestSuite, SettingsTestContext, TrainingWheelsContext, RawUid}
+import raw.client.api.{CompilerService, ExecutionSuccess, RawInt}
+import raw.utils.{RawTestSuite, RawUid, SettingsTestContext, TrainingWheelsContext}
 
 import java.io.ByteArrayOutputStream
 
@@ -38,15 +38,12 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
   }
 
   test("basic execute test") { _ =>
-    val environment = ProgramEnvironment(
+    val environment = PythonProgramEnvironment(
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map("output-format" -> "json")
+      Map("output-format" -> "json"),
+      None
     )
     val baos = new ByteArrayOutputStream()
     assert(compilerService.execute("1+1", environment, None, baos) == ExecutionSuccess(true))
@@ -54,15 +51,12 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
   }
 
   test("basic execute test w/ decl") { _ =>
-    val environment = ProgramEnvironment(
+    val environment = PythonProgramEnvironment(
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map("output-format" -> "json")
+      Map("output-format" -> "json"),
+      None
     )
     val baos = new ByteArrayOutputStream()
     assert(compilerService.execute("def f(): return 1+1", environment, Some("f"), baos) == ExecutionSuccess(true))
@@ -70,15 +64,12 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
   }
 
   test("basic execute test w/ decl and arguments") { _ =>
-    val environment = ProgramEnvironment(
+    val environment = PythonProgramEnvironment(
       user,
       Some(Array("v" -> RawInt(2))),
       Set.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map.empty,
-      Map("output-format" -> "json")
+      Map("output-format" -> "json"),
+      None
     )
     val baos = new ByteArrayOutputStream()
     assert(compilerService.execute("def f(v): return v*2", environment, Some("f"), baos) == ExecutionSuccess(true))
