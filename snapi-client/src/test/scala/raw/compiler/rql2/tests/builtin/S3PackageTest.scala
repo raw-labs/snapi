@@ -71,4 +71,11 @@ import raw.testing.tags.TruffleTests
     |in
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))
+
+  // Using the automatic casting from url to S3Location using credentials
+  test(s"""let
+          |  data = Csv.InferAndRead("s3://$UnitTestPrivateBucket/students.csv")
+          |in
+          |  Collection.Count(data)
+          |""".stripMargin)(it => it should evaluateTo("7"))
 }
