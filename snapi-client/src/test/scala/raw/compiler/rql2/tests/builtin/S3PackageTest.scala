@@ -40,10 +40,10 @@ import raw.testing.tags.TruffleTests
 
   // Testing the automatic casting from url to S3Location
   test(s"""let
-          |  data = Csv.InferAndRead("s3://$UnitTestPublicBucket/students.csv")
-          |in
-          |  Collection.Count(data)
-          |""".stripMargin)(it => it should evaluateTo("7"))
+    |  data = Csv.InferAndRead("s3://$UnitTestPublicBucket/students.csv")
+    |in
+    |  Collection.Count(data)
+    |""".stripMargin)(it => it should evaluateTo("7"))
 
   // Reading a private bucket with credentials in the code
   test(s"""let
@@ -74,8 +74,8 @@ import raw.testing.tags.TruffleTests
 
   // Using the automatic casting from url to S3Location using credentials
   test(s"""let
-          |  data = Csv.InferAndRead("s3://$UnitTestPrivateBucket/students.csv")
-          |in
-          |  Collection.Count(data)
-          |""".stripMargin)(it => it should evaluateTo("7"))
+    |  data = Csv.InferAndRead("s3://$UnitTestPrivateBucket/students.csv")
+    |in
+    |  Collection.Count(data)
+    |""".stripMargin)(it => it should evaluateTo("7"))
 }
