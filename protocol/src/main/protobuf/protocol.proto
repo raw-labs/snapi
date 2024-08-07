@@ -22,6 +22,7 @@ message LocationConfig {
         DropboxAccessTokenConfig dropboxAccessToken = 13;
         DropboxUsernamePasswordConfig dropboxUsernamePassword = 14;
         HttpHeadersConfig httpHeaders = 15;
+        SecretConfig secret = 99;
     }
 }
 
@@ -41,7 +42,6 @@ message MySqlConfig {
     string database = 3;
     string user = 4;
     string password = 5;
-    optional string schema = 6;
 }
 
 message OracleConfig {
@@ -139,4 +139,10 @@ message DropboxUsernamePasswordConfig {
 
 message HttpHeadersConfig {
     map<string, string> headers = 1;
+}
+
+// This is not used in practice but is kept for compatibility with FDW interface.
+message SecretConfig {
+    string name = 1;
+    string value = 2;
 }
