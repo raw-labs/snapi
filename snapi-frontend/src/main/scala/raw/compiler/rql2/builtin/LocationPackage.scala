@@ -37,8 +37,7 @@ class LocationFromStringEntry extends EntryExtension {
   // FIXME (msb): Make this a user-visible node and take advantage to document the exact format of the URLs allowed.
   override def docs: EntryDoc = EntryDoc(
     summary = """Transforms an url to a location.""".stripMargin,
-    description = Some("""Transforms an url to a location."
-      |List of supported url protocols:
+    description = Some("""List of supported url protocols:
       |  - s3 e.g. 's3://my-bucket/folder/file'.
       |  - http/https e.g 'https://example.com/service'.
       |  - dropbox e.g. 'dropbox://credential/my-folder/file'.""".stripMargin),
