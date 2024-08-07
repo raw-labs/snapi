@@ -164,9 +164,18 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new PostgresqlTableLocation(host, port, db, username, password, schema, table)(programContext.settings)
       } else {
-        programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: PostgresJdbcLocation) =>
-            new PostgresqlTableLocation(l.host, l.port, l.database, l.username, l.password, schema, table)(
+        programContext.programEnvironment.locationConfigs.get(db) match {
+          case Some(l) if l.hasPostgresql =>
+            val l1 = l.getPostgresql
+            new PostgresqlTableLocation(
+              l1.getHost,
+              l1.getPort,
+              l1.getDatabase,
+              l1.getUser,
+              l1.getPassword,
+              schema,
+              table
+            )(
               programContext.settings
             )
           case Some(_) => return Left("not a PostgreSQL server")
@@ -418,9 +427,12 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new PostgresqlServerLocation(host, port, db, username, password)(programContext.settings)
       } else {
-        programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: PostgresJdbcLocation) =>
-            new PostgresqlServerLocation(l.host, l.port, l.database, l.username, l.password)(programContext.settings)
+        programContext.programEnvironment.locationConfigs.get(db) match {
+          case Some(l) if l.hasPostgresql =>
+            val l1 = l.getPostgresql
+            new PostgresqlServerLocation(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)(
+              programContext.settings
+            )
           case Some(_) => return Left("not an Oracle server")
           case None => return Left(s"unknown database credential: $db")
         }

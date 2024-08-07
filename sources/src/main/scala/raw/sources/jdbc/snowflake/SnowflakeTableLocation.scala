@@ -15,6 +15,8 @@ package raw.sources.jdbc.snowflake
 import raw.sources.jdbc.api.JdbcTableLocation
 import raw.utils.RawSettings
 
+import scala.collection.JavaConverters._
+
 class SnowflakeTableLocation(
     cli: SnowflakeClient,
     val schema: String,
@@ -47,6 +49,28 @@ class SnowflakeTableLocation(
         password,
         accountIdentifier,
         parameters
+      ),
+      schema,
+      tableName
+    )
+  }
+
+  def this(
+      dbName: String,
+      username: String,
+      password: String,
+      accountIdentifier: String,
+      parameters: java.util.Map[String, String],
+      schema: String,
+      tableName: String
+  )(implicit settings: RawSettings) = {
+    this(
+      new SnowflakeClient(
+        dbName,
+        username,
+        password,
+        accountIdentifier,
+        parameters.asScala.toMap
       ),
       schema,
       tableName

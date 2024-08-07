@@ -21,6 +21,9 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.net.HttpURLConnection;
 import java.util.Base64;
 import java.util.Map;
+
+import raw.protocol.HttpHeadersConfig;
+import raw.protocol.LocationConfig;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
@@ -162,14 +165,22 @@ public class LocationFromHttpNode extends ExpressionNode {
                                 .encodeToString((username + ":" + password).getBytes())));
       }
 
+      RawContext context = RawContext.get(this);
+
       // Append any additional headers related to the authentication (if credential name is defined)
       if (this.authCredentialName != null) {
         String authCredentialName = (String) this.authCredentialName.executeGeneric(frame);
-        Map<String, String> credHeaders = RawContext.get(this).getHttpHeaders(authCredentialName);
-        for (Map.Entry<String, String> entry : credHeaders.entrySet()) {
-          headersBuilder =
-              (ArrayBuilder<Tuple2<String, String>>)
-                  headersBuilder.$plus$eq(Tuple2.apply(entry.getKey(), entry.getValue()));
+        LocationConfig l = context.getLocationConfig(authCredentialName);
+        if (l.hasHttpHeaders()) {
+          HttpHeadersConfig l1 = l.getHttpHeaders();
+          Map<String, String> credHeaders = l1.getHeadersMap();
+          for (Map.Entry<String, String> entry : credHeaders.entrySet()) {
+            headersBuilder =
+                    (ArrayBuilder<Tuple2<String, String>>)
+                            headersBuilder.$plus$eq(Tuple2.apply(entry.getKey(), entry.getValue()));
+          }
+        } else {
+            throw new RawTruffleInternalErrorException("credential is not an HTTP headers");
         }
       }
 
@@ -189,7 +200,7 @@ public class LocationFromHttpNode extends ExpressionNode {
         }
       }
 
-      RawSettings rawSettings = RawContext.get(this).getSettings();
+      RawSettings rawSettings = context.getSettings();
 
       HttpByteStreamLocation location =
           new HttpByteStreamLocation(

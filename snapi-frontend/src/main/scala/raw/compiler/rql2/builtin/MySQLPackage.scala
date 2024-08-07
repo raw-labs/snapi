@@ -144,9 +144,12 @@ class MySQLInferAndReadEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new MySqlTableLocation(host, port, db, username, password, table)(programContext.settings)
       } else {
-        programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: MySqlJdbcLocation) =>
-            new MySqlTableLocation(l.host, l.port, l.database, l.username, l.password, table)(programContext.settings)
+        programContext.programEnvironment.locationConfigs.get(db) match {
+          case Some(l) if l.hasMysql =>
+            val l1 = l.getMysql
+            new MySqlTableLocation(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword, table)(
+              programContext.settings
+            )
           case Some(_) => return Left("not a MySQL server")
           case None => return Left(s"unknown database credential: $db")
         }
@@ -385,9 +388,12 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new MySqlServerLocation(host, port, db, username, password)(programContext.settings)
       } else {
-        programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: MySqlJdbcLocation) =>
-            new MySqlServerLocation(l.host, l.port, l.database, l.username, l.password)(programContext.settings)
+        programContext.programEnvironment.locationConfigs.get(db) match {
+          case Some(l) if l.hasMysql =>
+            val l1 = l.getMysql
+            new MySqlServerLocation(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)(
+              programContext.settings
+            )
           case Some(_) => return Left("not a MySQL server")
           case None => return Left(s"unknown database credential: $db")
         }

@@ -43,6 +43,7 @@ writeVersionToFile := {
 
 lazy val root = (project in file("."))
   .aggregate(
+    protocol,
     utils,
     sources,
     client,
@@ -108,9 +109,48 @@ lazy val sources = (project in file("sources"))
     )
   )
 
+lazy val protocol = (project in file("protocol"))
+  .enablePlugins(ProtobufPlugin)
+  .settings(
+    commonCompileSettings,
+    ProtobufConfig / version := "3.18.0",
+    libraryDependencies += "com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value,
+//    ProtobufConfig / protobufGeneratedTargets ++= {
+//      val targetDir = (Compile / sourceManaged).value / "java"
+//      targetDir.mkdirs()
+//      val file = targetDir / "module.info.java"
+//      IO.write(
+//        file,
+//        """module raw.protocol {
+//          |  requires com.google.protobuf;
+//          |  exports raw.protocol;
+//          |}""".stripMargin
+//      )
+//
+//      Seq(((Compile / sourceManaged).value / "java", "*.java"))
+//    },
+    // Append Automated Module Name to the generated jar
+//    Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.protocol")
+
+//    Compile / compile := {
+//      val targetDir = (Compile / sourceManaged).value / "java"
+//      targetDir.mkdirs()
+//      val file = targetDir / "module.info.java"
+//      IO.write(
+//        file,
+//        """module raw.protocol {
+//          |  requires com.google.protobuf;
+//          |  exports raw.protocol;
+//          |}""".stripMargin
+//      )
+//      (Compile / compile).value
+//    }
+  )
+
 lazy val client = (project in file("client"))
   .dependsOn(
-    utils % "compile->compile;test->test"
+    utils % "compile->compile;test->test",
+    protocol % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
