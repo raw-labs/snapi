@@ -48,16 +48,16 @@ public class LocationFromSnowflakeCredentialNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   public JdbcServerLocation getJdbcServerLocation(LocationConfig l, RawSettings rawSettings) {
     if (l.hasSnowflake()) {
-        SnowflakeConfig snowflake = l.getSnowflake();
-        return new SnowflakeServerLocation(
-            snowflake.getDatabase(),
-            snowflake.getUser(),
-            snowflake.getPassword(),
-            snowflake.getAccountIdentifier(),
-            snowflake.getParameters(),
-            rawSettings);
-        } else {
-        throw new RawTruffleRuntimeException("credential is not a Snowflake server");
+      SnowflakeConfig snowflake = l.getSnowflake();
+      return new SnowflakeServerLocation(
+          snowflake.getDatabase(),
+          snowflake.getUser(),
+          snowflake.getPassword(),
+          snowflake.getAccountIdentifier(),
+          snowflake.getParameters(),
+          rawSettings);
+    } else {
+      throw new RawTruffleRuntimeException("credential is not a Snowflake server");
     }
   }
 }

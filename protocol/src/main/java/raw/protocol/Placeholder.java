@@ -13,5 +13,5 @@
 package raw.protocol;
 
 class Placeholder {
-    // Placeholder class to allow the module-info.java file to be compiled
+  // Placeholder class to allow the module-info.java file to be compiled
 }

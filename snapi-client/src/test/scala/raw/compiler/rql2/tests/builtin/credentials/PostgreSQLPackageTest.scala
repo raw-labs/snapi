@@ -113,8 +113,8 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""PostgreSQL.InferAndRead("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
-      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}")""".stripMargin
+    s"""PostgreSQL.InferAndRead("${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable",
+      |   host = "${pgsqlCreds.getHost}", username = "${pgsqlCreds.getUser}", password = "${pgsqlCreds.getPassword}")""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -126,9 +126,9 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""PostgreSQL.Read("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
+    s"""PostgreSQL.Read("${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}" )""".stripMargin
+      |   host = "${pgsqlCreds.getHost}", username = "${pgsqlCreds.getUser}", password = "${pgsqlCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should orderEvaluateTo(
       """[
@@ -142,10 +142,10 @@ import raw.testing.tags.TruffleTests
   ignore(s"""
     |let
     |   d = Location.Describe(PostgreSQL.Build(
-    |      "pgsql://${pgsqlCreds.database}/$pgSchema/$pgTable",
-    |      host = "${pgsqlCreds.host}",
-    |      username = "${pgsqlCreds.username}",
-    |      password = "${pgsqlCreds.password}"
+    |      "pgsql://${pgsqlCreds.getDatabase}/$pgSchema/$pgTable",
+    |      host = "${pgsqlCreds.getHost}",
+    |      username = "${pgsqlCreds.getUser}",
+    |      password = "${pgsqlCreds.getPassword}"
     |   ))
     |in
     |  d.columns
@@ -160,49 +160,49 @@ import raw.testing.tags.TruffleTests
 
   // no credentials
   test(
-    s"""PostgreSQL.InferAndRead("${pgsqlCreds.database}", "$pgSchema", "$pgTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.database}""".stripMargin))
+    s"""PostgreSQL.InferAndRead("${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable" )""".stripMargin
+  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.getDatabase}""".stripMargin))
 
   test(
-    s"""PostgreSQL.Read("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
+    s"""PostgreSQL.Read("${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.getDatabase}""".stripMargin))
 
   // server does not exist
   test(
     s"""PostgreSQL.Read(
-      |  "${pgsqlCreds.database}", "$pgSchema", "$pgTable",
+      |  "${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${badMysqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}"
+      |  host = "${badMysqlCreds.getHost}", username = "${pgsqlCreds.getUser}", password = "${pgsqlCreds.getPassword}"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.getHost}""".stripMargin))
 
   // wrong port
   // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
   ignore(
     s"""PostgreSQL.Read(
-      |  "${pgsqlCreds.database}", "$pgSchema", "$pgTable",
+      |  "${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}", port = 1234
+      |  host = "${pgsqlCreds.getHost}", username = "${pgsqlCreds.getUser}", password = "${pgsqlCreds.getPassword}", port = 1234
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""connect timed out: ${pgsqlCreds.host}""".stripMargin))
+  )(it => it should runErrorAs(s"""connect timed out: ${pgsqlCreds.getHost}""".stripMargin))
 
   // No password
   test(
     s"""PostgreSQL.Read(
-      |  "${pgsqlCreds.database}", "$pgSchema", "$pgTable",
+      |  "${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${pgsqlCreds.host}"
+      |  host = "${pgsqlCreds.getHost}"
       |)""".stripMargin
   )(it => it should runErrorAs("username is required"))
 
   // wrong password
   test(
     s"""PostgreSQL.Read(
-      |  "${pgsqlCreds.database}", "$pgSchema", "$pgTable",
+      |  "${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "wrong!"
+      |  host = "${pgsqlCreds.getHost}", username = "${pgsqlCreds.getUser}", password = "wrong!"
       |)""".stripMargin
   )(it => it should runErrorAs("authentication failed"))
 
@@ -217,8 +217,8 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""PostgreSQL.InferAndQuery("${pgsqlCreds.database}", "SELECT * FROM $pgSchema.$pgTable",
-      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}" )""".stripMargin
+    s"""PostgreSQL.InferAndQuery("${pgsqlCreds.getDatabase}", "SELECT * FROM $pgSchema.$pgTable",
+      |   host = "${pgsqlCreds.getHost}", username = "${pgsqlCreds.getUser}", password = "${pgsqlCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -242,9 +242,9 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""PostgreSQL.Query("${pgsqlCreds.database}", "SELECT * FROM $pgSchema.$pgTable",
+    s"""PostgreSQL.Query("${pgsqlCreds.getDatabase}", "SELECT * FROM $pgSchema.$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}", password = "${pgsqlCreds.password}" )""".stripMargin
+      |   host = "${pgsqlCreds.getHost}", username = "${pgsqlCreds.getUser}", password = "${pgsqlCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -259,14 +259,14 @@ import raw.testing.tags.TruffleTests
     s"""List.Transform(["$pgTable", "dont_exist"],
       |   table ->
       |     Collection.Count(
-      |      PostgreSQL.Query("${pgsqlCreds.database}", "SELECT * FROM $pgSchema." + table,
+      |      PostgreSQL.Query("${pgsqlCreds.getDatabase}", "SELECT * FROM $pgSchema." + table,
       |      type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |      host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username}",
-      |      password = "${pgsqlCreds.password}")
+      |      host = "${pgsqlCreds.getHost}", username = "${pgsqlCreds.getUser}",
+      |      password = "${pgsqlCreds.getPassword}")
       |     ))""".stripMargin
   ) { it =>
     val error =
-      s"""failed to read from database pgsql:${pgsqlCreds.database}: ERROR: relation \\"$pgSchema.dont_exist\\" does not exist\\n  Position: 15"""
+      s"""failed to read from database pgsql:${pgsqlCreds.getDatabase}: ERROR: relation \\"$pgSchema.dont_exist\\" does not exist\\n  Position: 15"""
     it should evaluateTo(s"""[3L, Error.Build("$error")]""")
   }
 

@@ -21,12 +21,24 @@ import raw.client.rql2.api._
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
 import raw.inferrer.local.LocalInferrerTestContext
+import raw.protocol.{
+  HttpHeadersConfig,
+  LocationConfig,
+  MySqlConfig,
+  OracleConfig,
+  PostgreSQLConfig,
+  S3AccessSecretKey,
+  S3Config,
+  SQLServerConfig,
+  SnowflakeConfig
+}
 import raw.utils._
 
 import java.io.{ByteArrayOutputStream, FileWriter}
 import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.{Files, Path, StandardOpenOption}
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 import scala.io.Source
 
 object TestCredentials {
@@ -50,23 +62,43 @@ object TestCredentials {
 
   // Bucket with public access
   val UnitTestPublicBucket = "rawlabs-public-test-data"
-  val UnitTestPublicBucketCred = S3Credential(None, None, Some("eu-west-1"))
+  val UnitTestPublicBucketCred = S3Config.newBuilder().setRegion("eu-west-1").build()
 
   // IAM user 'unit-test-private-bucket', which only has permissions only to access bucket 'rawlabs-private-test-data'
   val UnitTestPrivateBucket = "rawlabs-private-test-data"
-  val UnitTestPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+  val UnitTestPrivateBucketCred = S3Config
+    .newBuilder()
+    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
+    .setRegion("eu-west-1")
+    .buildPartial()
 
   val UnitTestPrivateBucket2 = "rawlabs-unit-tests"
-  val UnitTestPrivateBucket2Cred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+  val UnitTestPrivateBucket2Cred = S3Config
+    .newBuilder()
+    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
+    .setRegion("eu-west-1")
+    .buildPartial()
 
   val UnitTestEmptyBucketPrivateBucket = "rawlabs-unit-test-empty-bucket"
-  val UnitTestEmptyBucketPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+  val UnitTestEmptyBucketPrivateBucketCred = S3Config
+    .newBuilder()
+    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
+    .setRegion("eu-west-1")
+    .buildPartial()
 
   val UnitTestListRootPrivateBucket = "rawlabs-unit-test-list-root"
-  val UnitTestListRootPrivateBucketCred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("eu-west-1"))
+  val UnitTestListRootPrivateBucketCred = S3Config
+    .newBuilder()
+    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
+    .setRegion("eu-west-1")
+    .buildPartial()
 
   val unitTestPrivateBucketUsEast1 = "rawlabs-unit-tests-us-east-1"
-  val unitTestPrivateBucketUsEast1Cred = S3Credential(Some(accessKeyId), Some(secretKeyId), Some("us-east-1"))
+  val unitTestPrivateBucketUsEast1Cred = S3Config
+    .newBuilder()
+    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
+    .setRegion("eu-west-1")
+    .buildPartial()
 
   ///////////////////////////////////////////////////////////////////////////
   // Jdbc Credentials
@@ -76,40 +108,70 @@ object TestCredentials {
   val mysqlTestDB = getEnv("RAW_MYSQL_TEST_DB")
   val mysqlTestUser = getEnv("RAW_MYSQL_TEST_USER")
   val mysqlTestPassword = getEnv("RAW_MYSQL_TEST_PASSWORD")
-  val mysqlCreds = MySqlJdbcLocation(mysqlTestHost, 3306, mysqlTestDB, mysqlTestUser, mysqlTestPassword)
+  val mysqlCreds = MySqlConfig
+    .newBuilder()
+    .setHost(mysqlTestHost)
+    .setPort(3306)
+    .setDatabase(mysqlTestDB)
+    .setUser(mysqlTestUser)
+    .setPassword(mysqlTestPassword)
+    .build()
   val pgsqlTestHost = getEnv("RAW_PGSQL_TEST_HOST")
   val pgsqlTestDB = getEnv("RAW_PGSQL_TEST_DB")
   val pgsqlTestUser = getEnv("RAW_PGSQL_TEST_USER")
   val pgsqlTestPassword = getEnv("RAW_PGSQL_TEST_PASSWORD")
-  val pgsqlCreds = PostgresJdbcLocation(pgsqlTestHost, 5432, pgsqlTestDB, pgsqlTestUser, pgsqlTestPassword)
+  val pgsqlCreds = PostgreSQLConfig
+    .newBuilder()
+    .setHost(pgsqlTestHost)
+    .setPort(5432)
+    .setDatabase(pgsqlTestDB)
+    .setUser(pgsqlTestUser)
+    .setPassword(pgsqlTestPassword)
+    .build()
   val oracleTestHost = getEnv("RAW_ORACLE_TEST_HOST")
   val oracleTestDB = getEnv("RAW_ORACLE_TEST_DB")
   val oracleTestUser = getEnv("RAW_ORACLE_TEST_USER")
   val oracleTestPassword = getEnv("RAW_ORACLE_TEST_PASSWORD")
-  val oracleCreds = OracleJdbcLocation(oracleTestHost, 1521, oracleTestDB, oracleTestUser, oracleTestPassword)
+  val oracleCreds = OracleConfig
+    .newBuilder()
+    .setHost(oracleTestHost)
+    .setPort(1521)
+    .setDatabase(oracleTestDB)
+    .setUser(oracleTestUser)
+    .setPassword(oracleTestPassword)
+    .build()
   val sqlServerTestHost = getEnv("RAW_SQLSERVER_TEST_HOST")
   val sqlserverTestDB = getEnv("RAW_SQLSERVER_TEST_DB")
   val sqlServerTestUser = getEnv("RAW_SQLSERVER_TEST_USER")
   val sqlServerTestPassword = getEnv("RAW_SQLSERVER_TEST_PASSWORD")
-  val sqlServerCreds = SqlServerJdbcLocation(
-    sqlServerTestHost,
-    1433,
-    sqlserverTestDB,
-    sqlServerTestUser,
-    sqlServerTestPassword
-  )
+  val sqlServerCreds = SQLServerConfig
+    .newBuilder()
+    .setHost(sqlServerTestHost)
+    .setPort(1433)
+    .setDatabase(sqlserverTestDB)
+    .setUser(sqlServerTestUser)
+    .setPassword(sqlServerTestPassword)
+    .build()
   val snowflakeTestHost = getEnv("RAW_SNOWFLAKE_TEST_HOST")
   val snowflakeTestDB = getEnv("RAW_SNOWFLAKE_TEST_DB")
   val snowflakeTestUser = getEnv("RAW_SNOWFLAKE_TEST_USER")
   val snowflakeTestPassword = getEnv("RAW_SNOWFLAKE_TEST_PASSWORD")
-  val snowflakeCreds = SnowflakeJdbcLocation(
-    snowflakeTestDB,
-    snowflakeTestUser,
-    snowflakeTestPassword,
-    snowflakeTestHost,
-    Map("timezone" -> "UTC")
-  )
-  val badMysqlCreds = MySqlJdbcLocation("does-not-exist.raw-labs.com", 3306, "rdbmstest", "t0or", "$up3r$3cr3tValu3")
+  val snowflakeCreds = SnowflakeConfig
+    .newBuilder()
+    .setDatabase(snowflakeTestDB)
+    .setUser(snowflakeTestUser)
+    .setPassword(snowflakeTestPassword)
+    .setAccountIdentifier(snowflakeTestHost)
+    .putParameters("timezone", "UTC")
+    .build()
+  val badMysqlCreds = MySqlConfig
+    .newBuilder()
+    .setHost("does-not-exist.raw-labs.com")
+    .setPort(3306)
+    .setDatabase("rdbmstest")
+    .setUser("t0or")
+    .setPassword("$up3r$3cr3tValu3")
+    .build()
 
 }
 
@@ -126,11 +188,7 @@ trait Rql2CompilerTestContext
 
   private val secrets = new mutable.HashMap[String, String]()
 
-  private val s3Credentials = new mutable.HashMap[String, S3Credential]()
-
-  private val rdbmsServers = new mutable.HashMap[String, JdbcLocation]()
-
-  private val credHttpHeaders = new mutable.HashMap[String, Map[String, String]]()
+  private val locationConfigs = new mutable.HashMap[String, LocationConfig]()
 
   protected val programOptions = new mutable.HashMap[String, String]()
 
@@ -146,16 +204,37 @@ trait Rql2CompilerTestContext
     secrets.put(name, value)
   }
 
-  def s3Bucket(name: String, bucket: S3Credential): Unit = {
-    s3Credentials.put(name, bucket)
+  def locationConfig(name: String, locationConfig: LocationConfig): Unit = {
+    locationConfigs.put(name, locationConfig)
   }
 
-  def rdbms(name: String, db: JdbcLocation): Unit = {
-    rdbmsServers.put(name, db)
+  def s3Bucket(name: String, bucket: S3Config): Unit = {
+    locationConfig(name, LocationConfig.newBuilder().setS3(bucket).build())
+  }
+
+  def rdbms(name: String, db: MySqlConfig): Unit = {
+    locationConfig(name, LocationConfig.newBuilder().setMysql(db).build())
+  }
+
+  def rdbms(name: String, db: OracleConfig): Unit = {
+    locationConfig(name, LocationConfig.newBuilder().setOracle(db).build())
+  }
+
+  def rdbms(name: String, db: PostgreSQLConfig): Unit = {
+    locationConfig(name, LocationConfig.newBuilder().setPostgresql(db).build())
+  }
+
+  def rdbms(name: String, db: SQLServerConfig): Unit = {
+    locationConfig(name, LocationConfig.newBuilder().setSqlserver(db).build())
+  }
+
+  def rdbms(name: String, db: SnowflakeConfig): Unit = {
+    locationConfig(name, LocationConfig.newBuilder().setSnowflake(db).build())
   }
 
   def httpHeaders(name: String, headers: Map[String, String]): Unit = {
-    credHttpHeaders.put(name, headers)
+    val httpConfig = HttpHeadersConfig.newBuilder().putAllHeaders(headers.asJava).build()
+    locationConfig(name, LocationConfig.newBuilder().setHttpHeaders(httpConfig).build())
   }
 
   def option(key: String, value: String): Unit = {
@@ -583,9 +662,7 @@ trait Rql2CompilerTestContext
       maybeArguments,
       this.runnerScopes ++ scopes,
       secrets.toMap,
-      rdbmsServers.toMap,
-      credHttpHeaders.toMap,
-      s3Credentials.toMap,
+      locationConfigs.toMap,
       this.options ++ options ++ programOptions,
       None, // jdbcUrl
       maybeTraceId

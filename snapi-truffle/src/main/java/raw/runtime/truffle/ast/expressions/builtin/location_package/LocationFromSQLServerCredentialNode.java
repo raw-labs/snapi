@@ -48,17 +48,16 @@ public class LocationFromSQLServerCredentialNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   public JdbcServerLocation getJdbcServerLocation(LocationConfig l, RawSettings rawSettings) {
     if (l.hasSqlserver()) {
-        SQLServerConfig sqlserver = l.getSqlserver();
-        return new SqlServerServerLocation(
-            sqlserver.getHost(),
-            sqlserver.getPort(),
-            sqlserver.getDatabase(),
-            sqlserver.getUser(),
-            sqlserver.getPassword(),
-            rawSettings);
-        } else {
-        throw new RawTruffleRuntimeException("credential is not a SQL Server server");
+      SQLServerConfig sqlserver = l.getSqlserver();
+      return new SqlServerServerLocation(
+          sqlserver.getHost(),
+          sqlserver.getPort(),
+          sqlserver.getDatabase(),
+          sqlserver.getUser(),
+          sqlserver.getPassword(),
+          rawSettings);
+    } else {
+      throw new RawTruffleRuntimeException("credential is not a SQL Server server");
     }
-
   }
 }

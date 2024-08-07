@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.protocol.LocationConfig;
@@ -76,12 +75,18 @@ public class LocationFromS3Node extends ExpressionNode {
       LocationConfig l = context.getLocationConfig(bucket);
       S3Config s3Config = l.getS3();
       Option<String> maybeAccessKey =
-            (s3Config.hasAccessSecretKey()) ? new Some(s3Config.getAccessSecretKey().getAccessKey()) : None$.empty();
+          (s3Config.hasAccessSecretKey())
+              ? new Some(s3Config.getAccessSecretKey().getAccessKey())
+              : None$.empty();
       Option<String> maybeSecretKey =
-              (s3Config.hasAccessSecretKey()) ? new Some(s3Config.getAccessSecretKey().getSecretKey()) : None$.empty();
+          (s3Config.hasAccessSecretKey())
+              ? new Some(s3Config.getAccessSecretKey().getSecretKey())
+              : None$.empty();
       Option<String> maybeRegion =
-              (s3Config.hasRegion()) ? new Some(s3Config.getRegion()) : None$.empty();
-      location = new S3Path(bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
+          (s3Config.hasRegion()) ? new Some(s3Config.getRegion()) : None$.empty();
+      location =
+          new S3Path(
+              bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
     } else {
       // We actually do NOT throw an exception if the accessKey is not passed.
       // Instead, we go without it, which triggers anonymous access to the S3 bucket.
@@ -98,5 +103,4 @@ public class LocationFromS3Node extends ExpressionNode {
 
     return new LocationObject(location, url);
   }
-
 }

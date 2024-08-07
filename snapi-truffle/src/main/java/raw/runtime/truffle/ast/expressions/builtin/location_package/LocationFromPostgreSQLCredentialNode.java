@@ -48,16 +48,16 @@ public class LocationFromPostgreSQLCredentialNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   public JdbcServerLocation getJdbcServerLocation(LocationConfig l, RawSettings rawSettings) {
     if (l.hasPostgresql()) {
-        PostgreSQLConfig postgresql = l.getPostgresql();
-        return new PostgresqlServerLocation(
-            postgresql.getHost(),
-            postgresql.getPort(),
-            postgresql.getDatabase(),
-            postgresql.getUser(),
-            postgresql.getPassword(),
-            rawSettings);
-        } else {
-        throw new RawTruffleRuntimeException("credential is not a PostgreSQL server");
+      PostgreSQLConfig postgresql = l.getPostgresql();
+      return new PostgresqlServerLocation(
+          postgresql.getHost(),
+          postgresql.getPort(),
+          postgresql.getDatabase(),
+          postgresql.getUser(),
+          postgresql.getPassword(),
+          rawSettings);
+    } else {
+      throw new RawTruffleRuntimeException("credential is not a PostgreSQL server");
     }
   }
 }

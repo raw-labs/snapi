@@ -18,9 +18,7 @@ import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.Set;
-
 import raw.client.api.*;
 import raw.inferrer.api.InferrerService;
 import raw.protocol.LocationConfig;
@@ -120,7 +118,8 @@ public final class RawContext {
 
   @CompilerDirectives.TruffleBoundary
   public LocationConfig getLocationConfig(String name) {
-    scala.Option<LocationConfig> maybeLocationConfig = programEnvironment.locationConfigs().get(name);
+    scala.Option<LocationConfig> maybeLocationConfig =
+        programEnvironment.locationConfigs().get(name);
     if (maybeLocationConfig.isEmpty()) {
       throw new RawTruffleRuntimeException("unknown credential: " + name);
     }

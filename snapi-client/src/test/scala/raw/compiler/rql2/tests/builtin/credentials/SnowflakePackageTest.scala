@@ -216,8 +216,8 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""Snowflake.InferAndRead("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
-      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}")""".stripMargin
+    s"""Snowflake.InferAndRead("${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable",
+      |   accountID = "${snowflakeCreds.getAccountIdentifier}", username = "${snowflakeCreds.getUser}", password = "${snowflakeCreds.getPassword}")""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -229,9 +229,9 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""Snowflake.Read("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
+    s"""Snowflake.Read("${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}" )""".stripMargin
+      |   accountID = "${snowflakeCreds.getAccountIdentifier}", username = "${snowflakeCreds.getUser}", password = "${snowflakeCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should orderEvaluateTo(
       """[
@@ -245,10 +245,10 @@ import raw.testing.tags.TruffleTests
   ignore(s"""
     |let
     |   d = Location.Describe(Snowflake.Build(
-    |      "snowflake://${snowflakeCreds.database}/$snowflakeSchema/$snowflakeMainTable",
-    |      accountID = "${snowflakeCreds.accountIdentifier}",
-    |      username = "${snowflakeCreds.username}",
-    |      password = "${snowflakeCreds.password}"
+    |      "snowflake://${snowflakeCreds.getDatabase}/$snowflakeSchema/$snowflakeMainTable",
+    |      accountID = "${snowflakeCreds.getAccountIdentifier}",
+    |      username = "${snowflakeCreds.getUser}",
+    |      password = "${snowflakeCreds.getPassword}"
     |   ))
     |in
     |  d.columns
@@ -263,25 +263,25 @@ import raw.testing.tags.TruffleTests
 
   // no credentials
   test(
-    s"""Snowflake.InferAndRead("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable" )""".stripMargin
+    s"""Snowflake.InferAndRead("${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable" )""".stripMargin
   )(it =>
     it should runErrorAs(
-      s"""unknown database credential: ${snowflakeCreds.database}""".stripMargin
+      s"""unknown database credential: ${snowflakeCreds.getDatabase}""".stripMargin
     )
   )
 
   test(
-    s"""Snowflake.Read("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
+    s"""Snowflake.Read("${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${snowflakeCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown database credential: ${snowflakeCreds.getDatabase}""".stripMargin))
 
   // server does not exist
   test(
     s"""Snowflake.Read(
-      |  "${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
+      |  "${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  accountID = "does-not-exist", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}"
+      |  accountID = "does-not-exist", username = "${snowflakeCreds.getUser}", password = "${snowflakeCreds.getPassword}"
       |)""".stripMargin
   ) { it =>
     it should runErrorAs(
@@ -292,22 +292,22 @@ import raw.testing.tags.TruffleTests
   // No username, no password
   test(
     s"""Snowflake.Read(
-      |  "${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
+      |  "${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  accountID = "${snowflakeCreds.accountIdentifier}"
+      |  accountID = "${snowflakeCreds.getAccountIdentifier}"
       |)""".stripMargin
   )(it => it should runErrorAs(s"""username is required""".stripMargin))
 
   // wrong password
   test(
     s"""Snowflake.Read(
-      |  "${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
+      |  "${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "wrong!"
+      |  accountID = "${snowflakeCreds.getAccountIdentifier}", username = "${snowflakeCreds.getUser}", password = "wrong!"
       |)""".stripMargin
   ) { it =>
     it should runErrorAs(
-      s"""unable to establish connection to ${snowflakeCreds.accountIdentifier}: Incorrect username or password was specified.""".stripMargin
+      s"""unable to establish connection to ${snowflakeCreds.getAccountIdentifier}: Incorrect username or password was specified.""".stripMargin
     )
   }
 
@@ -322,8 +322,8 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""Snowflake.InferAndQuery("${snowflakeCreds.database}", "SELECT * FROM public.$snowflakeMainTable",
-      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}" )""".stripMargin
+    s"""Snowflake.InferAndQuery("${snowflakeCreds.getDatabase}", "SELECT * FROM public.$snowflakeMainTable",
+      |   accountID = "${snowflakeCreds.getAccountIdentifier}", username = "${snowflakeCreds.getUser}", password = "${snowflakeCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -347,9 +347,9 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""Snowflake.Query("${snowflakeCreds.database}", "SELECT * FROM public.$snowflakeMainTable",
+    s"""Snowflake.Query("${snowflakeCreds.getDatabase}", "SELECT * FROM public.$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}", password = "${snowflakeCreds.password}" )""".stripMargin
+      |   accountID = "${snowflakeCreds.getAccountIdentifier}", username = "${snowflakeCreds.getUser}", password = "${snowflakeCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -361,10 +361,10 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""Snowflake.InferAndRead("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeSideTable",
-      |   accountID = "${snowflakeCreds.accountIdentifier}",
-      |   username = "${snowflakeCreds.username}",
-      |   password = "${snowflakeCreds.password}",
+    s"""Snowflake.InferAndRead("${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeSideTable",
+      |   accountID = "${snowflakeCreds.getAccountIdentifier}",
+      |   username = "${snowflakeCreds.getUser}",
+      |   password = "${snowflakeCreds.getPassword}",
       |   options = [{"timezone", "America/Los_Angeles"}]
       |)""".stripMargin
   ) { it =>
@@ -405,10 +405,10 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""Snowflake.InferAndQuery("${snowflakeCreds.database}", "SELECT * FROM $snowflakeSchema.$snowflakeSideTable",
-      |   accountID = "${snowflakeCreds.accountIdentifier}",
-      |   username = "${snowflakeCreds.username}",
-      |   password = "${snowflakeCreds.password}",
+    s"""Snowflake.InferAndQuery("${snowflakeCreds.getDatabase}", "SELECT * FROM $snowflakeSchema.$snowflakeSideTable",
+      |   accountID = "${snowflakeCreds.getAccountIdentifier}",
+      |   username = "${snowflakeCreds.getUser}",
+      |   password = "${snowflakeCreds.getPassword}",
       |   options = [{"timezone", "UTC"}]
       |)""".stripMargin
   ) { it =>
@@ -452,13 +452,13 @@ import raw.testing.tags.TruffleTests
     s"""List.Transform(["$snowflakeMainTable", "dont_exist"],
       |   table ->
       |     Collection.Count(
-      |      Snowflake.Query("${snowflakeCreds.database}", "SELECT * FROM public." + table,
+      |      Snowflake.Query("${snowflakeCreds.getDatabase}", "SELECT * FROM public." + table,
       |       type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |       accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username}",
-      |       password = "${snowflakeCreds.password}")))""".stripMargin
+      |       accountID = "${snowflakeCreds.getAccountIdentifier}", username = "${snowflakeCreds.getUser}",
+      |       password = "${snowflakeCreds.getPassword}")))""".stripMargin
   ) { it =>
     val error =
-      s"""failed to read from database snowflake:${snowflakeCreds.database}: SQL compilation error:\\nObject '${snowflakeCreds.database.toUpperCase}.PUBLIC.DONT_EXIST' does not exist or not authorized.""".stripMargin
+      s"""failed to read from database snowflake:${snowflakeCreds.getDatabase}: SQL compilation error:\\nObject '${snowflakeCreds.getDatabase.toUpperCase}.PUBLIC.DONT_EXIST' does not exist or not authorized.""".stripMargin
     it should evaluateTo(s"""[3L, Error.Build("$error")]""")
   }
 

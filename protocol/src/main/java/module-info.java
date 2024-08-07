@@ -11,7 +11,7 @@
  */
 
 module raw.protocol {
-    requires com.google.protobuf;
+  requires com.google.protobuf;
 
-    exports raw.protocol;
+  exports raw.protocol;
 }

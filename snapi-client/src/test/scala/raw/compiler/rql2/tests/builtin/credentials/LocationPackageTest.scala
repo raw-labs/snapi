@@ -86,9 +86,9 @@ import raw.testing.tags.TruffleTests
     |  data = Csv.InferAndRead(
     |    S3.Build(
     |      "s3://$UnitTestPrivateBucket/students.csv",
-    |      region = "${UnitTestPrivateBucketCred.region.get}",
-    |      accessKey = "${UnitTestPrivateBucketCred.accessKey.get}",
-    |      secretKey = "${UnitTestPrivateBucketCred.secretKey.get}"
+    |      region = "${UnitTestPrivateBucketCred.getRegion}",
+    |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
     |    )
     |  )
     |in

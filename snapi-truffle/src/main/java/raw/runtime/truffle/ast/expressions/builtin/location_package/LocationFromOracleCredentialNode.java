@@ -49,15 +49,15 @@ public class LocationFromOracleCredentialNode extends ExpressionNode {
   public JdbcServerLocation getJdbcServerLocation(LocationConfig l, RawSettings rawSettings) {
     if (l.hasOracle()) {
       OracleConfig oracle = l.getOracle();
-        return new OracleServerLocation(
-            oracle.getHost(),
-            oracle.getPort(),
-            oracle.getDatabase(),
-            oracle.getUser(),
-            oracle.getPassword(),
-            rawSettings);
+      return new OracleServerLocation(
+          oracle.getHost(),
+          oracle.getPort(),
+          oracle.getDatabase(),
+          oracle.getUser(),
+          oracle.getPassword(),
+          rawSettings);
     } else {
-        throw new RawTruffleRuntimeException("credential is not an Oracle server");
+      throw new RawTruffleRuntimeException("credential is not an Oracle server");
     }
   }
 }

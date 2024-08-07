@@ -21,7 +21,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.net.HttpURLConnection;
 import java.util.Base64;
 import java.util.Map;
-
 import raw.protocol.HttpHeadersConfig;
 import raw.protocol.LocationConfig;
 import raw.runtime.truffle.ExpressionNode;
@@ -176,11 +175,11 @@ public class LocationFromHttpNode extends ExpressionNode {
           Map<String, String> credHeaders = l1.getHeadersMap();
           for (Map.Entry<String, String> entry : credHeaders.entrySet()) {
             headersBuilder =
-                    (ArrayBuilder<Tuple2<String, String>>)
-                            headersBuilder.$plus$eq(Tuple2.apply(entry.getKey(), entry.getValue()));
+                (ArrayBuilder<Tuple2<String, String>>)
+                    headersBuilder.$plus$eq(Tuple2.apply(entry.getKey(), entry.getValue()));
           }
         } else {
-            throw new RawTruffleInternalErrorException("credential is not an HTTP headers");
+          throw new RawTruffleInternalErrorException("credential is not an HTTP headers");
         }
       }
 

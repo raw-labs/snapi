@@ -17,10 +17,11 @@ message LocationConfig {
         TeradataConfig teradata = 8;
         GitHubConfig github = 9;
         JiraConfig jira = 10;
-        SalesforceConfig salesforce = 11;
-        DropboxAccessTokenConfig dropboxAccessToken = 12;
-        DropboxUsernamePasswordConfig dropboxUsernamePassword = 13;
-        HttpHeadersConfig httpHeaders = 14;
+        ConfluenceConfig confluence = 11;
+        SalesforceConfig salesforce = 12;
+        DropboxAccessTokenConfig dropboxAccessToken = 13;
+        DropboxUsernamePasswordConfig dropboxUsernamePassword = 14;
+        HttpHeadersConfig httpHeaders = 15;
     }
 }
 
@@ -109,6 +110,12 @@ message JiraConfig {
 enum JiraTokenType {
     STANDARD_ACCESS_TOKEN = 0;
     PERSONAL_ACCESS_TOKEN = 1;
+}
+
+message ConfluenceConfig {
+    string baseUrl = 1;
+    string username = 2;
+    string token = 3;
 }
 
 message SalesforceConfig {
