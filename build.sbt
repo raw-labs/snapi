@@ -105,7 +105,9 @@ lazy val sources = (project in file("sources"))
 lazy val protocol = (project in file("protocol"))
   .enablePlugins(ProtobufPlugin)
   .settings(
+    commonSettings,
     commonCompileSettings,
+    testSettings,
     ProtobufConfig / version := "3.18.0",
     libraryDependencies += "com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value
   )
