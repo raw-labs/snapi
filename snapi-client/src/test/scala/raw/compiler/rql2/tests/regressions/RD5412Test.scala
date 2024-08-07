@@ -25,11 +25,12 @@ import raw.testing.tags.TruffleTests
     |    awsAccountB = {region: "eu-west-1", accessKey: Environment.Secret(
     |            "AWS_ACCESS_KEY_ACCOUNT_B"), secret: Environment.Secret(
     |            "AWS_SECRET_ACCOUNT_B")},
-    |    read_logs(path: string,aws_config: record(
+    |    read_logs(bucket: string, path: string,aws_config: record(
     |        region: string,
     |        accessKey: string,
     |        secret: string)) = let
     |        bucket = S3.Build(
+    |            bucket,
     |            path,
     |            region = aws_config.region,
     |            accessKey = aws_config.accessKey,
@@ -40,8 +41,8 @@ import raw.testing.tags.TruffleTests
     |        List.Explode(content, (c) -> c.entries)
     |in
     |    List.Union(
-    |        read_logs("s3://bucketA/*.json", awsAccountA),
-    |        read_logs("s3://bucketB/*.json", awsAccountB))""".stripMargin)(
+    |        read_logs("bucketA", "/*.json", awsAccountA),
+    |        read_logs("bucketB", "/*.json", awsAccountB))""".stripMargin)(
     _ should runErrorAs("unknown secret")
   )
 }
