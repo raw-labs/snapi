@@ -108,7 +108,8 @@ lazy val protocol = (project in file("protocol"))
     commonSettings,
     commonCompileSettings,
     testSettings,
-    ProtobufConfig / protobufGrpcEnabled := true,
+    ProtobufConfig / version := "3.18.0",
+    libraryDependencies += "com.google.protobuf" % "protobuf-java" % (ProtobufConfig / version).value,
     // Include the protobuf files in the JAR
     Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
   )
