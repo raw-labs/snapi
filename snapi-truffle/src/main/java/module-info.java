@@ -51,7 +51,6 @@ module raw.snapi.truffle {
   requires ch.qos.logback.classic;
   requires com.google.common;
   requires jul.to.slf4j;
-  requires snowflake.jdbc;
 
   uses raw.compiler.rql2.api.EntryExtension;
   uses raw.compiler.rql2.api.PackageExtension;
