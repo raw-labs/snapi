@@ -36,7 +36,7 @@ val moduleNames = Map(
   "jackson-module-scala" -> "com.fasterxml.jackson.scala",
   "mysql-connector-j" -> "mysql.connector.j",
   "ojdbc10" -> "ojdbc10",
-  "dropbox-code-sdk" -> "dropbox.core.sdk",
+  "dropbox-core-sdk" -> "dropbox.core.sdk",
   "snowflake-jdbc" -> "snowflake.jdbc"
 )
 
