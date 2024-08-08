@@ -70,35 +70,35 @@ object TestCredentials {
     .newBuilder()
     .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
     .setRegion("eu-west-1")
-    .buildPartial()
+    .build()
 
   val UnitTestPrivateBucket2 = "rawlabs-unit-tests"
   val UnitTestPrivateBucket2Cred = S3Config
     .newBuilder()
     .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
     .setRegion("eu-west-1")
-    .buildPartial()
+    .build()
 
   val UnitTestEmptyBucketPrivateBucket = "rawlabs-unit-test-empty-bucket"
   val UnitTestEmptyBucketPrivateBucketCred = S3Config
     .newBuilder()
     .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
     .setRegion("eu-west-1")
-    .buildPartial()
+    .build()
 
   val UnitTestListRootPrivateBucket = "rawlabs-unit-test-list-root"
   val UnitTestListRootPrivateBucketCred = S3Config
     .newBuilder()
     .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
     .setRegion("eu-west-1")
-    .buildPartial()
+    .build()
 
   val unitTestPrivateBucketUsEast1 = "rawlabs-unit-tests-us-east-1"
   val unitTestPrivateBucketUsEast1Cred = S3Config
     .newBuilder()
     .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
     .setRegion("eu-west-1")
-    .buildPartial()
+    .build()
 
   ///////////////////////////////////////////////////////////////////////////
   // Jdbc Credentials
