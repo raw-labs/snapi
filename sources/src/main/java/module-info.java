@@ -57,6 +57,8 @@ module raw.sources {
   requires com.microsoft.sqlserver.jdbc;
   requires mysql.connector.j;
   requires ojdbc10;
+  requires snowflake.jdbc;
+  requires dropbox.core.sdk;
   requires raw.utils;
 
   exports raw.sources.api;
