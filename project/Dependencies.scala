@@ -25,7 +25,7 @@ object Dependencies {
 
   val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
 
-  val guava = "com.google.guava" % "guava" % "32.1.2-jre"
+  val guava = "com.google.guava" % "guava" % "32.1.3-jre"
 
   val jacksonDeps = Seq(
     "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
