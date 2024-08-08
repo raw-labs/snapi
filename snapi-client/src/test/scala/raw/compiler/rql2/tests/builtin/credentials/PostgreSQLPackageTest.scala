@@ -161,13 +161,13 @@ import raw.testing.tags.TruffleTests
   // no credentials
   test(
     s"""PostgreSQL.InferAndRead("${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.getDatabase}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: ${pgsqlCreds.getDatabase}""".stripMargin))
 
   test(
     s"""PostgreSQL.Read("${pgsqlCreds.getDatabase}", "$pgSchema", "$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${pgsqlCreds.getDatabase}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: ${pgsqlCreds.getDatabase}""".stripMargin))
 
   // server does not exist
   test(

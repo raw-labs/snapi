@@ -180,7 +180,7 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension {
               programContext.settings
             )
           case Some(_) => return Left("not an Oracle server")
-          case None => return Left(s"unknown database credential: $db")
+          case None => return Left(s"unknown credential: $db")
         }
       }
     Right(SqlTableInferrerProperties(location, None))
@@ -436,7 +436,7 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension {
               programContext.settings
             )
           case Some(_) => return Left("not an Oracle server")
-          case None => return Left(s"unknown database credential: $db")
+          case None => return Left(s"unknown credential: $db")
         }
       }
     Right(SqlQueryInferrerProperties(location, query, None))

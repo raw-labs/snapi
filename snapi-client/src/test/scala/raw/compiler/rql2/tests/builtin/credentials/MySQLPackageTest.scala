@@ -161,13 +161,13 @@ import raw.testing.tags.TruffleTests
   // no credentials
   test(
     s"""MySQL.InferAndRead("${mysqlCreds.getDatabase}", "$mysqlTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${mysqlCreds.getDatabase}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: ${mysqlCreds.getDatabase}""".stripMargin))
 
   test(
     s"""MySQL.Read("${mysqlCreds.getDatabase}", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${mysqlCreds.getDatabase}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: ${mysqlCreds.getDatabase}""".stripMargin))
 
   // server does not exist
   test(

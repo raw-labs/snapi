@@ -266,7 +266,7 @@ import raw.testing.tags.TruffleTests
     s"""Snowflake.InferAndRead("${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable" )""".stripMargin
   )(it =>
     it should runErrorAs(
-      s"""unknown database credential: ${snowflakeCreds.getDatabase}""".stripMargin
+      s"""unknown credential: ${snowflakeCreds.getDatabase}""".stripMargin
     )
   )
 
@@ -274,7 +274,7 @@ import raw.testing.tags.TruffleTests
     s"""Snowflake.Read("${snowflakeCreds.getDatabase}", "$snowflakeSchema", "$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${snowflakeCreds.getDatabase}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: ${snowflakeCreds.getDatabase}""".stripMargin))
 
   // server does not exist
   test(

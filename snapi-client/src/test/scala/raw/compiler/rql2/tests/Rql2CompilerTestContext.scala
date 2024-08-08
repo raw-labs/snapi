@@ -22,6 +22,7 @@ import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
 import raw.inferrer.local.LocalInferrerTestContext
 import raw.protocol.{
+  DropboxAccessTokenConfig,
   HttpHeadersConfig,
   LocationConfig,
   MySqlConfig,
@@ -235,6 +236,11 @@ trait Rql2CompilerTestContext
   def httpHeaders(name: String, headers: Map[String, String]): Unit = {
     val httpConfig = HttpHeadersConfig.newBuilder().putAllHeaders(headers.asJava).build()
     locationConfig(name, LocationConfig.newBuilder().setHttpHeaders(httpConfig).build())
+  }
+
+  def dropbox(name: String, cred: DropboxAccessTokenConfig): Unit = {
+    val dropboxConfig = LocationConfig.newBuilder().setDropboxAccessToken(cred).build()
+    locationConfig(name, dropboxConfig)
   }
 
   def option(key: String, value: String): Unit = {

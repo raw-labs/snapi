@@ -212,7 +212,7 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
               programContext.settings
             )
           case Some(_) => return Left("not a Snowflake server")
-          case None => return Left(s"unknown database credential: $db")
+          case None => return Left(s"unknown credential: $db")
         }
       }
     Right(SqlTableInferrerProperties(location, None))
@@ -502,7 +502,7 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
               programContext.settings
             )
           case Some(_) => return Left("not a Snowflake server")
-          case None => return Left(s"unknown database credential: $db")
+          case None => return Left(s"unknown credential: $db")
         }
       }
     Right(SqlQueryInferrerProperties(location, query, None))
