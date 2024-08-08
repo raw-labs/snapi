@@ -37,12 +37,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import com.typesafe.config.{ConfigException, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import raw.protocol.LocationConfig
 import raw.client.api.ProgramEnvironment
 
 import java.net.{HttpURLConnection, URI, URISyntaxException}
-
 import scala.collection.JavaConverters._
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -558,6 +558,25 @@ object LocationDescription extends StrictLogging {
           )
         )
       case "file" if settings.onTrainingWheels => Right(LocalPathLocationDescription(url.substring(colonIndex + 1)))
+      case "mock" if settings.onTrainingWheels =>
+        val f = url.stripPrefix("mock:")
+        val colonIdx = f.indexOf(":")
+        if (colonIdx == -1) {
+          Left(s"not a mock location: $url: could not find properties section")
+        } else {
+          val propertiesString = f.substring(0, colonIdx)
+          val delegateUri = f.substring(colonIdx + 1)
+          logger.debug(
+            s"Creating mock filesystem with configuration: $propertiesString and delegate filesystem: $delegateUri"
+          )
+          try {
+            val parser = ConfigFactory.parseString(propertiesString)
+            val delay = parser.getDuration("delay").toMillis
+            urlToLocationDescription(delegateUri, programEnvironment).right.map(MockPathLocationDescription(delay, _))
+          } catch {
+            case _: ConfigException => Left(s"not a mock location: $url")
+          }
+        }
       case "s3" =>
         // Build a URI to validate the URL.
         val uri = {
