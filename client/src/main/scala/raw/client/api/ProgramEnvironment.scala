@@ -12,91 +12,31 @@
 
 package raw.client.api
 
-import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
-import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.core.{JsonGenerator, JsonParser}
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.{
+  DeserializationContext,
+  JsonDeserializer,
+  JsonSerializer,
+  ObjectMapper,
+  SerializerProvider
+}
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+
 import raw.utils.RawUid
+import raw.protocol.LocationConfig
 
 final case class ProgramEnvironment(
     uid: RawUid,
     maybeArguments: Option[Array[(String, RawValue)]],
     scopes: Set[String],
     secrets: Map[String, String],
-    jdbcServers: Map[String, JdbcLocation],
-    httpHeaders: Map[String, Map[String, String]],
-    s3Credentials: Map[String, S3Credential],
+    locationConfigs: Map[String, LocationConfig],
     options: Map[String, String],
     jdbcUrl: Option[String] = None,
     maybeTraceId: Option[String] = None
-)
-
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-  Array(
-    new JsonType(value = classOf[MySqlJdbcLocation], name = "mysql"),
-    new JsonType(value = classOf[OracleJdbcLocation], name = "oracle"),
-    new JsonType(value = classOf[PostgresJdbcLocation], name = "postgres"),
-    new JsonType(value = classOf[SqlServerJdbcLocation], name = "sqlserver"),
-    new JsonType(value = classOf[SnowflakeJdbcLocation], name = "snowflake"),
-    new JsonType(value = classOf[SqliteJdbcLocation], name = "sqlite"),
-    new JsonType(value = classOf[TeradataJdbcLocation], name = "teradata")
-  )
-)
-trait JdbcLocation
-final case class MySqlJdbcLocation(
-    host: String,
-    port: Int,
-    database: String,
-    username: String,
-    password: String
-) extends JdbcLocation
-final case class OracleJdbcLocation(
-    host: String,
-    port: Int,
-    database: String,
-    username: String,
-    password: String
-) extends JdbcLocation
-final case class PostgresJdbcLocation(
-    host: String,
-    port: Int,
-    database: String,
-    username: String,
-    password: String
-) extends JdbcLocation
-final case class SqlServerJdbcLocation(
-    host: String,
-    port: Int,
-    database: String,
-    username: String,
-    password: String
-) extends JdbcLocation
-final case class SnowflakeJdbcLocation(
-    database: String,
-    username: String,
-    password: String,
-    accountIdentifier: String,
-    parameters: Map[String, String]
-) extends JdbcLocation
-final case class SqliteJdbcLocation(
-    path: String
-) extends JdbcLocation
-final case class TeradataJdbcLocation(
-    host: String,
-    port: Int,
-    database: String,
-    username: String,
-    password: String,
-    parameters: Map[String, String]
-) extends JdbcLocation
-
-final case class S3Credential(
-    accessKey: Option[String],
-    secretKey: Option[String],
-    region: Option[String]
 )
 
 object ProgramEnvironment {
@@ -105,6 +45,12 @@ object ProgramEnvironment {
     registerModule(DefaultScalaModule)
     registerModule(new JavaTimeModule())
     registerModule(new Jdk8Module())
+
+    // Register custom serializer and deserializer for LocationConfig
+    val customModule = new SimpleModule()
+    customModule.addSerializer(classOf[LocationConfig], new LocationConfigSerializer)
+    customModule.addDeserializer(classOf[LocationConfig], new LocationConfigDeserializer)
+    registerModule(customModule)
   }
 
   private val reader = jsonMapper.readerFor[ProgramEnvironment]
@@ -118,4 +64,16 @@ object ProgramEnvironment {
     reader.readValue(str)
   }
 
+}
+
+class LocationConfigSerializer extends JsonSerializer[LocationConfig] {
+  override def serialize(value: LocationConfig, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
+    gen.writeBinary(value.toByteArray)
+  }
+}
+
+class LocationConfigDeserializer extends JsonDeserializer[LocationConfig] {
+  override def deserialize(p: JsonParser, ctxt: DeserializationContext): LocationConfig = {
+    LocationConfig.parseFrom(p.getBinaryValue)
+  }
 }

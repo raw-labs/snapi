@@ -68,7 +68,7 @@ import raw.testing.tags.TruffleTests
 
   test(
     s"""Oracle.InferAndRead("$oracleDb", "$oracleSchema", "$oracleTable",
-      |   host = "${oracleCreds.host}", username = "${oracleCreds.username}", password = "${oracleCreds.password}")""".stripMargin
+      |   host = "${oracleCreds.getHost}", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}")""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
     it should evaluateTo(
@@ -83,7 +83,7 @@ import raw.testing.tags.TruffleTests
   test(
     s"""Oracle.Read("$oracleDb", "$oracleSchema", "$oracleTable",
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |   host = "${oracleCreds.host}", username = "${oracleCreds.username}", password = "${oracleCreds.password}" )""".stripMargin
+      |   host = "${oracleCreds.getHost}", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}" )""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
     it should orderEvaluateTo(
@@ -99,9 +99,9 @@ import raw.testing.tags.TruffleTests
     |let
     |   d = Location.Describe(Oracle.Build(
     |      "oracle://$oracleDb/$oracleSchema/$oracleTable",
-    |      host = "${oracleCreds.host}",
-    |      username = "${oracleCreds.username}",
-    |      password = "${oracleCreds.password}"
+    |      host = "${oracleCreds.getHost}",
+    |      username = "${oracleCreds.getUser}",
+    |      password = "${oracleCreds.getPassword}"
     |   ))
     |in
     |  d.columns
@@ -117,7 +117,7 @@ import raw.testing.tags.TruffleTests
   // no credentials
   test(
     s"""Oracle.InferAndRead("$oracleDb", "$oracleSchema", "$oracleTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: $oracleDb""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: $oracleDb""".stripMargin))
 
   test(
     s"""Oracle.Read("$oracleSchema", "rdbmstest", "$oracleTable",
@@ -133,7 +133,7 @@ import raw.testing.tags.TruffleTests
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "oracle.localdomain", username = "${oracleCreds.username}", password = "${oracleCreds.password}"
+      |  host = "oracle.localdomain", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -145,7 +145,7 @@ import raw.testing.tags.TruffleTests
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "localhost", username = "${oracleCreds.username}", password = "${oracleCreds.password}"
+      |  host = "localhost", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -158,7 +158,7 @@ import raw.testing.tags.TruffleTests
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.username}", password = "${oracleCreds.password}", port = 1234
+      |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}", port = 1234
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -182,7 +182,7 @@ import raw.testing.tags.TruffleTests
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.username}", password = "wrong!"
+      |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.getUser}", password = "wrong!"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
@@ -201,7 +201,7 @@ import raw.testing.tags.TruffleTests
 
   test(
     s"""Oracle.InferAndQuery("$oracleDb", "SELECT * FROM $oracleSchema.$oracleTable",
-      |   host = "test-oracle.raw-labs.com", username = "${oracleCreds.username}", password = "${oracleCreds.password}" )""".stripMargin
+      |   host = "test-oracle.raw-labs.com", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -227,7 +227,7 @@ import raw.testing.tags.TruffleTests
   test(
     s"""Oracle.Query("$oracleDb", "SELECT * FROM $oracleSchema.$oracleTable",
       |   type collection(record(A: int, B: int, C: double, D: double, X: string, Y: string)),
-      |   host = "${oracleCreds.host}", username = "${oracleCreds.username}", password = "${oracleCreds.password}" )""".stripMargin
+      |   host = "${oracleCreds.getHost}", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[

@@ -113,8 +113,8 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""MySQL.InferAndRead("${mysqlCreds.database}", "$mysqlTable",
-      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}")""".stripMargin
+    s"""MySQL.InferAndRead("${mysqlCreds.getDatabase}", "$mysqlTable",
+      |   host = "${mysqlCreds.getHost}", username = "${mysqlCreds.getUser}", password = "${mysqlCreds.getPassword}")""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -126,9 +126,9 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""MySQL.Read("${mysqlCreds.database}", "$mysqlTable",
+    s"""MySQL.Read("${mysqlCreds.getDatabase}", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}")""".stripMargin
+      |   host = "${mysqlCreds.getHost}", username = "${mysqlCreds.getUser}", password = "${mysqlCreds.getPassword}")""".stripMargin
   ) { it =>
     it should orderEvaluateTo(
       """[
@@ -142,10 +142,10 @@ import raw.testing.tags.TruffleTests
   ignore(s"""
     |let
     |   d = Location.Describe(MySQL.Build(
-    |      "mysql://${mysqlCreds.database}/$mysqlTable",
-    |      host = "${mysqlCreds.host}",
-    |      username = "${mysqlCreds.username}",
-    |      password = "${mysqlCreds.password}"
+    |      "mysql://${mysqlCreds.getDatabase}/$mysqlTable",
+    |      host = "${mysqlCreds.getHost}",
+    |      username = "${mysqlCreds.getUser}",
+    |      password = "${mysqlCreds.getPassword}"
     |   ))
     |in
     |  d.columns
@@ -160,53 +160,53 @@ import raw.testing.tags.TruffleTests
 
   // no credentials
   test(
-    s"""MySQL.InferAndRead("${mysqlCreds.database}", "$mysqlTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${mysqlCreds.database}""".stripMargin))
+    s"""MySQL.InferAndRead("${mysqlCreds.getDatabase}", "$mysqlTable" )""".stripMargin
+  )(it => it should runErrorAs(s"""unknown credential: ${mysqlCreds.getDatabase}""".stripMargin))
 
   test(
-    s"""MySQL.Read("${mysqlCreds.database}", "$mysqlTable",
+    s"""MySQL.Read("${mysqlCreds.getDatabase}", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: ${mysqlCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: ${mysqlCreds.getDatabase}""".stripMargin))
 
   // server does not exist
   test(
     s"""MySQL.Read(
-      |  "${badMysqlCreds.database}", "$mysqlTable",
+      |  "${badMysqlCreds.getDatabase}", "$mysqlTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${badMysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}"
+      |  host = "${badMysqlCreds.getHost}", username = "${mysqlCreds.getUser}", password = "${mysqlCreds.getPassword}"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.getHost}""".stripMargin))
 
   // wrong port
   // Note that when there is a wrong port supplied, the test takes a long time to run and we get a connect time out error.
   ignore(
     s"""MySQL.Read(
-      |  "${mysqlCreds.database}", "$mysqlTable",
+      |  "${mysqlCreds.getDatabase}", "$mysqlTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}", port = 1234
+      |  host = "${mysqlCreds.getHost}", username = "${mysqlCreds.getUser}", password = "${mysqlCreds.getPassword}", port = 1234
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""connect timed out: ${mysqlCreds.database}""".stripMargin))
+  )(it => it should runErrorAs(s"""connect timed out: ${mysqlCreds.getDatabase}""".stripMargin))
 
   // No password
   test(
     s"""MySQL.Read(
-      |  "${mysqlCreds.database}", "$mysqlTable",
+      |  "${mysqlCreds.getDatabase}", "$mysqlTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${mysqlCreds.host}"
+      |  host = "${mysqlCreds.getHost}"
       |)""".stripMargin
   )(it => it should runErrorAs("""username is required""".stripMargin))
 
   // wrong password
   test(
     s"""MySQL.Read(
-      |  "${mysqlCreds.database}", "$mysqlTable",
+      |  "${mysqlCreds.getDatabase}", "$mysqlTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "wrong!"
+      |  host = "${mysqlCreds.getHost}", username = "${mysqlCreds.getUser}", password = "wrong!"
       |)""".stripMargin
   )(it => it should runErrorAs("""authentication failed""".stripMargin))
 
-  test(s"""MySQL.InferAndQuery("$mysqlRegDb", "SELECT * FROM ${mysqlCreds.database}.$mysqlTable")""") { it =>
+  test(s"""MySQL.InferAndQuery("$mysqlRegDb", "SELECT * FROM ${mysqlCreds.getDatabase}.$mysqlTable")""") { it =>
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -217,8 +217,8 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""MySQL.InferAndQuery("${mysqlCreds.database}", "SELECT * FROM $mysqlTable",
-      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}" )""".stripMargin
+    s"""MySQL.InferAndQuery("${mysqlCreds.getDatabase}", "SELECT * FROM $mysqlTable",
+      |   host = "${mysqlCreds.getHost}", username = "${mysqlCreds.getUser}", password = "${mysqlCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -242,9 +242,9 @@ import raw.testing.tags.TruffleTests
   }
 
   test(
-    s"""MySQL.Query("${mysqlCreds.database}", "SELECT * FROM $mysqlTable",
+    s"""MySQL.Query("${mysqlCreds.getDatabase}", "SELECT * FROM $mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username}", password = "${mysqlCreds.password}" )""".stripMargin
+      |   host = "${mysqlCreds.getHost}", username = "${mysqlCreds.getUser}", password = "${mysqlCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -295,14 +295,14 @@ import raw.testing.tags.TruffleTests
     s"""List.Transform(["$mysqlTable", "dont_exist"],
       |   table ->
       |     Collection.Count(
-      |      MySQL.Query("${mysqlCreds.database}", "SELECT * FROM " + table,
+      |      MySQL.Query("${mysqlCreds.getDatabase}", "SELECT * FROM " + table,
       |      type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |      host = "${mysqlCreds.host}", username = "${mysqlCreds.username}",
-      |      password = "${mysqlCreds.password}")
+      |      host = "${mysqlCreds.getHost}", username = "${mysqlCreds.getUser}",
+      |      password = "${mysqlCreds.getPassword}")
       |     ))""".stripMargin
   ) { it =>
     val error =
-      s"""failed to read from database mysql:${mysqlCreds.database}: Table '${mysqlCreds.database}.dont_exist' doesn't exist"""
+      s"""failed to read from database mysql:${mysqlCreds.getDatabase}: Table '${mysqlCreds.getDatabase}.dont_exist' doesn't exist"""
     it should evaluateTo(s"""[3L, Error.Build("$error")]""")
   }
 

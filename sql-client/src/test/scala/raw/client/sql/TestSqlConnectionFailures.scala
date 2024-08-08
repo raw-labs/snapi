@@ -476,8 +476,6 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map.empty,
-      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -501,8 +499,6 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map.empty,
-      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -520,8 +516,6 @@ class TestSqlConnectionFailures
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
       Map.empty,
       Map.empty,
       Map("output-format" -> "json"),
@@ -542,8 +536,6 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map.empty,
-      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -561,8 +553,6 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map.empty,
-      Map.empty,
       Map("output-format" -> "json"),
       jdbcUrl = Some(jdbcUrl(user))
     )
@@ -578,8 +568,6 @@ class TestSqlConnectionFailures
       user,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
       Map.empty,
       Map.empty,
       Map("output-format" -> "json"),

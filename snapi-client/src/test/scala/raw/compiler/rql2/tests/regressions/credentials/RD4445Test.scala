@@ -13,6 +13,7 @@
 package raw.compiler.rql2.tests.regressions.credentials
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
+import raw.protocol.DropboxAccessTokenConfig
 import raw.testing.tags.TruffleTests
 
 @TruffleTests class RD4445Test extends Rql2TruffleCompilerTestContext {
@@ -21,7 +22,7 @@ import raw.testing.tags.TruffleTests
 
   property("raw.sources.dropbox.clientId", dropboxClientId)
 
-  httpHeaders("rawlabs-dropbox", Map("Authorization" -> ("Bearer " + dropboxLongLivedAccessToken)))
+  dropbox("rawlabs-dropbox", DropboxAccessTokenConfig.newBuilder().setAccessToken(dropboxLongLivedAccessToken).build())
 
   test("""String.ReadLines("dropbox://rawlabs-dropbox/New folder/New Document")""")(
     _ should evaluateTo("""["Hello", "World", "Again!"]""")
