@@ -6,7 +6,7 @@ import raw.build.BuildSettings._
 
 import scala.sys.process._
 
-import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
+import com.jsuereth.sbtpgp.PgpKeys.publishSigned
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
