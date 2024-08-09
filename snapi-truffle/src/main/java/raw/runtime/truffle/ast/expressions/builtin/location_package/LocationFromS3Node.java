@@ -68,10 +68,13 @@ public class LocationFromS3Node extends ExpressionNode {
     // The docs say:
     // "If the S3 bucket is not registered in the credentials storage, then the region, accessKey
     // and secretKey must be provided as arguments."
+    // However, if the access key/secret key are passed, they should be used.
     RawContext context = RawContext.get(this);
     S3Path location;
-
-    if (context.existsLocationConfig(bucket) && context.getLocationConfig(bucket).hasS3()) {
+    if (this.accessKey == null
+        && this.secretKey == null
+        && context.existsLocationConfig(bucket)
+        && context.getLocationConfig(bucket).hasS3()) {
       LocationConfig l = context.getLocationConfig(bucket);
       S3Config s3Config = l.getS3();
       Option<String> maybeAccessKey =
