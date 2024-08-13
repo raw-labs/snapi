@@ -624,7 +624,8 @@ object LocationDescription extends StrictLogging {
                   objectKey
                 )
               )
-            case Some(l) if l.hasError => Left(l.getError.getMessage)
+            case Some(l) if l.hasError => return Left(l.getError.getMessage)
+            case Some(_) => Left("missing S3 credential")
             case None =>
               // Anonymous access.
               Right(S3PathLocationDescription(bucketName, None, None, None, objectKey))
@@ -668,7 +669,7 @@ object LocationDescription extends StrictLogging {
             } else {
               Left("missing Dropbox credential")
             }
-          case Some(l) if l.hasError => Left(l.getError.getMessage)
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case None => Left("missing Dropbox credential")
         }
       case _ => Left(s"unsupported protocol: $protocol")

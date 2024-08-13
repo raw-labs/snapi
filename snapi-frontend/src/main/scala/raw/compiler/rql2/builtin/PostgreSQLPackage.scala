@@ -178,7 +178,7 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension {
             )(
               programContext.settings
             )
-          case Some(l) if l.hasError => Left(l.getError.getMessage)
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case Some(_) => return Left("not a PostgreSQL server")
           case None => return Left(s"unknown credential: $db")
         }
@@ -434,7 +434,7 @@ class PostgreSQLInferAndQueryEntry extends SugarEntryExtension {
             new PostgresqlServerLocation(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)(
               programContext.settings
             )
-          case Some(l) if l.hasError => Left(l.getError.getMessage)
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case Some(_) => return Left("not an Oracle server")
           case None => return Left(s"unknown credential: $db")
         }

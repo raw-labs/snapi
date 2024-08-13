@@ -211,7 +211,7 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
             )(
               programContext.settings
             )
-          case Some(l) if l.hasError => Left(l.getError.getMessage)
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case Some(_) => return Left("not a Snowflake server")
           case None => return Left(s"unknown credential: $db")
         }
@@ -502,7 +502,7 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
               l1.getParametersMap,
               programContext.settings
             )
-          case Some(l) if l.hasError => Left(l.getError.getMessage)
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case Some(_) => return Left("not a Snowflake server")
           case None => return Left(s"unknown credential: $db")
         }
