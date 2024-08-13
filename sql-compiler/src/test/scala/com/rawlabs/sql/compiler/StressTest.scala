@@ -38,8 +38,7 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
   private var compilerService: CompilerService = _
   private var jdbcUrl: String = _
 
-  // Username equals the database
-  private val user = InteractiveUser(Uid("blah"), "fdw user", "email", Seq.empty)
+  private val user = RawUid("blah")
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -79,9 +78,10 @@ class StressTest extends RawTestSuite with SettingsTestContext with TrainingWhee
     env = ProgramEnvironment(
       user,
       Some(Array("city" -> RawString("Lyon"))),
-      Set.empty,
+      Set.empty, // scopes
+      Map.empty, // secrets
+      Map.empty, // location configs
       Map("output-format" -> "json"),
-      None,
       Some(jdbcUrl)
     )
   }

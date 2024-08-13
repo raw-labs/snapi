@@ -89,60 +89,61 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         case Left(errors) => GetProgramDescriptionFailure(errors)
         case Right(parsedTree) =>
           try {
-            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
-            try {
-              val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
-              val description = stmt.queryMetadata match {
-                case Right(info) =>
-                  val queryParamInfo = info.parameters
-                  val outputType = pgRowTypeToIterableType(info.outputType)
-                  val parameterInfo = queryParamInfo
-                    .map {
-                      case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.pgType).map { rawType =>
-                          // we ignore tipe.nullable and mark all parameters as nullable
-                          val paramType = rawType match {
-                            case RawAnyType() => rawType;
-                            case other => other.cloneNullable
+            connectionPool.connectAnd(environment.jdbcUrl.get) { conn =>
+              try {
+                val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
+                val description = stmt.queryMetadata match {
+                  case Right(info) =>
+                    val queryParamInfo = info.parameters
+                    val outputType = pgRowTypeToIterableType(info.outputType)
+                    val parameterInfo = queryParamInfo
+                      .map {
+                        case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.pgType).map { rawType =>
+                            // we ignore tipe.nullable and mark all parameters as nullable
+                            val paramType = rawType match {
+                              case RawAnyType() => rawType;
+                              case other => other.cloneNullable
+                            }
+                            ParamDescription(
+                              name,
+                              Some(paramType),
+                              paramInfo.default,
+                              comment = paramInfo.comment,
+                              required = paramInfo.default.isEmpty
+                            )
                           }
-                          ParamDescription(
-                            name,
-                            Some(paramType),
-                            paramInfo.default,
-                            comment = paramInfo.comment,
-                            required = paramInfo.default.isEmpty
-                          )
-                        }
+                      }
+                      .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
+                        case (Left(errors), Left(error)) => Left(errors :+ error)
+                        case (_, Left(error)) => Left(Seq(error))
+                        case (Right(params), Right(param)) => Right(params :+ param)
+                        case (errors @ Left(_), _) => errors
+                        case (_, Right(param)) => Right(Seq(param))
+                      }
+                    (outputType, parameterInfo) match {
+                      case (Right(iterableType), Right(ps)) =>
+                        // Regardless if there are parameters, we declare a main function with the output type.
+                        // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
+                        val ok = ProgramDescription(
+                          Map.empty,
+                          Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
+                          None
+                        )
+                        GetProgramDescriptionSuccess(ok)
+                      case _ =>
+                        val errorMessages =
+                          outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
+                        GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
                     }
-                    .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
-                      case (Left(errors), Left(error)) => Left(errors :+ error)
-                      case (_, Left(error)) => Left(Seq(error))
-                      case (Right(params), Right(param)) => Right(params :+ param)
-                      case (errors @ Left(_), _) => errors
-                      case (_, Right(param)) => Right(Seq(param))
-                    }
-                  (outputType, parameterInfo) match {
-                    case (Right(iterableType), Right(ps)) =>
-                      // Regardless if there are parameters, we declare a main function with the output type.
-                      // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
-                      val ok = ProgramDescription(
-                        Map.empty,
-                        Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
-                        None
-                      )
-                      GetProgramDescriptionSuccess(ok)
-                    case _ =>
-                      val errorMessages =
-                        outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
-                      GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
-                  }
-                case Left(errors) => GetProgramDescriptionFailure(errors)
+                  case Left(errors) => GetProgramDescriptionFailure(errors)
+                }
+                RawUtils.withSuppressNonFatalException(stmt.close())
+                description
+              } catch {
+                case e: NamedParametersPreparedStatementException => GetProgramDescriptionFailure(e.errors)
+              } finally {
+                RawUtils.withSuppressNonFatalException(conn.close())
               }
-              RawUtils.withSuppressNonFatalException(stmt.close())
-              description
-            } catch {
-              case e: NamedParametersPreparedStatementException => GetProgramDescriptionFailure(e.errors)
-            } finally {
-              RawUtils.withSuppressNonFatalException(conn.close())
             }
           } catch {
             case ex: SQLException if isConnectionFailure(ex) =>

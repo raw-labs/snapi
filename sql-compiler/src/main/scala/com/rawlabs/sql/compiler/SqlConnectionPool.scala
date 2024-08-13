@@ -273,7 +273,6 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
     }
   }
 
-  @throws[CompilerServiceException]
   def connectAnd[T](jdbcUrl: String)(what: Connection => T): T = {
     var i = 0;
     var throwable: Throwable = null
