@@ -63,6 +63,10 @@ class TestSqlConnectionFailures
   )
   Class.forName("org.postgresql.Driver")
 
+  // retrying interferes with the test scenarios. The client
+  // has one chance.
+  property("raw.sql.compiler.pool.retries", "0")
+
   private var users: Set[RawUid] = _
 
   private def jdbcUrl(user: RawUid) = {

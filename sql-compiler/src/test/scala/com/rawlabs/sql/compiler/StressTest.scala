@@ -10,16 +10,26 @@
  * licenses/APL.txt.
  */
 
-package raw.client.sql
+package com.rawlabs.sql.compiler
 
 import com.dimafeng.testcontainers.PostgreSQLContainer
+import com.rawlabs.compiler.{
+  AutoCompleteResponse,
+  CompilerService,
+  ExecutionSuccess,
+  GetProgramDescriptionSuccess,
+  HoverResponse,
+  Pos,
+  ProgramEnvironment,
+  RawString,
+  ValidateResponse
+}
+import com.rawlabs.utils.core.{RawTestSuite, RawUid, SettingsTestContext, TrainingWheelsContext}
 import eu.rekawek.toxiproxy.model.ToxicDirection
 import eu.rekawek.toxiproxy.{Proxy, ToxiproxyClient}
 import org.scalatest.matchers.must.Matchers.{be, noException}
 import org.testcontainers.containers.{Network, ToxiproxyContainer}
 import org.testcontainers.utility.DockerImageName
-import raw.client.api._
-import raw.utils._
 
 import java.io.{ByteArrayOutputStream, IOException}
 import java.sql.DriverManager

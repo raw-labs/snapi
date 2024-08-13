@@ -18,6 +18,7 @@ import com.rawlabs.utils.core.{RawService, RawSettings, RawUtils}
 import java.sql.{Connection, SQLException}
 import java.time.Instant
 import java.util.concurrent.{Executors, TimeUnit}
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
@@ -49,6 +50,11 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
 
   private val healthCheckPeriod =
     settings.getDuration("raw.sql.compiler.pool.health-check-period", TimeUnit.MILLISECONDS)
+
+  // Waiting time when FDW is unreachable.
+  private val retryInterval = settings.getDuration("raw.sql.compiler.pool.retry-interval")
+  // How many retries when FDW is unreachable
+  private val retries = settings.getInt("raw.sql.compiler.pool.retries")
 
   // The JDBC isValid(<seconds>) value to use.
   private val isValidSeconds = settings.getInt("raw.sql.compiler.pool.is-valid-seconds")
@@ -273,25 +279,32 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
     }
   }
 
-  def connectAnd[T](jdbcUrl: String)(what: Connection => T): T = {
-    var i = 0;
-    var throwable: Throwable = null
-    while (i < 9) {
-      i += 1
+  // Connect to the provided JDBC URL and calls the `handler` function on the connection.
+  // That API internally implements a retry logic when a failure occurs (when connecting
+  // or running `handler`).
+  def connectAnd[T](jdbcUrl: String)(handler: Connection => T): T = {
+    @tailrec
+    def retryConnection(retries: Int): T = {
       try {
         val conn = getConnection(jdbcUrl)
         try {
-          return what(conn)
+          handler(conn)
         } finally {
           conn.close()
         }
       } catch {
         case t: Throwable =>
-          Thread.sleep(500)
-          throwable = t
+          logger.warn(s"Couldn't connect (attempts left: $retries)", t)
+          if (retries > 0) {
+            Thread.sleep(retryInterval)
+            retryConnection(retries - 1)
+          }
+          else {
+            throw t
+          }
       }
     }
-    throw throwable
+    retryConnection(retries)
   }
 
   override def doStop(): Unit = {
