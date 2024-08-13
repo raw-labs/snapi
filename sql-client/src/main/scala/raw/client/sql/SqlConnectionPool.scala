@@ -227,27 +227,31 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
 
   def actuallyRemoveConnection(conn: SqlConnection): Boolean = {
     connectionPoolLock.synchronized {
-      connectionUrls.get(conn).foreach { jdbcUrl =>
-        logger.debug(s"Actually removing connection $conn")
-        try {
-          // First try to actually close the connection (note the use of actuallyClose), then clean up all the state.
-          conn.actuallyClose()
-          connectionState.remove(conn)
-          connectionUrls.remove(conn)
-          connectionCache.get(jdbcUrl) match {
-            case Some(conns) =>
-              val nconns = conns - conn
-              if (nconns.isEmpty) connectionCache.remove(jdbcUrl)
-              else connectionCache.put(jdbcUrl, nconns)
-            case None => // Nothing to do.
+      connectionUrls.get(conn) match {
+        case Some(jdbcUrl) =>
+          logger.debug(s"Actually removing connection $conn")
+          try {
+            // First try to actually close the connection (note the use of actuallyClose), then clean up all the state.
+            conn.actuallyClose()
+            connectionState.remove(conn)
+            connectionUrls.remove(conn)
+            connectionCache.get(jdbcUrl) match {
+              case Some(conns) =>
+                val nconns = conns - conn
+                if (nconns.isEmpty) connectionCache.remove(jdbcUrl)
+                else connectionCache.put(jdbcUrl, nconns)
+              case None => // Nothing to do.
+            }
+            true
+          } catch {
+            case NonFatal(t) =>
+              // We failed to actually close the connection.
+              logger.warn(s"Failed to actually close the connection $conn", t)
+              false
           }
-          true
-        } catch {
-          case NonFatal(t) =>
-            // We failed to actually close the connection.
-            logger.warn(s"Failed to actually close the connection $conn", t)
-            false
-        }
+        case None =>
+          // Connection didn't exist/was removed already.
+          false
       }
     }
   }
