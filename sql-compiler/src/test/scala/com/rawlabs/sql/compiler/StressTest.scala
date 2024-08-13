@@ -28,6 +28,8 @@ import scala.io.Source
 
 class StressTest extends RawTestSuite with SettingsTestContext with TrainingWheelsContext {
 
+  property("raw.client.sql.metadata-cache.match-validity", "1s")
+
   private var container: PostgreSQLContainer = _
   Class.forName("org.postgresql.Driver")
 

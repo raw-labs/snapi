@@ -115,16 +115,17 @@ class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxS
     val loader = new CacheLoader[Seq[SqlIdentifier], Seq[IdentifierInfo]]() {
       override def load(idns: Seq[SqlIdentifier]): Seq[IdentifierInfo] = {
         try {
-          val con = connectionPool.getConnection(jdbcUrl)
-          try {
-            val query = idns.size match {
-              case 2 => DotSearchWithTwoItems
-              case 1 => DotSearchWithOneItem
+          connectionPool.connectAnd(jdbcUrl) { con =>
+            try {
+              val query = idns.size match {
+                case 2 => DotSearchWithTwoItems
+                case 1 => DotSearchWithOneItem
+              }
+              val tokens = idns.map(idn => if (idn.quoted) idn.value else idn.value.toLowerCase)
+              query.run(con, tokens)
+            } finally {
+              con.close()
             }
-            val tokens = idns.map(idn => if (idn.quoted) idn.value else idn.value.toLowerCase)
-            query.run(con, tokens)
-          } finally {
-            con.close()
           }
         } catch {
           case ex: SQLException if isConnectionFailure(ex) =>
