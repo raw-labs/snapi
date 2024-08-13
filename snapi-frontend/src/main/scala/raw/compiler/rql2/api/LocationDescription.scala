@@ -574,7 +574,7 @@ object LocationDescription extends StrictLogging {
             val delay = parser.getDuration("delay").toMillis
             urlToLocationDescription(delegateUri, programEnvironment).right.map(MockPathLocationDescription(delay, _))
           } catch {
-            case _: ConfigException => Left(s"not a mock location: $url")
+            case _: ConfigException => Left("not a mock location")
           }
         }
       case "s3" =>
@@ -624,8 +624,8 @@ object LocationDescription extends StrictLogging {
                   objectKey
                 )
               )
-            case Some(l) if l.hasError => return Left(l.getError.getMessage)
-            case Some(_) => Left("missing S3 credential")
+            case Some(l) if l.hasError => Left(l.getError.getMessage)
+            case Some(_) => Left("not a S3 credential")
             case None =>
               // Anonymous access.
               Right(S3PathLocationDescription(bucketName, None, None, None, objectKey))
@@ -669,7 +669,8 @@ object LocationDescription extends StrictLogging {
             } else {
               Left("missing Dropbox credential")
             }
-          case Some(l) if l.hasError => return Left(l.getError.getMessage)
+          case Some(l) if l.hasError => Left(l.getError.getMessage)
+          case Some(_) => Left("not a Dropbox credential")
           case None => Left("missing Dropbox credential")
         }
       case _ => Left(s"unsupported protocol: $protocol")
