@@ -402,21 +402,22 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         case Left(errors) => ValidateResponse(errors)
         case Right(parsedTree) =>
           try {
-            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
-            try {
-              val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
+            connectionPool.connectAnd(environment.jdbcUrl.get) { conn =>
               try {
-                stmt.queryMetadata match {
-                  case Right(_) => ValidateResponse(List.empty)
-                  case Left(errors) => ValidateResponse(errors)
+                val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
+                try {
+                  stmt.queryMetadata match {
+                    case Right(_) => ValidateResponse(List.empty)
+                    case Left(errors) => ValidateResponse(errors)
+                  }
+                } finally {
+                  RawUtils.withSuppressNonFatalException(stmt.close())
                 }
+              } catch {
+                case e: NamedParametersPreparedStatementException => ValidateResponse(e.errors)
               } finally {
-                RawUtils.withSuppressNonFatalException(stmt.close())
+                RawUtils.withSuppressNonFatalException(conn.close())
               }
-            } catch {
-              case e: NamedParametersPreparedStatementException => ValidateResponse(e.errors)
-            } finally {
-              RawUtils.withSuppressNonFatalException(conn.close())
             }
           } catch {
             case ex: SQLException if isConnectionFailure(ex) =>
