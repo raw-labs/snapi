@@ -341,21 +341,22 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
               .getOrElse(HoverResponse(None))
           case use: SqlParamUseNode =>
             try {
-              val conn = connectionPool.getConnection(environment.jdbcUrl.get)
-              try {
-                val pstmt = new NamedParametersPreparedStatement(conn, tree)
+              connectionPool.connectAnd(environment.jdbcUrl.get) { conn =>
                 try {
-                  pstmt.parameterInfo(use.name) match {
-                    case Right(typeInfo) => HoverResponse(Some(TypeCompletion(use.name, typeInfo.pgType.typeName)))
-                    case Left(_) => HoverResponse(None)
+                  val pstmt = new NamedParametersPreparedStatement(conn, tree)
+                  try {
+                    pstmt.parameterInfo(use.name) match {
+                      case Right(typeInfo) => HoverResponse(Some(TypeCompletion(use.name, typeInfo.pgType.typeName)))
+                      case Left(_) => HoverResponse(None)
+                    }
+                  } finally {
+                    RawUtils.withSuppressNonFatalException(pstmt.close())
                   }
+                } catch {
+                  case _: NamedParametersPreparedStatementException => HoverResponse(None)
                 } finally {
-                  RawUtils.withSuppressNonFatalException(pstmt.close())
+                  RawUtils.withSuppressNonFatalException(conn.close())
                 }
-              } catch {
-                case _: NamedParametersPreparedStatementException => HoverResponse(None)
-              } finally {
-                RawUtils.withSuppressNonFatalException(conn.close())
               }
             } catch {
               case ex: SQLException if isConnectionFailure(ex) =>
