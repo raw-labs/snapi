@@ -652,6 +652,22 @@ object LocationDescription extends StrictLogging {
                 path
               )
             )
+          case Some(l) if l.hasHttpHeaders =>
+            if (l.getHttpHeaders.getHeadersMap.containsKey("Authorization")) {
+              val splitted = l.getHttpHeaders.getHeadersMap.get("Authorization").split("Bearer ")
+              if (splitted.length == 2) {
+                Right(
+                  DropboxAccessTokenLocationDescription(
+                    splitted(1),
+                    path
+                  )
+                )
+              } else {
+                Left("invalid Dropbox credential")
+              }
+            } else {
+              Left("missing Dropbox credential")
+            }
           case Some(l) if l.hasError => Left(l.getError.getMessage)
           case None => Left("missing Dropbox credential")
         }

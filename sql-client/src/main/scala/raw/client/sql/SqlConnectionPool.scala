@@ -90,7 +90,7 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
           logger.debug(s"Checking the connection health for $conn (state: ${connectionUrls(conn)})")
           // Found one connection to check.
           try {
-            if (conn.isValid(isValidSeconds)) {
+            if (!conn.isClosed() && conn.isValid(isValidSeconds)) {
               logger.debug(s"Connection $conn is healthy")
               // All good, so release borrow.
               // This will update the last check is alive time.
@@ -225,28 +225,29 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
     }
   }
 
-  private def actuallyRemoveConnection(conn: SqlConnection): Boolean = {
-    logger.debug(s"Actually removing connection $conn")
+  def actuallyRemoveConnection(conn: SqlConnection): Boolean = {
     connectionPoolLock.synchronized {
-      val jdbcUrl = connectionUrls(conn)
-      try {
-        // First try to actually close the connection (note the use of actuallyClose), then clean up all the state.
-        conn.actuallyClose()
-        connectionState.remove(conn)
-        connectionUrls.remove(conn)
-        connectionCache.get(jdbcUrl) match {
-          case Some(conns) =>
-            val nconns = conns - conn
-            if (nconns.isEmpty) connectionCache.remove(jdbcUrl)
-            else connectionCache.put(jdbcUrl, nconns)
-          case None => // Nothing to do.
+      connectionUrls.get(conn).foreach { jdbcUrl =>
+        logger.debug(s"Actually removing connection $conn")
+        try {
+          // First try to actually close the connection (note the use of actuallyClose), then clean up all the state.
+          conn.actuallyClose()
+          connectionState.remove(conn)
+          connectionUrls.remove(conn)
+          connectionCache.get(jdbcUrl) match {
+            case Some(conns) =>
+              val nconns = conns - conn
+              if (nconns.isEmpty) connectionCache.remove(jdbcUrl)
+              else connectionCache.put(jdbcUrl, nconns)
+            case None => // Nothing to do.
+          }
+          true
+        } catch {
+          case NonFatal(t) =>
+            // We failed to actually close the connection.
+            logger.warn(s"Failed to actually close the connection $conn", t)
+            false
         }
-        true
-      } catch {
-        case NonFatal(t) =>
-          // We failed to actually close the connection.
-          logger.warn(s"Failed to actually close the connection $conn", t)
-          false
       }
     }
   }

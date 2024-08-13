@@ -33,11 +33,18 @@ import java.util.concurrent.Executor
 class SqlConnection(connectionPool: SqlConnectionPool, conn: Connection) extends java.sql.Connection {
 
   override def close(): Unit = {
-    // We do not ACTUALLY close the connection; instead, we just release the borrow.
-    connectionPool.releaseConnection(
-      this,
-      isAlive = false //  We are not sure if the connection is alive or not, e.g. it could be closed because it failed.
-    )
+    if (isClosed) {
+      // If the connection closed in the meantime (e.g. due to a crash), we cannot release it back to the pool.
+      connectionPool.actuallyRemoveConnection(this)
+    } else {
+      // If the connection seems "sane", then we do not ACTUALLY close the connection.
+      // Instead, we just release the borrow.
+      connectionPool.releaseConnection(
+        this,
+        isAlive =
+          false //  We are not sure if the connection is alive or not, e.g. it could be closed because it failed.
+      )
+    }
   }
 
   // This is called by the connection pool when we *actually* want to close the connection.
