@@ -170,6 +170,7 @@ class OracleInferAndReadEntry extends SugarEntryExtension {
             new OracleTableLocation(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword, schema, table)(
               programContext.settings
             )
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case Some(_) => return Left("not an Oracle server")
           case None => return Left(s"unknown credential: $db")
         }
@@ -423,6 +424,7 @@ class OracleInferAndQueryEntry extends SugarEntryExtension {
             new OracleServerLocation(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)(
               programContext.settings
             )
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case Some(_) => return Left("not an Oracle server")
           case None => return Left(s"unknown credential: $db")
         }

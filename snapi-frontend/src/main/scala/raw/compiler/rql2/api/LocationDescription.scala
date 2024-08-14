@@ -574,7 +574,7 @@ object LocationDescription extends StrictLogging {
             val delay = parser.getDuration("delay").toMillis
             urlToLocationDescription(delegateUri, programEnvironment).right.map(MockPathLocationDescription(delay, _))
           } catch {
-            case _: ConfigException => Left(s"not a mock location: $url")
+            case _: ConfigException => Left("not a mock location")
           }
         }
       case "s3" =>
@@ -624,6 +624,8 @@ object LocationDescription extends StrictLogging {
                   objectKey
                 )
               )
+            case Some(l) if l.hasError => Left(l.getError.getMessage)
+            case Some(_) => Left("not a S3 credential")
             case None =>
               // Anonymous access.
               Right(S3PathLocationDescription(bucketName, None, None, None, objectKey))
@@ -636,6 +638,7 @@ object LocationDescription extends StrictLogging {
         // In Dropbox, the host is the name of the credential
         val DROPBOX_REGEX(name, path) = url
         if (name == null) {
+          logger.warn("missing 'name' in Dropbox location")
           return Left("missing Dropbox credential")
         }
         programEnvironment.locationConfigs.get(name) match {
@@ -651,7 +654,28 @@ object LocationDescription extends StrictLogging {
                 path
               )
             )
-          case None => Left("missing Dropbox credential")
+          case Some(l) if l.hasHttpHeaders =>
+            if (l.getHttpHeaders.getHeadersMap.containsKey("Authorization")) {
+              val splitted = l.getHttpHeaders.getHeadersMap.get("Authorization").split("Bearer ")
+              if (splitted.length == 2) {
+                Right(
+                  DropboxAccessTokenLocationDescription(
+                    splitted(1),
+                    path
+                  )
+                )
+              } else {
+                Left("invalid Dropbox credential")
+              }
+            } else {
+              logger.warn("missing Dropbox 'Authorization'")
+              Left("missing Dropbox credential")
+            }
+          case Some(l) if l.hasError => Left(l.getError.getMessage)
+          case Some(_) => Left("not a Dropbox credential")
+          case None =>
+            logger.warn("missing Dropbox credential")
+            Left("missing Dropbox credential")
         }
       case _ => Left(s"unsupported protocol: $protocol")
     }

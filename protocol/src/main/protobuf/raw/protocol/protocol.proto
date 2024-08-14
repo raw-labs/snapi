@@ -23,6 +23,7 @@ message LocationConfig {
         DropboxUsernamePasswordConfig dropboxUsernamePassword = 14;
         HttpHeadersConfig httpHeaders = 15;
         SecretConfig secret = 99;
+        ErrorConfig error = 9999;
     }
 }
 
@@ -145,4 +146,8 @@ message HttpHeadersConfig {
 message SecretConfig {
     string name = 1;
     string value = 2;
+}
+
+message ErrorConfig {
+    string message = 1;
 }

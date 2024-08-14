@@ -123,7 +123,11 @@ public final class RawContext {
     if (maybeLocationConfig.isEmpty()) {
       throw new RawTruffleRuntimeException("unknown credential: " + name);
     }
-    return maybeLocationConfig.get();
+    LocationConfig locationConfig = maybeLocationConfig.get();
+    if (locationConfig.hasError()) {
+      throw new RawTruffleRuntimeException(locationConfig.getError().getMessage());
+    }
+    return locationConfig;
   }
 
   @CompilerDirectives.TruffleBoundary
