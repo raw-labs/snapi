@@ -38,7 +38,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.typesafe.config.{ConfigException, ConfigFactory}
-import com.typesafe.scalalogging.StrictLogging
 import raw.protocol.LocationConfig
 import raw.client.api.ProgramEnvironment
 
@@ -260,7 +259,7 @@ final case class TeradataTableLocationDescription(
     parameters: Map[String, String]
 ) extends LocationDescription
 
-object LocationDescription extends StrictLogging {
+object LocationDescription {
 
   val DROPBOX_REGEX = "dropbox:(?://([^/]+)?)?(.*)".r
 
@@ -566,9 +565,6 @@ object LocationDescription extends StrictLogging {
         } else {
           val propertiesString = f.substring(0, colonIdx)
           val delegateUri = f.substring(colonIdx + 1)
-          logger.debug(
-            s"Creating mock filesystem with configuration: $propertiesString and delegate filesystem: $delegateUri"
-          )
           try {
             val parser = ConfigFactory.parseString(propertiesString)
             val delay = parser.getDuration("delay").toMillis
@@ -638,7 +634,6 @@ object LocationDescription extends StrictLogging {
         // In Dropbox, the host is the name of the credential
         val DROPBOX_REGEX(name, path) = url
         if (name == null) {
-          logger.warn("missing 'name' in Dropbox location")
           return Left("missing Dropbox credential")
         }
         programEnvironment.locationConfigs.get(name) match {
@@ -668,14 +663,11 @@ object LocationDescription extends StrictLogging {
                 Left("invalid Dropbox credential")
               }
             } else {
-              logger.warn("missing Dropbox 'Authorization'")
               Left("missing Dropbox credential")
             }
           case Some(l) if l.hasError => Left(l.getError.getMessage)
           case Some(_) => Left("not a Dropbox credential")
-          case None =>
-            logger.warn("missing Dropbox credential")
-            Left("missing Dropbox credential")
+          case None => Left("missing Dropbox credential")
         }
       case _ => Left(s"unsupported protocol: $protocol")
     }
