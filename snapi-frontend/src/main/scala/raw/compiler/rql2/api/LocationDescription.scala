@@ -38,7 +38,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.typesafe.config.{ConfigException, ConfigFactory}
-import com.typesafe.scalalogging.StrictLogging
 import raw.protocol.LocationConfig
 import raw.client.api.ProgramEnvironment
 
@@ -260,7 +259,7 @@ final case class TeradataTableLocationDescription(
     parameters: Map[String, String]
 ) extends LocationDescription
 
-object LocationDescription extends StrictLogging {
+object LocationDescription {
 
   val DROPBOX_REGEX = "dropbox:(?://([^/]+)?)?(.*)".r
 
