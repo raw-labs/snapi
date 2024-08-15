@@ -90,7 +90,12 @@ public class LocationFromS3Node extends ExpressionNode {
               bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
     }
 
-    String url = "s3://" + bucket + path;
-    return new LocationObject(location, url);
+    StringBuilder url = new StringBuilder();
+    url.append("s3://");
+    url.append(bucket);
+    if (!path.startsWith("/")) url.append("/");
+    url.append(path);
+
+    return new LocationObject(location, url.toString());
   }
 }

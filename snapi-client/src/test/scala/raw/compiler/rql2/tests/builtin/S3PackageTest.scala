@@ -51,9 +51,9 @@ import raw.testing.tags.TruffleTests
     |    S3.Build(
     |      "$UnitTestPrivateBucket",
     |      "/students.csv",
-    |      region = "${UnitTestPrivateBucketCred.region.get}",
-    |      accessKey = "${UnitTestPrivateBucketCred.accessKey.get}",
-    |      secretKey = "${UnitTestPrivateBucketCred.secretKey.get}"
+    |      region = "${UnitTestPrivateBucketCred.getRegion}",
+    |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
     |    )
     |  )
     |in
