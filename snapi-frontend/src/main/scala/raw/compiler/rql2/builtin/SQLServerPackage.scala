@@ -165,13 +165,23 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new SqlServerTableLocation(host, port, db, username, password, schema, table)(programContext.settings)
       } else {
-        programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: SqlServerJdbcLocation) =>
-            new SqlServerTableLocation(l.host, l.port, l.database, l.username, l.password, schema, table)(
+        programContext.programEnvironment.locationConfigs.get(db) match {
+          case Some(l) if l.hasSqlserver =>
+            val l1 = l.getSqlserver
+            new SqlServerTableLocation(
+              l1.getHost,
+              l1.getPort,
+              l1.getDatabase,
+              l1.getUser,
+              l1.getPassword,
+              schema,
+              table
+            )(
               programContext.settings
             )
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case Some(_) => return Left("not an Oracle server")
-          case None => return Left(s"unknown database credential: $db")
+          case None => return Left(s"unknown credential: $db")
         }
       }
     Right(SqlTableInferrerProperties(location, None))
@@ -420,11 +430,15 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension {
           getStringValue(optionalArgs.find(_._1 == "password").getOrElse(return Left("password is required"))._2)
         new SqlServerServerLocation(host, port, db, username, password)(programContext.settings)
       } else {
-        programContext.programEnvironment.jdbcServers.get(db) match {
-          case Some(l: SqlServerJdbcLocation) =>
-            new SqlServerServerLocation(l.host, l.port, l.database, l.username, l.password)(programContext.settings)
+        programContext.programEnvironment.locationConfigs.get(db) match {
+          case Some(l) if l.hasSqlserver =>
+            val l1 = l.getSqlserver
+            new SqlServerServerLocation(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)(
+              programContext.settings
+            )
+          case Some(l) if l.hasError => return Left(l.getError.getMessage)
           case Some(_) => return Left("not an Oracle server")
-          case None => return Left(s"unknown database credential: $db")
+          case None => return Left(s"unknown credential: $db")
         }
       }
     Right(SqlQueryInferrerProperties(location, query, None))

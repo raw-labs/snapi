@@ -35,8 +35,6 @@ class RD10767Test extends Rql2TruffleCompilerTestContext {
       Map.empty,
       Map.empty,
       Map.empty,
-      Map.empty,
-      Map.empty,
       None,
       None
     )
@@ -57,8 +55,6 @@ class RD10767Test extends Rql2TruffleCompilerTestContext {
       authorizedUser,
       None,
       Set.empty,
-      Map.empty,
-      Map.empty,
       Map.empty,
       Map.empty,
       Map.empty,

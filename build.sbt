@@ -1,19 +1,12 @@
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import sbt.Keys._
 import sbt._
-
-import java.time.Year
 
 import raw.build.Dependencies._
 import raw.build.BuildSettings._
 
-import java.io.IOException
-import java.nio.file.{Files, Paths}
-import java.nio.charset.StandardCharsets
-
 import scala.sys.process._
 
-import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
+import com.jsuereth.sbtpgp.PgpKeys.publishSigned
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
@@ -43,6 +36,7 @@ writeVersionToFile := {
 
 lazy val root = (project in file("."))
   .aggregate(
+    protocol,
     utils,
     sources,
     client,
@@ -108,9 +102,21 @@ lazy val sources = (project in file("sources"))
     )
   )
 
+lazy val protocol = (project in file("protocol"))
+  .enablePlugins(ProtobufPlugin)
+  .settings(
+    commonSettings,
+    commonCompileSettings,
+    testSettings,
+    ProtobufConfig / version := "3.25.4",
+    // Include the protobuf files in the JAR
+    Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
+  )
+
 lazy val client = (project in file("client"))
   .dependsOn(
-    utils % "compile->compile;test->test"
+    utils % "compile->compile;test->test",
+    protocol % "compile->compile;test->test"
   )
   .settings(
     commonSettings,

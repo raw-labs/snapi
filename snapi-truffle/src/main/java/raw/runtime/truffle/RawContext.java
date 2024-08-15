@@ -18,10 +18,10 @@ import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.Set;
 import raw.client.api.*;
 import raw.inferrer.api.InferrerService;
+import raw.protocol.LocationConfig;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
 import raw.utils.RawSettings;
@@ -98,16 +98,6 @@ public final class RawContext {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public Map<String, String> getHttpHeaders(String name) {
-    scala.Option<scala.collection.immutable.Map<String, String>> maybeHttpHeaders =
-        programEnvironment.httpHeaders().get(name);
-    if (maybeHttpHeaders.isEmpty()) {
-      throw new RawTruffleRuntimeException("unknown http credential: " + name);
-    }
-    return JavaConverters.mapAsJavaMap(maybeHttpHeaders.get());
-  }
-
-  @CompilerDirectives.TruffleBoundary
   public boolean existsSecret(String key) {
     return programEnvironment.secrets().contains(key);
   }
@@ -122,31 +112,22 @@ public final class RawContext {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public boolean existsJdbcCredential(String name) {
-    return programEnvironment.jdbcServers().contains(name);
+  public boolean existsLocationConfig(String name) {
+    return programEnvironment.locationConfigs().contains(name);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public JdbcLocation getJdbcLocation(String name) {
-    scala.Option<JdbcLocation> maybeJdbcLocation = programEnvironment.jdbcServers().get(name);
-    if (maybeJdbcLocation.isEmpty()) {
-      throw new RawTruffleRuntimeException("unknown database credential: " + name);
+  public LocationConfig getLocationConfig(String name) {
+    scala.Option<LocationConfig> maybeLocationConfig =
+        programEnvironment.locationConfigs().get(name);
+    if (maybeLocationConfig.isEmpty()) {
+      throw new RawTruffleRuntimeException("unknown credential: " + name);
     }
-    return maybeJdbcLocation.get();
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  public boolean existsS3Credential(String bucket) {
-    return programEnvironment.s3Credentials().contains(bucket);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  public S3Credential getS3Credential(String bucket) {
-    scala.Option<S3Credential> maybeCred = programEnvironment.s3Credentials().get(bucket);
-    if (maybeCred.isEmpty()) {
-      throw new RawTruffleRuntimeException("unknown S3 bucket: " + bucket);
+    LocationConfig locationConfig = maybeLocationConfig.get();
+    if (locationConfig.hasError()) {
+      throw new RawTruffleRuntimeException(locationConfig.getError().getMessage());
     }
-    return maybeCred.get();
+    return locationConfig;
   }
 
   @CompilerDirectives.TruffleBoundary

@@ -21,6 +21,7 @@ module raw.client {
   requires com.fasterxml.jackson.datatype.jsr310;
   requires com.fasterxml.jackson.datatype.jdk8;
   requires raw.utils;
+  requires raw.protocol;
 
   exports raw.client.api;
   exports raw.client.writers;

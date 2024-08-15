@@ -22,13 +22,27 @@ import scala.collection.mutable
 
 class SettingsException(message: String, cause: Throwable = null) extends RawException(message, cause)
 
-object RawSettings extends StrictLogging {
+object RawSettings {
 
-  private val alreadyLogged = new mutable.HashSet[(String, Any)]()
+  private val alreadyLoggedLock = new Object
+  private val alreadyLogged = new mutable.HashSet[(String, Any)]
+
+}
+
+class RawSettings(
+    protected val lowPriorityConfig: Config = ConfigFactory.load(),
+    protected val highPriorityConfig: Config = ConfigFactory.empty()
+) extends StrictLogging {
+
+  import RawSettings._
+
+  val config: Config = highPriorityConfig.withFallback(lowPriorityConfig)
 
   private def logOneTime(key: String, value: Any, propertyType: String): Unit = {
-    if (alreadyLogged.add((key, value))) {
-      logger.info(s"Using $key: $value ($propertyType)")
+    alreadyLoggedLock.synchronized {
+      if (alreadyLogged.add((key, value))) {
+        logger.info(s"Using $key: $value ($propertyType)")
+      }
     }
   }
 
@@ -39,16 +53,6 @@ object RawSettings extends StrictLogging {
       case ex: ConfigException => throw new SettingsException(s"error loading property: $propertyName", ex)
     }
   }
-}
-
-class RawSettings(
-    protected val lowPriorityConfig: Config = ConfigFactory.load(),
-    protected val highPriorityConfig: Config = ConfigFactory.empty()
-) extends StrictLogging {
-
-  val config: Config = highPriorityConfig.withFallback(lowPriorityConfig)
-
-  import RawSettings._
 
   def this(renderAsString: String) = {
     this(

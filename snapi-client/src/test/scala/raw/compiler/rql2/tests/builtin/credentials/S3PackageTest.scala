@@ -28,9 +28,9 @@ import raw.testing.tags.TruffleTests
     |    S3.Build(
     |      "$UnitTestPrivateBucket",
     |      "/students.csv",
-    |      region = "${UnitTestPrivateBucketCred.region.get}",
-    |      accessKey = "${UnitTestPrivateBucketCred.accessKey.get}",
-    |      secretKey = "${UnitTestPrivateBucketCred.secretKey.get}"
+    |      region = "${UnitTestPrivateBucketCred.getRegion}",
+    |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
     |    )
     |  )
     |in
@@ -47,9 +47,9 @@ import raw.testing.tags.TruffleTests
     |    S3.Build(
     |      "$unitTestPrivateBucketUsEast1",
     |      "/csvs/01",
-    |      region = "${unitTestPrivateBucketUsEast1Cred.region.get}",
-    |      accessKey = "${unitTestPrivateBucketUsEast1Cred.accessKey.get}",
-    |      secretKey = "${unitTestPrivateBucketUsEast1Cred.secretKey.get}"
+    |      region = "${unitTestPrivateBucketUsEast1Cred.getRegion}",
+    |      accessKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getSecretKey}"
     |    )
     |  )
     |in
@@ -65,8 +65,8 @@ import raw.testing.tags.TruffleTests
     |    S3.Build(
     |      "$unitTestPrivateBucketUsEast1",
     |      "/csvs/01",
-    |      accessKey = "${unitTestPrivateBucketUsEast1Cred.accessKey.get}",
-    |      secretKey = "${unitTestPrivateBucketUsEast1Cred.secretKey.get}"
+    |      accessKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getSecretKey}"
     |    )
     |  )
     |in

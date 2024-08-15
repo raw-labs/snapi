@@ -12,12 +12,11 @@
 
 package raw.client.sql
 
-import com.typesafe.scalalogging.StrictLogging
 import raw.client.api._
 
 import scala.annotation.tailrec
 
-object SqlTypesUtils extends StrictLogging {
+object SqlTypesUtils {
 
   // types accepted in @type declarations:
   // https://www.postgresql.org/docs/current/datatype-numeric.html
@@ -124,10 +123,7 @@ object SqlTypesUtils extends StrictLogging {
         }
       case _ => jdbcToRawType.get(jdbcType) match {
           case Some(rawType) => Right(rawType)
-          case None =>
-            // this is the postgres type and the internal JDBC integer type
-            logger.warn(s"unsupported type: $pgTypeName (JDBC type: #$jdbcType)")
-            Left(s"unsupported type: $pgTypeName")
+          case None => Left(s"unsupported type: $pgTypeName")
         }
     }
 

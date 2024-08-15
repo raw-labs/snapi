@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.util.control.NonFatal
 
-object RawService extends StrictLogging {
+object RawService {
 
   private[raw] val services = new LinkedBlockingQueue[RawService]
 

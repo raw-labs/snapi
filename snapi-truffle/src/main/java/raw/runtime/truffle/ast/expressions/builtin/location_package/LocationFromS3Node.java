@@ -14,7 +14,8 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.client.api.S3Credential;
+import raw.protocol.LocationConfig;
+import raw.protocol.S3Config;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.*;
@@ -53,19 +54,28 @@ public class LocationFromS3Node extends ExpressionNode {
     // The docs say:
     // "If the S3 bucket is not registered in the credentials storage, then the region, accessKey
     // and secretKey must be provided as arguments."
+    // However, if the access key/secret key are passed, they should be used.
     RawContext context = RawContext.get(this);
     S3Path location;
-
-    if (RawContext.get(this).existsS3Credential(bucket)) {
-      S3Credential cred = context.getS3Credential(bucket);
+    if (this.accessKey == null
+        && this.secretKey == null
+        && context.existsLocationConfig(bucket)
+        && context.getLocationConfig(bucket).hasS3()) {
+      LocationConfig l = context.getLocationConfig(bucket);
+      S3Config s3Config = l.getS3();
+      Option<String> maybeAccessKey =
+          (s3Config.hasAccessSecretKey())
+              ? new Some(s3Config.getAccessSecretKey().getAccessKey())
+              : None$.empty();
+      Option<String> maybeSecretKey =
+          (s3Config.hasAccessSecretKey())
+              ? new Some(s3Config.getAccessSecretKey().getSecretKey())
+              : None$.empty();
+      Option<String> maybeRegion =
+          (s3Config.hasRegion()) ? new Some(s3Config.getRegion()) : None$.empty();
       location =
           new S3Path(
-              bucket,
-              cred.region(),
-              cred.accessKey(),
-              cred.secretKey(),
-              path,
-              context.getSettings());
+              bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
     } else {
       // We actually do NOT throw an exception if the accessKey is not passed.
       // Instead, we go without it, which triggers anonymous access to the S3 bucket.

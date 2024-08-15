@@ -112,7 +112,7 @@ import raw.testing.tags.TruffleTests
 
   test(
     s"""SQLServer.InferAndRead("$sqlServDb", "$sqlServSchema", "$sqlServTable",
-      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}")""".stripMargin
+      |   host = "${sqlServerCreds.getHost}", username = "${sqlServerCreds.getUser}", password = "${sqlServerCreds.getPassword}")""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -126,7 +126,7 @@ import raw.testing.tags.TruffleTests
   test(
     s"""SQLServer.Read("$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}" )""".stripMargin
+      |   host = "${sqlServerCreds.getHost}", username = "${sqlServerCreds.getUser}", password = "${sqlServerCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should orderEvaluateTo(
       """[
@@ -141,9 +141,9 @@ import raw.testing.tags.TruffleTests
     |let
     |   d = Location.Describe(SQLServer.Build(
     |      "sqlserver://$sqlServDb/$sqlServSchema/$sqlServTable",
-    |      host = "${sqlServerCreds.host}",
-    |      username = "${sqlServerCreds.username}",
-    |      password = "${sqlServerCreds.password}"
+    |      host = "${sqlServerCreds.getHost}",
+    |      username = "${sqlServerCreds.getUser}",
+    |      password = "${sqlServerCreds.getPassword}"
     |   ))
     |in
     |  d.columns
@@ -159,20 +159,20 @@ import raw.testing.tags.TruffleTests
   // no credentials
   test(
     s"""SQLServer.InferAndRead("$sqlServDb", "$sqlServSchema", "$sqlServTable" )""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: rawtest""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: rawtest""".stripMargin))
 
   test(
     s"""SQLServer.Read("$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown database credential: $sqlServDb""".stripMargin))
+  )(it => it should runErrorAs(s"""unknown credential: $sqlServDb""".stripMargin))
 
   // server does not exist
   test(
     s"""SQLServer.Read(
       |  "$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "does-not-exist", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}"
+      |  host = "does-not-exist", username = "${sqlServerCreds.getUser}", password = "${sqlServerCreds.getPassword}"
       |)""".stripMargin
   )(it => it should runErrorAs("""error connecting to database: does-not-exist""".stripMargin))
 
@@ -182,16 +182,16 @@ import raw.testing.tags.TruffleTests
     s"""SQLServer.Read(
       |  "$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}", port = 1234
+      |  host = "${sqlServerCreds.getHost}", username = "${sqlServerCreds.getUser}", password = "${sqlServerCreds.getPassword}", port = 1234
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""connect timed out: ${sqlServerCreds.host}""".stripMargin))
+  )(it => it should runErrorAs(s"""connect timed out: ${sqlServerCreds.getHost}""".stripMargin))
 
   // No password
   test(
     s"""SQLServer.Read(
       |  "$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${sqlServerCreds.host}"
+      |  host = "${sqlServerCreds.getHost}"
       |)""".stripMargin
   )(it => it should runErrorAs("username is required"))
 
@@ -200,9 +200,9 @@ import raw.testing.tags.TruffleTests
     s"""SQLServer.Read(
       |  "$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
-      |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "wrong!"
+      |  host = "${sqlServerCreds.getHost}", username = "${sqlServerCreds.getUser}", password = "wrong!"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""Login failed for user '${sqlServerCreds.username}'""".stripMargin))
+  )(it => it should runErrorAs(s"""Login failed for user '${sqlServerCreds.getUser}'""".stripMargin))
 
   test(s"""SQLServer.InferAndQuery("$sqlServRegDb", "SELECT * FROM $sqlServSchema.$sqlServTable")""") { it =>
     it should evaluateTo(
@@ -216,7 +216,7 @@ import raw.testing.tags.TruffleTests
 
   test(
     s"""SQLServer.InferAndQuery("$sqlServDb", "SELECT * FROM $sqlServSchema.$sqlServTable",
-      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}" )""".stripMargin
+      |   host = "${sqlServerCreds.getHost}", username = "${sqlServerCreds.getUser}", password = "${sqlServerCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -242,7 +242,7 @@ import raw.testing.tags.TruffleTests
   test(
     s"""SQLServer.Query("$sqlServDb", "SELECT * FROM $sqlServSchema.$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}", password = "${sqlServerCreds.password}" )""".stripMargin
+      |   host = "${sqlServerCreds.getHost}", username = "${sqlServerCreds.getUser}", password = "${sqlServerCreds.getPassword}" )""".stripMargin
   ) { it =>
     it should evaluateTo(
       """[
@@ -259,8 +259,8 @@ import raw.testing.tags.TruffleTests
       |     Collection.Count(
       |      SQLServer.Query("$sqlServDb", "SELECT * FROM $sqlServSchema." + table,
       |      type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
-      |      host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username}",
-      |      password = "${sqlServerCreds.password}")
+      |      host = "${sqlServerCreds.getHost}", username = "${sqlServerCreds.getUser}",
+      |      password = "${sqlServerCreds.getPassword}")
       |     ))""".stripMargin
   ) { it =>
     val error =

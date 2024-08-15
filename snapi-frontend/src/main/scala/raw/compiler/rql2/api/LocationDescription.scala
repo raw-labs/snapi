@@ -37,20 +37,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
-import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{
-  JdbcLocation,
-  MySqlJdbcLocation,
-  OracleJdbcLocation,
-  PostgresJdbcLocation,
-  ProgramEnvironment,
-  SnowflakeJdbcLocation,
-  SqlServerJdbcLocation,
-  SqliteJdbcLocation,
-  TeradataJdbcLocation
-}
+import com.typesafe.config.{ConfigException, ConfigFactory}
+import raw.protocol.LocationConfig
+import raw.client.api.ProgramEnvironment
 
 import java.net.{HttpURLConnection, URI, URISyntaxException}
+import scala.collection.JavaConverters._
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
@@ -267,7 +259,7 @@ final case class TeradataTableLocationDescription(
     parameters: Map[String, String]
 ) extends LocationDescription
 
-object LocationDescription extends StrictLogging {
+object LocationDescription {
 
   val DROPBOX_REGEX = "dropbox:(?://([^/]+)?)?(.*)".r
 
@@ -280,21 +272,42 @@ object LocationDescription extends StrictLogging {
   private val reader = jsonMapper.readerFor[LocationDescription]
   private val writer = jsonMapper.writerFor[LocationDescription]
 
-  def toLocationDescription(l: JdbcLocation): LocationDescription = {
-    l match {
-      case MySqlJdbcLocation(host, port, database, username, password) =>
-        MySqlServerLocationDescription(host, port, database, username, password)
-      case OracleJdbcLocation(host, port, database, username, password) =>
-        OracleServerLocationDescription(host, port, database, username, password)
-      case PostgresJdbcLocation(host, port, database, username, password) =>
-        PostgresqlServerLocationDescription(host, port, database, username, password)
-      case SnowflakeJdbcLocation(database, username, password, accountIdentifier, parameters) =>
-        SnowflakeServerLocationDescription(database, username, password, accountIdentifier, parameters)
-      case SqliteJdbcLocation(path) => SqliteServerLocationDescription(path)
-      case SqlServerJdbcLocation(host, port, database, username, password) =>
-        SqlServerServerLocationDescription(host, port, database, username, password)
-      case TeradataJdbcLocation(host, port, database, username, password, parameters) =>
-        TeradataServerLocationDescription(host, port, database, username, password, parameters)
+  def toLocationDescription(l: LocationConfig): LocationDescription = {
+    l.getConfigCase match {
+      case LocationConfig.ConfigCase.MYSQL =>
+        val l1 = l.getMysql
+        MySqlServerLocationDescription(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)
+      case LocationConfig.ConfigCase.ORACLE =>
+        val l1 = l.getOracle
+        OracleServerLocationDescription(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)
+      case LocationConfig.ConfigCase.POSTGRESQL =>
+        val l1 = l.getPostgresql
+        PostgresqlServerLocationDescription(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)
+      case LocationConfig.ConfigCase.SNOWFLAKE =>
+        val l1 = l.getSnowflake
+        SnowflakeServerLocationDescription(
+          l1.getDatabase,
+          l1.getUser,
+          l1.getPassword,
+          l1.getAccountIdentifier,
+          l1.getParametersMap.asScala.toMap
+        )
+      case LocationConfig.ConfigCase.SQLITE =>
+        val l1 = l.getSqlite
+        SqliteServerLocationDescription(l1.getPath)
+      case LocationConfig.ConfigCase.SQLSERVER =>
+        val l1 = l.getSqlserver
+        SqlServerServerLocationDescription(l1.getHost, l1.getPort, l1.getDatabase, l1.getUser, l1.getPassword)
+      case LocationConfig.ConfigCase.TERADATA =>
+        val l1 = l.getTeradata
+        TeradataServerLocationDescription(
+          l1.getHost,
+          l1.getPort,
+          l1.getDatabase,
+          l1.getUser,
+          l1.getPassword,
+          l1.getParametersMap.asScala.toMap
+        )
     }
   }
 
@@ -369,7 +382,7 @@ object LocationDescription extends StrictLogging {
     }
   }
 
-  def toLocation(l: JdbcLocation)(implicit settings: RawSettings): Location = {
+  def toLocation(l: LocationConfig)(implicit settings: RawSettings): Location = {
     toLocation(toLocationDescription(l))
   }
 
@@ -544,6 +557,22 @@ object LocationDescription extends StrictLogging {
           )
         )
       case "file" if settings.onTrainingWheels => Right(LocalPathLocationDescription(url.substring(colonIndex + 1)))
+      case "mock" if settings.onTrainingWheels =>
+        val f = url.stripPrefix("mock:")
+        val colonIdx = f.indexOf(":")
+        if (colonIdx == -1) {
+          Left(s"not a mock location: $url: could not find properties section")
+        } else {
+          val propertiesString = f.substring(0, colonIdx)
+          val delegateUri = f.substring(colonIdx + 1)
+          try {
+            val parser = ConfigFactory.parseString(propertiesString)
+            val delay = parser.getDuration("delay").toMillis
+            urlToLocationDescription(delegateUri, programEnvironment).right.map(MockPathLocationDescription(delay, _))
+          } catch {
+            case _: ConfigException => Left("not a mock location")
+          }
+        }
       case "s3" =>
         // Build a URI to validate the URL.
         val uri = {
@@ -579,16 +608,20 @@ object LocationDescription extends StrictLogging {
 
         if (maybeAccessKey.isEmpty) {
           // If the access key/secret key are not defined, check if credential exists.
-          programEnvironment.s3Credentials.get(bucketName) match {
-            case Some(s3Credential) => Right(
+          programEnvironment.locationConfigs.get(bucketName) match {
+            case Some(l) if l.hasS3 =>
+              val s3Credential = l.getS3
+              Right(
                 S3PathLocationDescription(
                   bucketName,
-                  s3Credential.region,
-                  s3Credential.accessKey,
-                  s3Credential.secretKey,
+                  if (s3Credential.hasRegion) Some(s3Credential.getRegion) else None,
+                  if (s3Credential.hasAccessSecretKey) Some(s3Credential.getAccessSecretKey.getAccessKey) else None,
+                  if (s3Credential.hasAccessSecretKey) Some(s3Credential.getAccessSecretKey.getSecretKey) else None,
                   objectKey
                 )
               )
+            case Some(l) if l.hasError => Left(l.getError.getMessage)
+            case Some(_) => Left("not a S3 credential")
             case None =>
               // Anonymous access.
               Right(S3PathLocationDescription(bucketName, None, None, None, objectKey))
@@ -603,13 +636,37 @@ object LocationDescription extends StrictLogging {
         if (name == null) {
           return Left("missing Dropbox credential")
         }
-        programEnvironment.httpHeaders.get(name) match {
-          case Some(httpHeaders) => Right(
-              DropboxAccessTokenLocationDescription(
-                httpHeaders("Authorization").split("Bearer ")(1),
+        programEnvironment.locationConfigs.get(name) match {
+          case Some(l) if l.hasDropboxAccessToken =>
+            val dropboxAccessToken = l.getDropboxAccessToken
+            Right(DropboxAccessTokenLocationDescription(dropboxAccessToken.getAccessToken, path))
+          case Some(l) if l.hasDropboxUsernamePassword =>
+            val dropboxUsernamePassword = l.getDropboxUsernamePassword
+            Right(
+              DropboxUsernamePasswordLocationDescription(
+                dropboxUsernamePassword.getUsername,
+                dropboxUsernamePassword.getPassword,
                 path
               )
             )
+          case Some(l) if l.hasHttpHeaders =>
+            if (l.getHttpHeaders.getHeadersMap.containsKey("Authorization")) {
+              val splitted = l.getHttpHeaders.getHeadersMap.get("Authorization").split("Bearer ")
+              if (splitted.length == 2) {
+                Right(
+                  DropboxAccessTokenLocationDescription(
+                    splitted(1),
+                    path
+                  )
+                )
+              } else {
+                Left("invalid Dropbox credential")
+              }
+            } else {
+              Left("missing Dropbox credential")
+            }
+          case Some(l) if l.hasError => Left(l.getError.getMessage)
+          case Some(_) => Left("not a Dropbox credential")
           case None => Left("missing Dropbox credential")
         }
       case _ => Left(s"unsupported protocol: $protocol")

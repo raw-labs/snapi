@@ -15,11 +15,11 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.client.api.JdbcLocation;
-import raw.compiler.rql2.api.LocationDescription$;
-import raw.compiler.rql2.api.PostgresqlServerLocationDescription;
+import raw.protocol.LocationConfig;
+import raw.protocol.PostgreSQLConfig;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.pgsql.PostgresqlServerLocation;
@@ -39,17 +39,25 @@ public class LocationFromPostgreSQLCredentialNode extends ExpressionNode {
     RawContext context = RawContext.get(this);
 
     String credentialName = (String) this.credentialName.executeGeneric(frame);
-    JdbcLocation l = context.getJdbcLocation(credentialName);
+    LocationConfig l = context.getLocationConfig(credentialName);
     JdbcServerLocation location = getJdbcServerLocation(l, context.getSettings());
 
     return new LocationObject(location, "pgsql:" + credentialName);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public JdbcServerLocation getJdbcServerLocation(JdbcLocation l, RawSettings rawSettings) {
-    PostgresqlServerLocationDescription d =
-        (PostgresqlServerLocationDescription) LocationDescription$.MODULE$.toLocationDescription(l);
-    return new PostgresqlServerLocation(
-        d.host(), d.port(), d.dbName(), d.username(), d.password(), rawSettings);
+  public JdbcServerLocation getJdbcServerLocation(LocationConfig l, RawSettings rawSettings) {
+    if (l.hasPostgresql()) {
+      PostgreSQLConfig postgresql = l.getPostgresql();
+      return new PostgresqlServerLocation(
+          postgresql.getHost(),
+          postgresql.getPort(),
+          postgresql.getDatabase(),
+          postgresql.getUser(),
+          postgresql.getPassword(),
+          rawSettings);
+    } else {
+      throw new RawTruffleRuntimeException("credential is not a PostgreSQL server");
+    }
   }
 }

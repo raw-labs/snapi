@@ -13,7 +13,7 @@
 package raw.client.python
 
 import raw.client.api.{CompilerService, ExecutionSuccess, ProgramEnvironment, RawInt}
-import raw.utils.{RawTestSuite, SettingsTestContext, TrainingWheelsContext, RawUid}
+import raw.utils.{RawTestSuite, RawUid, SettingsTestContext, TrainingWheelsContext}
 
 import java.io.ByteArrayOutputStream
 
@@ -44,8 +44,6 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
       Set.empty,
       Map.empty,
       Map.empty,
-      Map.empty,
-      Map.empty,
       Map("output-format" -> "json")
     )
     val baos = new ByteArrayOutputStream()
@@ -60,8 +58,6 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
       Set.empty,
       Map.empty,
       Map.empty,
-      Map.empty,
-      Map.empty,
       Map("output-format" -> "json")
     )
     val baos = new ByteArrayOutputStream()
@@ -74,8 +70,6 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
       user,
       Some(Array("v" -> RawInt(2))),
       Set.empty,
-      Map.empty,
-      Map.empty,
       Map.empty,
       Map.empty,
       Map("output-format" -> "json")
