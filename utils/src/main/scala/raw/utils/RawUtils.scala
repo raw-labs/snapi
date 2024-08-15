@@ -25,7 +25,6 @@ import java.nio.file.{FileSystemNotFoundException, Files, Path, Paths, StandardC
 import java.util.Locale
 import java.util.concurrent.{ExecutorService, SynchronousQueue, ThreadFactory, ThreadPoolExecutor, TimeUnit}
 import java.util.zip.ZipFile
-
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
 import org.apache.commons.text.StringEscapeUtils
@@ -134,7 +133,6 @@ object RawUtils extends StrictLogging {
   def deleteTestDirectory(directory: Path): Unit = {
     withSuppressNonFatalException {
       FileUtils.deleteDirectory(directory.toFile)
-
     }
   }
 
