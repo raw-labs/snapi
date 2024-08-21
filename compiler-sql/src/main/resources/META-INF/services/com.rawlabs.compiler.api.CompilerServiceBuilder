@@ -1,1 +1,1 @@
-raw.client.sql.SqlCompilerServiceBuilder
+com.rawlabs.compiler.sql.SqlCompilerServiceBuilder

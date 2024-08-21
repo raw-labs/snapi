@@ -10,8 +10,15 @@
  * licenses/APL.txt.
  */
 
-module raw.sql.parser {
-  exports com.rawlabs.compiler.sql.generated;
+package com.rawlabs.compiler.sql
 
-  requires org.antlr.antlr4.runtime;
+import com.rawlabs.compiler.api.{CompilerService, CompilerServiceBuilder}
+import com.rawlabs.utils.core.RawSettings
+
+class SqlCompilerServiceBuilder extends CompilerServiceBuilder {
+  override def language: Set[String] = Set("sql")
+
+  override def build()(implicit settings: RawSettings): CompilerService = {
+    new SqlCompilerService()
+  }
 }

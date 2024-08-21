@@ -10,8 +10,12 @@
  * licenses/APL.txt.
  */
 
-module raw.sql.parser {
-  exports com.rawlabs.compiler.sql.generated;
+package com.rawlabs.compiler.sql.antlr4
 
-  requires org.antlr.antlr4.runtime;
+import com.rawlabs.compiler.api.Message
+
+case class RawSqlVisitorParseErrors() {
+  private var errors: List[Message] = List.empty
+  def addError(error: Message): Unit = errors = errors :+ error
+  def getErrors: List[Message] = errors
 }

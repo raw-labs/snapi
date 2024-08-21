@@ -11,6 +11,7 @@
  */
 
 import com.rawlabs.compiler.api.CompilerServiceBuilder;
+import com.rawlabs.compiler.sql.SqlCompilerServiceBuilder;
 
 module raw.sql.client {
   requires scala.library;
@@ -27,5 +28,5 @@ module raw.sql.client {
   requires com.zaxxer.hikari;
 
   provides CompilerServiceBuilder with
-      raw.client.sql.SqlCompilerServiceBuilder;
+          SqlCompilerServiceBuilder;
 }

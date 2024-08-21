@@ -10,8 +10,8 @@
  * licenses/APL.txt.
  */
 
-module raw.sql.parser {
-  exports com.rawlabs.compiler.sql.generated;
+package com.rawlabs.compiler.sql
 
-  requires org.antlr.antlr4.runtime;
+object ErrorCode {
+  val SqlErrorCode = "sqlError"
 }
