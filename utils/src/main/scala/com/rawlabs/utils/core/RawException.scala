@@ -14,7 +14,6 @@ package com.rawlabs.utils.core
 
 /**
  * Top-level Exception.
- * Message contains information that can be shared with the end-user.
- * TODO (msb): Add methods formalizing error codes, etc.
+ * Message contains information that WILL BE shared with the end-user, so ensure it does not leak sensitive information.
  */
 class RawException(message: String, cause: Throwable = null) extends RuntimeException(message, cause)

@@ -29,6 +29,12 @@ import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
 import org.apache.commons.text.StringEscapeUtils
 
+/**
+ * "Random" collection of utility methods.
+ *
+ * NOTE that this classes uses the `StrictLogging` trait from the `com.typesafe.scalalogging` package.
+ * TODO (msb): Remove StrictLogging and make logger a parameter where needed.
+ */
 object RawUtils extends StrictLogging {
 
   /**

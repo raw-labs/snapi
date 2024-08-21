@@ -85,3 +85,11 @@ trait RawService extends StrictLogging {
   protected def doStop(): Unit
 
 }
+
+/**
+ * Exception thrown by a service.
+ *
+ * @param message the exception message
+ * @param cause the exception cause
+ */
+class RawServiceException(message: String, cause: Throwable = null) extends RawException(message, cause)
