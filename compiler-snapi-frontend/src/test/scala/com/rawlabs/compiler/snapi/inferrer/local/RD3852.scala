@@ -14,7 +14,11 @@ package com.rawlabs.compiler.snapi.inferrer.local
 
 import com.rawlabs.utils.core.{RawTestSuite, RawUtils, SettingsTestContext}
 import com.typesafe.scalalogging.StrictLogging
-import com.rawlabs.compiler.snapi.inferrer.api.{AutoInferrerProperties, CsvInputFormatDescriptor, TextInputStreamFormatDescriptor}
+import com.rawlabs.compiler.snapi.inferrer.api.{
+  AutoInferrerProperties,
+  CsvInputFormatDescriptor,
+  TextInputStreamFormatDescriptor
+}
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalPath
 

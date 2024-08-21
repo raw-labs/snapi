@@ -12,7 +12,13 @@
 
 package com.rawlabs.compiler.snapi.inferrer.local.csv
 
-import com.rawlabs.compiler.snapi.inferrer.api.{SourceAnyType, SourceAttrType, SourceNullableType, SourceRecordType, SourceType}
+import com.rawlabs.compiler.snapi.inferrer.api.{
+  SourceAnyType,
+  SourceAttrType,
+  SourceNullableType,
+  SourceRecordType,
+  SourceType
+}
 import com.rawlabs.compiler.snapi.inferrer.local.MergeTypes
 
 trait CsvMergeTypes extends MergeTypes {

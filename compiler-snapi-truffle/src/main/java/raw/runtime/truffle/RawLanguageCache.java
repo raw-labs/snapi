@@ -13,6 +13,8 @@
 package raw.runtime.truffle;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.rawlabs.compiler.snapi.inferrer.api.InferrerService;
+import com.rawlabs.compiler.snapi.inferrer.api.InferrerServiceProvider;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.core.RawUid;
 import com.rawlabs.utils.core.RawUtils;
@@ -20,8 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import raw.compiler.base.CompilerContext;
-import com.rawlabs.compiler.snapi.inferrer.api.InferrerService;
-import com.rawlabs.compiler.snapi.inferrer.api.InferrerServiceProvider;
 import scala.runtime.BoxedUnit;
 
 public class RawLanguageCache {

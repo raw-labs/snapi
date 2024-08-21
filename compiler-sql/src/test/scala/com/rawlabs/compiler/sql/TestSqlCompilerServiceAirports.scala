@@ -13,7 +13,34 @@
 package com.rawlabs.compiler.sql
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
-import com.rawlabs.compiler.api.{CompilerService, ErrorMessage, ErrorPosition, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GetProgramDescriptionFailure, GetProgramDescriptionSuccess, LetBindCompletion, ParamDescription, Pos, ProgramEnvironment, RawAttrType, RawDateType, RawDecimalType, RawInt, RawIntType, RawIterableType, RawLongType, RawNull, RawRecordType, RawString, RawStringType, RawValue, TypeCompletion, ValidateResponse}
+import com.rawlabs.compiler.api.{
+  CompilerService,
+  ErrorMessage,
+  ErrorPosition,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  GetProgramDescriptionFailure,
+  GetProgramDescriptionSuccess,
+  LetBindCompletion,
+  ParamDescription,
+  Pos,
+  ProgramEnvironment,
+  RawAttrType,
+  RawDateType,
+  RawDecimalType,
+  RawInt,
+  RawIntType,
+  RawIterableType,
+  RawLongType,
+  RawNull,
+  RawRecordType,
+  RawString,
+  RawStringType,
+  RawValue,
+  TypeCompletion,
+  ValidateResponse
+}
 import com.rawlabs.compiler.sql.impl.SqlCompilerService
 import org.testcontainers.utility.DockerImageName
 import com.rawlabs.utils.core._
