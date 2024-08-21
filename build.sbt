@@ -102,6 +102,17 @@ lazy val utilsSources = (project in file("utils-sources"))
     )
   )
 
+lazy val rawProtocol = (project in file("raw-protocol"))
+  .enablePlugins(ProtobufPlugin)
+  .settings(
+    commonSettings,
+    commonCompileSettings,
+    testSettings,
+    ProtobufConfig / version := "3.25.4",
+    // Include the protobuf files in the JAR
+    Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
+  )
+
 lazy val compilerProtocol = (project in file("compiler-protocol"))
   .enablePlugins(ProtobufPlugin)
   .settings(

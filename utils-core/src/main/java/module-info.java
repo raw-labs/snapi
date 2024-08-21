@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-module raw.utils {
+module raw.utils.core {
   requires scala.library;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;

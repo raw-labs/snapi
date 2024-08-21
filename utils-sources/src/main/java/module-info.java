@@ -59,7 +59,7 @@ module raw.sources {
   requires ojdbc10;
   requires snowflake.jdbc;
   requires dropbox.core.sdk;
-  requires raw.utils;
+  requires raw.utils.core;
 
   exports com.rawlabs.utils.sources.api;
   exports com.rawlabs.utils.sources.bytestream.api;
