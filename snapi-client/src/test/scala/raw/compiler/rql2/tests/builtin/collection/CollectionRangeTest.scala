@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin.collection
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class CollectionRangeTest extends Rql2TruffleCompilerTestContext {
+class CollectionRangeTest extends Rql2TruffleCompilerTestContext {
 
   // Long.Range
 

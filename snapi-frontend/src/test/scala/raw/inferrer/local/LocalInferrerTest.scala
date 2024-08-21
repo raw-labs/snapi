@@ -16,8 +16,8 @@ import com.rawlabs.utils.core.{RawTestSuite, RawUtils, SettingsTestContext}
 import com.typesafe.scalalogging.StrictLogging
 import com.rawlabs.utils.core._
 import raw.inferrer.api._
-import raw.sources.api._
-import raw.sources.filesystem.local.LocalPath
+import com.rawlabs.utils.sources.api._
+import com.rawlabs.utils.sources.filesystem.local.LocalPath
 
 import java.io._
 import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}

@@ -16,11 +16,10 @@ import java.util.Base64
 import raw.compiler.utils._
 import raw.compiler.rql2.tests.FailAfterNServer
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
 import java.nio.file.Path
 
-@TruffleTests class StringPackageTest extends Rql2TruffleCompilerTestContext with FailAfterNServer {
+class StringPackageTest extends Rql2TruffleCompilerTestContext with FailAfterNServer {
 
   // Each line has 11 bytes so it will fail at line 10 more or less.
   override def failServices: Seq[FailAfter] = Seq(
@@ -210,10 +209,10 @@ import java.nio.file.Path
       |2022-09-14 15:09:49.862+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG r.c.client.ClientCredentialsService - Adding service: raw.creds.client.ClientCredentialsService@3f93f951
       |2022-09-14 15:09:49.863+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG raw.rest.client.RestClient - [credentials] Creating REST Client (http://localhost:42375/)
       |2022-09-14 15:09:49.907+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] INFO  raw.runtime.DriverRuntimeContext$ - Creating new instance
-      |2022-09-14 15:09:49.907+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG r.s.b.EhCacheByteStreamCache - Adding service: raw.sources.bytestream.EhCacheByteStreamCache@20ef8c7a
+      |2022-09-14 15:09:49.907+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG r.s.b.EhCacheByteStreamCache - Adding service: com.rawlabs.utils.sources.bytestream.EhCacheByteStreamCache@20ef8c7a
       |2022-09-14 15:09:49.908+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG r.s.b.EhCacheByteStreamCache - [1] Creating new instance
       |2022-09-14 15:09:49.918+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] INFO  org.ehcache.core.EhcacheManager - Cache 'is-cache' created in EhcacheManager.
-      |2022-09-14 15:09:49.920+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG r.s.f.hadoop.HadoopSourceContext - Adding service: raw.sources.filesystem.hadoop.HadoopSourceContext@72d29c48
+      |2022-09-14 15:09:49.920+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG r.s.f.hadoop.HadoopSourceContext - Adding service: com.rawlabs.utils.sources.filesystem.hadoop.HadoopSourceContext@72d29c48
       |2022-09-14 15:09:49.921+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG r.s.client.ClientStorageService - Adding service: raw.storage.client.ClientStorageService@eb7a252
       |2022-09-14 15:09:49.921+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] DEBUG raw.rest.client.RestClient - [storage] Creating REST Client (http://localhost:45231/)
       |2022-09-14 15:09:49.923+0200 [Executor task launch worker for task 0.0 in stage 0.0 (TID 0)] INFO  raw.config.RawSettings$ - Using raw.runtime.spark.worker-listener.enabled: true (boolean)

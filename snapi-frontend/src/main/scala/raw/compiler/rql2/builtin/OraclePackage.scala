@@ -38,7 +38,7 @@ import raw.inferrer.api.{
   SqlTableInferrerProperties,
   SqlTableInputFormatDescriptor
 }
-import raw.sources.jdbc.oracle.{OracleServerLocation, OracleTableLocation}
+import com.rawlabs.utils.sources.jdbc.oracle.{OracleServerLocation, OracleTableLocation}
 
 class OraclePackage extends PackageExtension {
 

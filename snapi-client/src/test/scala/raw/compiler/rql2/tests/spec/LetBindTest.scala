@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.spec
 
 import com.rawlabs.utils.core.TestData
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class LetBindTest extends Rql2TruffleCompilerTestContext with CombinationSpecTestHelper {
+class LetBindTest extends Rql2TruffleCompilerTestContext with CombinationSpecTestHelper {
 
   test("""let x = 1
     |in x

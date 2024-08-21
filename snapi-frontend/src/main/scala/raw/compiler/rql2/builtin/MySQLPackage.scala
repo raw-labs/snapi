@@ -25,7 +25,7 @@ import raw.inferrer.api.{
   SqlTableInferrerProperties,
   SqlTableInputFormatDescriptor
 }
-import raw.sources.jdbc.mysql.{MySqlServerLocation, MySqlTableLocation}
+import com.rawlabs.utils.sources.jdbc.mysql.{MySqlServerLocation, MySqlTableLocation}
 
 class MySQLPackage extends PackageExtension {
 

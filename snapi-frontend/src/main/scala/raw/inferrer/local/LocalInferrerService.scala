@@ -24,10 +24,10 @@ import raw.inferrer.local.jdbc.JdbcInferrer
 import raw.inferrer.local.json.JsonInferrer
 import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.{XmlInferrer, XmlMergeTypes}
-import raw.sources.api._
-import raw.sources.bytestream.api.ByteStreamLocation
-import raw.sources.filesystem.api.FileSystemLocation
-import raw.sources.jdbc.api.JdbcTableLocation
+import com.rawlabs.utils.sources.api._
+import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation
+import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation
+import com.rawlabs.utils.sources.jdbc.api.JdbcTableLocation
 
 import scala.util.control.NonFatal
 

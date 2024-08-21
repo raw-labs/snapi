@@ -15,11 +15,10 @@ package raw.compiler.rql2.tests.builtin.collection
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.ItemsNotComparable
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
 import java.nio.file.Path
 
-@TruffleTests class CollectionPackageTest extends Rql2TruffleCompilerTestContext {
+class CollectionPackageTest extends Rql2TruffleCompilerTestContext {
 
   // a test to check if there are multiple instances of generators
   test("""let a = Collection.Build(1,2,3),

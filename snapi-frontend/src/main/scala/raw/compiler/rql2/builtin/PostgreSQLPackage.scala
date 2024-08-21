@@ -38,7 +38,7 @@ import raw.inferrer.api.{
   SqlTableInferrerProperties,
   SqlTableInputFormatDescriptor
 }
-import raw.sources.jdbc.pgsql.{PostgresqlServerLocation, PostgresqlTableLocation}
+import com.rawlabs.utils.sources.jdbc.pgsql.{PostgresqlServerLocation, PostgresqlTableLocation}
 
 class PostgreSQLPackage extends PackageExtension {
 

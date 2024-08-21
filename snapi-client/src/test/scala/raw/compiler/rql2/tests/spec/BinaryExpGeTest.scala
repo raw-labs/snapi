@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.spec
 
 import com.rawlabs.utils.core.TestData
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class BinaryExpGeTest extends Rql2TruffleCompilerTestContext with CombinationSpecTestHelper {
+class BinaryExpGeTest extends Rql2TruffleCompilerTestContext with CombinationSpecTestHelper {
 
   test("1 >= 1")(it => it should evaluateTo("true"))
   test("1 >= 2")(it => it should evaluateTo("false"))

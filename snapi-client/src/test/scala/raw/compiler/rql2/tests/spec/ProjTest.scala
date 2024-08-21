@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class ProjTest extends Rql2TruffleCompilerTestContext {
+class ProjTest extends Rql2TruffleCompilerTestContext {
 
   test("""let a = {x: 1}
     |in a.x

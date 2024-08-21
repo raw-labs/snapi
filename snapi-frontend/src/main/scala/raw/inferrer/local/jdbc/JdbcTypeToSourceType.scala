@@ -33,7 +33,7 @@ import raw.inferrer.api.{
   SourceTimestampType,
   SourceType
 }
-import raw.sources.jdbc.api.{JdbcColumnType, NativeIntervalType, TableColumn, TableMetadata, UnsupportedColumnType}
+import com.rawlabs.utils.sources.jdbc.api.{JdbcColumnType, NativeIntervalType, TableColumn, TableMetadata, UnsupportedColumnType}
 
 import java.sql.ResultSetMetaData
 import java.sql.Types._

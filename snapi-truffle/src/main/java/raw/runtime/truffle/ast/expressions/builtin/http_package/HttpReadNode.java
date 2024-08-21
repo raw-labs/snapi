@@ -29,9 +29,9 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
-import raw.sources.api.LocationException;
-import raw.sources.bytestream.http.HttpByteStreamLocation;
-import raw.sources.bytestream.http.HttpResult;
+import com.rawlabs.utils.sources.api.LocationException;
+import com.rawlabs.utils.sources.bytestream.http.HttpByteStreamLocation;
+import com.rawlabs.utils.sources.bytestream.http.HttpResult;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;
 

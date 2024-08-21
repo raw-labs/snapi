@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.client.api._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD9409Test extends Rql2TruffleCompilerTestContext {
+class RD9409Test extends Rql2TruffleCompilerTestContext {
 
   test("""let
     |    a = 1,

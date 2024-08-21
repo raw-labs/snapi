@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import com.rawlabs.utils.core.TestData
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5488Test extends Rql2TruffleCompilerTestContext {
+class RD5488Test extends Rql2TruffleCompilerTestContext {
 
   // All these tests are valid queries. They fail in the middle of compilation, at L0, with "lines is declared more than once".
 

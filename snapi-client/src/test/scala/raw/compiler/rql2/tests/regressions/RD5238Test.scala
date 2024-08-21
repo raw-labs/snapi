@@ -14,10 +14,9 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.testing.tags.TruffleTests
+import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-@TruffleTests class RD5238Test extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
+class RD5238Test extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   test(snapi"""
     |let region1 = Csv.InferAndRead("$tpchRegionCsvLocal"),

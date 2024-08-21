@@ -18,8 +18,8 @@ import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.local._
 import raw.inferrer.local.text.TextLineIterator
 import raw.inferrer.api._
-import raw.sources.bytestream.api.SeekableInputStream
-import raw.sources.api.Encoding
+import com.rawlabs.utils.sources.bytestream.api.SeekableInputStream
+import com.rawlabs.utils.sources.api.Encoding
 
 import scala.util.control.NonFatal
 

@@ -12,7 +12,7 @@
 
 package raw.inferrer.api
 
-import raw.sources.api.Encoding
+import com.rawlabs.utils.sources.api.Encoding
 
 sealed trait InputFormatDescriptor {
   def tipe: SourceType

@@ -23,8 +23,8 @@
 //import raw.runtime.JvmEntrypoint
 //import raw.compiler.rql2._
 //import raw.compiler.rql2.source._
-//import raw.sources.LocationDescription
-//import raw.sources.bytestream.ByteStreamLocationProvider
+//import com.rawlabs.utils.sources.LocationDescription
+//import com.rawlabs.utils.sources.bytestream.ByteStreamLocationProvider
 //
 //import java.nio.charset.StandardCharsets
 //import java.util.concurrent.atomic.AtomicInteger

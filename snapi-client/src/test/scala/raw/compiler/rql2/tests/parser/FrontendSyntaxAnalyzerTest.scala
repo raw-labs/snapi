@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.parser
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class FrontendSyntaxAnalyzerTest extends Rql2TruffleCompilerTestContext {
+class FrontendSyntaxAnalyzerTest extends Rql2TruffleCompilerTestContext {
 
   // Internal node, not visible to the user parser.
   test(s"""$$package("Collection")""".stripMargin)(it => it shouldNot parse)

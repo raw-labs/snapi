@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5786Test extends Rql2TruffleCompilerTestContext {
+class RD5786Test extends Rql2TruffleCompilerTestContext {
 
   test("""true == false""") {
     _ should evaluateTo(""" false """)

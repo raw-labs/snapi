@@ -16,7 +16,7 @@ import com.rawlabs.utils.core.{RawTestSuite, SettingsTestContext}
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api._
 import raw.inferrer.local.jdbc.JdbcInferrer
-import raw.sources.jdbc.mysql.{MySqlClient, MySqlTableLocation}
+import com.rawlabs.utils.sources.jdbc.mysql.{MySqlClient, MySqlTableLocation}
 
 class RD10439 extends RawTestSuite with SettingsTestContext with StrictLogging {
 

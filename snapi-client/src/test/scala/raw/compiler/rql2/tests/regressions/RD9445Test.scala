@@ -15,12 +15,11 @@ package raw.compiler.rql2.tests.regressions
 import com.rawlabs.utils.core.TestData
 import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
 import java.nio.file.Files
 import scala.io.Source
 
-@TruffleTests class RD9445Test extends Rql2TruffleCompilerTestContext {
+class RD9445Test extends Rql2TruffleCompilerTestContext {
 
   def outputAs(expected: String, format: String = "json") = new OutputAs(expected, format)
 

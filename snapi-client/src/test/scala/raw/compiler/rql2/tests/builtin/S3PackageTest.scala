@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class S3PackageTest extends Rql2TruffleCompilerTestContext {
+class S3PackageTest extends Rql2TruffleCompilerTestContext {
 
   import raw.compiler.rql2.tests.TestCredentials._
 

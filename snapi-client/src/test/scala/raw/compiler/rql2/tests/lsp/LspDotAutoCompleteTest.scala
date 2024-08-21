@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.lsp
 
 import raw.client.api._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class LspDotAutoCompleteTest extends Rql2TruffleCompilerTestContext {
+class LspDotAutoCompleteTest extends Rql2TruffleCompilerTestContext {
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, String)]): Unit = {
     val AutoCompleteResponse(entries) = dotAutoComplete(code, Pos(line, col))

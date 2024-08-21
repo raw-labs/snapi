@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5785Test extends Rql2TruffleCompilerTestContext {
+class RD5785Test extends Rql2TruffleCompilerTestContext {
 
   // The only way of this returning true is if all values in the list are the same.
   // Almost impossible with 5 random values.

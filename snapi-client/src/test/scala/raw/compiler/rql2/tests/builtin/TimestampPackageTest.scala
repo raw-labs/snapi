@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class TimestampPackageTest extends Rql2TruffleCompilerTestContext {
+class TimestampPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("Timestamp.Build(2022, 1, 15, 9, 30)") { it =>
     it should typeAs("timestamp")

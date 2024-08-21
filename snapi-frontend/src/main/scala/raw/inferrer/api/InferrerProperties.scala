@@ -12,10 +12,10 @@
 
 package raw.inferrer.api
 
-import raw.sources.api._
-import raw.sources.bytestream.api.ByteStreamLocation
-import raw.sources.filesystem.api.FileSystemLocation
-import raw.sources.jdbc.api.{JdbcServerLocation, JdbcTableLocation}
+import com.rawlabs.utils.sources.api._
+import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation
+import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation
+import com.rawlabs.utils.sources.jdbc.api.{JdbcServerLocation, JdbcTableLocation}
 
 sealed trait InferrerProperties {
   def maybeSampleSize: Option[Int]

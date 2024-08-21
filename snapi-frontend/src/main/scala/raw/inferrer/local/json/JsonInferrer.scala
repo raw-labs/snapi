@@ -18,8 +18,8 @@ import com.fasterxml.jackson.core.exc.InputCoercionException
 import com.rawlabs.utils.core.{RawException, RawSettings}
 import raw.inferrer.api._
 import raw.inferrer.local._
-import raw.sources.api._
-import raw.sources.bytestream.api.SeekableInputStream
+import com.rawlabs.utils.sources.api._
+import com.rawlabs.utils.sources.bytestream.api.SeekableInputStream
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.NonFatal

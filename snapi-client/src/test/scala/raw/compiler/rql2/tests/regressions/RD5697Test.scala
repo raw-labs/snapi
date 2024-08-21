@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils._
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5697Test extends Rql2TruffleCompilerTestContext {
+class RD5697Test extends Rql2TruffleCompilerTestContext {
 
   private val jsonFile = tempFile("""{"a": 12, "b": 14}""")
 

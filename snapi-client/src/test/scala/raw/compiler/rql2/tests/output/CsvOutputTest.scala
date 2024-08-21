@@ -15,12 +15,11 @@ package raw.compiler.rql2.tests.output
 import com.rawlabs.utils.core.RawUtils
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils._
-import raw.testing.tags.TruffleTests
 import com.rawlabs.utils.core._
 
 import java.nio.file.Files
 
-@TruffleTests class CsvOutputTest extends Rql2TruffleCompilerTestContext {
+class CsvOutputTest extends Rql2TruffleCompilerTestContext {
 
   option("output-format", "csv")
 

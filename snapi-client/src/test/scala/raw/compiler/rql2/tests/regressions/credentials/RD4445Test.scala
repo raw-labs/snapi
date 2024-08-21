@@ -14,13 +14,12 @@ package raw.compiler.rql2.tests.regressions.credentials
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.protocol.DropboxAccessTokenConfig
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD4445Test extends Rql2TruffleCompilerTestContext {
+class RD4445Test extends Rql2TruffleCompilerTestContext {
 
   import raw.compiler.rql2.tests.TestCredentials._
 
-  property("raw.sources.dropbox.clientId", dropboxClientId)
+  property("com.rawlabs.utils.sources.dropbox.clientId", dropboxClientId)
 
   dropbox("rawlabs-dropbox", DropboxAccessTokenConfig.newBuilder().setAccessToken(dropboxLongLivedAccessToken).build())
 

@@ -16,7 +16,7 @@ import java.sql.ResultSetMetaData
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api.{SourceAttrType, SourceCollectionType, SourceRecordType, SourceType}
-import raw.sources.jdbc.api.{JdbcServerLocation, JdbcTableLocation}
+import com.rawlabs.utils.sources.jdbc.api.{JdbcServerLocation, JdbcTableLocation}
 
 import scala.collection.mutable
 

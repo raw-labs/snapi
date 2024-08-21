@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.client.api._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5851Test extends Rql2TruffleCompilerTestContext {
+class RD5851Test extends Rql2TruffleCompilerTestContext {
 
   def autoCompleteNames(entries: Array[Completion]): Seq[String] = {
     entries.map {

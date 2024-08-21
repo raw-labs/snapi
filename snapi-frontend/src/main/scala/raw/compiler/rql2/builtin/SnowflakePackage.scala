@@ -42,7 +42,7 @@ import raw.inferrer.api.{
   SqlTableInferrerProperties,
   SqlTableInputFormatDescriptor
 }
-import raw.sources.jdbc.snowflake.{SnowflakeServerLocation, SnowflakeTableLocation}
+import com.rawlabs.utils.sources.jdbc.snowflake.{SnowflakeServerLocation, SnowflakeTableLocation}
 
 class SnowflakePackage extends PackageExtension {
 

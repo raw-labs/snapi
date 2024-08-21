@@ -15,9 +15,8 @@ package raw.compiler.rql2.tests.parser
 import raw.compiler.common.source._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class OperatorPrecedenceTest extends Rql2TruffleCompilerTestContext {
+class OperatorPrecedenceTest extends Rql2TruffleCompilerTestContext {
 
   test("""1+2*3""") { it =>
     it should evaluateTo("(1+(2*3))")

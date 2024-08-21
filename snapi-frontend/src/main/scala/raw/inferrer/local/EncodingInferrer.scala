@@ -18,8 +18,8 @@ import com.rawlabs.utils.core.RawSettings
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
-import raw.sources.api._
-import raw.sources.bytestream.api.SeekableInputStream
+import com.rawlabs.utils.sources.api._
+import com.rawlabs.utils.sources.bytestream.api.SeekableInputStream
 
 private[inferrer] case class TextBuffer(reader: Reader, encoding: Encoding, confidence: Int)
 

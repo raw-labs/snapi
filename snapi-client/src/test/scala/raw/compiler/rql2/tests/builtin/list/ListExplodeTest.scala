@@ -14,10 +14,9 @@ package raw.compiler.rql2.tests.builtin.list
 
 import raw.compiler.utils._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.testing.tags.TruffleTests
+import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-@TruffleTests class ListExplodeTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
+class ListExplodeTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   private val nba = tempFile("""[
     |  {"team": {"name": "Bulls", "city": "Chicago"},

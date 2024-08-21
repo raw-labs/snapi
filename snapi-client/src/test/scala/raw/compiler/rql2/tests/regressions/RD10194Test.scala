@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD10194Test extends Rql2TruffleCompilerTestContext {
+class RD10194Test extends Rql2TruffleCompilerTestContext {
 
   private val q =
     """main(title: string = null, description: string = null, category: string = null, rating: string = null, actor: string = null) =

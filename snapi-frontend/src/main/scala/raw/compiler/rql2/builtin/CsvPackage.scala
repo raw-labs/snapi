@@ -32,7 +32,7 @@ import raw.compiler.rql2.api.{
 import raw.compiler.rql2.source._
 import raw.client.api._
 import raw.inferrer.api._
-import raw.sources.bytestream.inmemory.InMemoryByteStreamLocation
+import com.rawlabs.utils.sources.bytestream.inmemory.InMemoryByteStreamLocation
 
 class CsvPackage extends PackageExtension {
 

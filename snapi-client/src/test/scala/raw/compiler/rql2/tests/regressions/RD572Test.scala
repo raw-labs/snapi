@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD572Test extends Rql2TruffleCompilerTestContext {
+class RD572Test extends Rql2TruffleCompilerTestContext {
 
   test("-128b") { it =>
     it should typeAs("byte")

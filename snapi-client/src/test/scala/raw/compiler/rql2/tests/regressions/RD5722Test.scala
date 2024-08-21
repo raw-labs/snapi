@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5722Test extends Rql2TruffleCompilerTestContext {
+class RD5722Test extends Rql2TruffleCompilerTestContext {
 
   test("""let data = Collection.Build({
     |  a: { b: 123}

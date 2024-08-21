@@ -14,11 +14,10 @@ package raw.compiler.rql2.tests.builtin
 
 import com.google.common.collect.HashMultiset
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
 import scala.collection.JavaConverters._
 
-@TruffleTests class EnvironmentPackageTest extends Rql2TruffleCompilerTestContext {
+class EnvironmentPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("unknown secret: my-typo"))
 

@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.errors.OutputTypeRequiredForRecursiveFunction
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class LetFunRecTest extends Rql2TruffleCompilerTestContext {
+class LetFunRecTest extends Rql2TruffleCompilerTestContext {
 
   test("""let rec fact(v: int): int = if (v > 1) then v * fact(v - 1) else v
     |in fact(4)

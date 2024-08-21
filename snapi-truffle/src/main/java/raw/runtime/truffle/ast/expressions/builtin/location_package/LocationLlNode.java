@@ -29,7 +29,7 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.sources.filesystem.api.*;
+import com.rawlabs.utils.sources.filesystem.api.*;
 import com.rawlabs.utils.core.RawException;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;

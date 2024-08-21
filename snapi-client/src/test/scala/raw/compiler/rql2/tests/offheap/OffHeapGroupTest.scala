@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.offheap
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils._
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class OffHeapGroupTest extends Rql2TruffleCompilerTestContext with OffHeapDatasets {
+class OffHeapGroupTest extends Rql2TruffleCompilerTestContext with OffHeapDatasets {
 
   // This is to ensure the test triggers spill to disk.
   property("raw.runtime.external.disk-block-max-size", "20kB")

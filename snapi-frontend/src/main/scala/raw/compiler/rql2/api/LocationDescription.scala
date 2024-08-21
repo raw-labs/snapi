@@ -12,22 +12,22 @@
 
 package raw.compiler.rql2.api
 
-import raw.sources.api.Location
-import raw.sources.bytestream.github.GitHubLocation
-import raw.sources.bytestream.http.HttpByteStreamLocation
-import raw.sources.bytestream.inmemory.InMemoryByteStreamLocation
-import raw.sources.filesystem.api.FileSystemLocation
-import raw.sources.filesystem.dropbox.{DropboxAccessTokenPath, DropboxUsernamePasswordPath}
-import raw.sources.filesystem.local.LocalPath
-import raw.sources.filesystem.mock.MockPath
-import raw.sources.filesystem.s3.S3Path
-import raw.sources.jdbc.mysql.{MySqlSchemaLocation, MySqlServerLocation, MySqlTableLocation}
-import raw.sources.jdbc.oracle.{OracleSchemaLocation, OracleServerLocation, OracleTableLocation}
-import raw.sources.jdbc.pgsql.{PostgresqlSchemaLocation, PostgresqlServerLocation, PostgresqlTableLocation}
-import raw.sources.jdbc.snowflake.{SnowflakeSchemaLocation, SnowflakeServerLocation, SnowflakeTableLocation}
-import raw.sources.jdbc.sqlite.{SqliteSchemaLocation, SqliteServerLocation, SqliteTableLocation}
-import raw.sources.jdbc.sqlserver.{SqlServerSchemaLocation, SqlServerServerLocation, SqlServerTableLocation}
-import raw.sources.jdbc.teradata.{TeradataSchemaLocation, TeradataServerLocation, TeradataTableLocation}
+import com.rawlabs.utils.sources.api.Location
+import com.rawlabs.utils.sources.bytestream.github.GitHubLocation
+import com.rawlabs.utils.sources.bytestream.http.HttpByteStreamLocation
+import com.rawlabs.utils.sources.bytestream.inmemory.InMemoryByteStreamLocation
+import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation
+import com.rawlabs.utils.sources.filesystem.dropbox.{DropboxAccessTokenPath, DropboxUsernamePasswordPath}
+import com.rawlabs.utils.sources.filesystem.local.LocalPath
+import com.rawlabs.utils.sources.filesystem.mock.MockPath
+import com.rawlabs.utils.sources.filesystem.s3.S3Path
+import com.rawlabs.utils.sources.jdbc.mysql.{MySqlSchemaLocation, MySqlServerLocation, MySqlTableLocation}
+import com.rawlabs.utils.sources.jdbc.oracle.{OracleSchemaLocation, OracleServerLocation, OracleTableLocation}
+import com.rawlabs.utils.sources.jdbc.pgsql.{PostgresqlSchemaLocation, PostgresqlServerLocation, PostgresqlTableLocation}
+import com.rawlabs.utils.sources.jdbc.snowflake.{SnowflakeSchemaLocation, SnowflakeServerLocation, SnowflakeTableLocation}
+import com.rawlabs.utils.sources.jdbc.sqlite.{SqliteSchemaLocation, SqliteServerLocation, SqliteTableLocation}
+import com.rawlabs.utils.sources.jdbc.sqlserver.{SqlServerSchemaLocation, SqlServerServerLocation, SqlServerTableLocation}
+import com.rawlabs.utils.sources.jdbc.teradata.{TeradataSchemaLocation, TeradataServerLocation, TeradataTableLocation}
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}

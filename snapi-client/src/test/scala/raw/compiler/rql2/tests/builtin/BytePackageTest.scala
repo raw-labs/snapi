@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class BytePackageTest extends Rql2TruffleCompilerTestContext {
+class BytePackageTest extends Rql2TruffleCompilerTestContext {
 
   test(""" Byte.From(1)""")(it => it should evaluateTo("1b"))
 

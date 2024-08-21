@@ -20,7 +20,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.sources.filesystem.s3.S3Path;
+import com.rawlabs.utils.sources.filesystem.s3.S3Path;
 import scala.None$;
 import scala.Option;
 import scala.Some;

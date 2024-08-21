@@ -13,11 +13,10 @@
 package raw.compiler.rql2.tests.output
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
 import java.nio.file.Files
 
-@TruffleTests class TextOutputTest extends Rql2TruffleCompilerTestContext {
+class TextOutputTest extends Rql2TruffleCompilerTestContext {
 
   option("output-format", "text")
 

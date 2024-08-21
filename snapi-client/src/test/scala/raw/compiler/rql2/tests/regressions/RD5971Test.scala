@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5971Test extends Rql2TruffleCompilerTestContext {
+class RD5971Test extends Rql2TruffleCompilerTestContext {
 
   // error when type isn't supported
   test(s"""[{a: "binary", b: [1,2,3,4]}]""") { it =>

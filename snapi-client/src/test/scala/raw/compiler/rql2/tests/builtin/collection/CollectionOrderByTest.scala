@@ -15,10 +15,9 @@ package raw.compiler.rql2.tests.builtin.collection
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable, OrderSpecMustFollowOrderingFunction}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.testing.tags.TruffleTests
+import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-@TruffleTests class CollectionOrderByTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
+class CollectionOrderByTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   private val coolBandsWithoutHeader = tempFile("""Bee Gees|Maurice|Gibb|1949
     |Bee Gees|Robin|Gibb|1949

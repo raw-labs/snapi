@@ -15,11 +15,10 @@ package raw.compiler.rql2.tests.builtin.list
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.ItemsNotComparable
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
 import java.nio.file.Path
 
-@TruffleTests class ListPackageTest extends Rql2TruffleCompilerTestContext {
+class ListPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("""["Hello", Error.Build("Argh!!"), null]""") {
     _ should evaluateTo("""["Hello", Error.Build("Argh!!"), null]""")

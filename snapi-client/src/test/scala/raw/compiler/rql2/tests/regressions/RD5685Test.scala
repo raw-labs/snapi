@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5685Test extends Rql2TruffleCompilerTestContext {
+class RD5685Test extends Rql2TruffleCompilerTestContext {
 
   test("""let itemType = type int,
     |    listType = type list(itemType),

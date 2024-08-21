@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.builtin.list
 
 import raw.compiler.rql2.errors.ItemsNotComparable
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class ListMinMaxTest extends Rql2TruffleCompilerTestContext {
+class ListMinMaxTest extends Rql2TruffleCompilerTestContext {
 
   // Date
   test("""

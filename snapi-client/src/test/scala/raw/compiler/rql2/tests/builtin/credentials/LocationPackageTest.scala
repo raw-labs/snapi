@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin.credentials
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class LocationPackageTest extends Rql2TruffleCompilerTestContext {
+class LocationPackageTest extends Rql2TruffleCompilerTestContext {
 
   import raw.compiler.rql2.tests.TestCredentials._
 
@@ -23,7 +22,7 @@ import raw.testing.tags.TruffleTests
 
   s3Bucket(UnitTestPrivateBucket2, UnitTestPrivateBucket2Cred)
 
-  property("raw.sources.dropbox.clientId", dropboxClientId)
+  property("com.rawlabs.utils.sources.dropbox.clientId", dropboxClientId)
 
   test("""
     |String.Read(

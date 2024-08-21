@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class TryPackageTest extends Rql2TruffleCompilerTestContext {
+class TryPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("""Try.IsError("hi")""")(_ should evaluateTo("false"))
   test("""Try.IsError(1)""")(_ should evaluateTo("false"))

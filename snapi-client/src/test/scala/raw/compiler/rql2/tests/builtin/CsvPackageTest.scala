@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.utils._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class CsvPackageTest extends Rql2TruffleCompilerTestContext {
+class CsvPackageTest extends Rql2TruffleCompilerTestContext {
 
   val ttt = "\"\"\""
 

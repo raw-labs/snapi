@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD9137Test extends Rql2TruffleCompilerTestContext with StrictLogging {
+class RD9137Test extends Rql2TruffleCompilerTestContext with StrictLogging {
 
   test("""Json.InferAndRead("https://raw-tutorial.s3.eu-west-1.amazonaws.com/patients.json")""".stripMargin)(
     _ should run

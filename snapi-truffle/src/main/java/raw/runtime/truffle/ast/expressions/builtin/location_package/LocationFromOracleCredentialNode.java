@@ -21,8 +21,8 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.sources.jdbc.api.JdbcServerLocation;
-import raw.sources.jdbc.oracle.OracleServerLocation;
+import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
+import com.rawlabs.utils.sources.jdbc.oracle.OracleServerLocation;
 import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromOracleCredential")

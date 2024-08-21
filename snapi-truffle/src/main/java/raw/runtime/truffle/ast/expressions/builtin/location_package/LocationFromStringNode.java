@@ -20,7 +20,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.api.Location;
+import com.rawlabs.utils.sources.api.Location;
 import scala.util.Either;
 
 @NodeInfo(shortName = "Location.FromString")

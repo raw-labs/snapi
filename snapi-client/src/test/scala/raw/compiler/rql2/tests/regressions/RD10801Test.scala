@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils.SnapiInterpolator
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD10801Test extends Rql2TruffleCompilerTestContext {
+class RD10801Test extends Rql2TruffleCompilerTestContext {
 
   private val qqq = "\"\"\""
 

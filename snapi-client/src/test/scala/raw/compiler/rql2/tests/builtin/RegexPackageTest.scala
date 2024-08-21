@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RegexPackageTest extends Rql2TruffleCompilerTestContext {
+class RegexPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("""Regex.Replace("Heelloo John", "[aeiou]+", "_")""")(it => it should evaluateTo(""" "H_ll_ J_hn" """))
 

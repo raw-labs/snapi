@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class DoublePackageTest extends Rql2TruffleCompilerTestContext {
+class DoublePackageTest extends Rql2TruffleCompilerTestContext {
 
   test(""" Double.From(1)""")(it => it should evaluateTo("1.0"))
 

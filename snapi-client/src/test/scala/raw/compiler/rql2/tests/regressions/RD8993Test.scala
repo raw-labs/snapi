@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD8993Test extends Rql2TruffleCompilerTestContext {
+class RD8993Test extends Rql2TruffleCompilerTestContext {
 
   test("""apply(f: int -> bool) = f(1)
     |apply((x: int) -> true)""".stripMargin)(_ should evaluateTo("true"))

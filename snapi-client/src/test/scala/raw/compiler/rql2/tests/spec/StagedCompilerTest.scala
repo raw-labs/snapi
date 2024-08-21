@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.spec
 
 import raw.compiler.utils._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class StagedCompilerTest extends Rql2TruffleCompilerTestContext {
+class StagedCompilerTest extends Rql2TruffleCompilerTestContext {
 
   val data = tempFile("""
     |[

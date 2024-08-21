@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5932Test extends Rql2TruffleCompilerTestContext {
+class RD5932Test extends Rql2TruffleCompilerTestContext {
 
   val data = tempFile("""[
     |    {"id": 1, "network_interface": "eni-08b85cc07294f82bf"},

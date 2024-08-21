@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.lsp
 
 import raw.client.api._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class LspHoverTest extends Rql2TruffleCompilerTestContext {
+class LspHoverTest extends Rql2TruffleCompilerTestContext {
 
   test("hover identifier at definition test") { _ =>
     val code = """let

@@ -21,7 +21,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.filesystem.api.FileSystemLocation;
+import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation;
 import com.rawlabs.utils.core.RawException;
 import scala.collection.IndexedSeq;
 

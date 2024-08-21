@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD9229Test extends Rql2TruffleCompilerTestContext {
+class RD9229Test extends Rql2TruffleCompilerTestContext {
 
   test(s"""[{a: "binary", b: [1,2,3,4]}]""") { it =>
     option("output-format", "binary")

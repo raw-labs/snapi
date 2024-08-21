@@ -17,8 +17,8 @@ import java.io.Reader
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api._
 import raw.inferrer.local._
-import raw.sources.api._
-import raw.sources.bytestream.api.SeekableInputStream
+import com.rawlabs.utils.sources.api._
+import com.rawlabs.utils.sources.bytestream.api.SeekableInputStream
 
 import scala.util.control.NonFatal
 import scala.util.matching.Regex

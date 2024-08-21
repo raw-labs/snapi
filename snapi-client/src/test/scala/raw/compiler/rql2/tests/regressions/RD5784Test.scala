@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils._
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5784Test extends Rql2TruffleCompilerTestContext {
+class RD5784Test extends Rql2TruffleCompilerTestContext {
 
   private val xmlFile = tempFile("""<?xml version="1.0"?>
     |<r>

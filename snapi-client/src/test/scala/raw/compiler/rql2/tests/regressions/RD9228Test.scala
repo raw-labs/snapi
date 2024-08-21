@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD9228Test extends Rql2TruffleCompilerTestContext {
+class RD9228Test extends Rql2TruffleCompilerTestContext {
 
   // pass a plain URL. It will be turned into a location, directly passed as a parameter.
   test("""

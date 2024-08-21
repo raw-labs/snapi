@@ -38,7 +38,7 @@ import raw.inferrer.api.{
   SqlTableInferrerProperties,
   SqlTableInputFormatDescriptor
 }
-import raw.sources.jdbc.sqlserver.{SqlServerServerLocation, SqlServerTableLocation}
+import com.rawlabs.utils.sources.jdbc.sqlserver.{SqlServerServerLocation, SqlServerTableLocation}
 
 class SQLServerPackage extends PackageExtension {
 

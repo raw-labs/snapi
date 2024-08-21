@@ -27,8 +27,8 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.sources.jdbc.api.JdbcServerLocation;
-import raw.sources.jdbc.snowflake.SnowflakeServerLocation;
+import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
+import com.rawlabs.utils.sources.jdbc.snowflake.SnowflakeServerLocation;
 import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromSnowflake")

@@ -18,8 +18,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.jdbc.api.JdbcServerLocation;
-import raw.sources.jdbc.sqlserver.SqlServerServerLocation;
+import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
+import com.rawlabs.utils.sources.jdbc.sqlserver.SqlServerServerLocation;
 import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromSQLServer")

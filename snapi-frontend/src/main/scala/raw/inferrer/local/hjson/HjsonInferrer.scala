@@ -19,8 +19,8 @@ import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.inferrer.local.json.JsonUtils
 import raw.inferrer.local.text.TextLineIterator
-import raw.sources.api._
-import raw.sources.bytestream.api.SeekableInputStream
+import com.rawlabs.utils.sources.api._
+import com.rawlabs.utils.sources.bytestream.api.SeekableInputStream
 
 import java.io.Reader
 import scala.util.control.NonFatal

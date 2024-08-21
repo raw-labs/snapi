@@ -15,12 +15,11 @@ package raw.compiler.rql2.tests.regressions
 import com.rawlabs.utils.core.RawUtils
 import org.scalatest.BeforeAndAfterEach
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 import com.rawlabs.utils.core._
 
 import java.nio.file.Files
 
-@TruffleTests class RD7974Test extends Rql2TruffleCompilerTestContext with BeforeAndAfterEach {
+class RD7974Test extends Rql2TruffleCompilerTestContext with BeforeAndAfterEach {
 
   private val tmpFile = Files.createTempFile("csv-output-test", ".csv")
 

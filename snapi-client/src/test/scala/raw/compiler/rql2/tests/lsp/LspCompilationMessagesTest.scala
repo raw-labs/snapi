@@ -15,9 +15,7 @@ package raw.compiler.rql2.tests.lsp
 import raw.client.api.{ErrorMessage, WarningMessage}
 import raw.compiler.base.errors.{MissingSecretWarning, UnknownDecl}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
-
-@TruffleTests class LspCompilationMessagesTest extends Rql2TruffleCompilerTestContext {
+class LspCompilationMessagesTest extends Rql2TruffleCompilerTestContext {
 
   test("should return a waning") { _ =>
     val code = """let a = Environment.Secret("a") in a""".stripMargin

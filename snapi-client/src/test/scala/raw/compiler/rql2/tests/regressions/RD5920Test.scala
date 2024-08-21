@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5920Test extends Rql2TruffleCompilerTestContext {
+class RD5920Test extends Rql2TruffleCompilerTestContext {
 
   test("""let f(x: int) = x * 10
     |in f(10)""".stripMargin)(_ should evaluateTo("100"))

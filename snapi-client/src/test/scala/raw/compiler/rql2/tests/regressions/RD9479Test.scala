@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.utils._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD9479Test extends Rql2TruffleCompilerTestContext {
+class RD9479Test extends Rql2TruffleCompilerTestContext {
 
   private val recordData = tempFile("""[{"a": 1, "b": 10, "c": 100}]""")
 

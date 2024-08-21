@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.hints
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class SemanticAnalyzerHintsTest extends Rql2TruffleCompilerTestContext {
+class SemanticAnalyzerHintsTest extends Rql2TruffleCompilerTestContext {
 
   test("""Rekord.Build(a=1)""")(it => it should typeErrorAs("did you mean Record.Build?"))
 

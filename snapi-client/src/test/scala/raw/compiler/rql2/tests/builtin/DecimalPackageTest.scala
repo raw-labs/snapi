@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class DecimalPackageTest extends Rql2TruffleCompilerTestContext {
+class DecimalPackageTest extends Rql2TruffleCompilerTestContext {
 
   test("""Decimal.Round(Decimal.From("1.423"), 2)""") { it =>
     it should evaluateTo("""1.42q""")

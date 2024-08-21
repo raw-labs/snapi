@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.parser
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RecordSugarTest extends Rql2TruffleCompilerTestContext {
+class RecordSugarTest extends Rql2TruffleCompilerTestContext {
 
   test("""{a: 1, b: "2"}""") { it =>
     it should typeAs("record(a: int, b: string)")

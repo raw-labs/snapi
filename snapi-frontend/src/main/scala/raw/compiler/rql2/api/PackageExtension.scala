@@ -18,8 +18,8 @@ import raw.compiler.common.source._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.{ProgramContext, Rql2TypeUtils}
 import raw.client.api._
-import raw.sources.api._
-import raw.sources.bytestream.api.ByteStreamLocation
+import com.rawlabs.utils.sources.api._
+import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation
 
 import scala.annotation.nowarn
 import scala.collection.immutable.ListMap

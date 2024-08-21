@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.benchmark
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class BenchmarkTests extends Rql2TruffleCompilerTestContext {
+class BenchmarkTests extends Rql2TruffleCompilerTestContext {
 
   property("raw.training-wheels", "false")
 

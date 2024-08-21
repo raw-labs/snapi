@@ -15,10 +15,9 @@ package raw.compiler.rql2.tests.builtin.list
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.testing.tags.TruffleTests
+import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-@TruffleTests class ListOrderByTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
+class ListOrderByTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   // using String.ReadLines
   test(snapi"""let regions = List.From(Collection.Transform(

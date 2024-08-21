@@ -20,7 +20,7 @@ import java.nio.charset.Charset;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
-import raw.sources.api.Encoding;
+import com.rawlabs.utils.sources.api.Encoding;
 
 @NodeInfo(shortName = "String.Decode")
 @NodeChild(value = "string")

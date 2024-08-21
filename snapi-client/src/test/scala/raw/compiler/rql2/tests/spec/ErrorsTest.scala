@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class ErrorsTest extends Rql2TruffleCompilerTestContext {
+class ErrorsTest extends Rql2TruffleCompilerTestContext {
 
   test("""Collection.Count("a")""")(_ shouldNot tipe)
   test("""Collection.Count(Collection.Count("a"))""")(_ shouldNot tipe)

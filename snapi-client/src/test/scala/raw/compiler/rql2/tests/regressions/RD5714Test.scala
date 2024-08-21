@@ -14,11 +14,10 @@ package raw.compiler.rql2.tests.regressions
 
 import java.nio.file.Files
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
 import scala.io.Source
 
-@TruffleTests class RD5714Test extends Rql2TruffleCompilerTestContext {
+class RD5714Test extends Rql2TruffleCompilerTestContext {
 
   test("""let colA = [{id: 1, name: "john"}],
     |    colB = [{id: 2, firstName: "john"}],

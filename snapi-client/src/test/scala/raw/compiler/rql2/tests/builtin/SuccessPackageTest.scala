@@ -15,9 +15,8 @@ package raw.compiler.rql2.tests.builtin
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class SuccessPackageTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
+class SuccessPackageTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
 
   test("Success.Build(1)")(_ should evaluateTo("1"))
 

@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5644Test extends Rql2TruffleCompilerTestContext {
+class RD5644Test extends Rql2TruffleCompilerTestContext {
 
   // Basic reference behavior. The function parameter isn't type and inherits the list item type. Everything matches.
   test("""

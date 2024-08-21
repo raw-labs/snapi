@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.api
 
-import raw.sources.api.Location
+import com.rawlabs.utils.sources.api.Location
 
 sealed trait Rql2Value
 final case class Rql2StringValue(v: String) extends Rql2Value

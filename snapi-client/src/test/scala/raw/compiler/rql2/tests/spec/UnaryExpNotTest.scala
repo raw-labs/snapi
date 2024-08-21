@@ -15,9 +15,8 @@ package raw.compiler.rql2.tests.spec
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class UnaryExpNotTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
+class UnaryExpNotTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
   test("""not true""".stripMargin) { it =>
     it should typeAs("bool")
     it should evaluateTo("false")

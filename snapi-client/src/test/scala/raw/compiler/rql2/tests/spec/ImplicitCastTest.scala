@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class ImplicitCastTest extends Rql2TruffleCompilerTestContext {
+class ImplicitCastTest extends Rql2TruffleCompilerTestContext {
 
   // compatible options as function param
   test(s"""let f = (x: int) -> Record.Build(o = x)

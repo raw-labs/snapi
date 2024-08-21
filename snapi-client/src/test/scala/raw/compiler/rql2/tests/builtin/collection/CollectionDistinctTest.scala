@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.builtin.collection
 
 import raw.compiler.rql2.errors.ItemsNotComparable
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class CollectionDistinctTest extends Rql2TruffleCompilerTestContext {
+class CollectionDistinctTest extends Rql2TruffleCompilerTestContext {
 
   test("""let numbers = Collection.From([5, 2, 4, 2, 2, 4, 5])
     |in Collection.Distinct(numbers)""".stripMargin)(_ should evaluateTo("[2, 4, 5]"))

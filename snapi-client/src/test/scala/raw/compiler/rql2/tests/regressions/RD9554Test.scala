@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD9554Test extends Rql2TruffleCompilerTestContext {
+class RD9554Test extends Rql2TruffleCompilerTestContext {
 
   test("""let range = Int.Range(0,5)
     |in Collection.Union(range, range)""".stripMargin) { it =>

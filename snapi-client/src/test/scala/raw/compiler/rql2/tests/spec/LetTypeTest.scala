@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class LetTypeTest extends Rql2TruffleCompilerTestContext {
+class LetTypeTest extends Rql2TruffleCompilerTestContext {
 
   test("""
     |let t = type int,

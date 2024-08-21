@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin.credentials
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class EnvironmentPackageTest extends Rql2TruffleCompilerTestContext {
+class EnvironmentPackageTest extends Rql2TruffleCompilerTestContext {
 
   secret("my-secret", "my-secret-value")
 

@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.errors.CannotDetermineTypeOfParameter
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5393Test extends Rql2TruffleCompilerTestContext {
+class RD5393Test extends Rql2TruffleCompilerTestContext {
 
   test("""main(country: string = null,code: string = null) =
     |    let

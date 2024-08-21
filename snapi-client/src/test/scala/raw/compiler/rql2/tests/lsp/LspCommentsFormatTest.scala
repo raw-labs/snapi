@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.lsp
 
 import raw.client.api._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class LspCommentsFormatTest extends Rql2TruffleCompilerTestContext {
+class LspCommentsFormatTest extends Rql2TruffleCompilerTestContext {
 
   def assertFormattedCode(
       code: String,

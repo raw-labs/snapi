@@ -23,11 +23,11 @@ import java.nio.ByteOrder;
 import raw.compiler.rql2.api.LocationDescription;
 import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.sources.api.Location;
-import raw.sources.bytestream.api.ByteStreamLocation;
-import raw.sources.bytestream.http.HttpByteStreamLocation;
-import raw.sources.filesystem.api.FileSystemLocation;
-import raw.sources.jdbc.api.JdbcServerLocation;
+import com.rawlabs.utils.sources.api.Location;
+import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation;
+import com.rawlabs.utils.sources.bytestream.http.HttpByteStreamLocation;
+import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation;
+import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
 
 /**
  * Truffle object representing a location.

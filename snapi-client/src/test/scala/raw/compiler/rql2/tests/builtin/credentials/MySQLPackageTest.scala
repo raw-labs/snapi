@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.builtin.credentials
 
 import raw.compiler.rql2.tests.TestCredentials
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class MySQLPackageTest extends Rql2TruffleCompilerTestContext {
+class MySQLPackageTest extends Rql2TruffleCompilerTestContext {
 
   import TestCredentials._
 

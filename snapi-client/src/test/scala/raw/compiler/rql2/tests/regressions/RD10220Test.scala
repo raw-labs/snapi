@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD10220Test extends Rql2TruffleCompilerTestContext {
+class RD10220Test extends Rql2TruffleCompilerTestContext {
 
   test("""Csv.InferAndParse("stringData")""")(
     _ should (typeAs("collection(record(stringData: undefined))") and evaluateTo("[]"))

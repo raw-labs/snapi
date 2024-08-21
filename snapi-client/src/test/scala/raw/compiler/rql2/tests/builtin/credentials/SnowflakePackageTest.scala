@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.builtin.credentials
 
 import raw.compiler.rql2.tests.TestCredentials
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class SnowflakePackageTest extends Rql2TruffleCompilerTestContext {
+class SnowflakePackageTest extends Rql2TruffleCompilerTestContext {
 
   import TestCredentials._
 
@@ -76,7 +75,7 @@ import raw.testing.tags.TruffleTests
       |}]""".stripMargin)
   }
 
-  property("raw.sources.rdbms.network-timeout", "10s")
+  property("com.rawlabs.utils.sources.rdbms.network-timeout", "10s")
 
   test(s"""Snowflake.InferAndRead("snowflake", "$snowflakeSchema", "$snowflakeMainTable")""") { it =>
     it should evaluateTo(

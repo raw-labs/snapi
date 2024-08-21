@@ -14,9 +14,8 @@ package raw.compiler.rql2.tests.regressions.credentials
 
 import raw.compiler.rql2.tests.TestCredentials
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class RD5932Test extends Rql2TruffleCompilerTestContext {
+class RD5932Test extends Rql2TruffleCompilerTestContext {
 
   s3Bucket(TestCredentials.UnitTestPrivateBucket, TestCredentials.UnitTestPrivateBucketCred)
 

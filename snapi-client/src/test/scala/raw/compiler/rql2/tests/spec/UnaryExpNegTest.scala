@@ -15,9 +15,8 @@ package raw.compiler.rql2.tests.spec
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class UnaryExpNegTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
+class UnaryExpNegTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
 
   test("- 1") { it =>
     it should typeAs("int")

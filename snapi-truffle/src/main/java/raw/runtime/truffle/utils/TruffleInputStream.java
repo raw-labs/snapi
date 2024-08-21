@@ -17,8 +17,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.api.Encoding;
-import raw.sources.bytestream.api.ByteStreamLocation;
+import com.rawlabs.utils.sources.api.Encoding;
+import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation;
 import com.rawlabs.utils.core.RawException;
 import scala.util.Either;
 

@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class PackageNameTest extends Rql2TruffleCompilerTestContext {
+class PackageNameTest extends Rql2TruffleCompilerTestContext {
 
   test("""Record""")(it => it should typeAs("""package("Record")"""))
 

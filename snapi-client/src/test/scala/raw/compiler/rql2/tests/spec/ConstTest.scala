@@ -16,9 +16,8 @@ import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.compiler.rql2.source.{Rql2BoolType, Rql2IntType, Rql2StringType}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class ConstTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
+class ConstTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
 
   test("1") { it =>
     it should typeAs("int")

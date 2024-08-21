@@ -13,9 +13,8 @@
 package raw.compiler.rql2.tests.builtin.credentials
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.testing.tags.TruffleTests
 
-@TruffleTests class AwsPackageTest extends Rql2TruffleCompilerTestContext {
+class AwsPackageTest extends Rql2TruffleCompilerTestContext {
 
   val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
   val secretAccessKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")

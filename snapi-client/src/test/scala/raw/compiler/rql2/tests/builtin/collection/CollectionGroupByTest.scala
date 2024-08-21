@@ -15,10 +15,9 @@ package raw.compiler.rql2.tests.builtin.collection
 import raw.compiler.utils._
 import raw.compiler.rql2.errors.KeyNotComparable
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.testing.tags.TruffleTests
+import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-@TruffleTests class CollectionGroupByTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
+class CollectionGroupByTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 
   private val lineitemType = """record(
     |   l_orderkey: int,
