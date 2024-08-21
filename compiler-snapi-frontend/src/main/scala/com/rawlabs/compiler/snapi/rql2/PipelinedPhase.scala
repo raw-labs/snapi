@@ -14,7 +14,9 @@ package com.rawlabs.compiler.snapi.rql2
 
 import com.rawlabs.compiler.snapi.common.source.SourceProgram
 
-trait PipelinedPhase extends com.rawlabs.compiler.snapi.base.PipelinedPhase[SourceProgram] with source.SourcePrettyPrinter {
+trait PipelinedPhase
+    extends com.rawlabs.compiler.snapi.base.PipelinedPhase[SourceProgram]
+    with source.SourcePrettyPrinter {
 
   protected def baseProgramContext: com.rawlabs.compiler.snapi.base.ProgramContext
 

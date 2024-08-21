@@ -14,8 +14,10 @@ package com.rawlabs.compiler.snapi.common
 
 import com.rawlabs.compiler.snapi.common.source._
 
-final case class PhaseDescriptor(name: String, phase: Class[com.rawlabs.compiler.snapi.base.PipelinedPhase[SourceProgram]])
-    extends com.rawlabs.compiler.snapi.base.PhaseDescriptor[SourceProgram] {
+final case class PhaseDescriptor(
+    name: String,
+    phase: Class[com.rawlabs.compiler.snapi.base.PipelinedPhase[SourceProgram]]
+) extends com.rawlabs.compiler.snapi.base.PhaseDescriptor[SourceProgram] {
 
   override def instance(
       cur: com.rawlabs.compiler.snapi.base.Phase[SourceProgram],

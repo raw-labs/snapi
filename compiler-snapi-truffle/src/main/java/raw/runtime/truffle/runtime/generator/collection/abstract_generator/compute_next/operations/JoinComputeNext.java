@@ -15,8 +15,8 @@ package raw.runtime.truffle.runtime.generator.collection.abstract_generator.comp
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import java.io.File;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
+import java.io.File;
 
 public class JoinComputeNext {
   @CompilationFinal private File diskRight;

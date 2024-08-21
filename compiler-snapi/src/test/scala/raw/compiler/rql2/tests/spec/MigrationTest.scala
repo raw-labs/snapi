@@ -12,7 +12,12 @@
 
 package raw.compiler.rql2.tests.spec
 
-import com.rawlabs.compiler.snapi.rql2.source.{Rql2IntType, Rql2IsNullableTypeProperty, Rql2IsTryableTypeProperty, Rql2UndefinedType}
+import com.rawlabs.compiler.snapi.rql2.source.{
+  Rql2IntType,
+  Rql2IsNullableTypeProperty,
+  Rql2IsTryableTypeProperty,
+  Rql2UndefinedType
+}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class MigrationTest extends Rql2TruffleCompilerTestContext {

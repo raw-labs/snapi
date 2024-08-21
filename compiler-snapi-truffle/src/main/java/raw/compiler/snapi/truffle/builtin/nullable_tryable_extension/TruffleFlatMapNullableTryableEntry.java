@@ -14,12 +14,12 @@ package raw.compiler.snapi.truffle.builtin.nullable_tryable_extension;
 
 import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
 
-import java.util.List;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
 import com.rawlabs.compiler.snapi.rql2.builtin.FlatMapNullableTryableEntry;
 import com.rawlabs.compiler.snapi.rql2.source.FunType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
+import java.util.List;
 import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;

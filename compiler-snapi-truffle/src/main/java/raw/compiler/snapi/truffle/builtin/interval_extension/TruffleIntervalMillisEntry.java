@@ -12,10 +12,10 @@
 
 package raw.compiler.snapi.truffle.builtin.interval_extension;
 
-import java.util.List;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.common.source.Exp;
 import com.rawlabs.compiler.snapi.rql2.builtin.IntervalMillisEntry;
+import java.util.List;
 import raw.compiler.snapi.truffle.TruffleShortEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalMillisNodeGen;

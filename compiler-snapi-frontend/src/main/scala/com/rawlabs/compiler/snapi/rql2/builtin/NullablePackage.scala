@@ -16,7 +16,16 @@ import com.rawlabs.compiler.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, Ret
 import com.rawlabs.compiler.snapi.base.source.{AnythingType, Type}
 import com.rawlabs.compiler.snapi.rql2.source._
 import com.rawlabs.compiler.snapi.rql2._
-import com.rawlabs.compiler.snapi.rql2.api.{Arg, EntryExtension, ExpArg, ExpParam, PackageExtension, Param, TypeArg, TypeParam}
+import com.rawlabs.compiler.snapi.rql2.api.{
+  Arg,
+  EntryExtension,
+  ExpArg,
+  ExpParam,
+  PackageExtension,
+  Param,
+  TypeArg,
+  TypeParam
+}
 
 class NullablePackage extends PackageExtension {
 

@@ -14,14 +14,14 @@ package raw.compiler.snapi.truffle.builtin.collection_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
 import com.rawlabs.compiler.snapi.rql2.builtin.OrderByCollectionEntry;
 import com.rawlabs.compiler.snapi.rql2.source.FunType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2IterableType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;

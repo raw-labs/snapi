@@ -12,10 +12,10 @@
 
 package raw.compiler.snapi.truffle.builtin.environment_extension;
 
-import java.util.List;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.EnvironmentParameterEntry;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2Type;
+import java.util.List;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;

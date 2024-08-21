@@ -12,10 +12,10 @@
 
 package raw.compiler.snapi.truffle;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
+import java.util.List;
+import java.util.stream.Collectors;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 

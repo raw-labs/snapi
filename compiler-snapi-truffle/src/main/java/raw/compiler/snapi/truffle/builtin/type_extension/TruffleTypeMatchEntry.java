@@ -12,13 +12,13 @@
 
 package raw.compiler.snapi.truffle.builtin.type_extension;
 
-import java.util.Comparator;
-import java.util.List;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.TypesMerger;
 import com.rawlabs.compiler.snapi.rql2.builtin.TypeMatchEntry;
 import com.rawlabs.compiler.snapi.rql2.source.FunType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2OrType;
+import java.util.Comparator;
+import java.util.List;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;

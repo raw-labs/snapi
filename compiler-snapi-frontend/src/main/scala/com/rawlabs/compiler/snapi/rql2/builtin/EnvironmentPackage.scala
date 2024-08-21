@@ -15,7 +15,15 @@ package com.rawlabs.compiler.snapi.rql2.builtin
 import com.rawlabs.compiler.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import com.rawlabs.compiler.snapi.base.source.Type
 import com.rawlabs.compiler.snapi.rql2._
-import com.rawlabs.compiler.snapi.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param, ShortEntryExtension, TypeParam}
+import com.rawlabs.compiler.snapi.rql2.api.{
+  Arg,
+  EntryExtension,
+  ExpParam,
+  PackageExtension,
+  Param,
+  ShortEntryExtension,
+  TypeParam
+}
 import com.rawlabs.compiler.snapi.rql2.source._
 
 class EnvironmentPackage extends PackageExtension {

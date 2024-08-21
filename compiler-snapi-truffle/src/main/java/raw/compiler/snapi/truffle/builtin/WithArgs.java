@@ -12,9 +12,9 @@
 
 package raw.compiler.snapi.truffle.builtin;
 
+import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
 import java.util.List;
 import java.util.Optional;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.runtime.truffle.ExpressionNode;
 

@@ -14,9 +14,9 @@ package raw.runtime.truffle.ast.expressions.literals;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.rawlabs.compiler.snapi.rql2.api.LocationDescription$;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.sources.api.Location;
-import com.rawlabs.compiler.snapi.rql2.api.LocationDescription$;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;

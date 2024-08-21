@@ -16,7 +16,32 @@ import com.rawlabs.utils.core.RawTestSuite
 import com.rawlabs.compiler.snapi.base.source.{BaseProgram, Type}
 import com.rawlabs.compiler.snapi.common.source.{IdnDef, IdnExp, IdnUse}
 import com.rawlabs.compiler.snapi.rql2.FrontendSyntaxAnalyzer
-import com.rawlabs.compiler.snapi.rql2.source.{BinaryExp, FunAbs, FunApp, FunAppArg, FunBody, FunOptTypeParam, FunParam, FunProto, FunType, Gt, IntConst, Let, LetBind, LetFun, Rql2BoolType, Rql2FloatType, Rql2IntType, Rql2IsNullableTypeProperty, Rql2IsTryableTypeProperty, Rql2ListType, Rql2OrType, Rql2Program, Rql2StringType, Rql2TypeProperty}
+import com.rawlabs.compiler.snapi.rql2.source.{
+  BinaryExp,
+  FunAbs,
+  FunApp,
+  FunAppArg,
+  FunBody,
+  FunOptTypeParam,
+  FunParam,
+  FunProto,
+  FunType,
+  Gt,
+  IntConst,
+  Let,
+  LetBind,
+  LetFun,
+  Rql2BoolType,
+  Rql2FloatType,
+  Rql2IntType,
+  Rql2IsNullableTypeProperty,
+  Rql2IsTryableTypeProperty,
+  Rql2ListType,
+  Rql2OrType,
+  Rql2Program,
+  Rql2StringType,
+  Rql2TypeProperty
+}
 
 class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
 
