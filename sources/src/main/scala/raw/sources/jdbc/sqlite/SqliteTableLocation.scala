@@ -13,7 +13,7 @@
 package raw.sources.jdbc.sqlite
 
 import raw.sources.jdbc.api._
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class SqliteTableLocation(
     cli: SqliteClient,

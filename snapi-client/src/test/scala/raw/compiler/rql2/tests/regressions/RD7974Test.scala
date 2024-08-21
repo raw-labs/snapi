@@ -12,10 +12,11 @@
 
 package raw.compiler.rql2.tests.regressions
 
+import com.rawlabs.utils.core.RawUtils
 import org.scalatest.BeforeAndAfterEach
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
-import raw.utils._
+import com.rawlabs.utils.core._
 
 import java.nio.file.Files
 

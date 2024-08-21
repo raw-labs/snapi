@@ -12,11 +12,12 @@
 
 package raw.compiler.base
 
+import com.rawlabs.utils.core.RawUtils
 import org.apache.commons.lang3.StringUtils
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import raw.compiler.base.source._
 import raw.compiler.common.source.ErrorType
-import raw.utils._
+import com.rawlabs.utils.core._
 
 abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](
     protected val originalRoot: P,

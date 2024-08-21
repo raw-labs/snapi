@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2
 
+import com.rawlabs.utils.core.RawTestSuite
 import org.scalatest.Assertion
 import raw.compiler.rql2.source.SourceCommentsPrettyPrinter
-import raw.utils.RawTestSuite
 
 class PrettyPrintTest extends RawTestSuite {
 

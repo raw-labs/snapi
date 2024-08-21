@@ -16,7 +16,7 @@ import com.oracle.truffle.api.RootCallTarget;
 import raw.runtime.truffle.ast.io.jdbc.JdbcQuery;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 public class JdbcQueryComputeNext {
 

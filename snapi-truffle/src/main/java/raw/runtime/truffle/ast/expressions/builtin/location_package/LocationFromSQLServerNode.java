@@ -20,7 +20,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.sqlserver.SqlServerServerLocation;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromSQLServer")
 public class LocationFromSQLServerNode extends ExpressionNode {

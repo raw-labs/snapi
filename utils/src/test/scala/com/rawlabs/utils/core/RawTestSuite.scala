@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package com.rawlabs.utils.core
 
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.funsuite.FixtureAnyFunSuite

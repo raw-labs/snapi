@@ -12,8 +12,8 @@
 
 package raw.client.python
 
+import com.rawlabs.utils.core.RawSettings
 import raw.client.api.{CompilerService, CompilerServiceBuilder}
-import raw.utils.RawSettings
 
 class PythonCompilerServiceBuilder extends CompilerServiceBuilder {
   override def language: Set[String] = Set("python")

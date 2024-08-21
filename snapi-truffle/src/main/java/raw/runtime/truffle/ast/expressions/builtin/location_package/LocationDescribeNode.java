@@ -33,7 +33,7 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.utils.RawException;
+import com.rawlabs.utils.core.RawException;
 import scala.Some;
 
 // A.Z Similar implementation to Scala

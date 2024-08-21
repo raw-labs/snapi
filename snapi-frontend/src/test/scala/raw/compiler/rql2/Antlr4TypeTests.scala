@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2
 
+import com.rawlabs.utils.core.RawTestSuite
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
 import raw.compiler.rql2.source.{
@@ -36,7 +37,6 @@ import raw.compiler.rql2.source.{
   Rql2TypeProperty,
   Rql2UndefinedType
 }
-import raw.utils.RawTestSuite
 
 class Antlr4TypeTests extends RawTestSuite {
 

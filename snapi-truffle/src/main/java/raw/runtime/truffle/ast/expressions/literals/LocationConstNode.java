@@ -19,7 +19,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Location;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 public class LocationConstNode extends ExpressionNode {
 

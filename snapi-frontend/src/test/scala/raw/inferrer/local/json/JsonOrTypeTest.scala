@@ -12,11 +12,12 @@
 
 package raw.inferrer.local.json
 
+import com.rawlabs.utils.core.{RawTestSuite, SettingsTestContext, TestData}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.inferrer.api._
 import raw.inferrer.local.LocalInferrerTestContext
-import raw.utils._
+import com.rawlabs.utils.core._
 
 import java.io.StringReader
 

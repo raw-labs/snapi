@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package com.rawlabs.utils.core
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -20,7 +20,7 @@ import scala.util.control.NonFatal
 
 object RawService {
 
-  private[raw] val services = new LinkedBlockingQueue[RawService]
+  private[rawlabs] val services = new LinkedBlockingQueue[RawService]
 
   /** Used by main's to stop all created services. */
   def stopAll(): Unit = {
@@ -28,7 +28,7 @@ object RawService {
   }
 
   /** Used by test framework to assert all services were stopped. */
-  private[raw] def isStopped(): Boolean = {
+  private[rawlabs] def isStopped(): Boolean = {
     services.size() == 0
   }
 

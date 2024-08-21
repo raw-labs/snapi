@@ -10,6 +10,11 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package com.rawlabs.utils.core
 
-class RawServiceException(message: String, cause: Throwable = null) extends RawException(message, cause)
+/**
+ * Top-level Exception.
+ * Message contains information that can be shared with the end-user.
+ * TODO (msb): Add methods formalizing error codes, etc.
+ */
+class RawException(message: String, cause: Throwable = null) extends RuntimeException(message, cause)

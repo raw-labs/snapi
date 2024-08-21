@@ -12,9 +12,10 @@
 
 package raw.compiler.base
 
+import com.rawlabs.utils.core.{RawSettings, RawUid}
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api.{InferrerProperties, InferrerService, InputFormatDescriptor}
-import raw.utils._
+import com.rawlabs.utils.core._
 
 /**
  * Contains state that is shared between different programs.

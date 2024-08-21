@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2
 
+import com.rawlabs.utils.core.RawTestSuite
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import raw.compiler.common.source.{Exp, SourceNode}
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
 import raw.compiler.rql2.source.TypeExp
-import raw.utils.RawTestSuite
 
 class SyntaxAnalyzerCompareTest extends RawTestSuite {
   val triple = "\"\"\""

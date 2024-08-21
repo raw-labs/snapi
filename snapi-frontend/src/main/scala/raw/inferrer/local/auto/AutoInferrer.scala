@@ -12,6 +12,7 @@
 
 package raw.inferrer.local.auto
 
+import com.rawlabs.utils.core.RawSettings
 import java.io.Reader
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api._
@@ -23,7 +24,6 @@ import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.XmlInferrer
 import raw.sources.bytestream.api.ByteStreamLocation
 import raw.sources.filesystem.api.{DirectoryMetadata, FileSystemLocation}
-import raw.utils.RawSettings
 
 object AutoInferrer {
   private val USE_BUFFERED_SEEKABLE_IS = "raw.inferrer.local.use-buffered-seekable-is"

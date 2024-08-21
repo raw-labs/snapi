@@ -25,7 +25,7 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OffHeapGroupByKeys;
 import raw.runtime.truffle.utils.IOUtils;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 public class StaticInitializers {
 

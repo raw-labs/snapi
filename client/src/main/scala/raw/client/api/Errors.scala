@@ -13,8 +13,8 @@
 package raw.client.api
 
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import raw.utils.RawException
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
+import com.rawlabs.utils.core.RawException
 
 /**
  * Used for errors that are found during semantic analysis.

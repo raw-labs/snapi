@@ -28,7 +28,6 @@ import raw.sources.jdbc.snowflake.{SnowflakeSchemaLocation, SnowflakeServerLocat
 import raw.sources.jdbc.sqlite.{SqliteSchemaLocation, SqliteServerLocation, SqliteTableLocation}
 import raw.sources.jdbc.sqlserver.{SqlServerSchemaLocation, SqlServerServerLocation, SqlServerTableLocation}
 import raw.sources.jdbc.teradata.{TeradataSchemaLocation, TeradataServerLocation, TeradataTableLocation}
-import raw.utils.RawSettings
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
@@ -37,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import com.rawlabs.utils.core.RawSettings
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import raw.protocol.LocationConfig
 import raw.client.api.ProgramEnvironment

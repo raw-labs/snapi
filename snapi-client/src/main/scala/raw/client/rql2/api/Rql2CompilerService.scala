@@ -12,10 +12,10 @@
 
 package raw.client.rql2.api
 
+import com.rawlabs.utils.core.RawUid
 import raw.client.api.{CompilerService, Message, ProgramEnvironment}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.SourceProgram
-import raw.utils.RawUid
 
 trait Rql2CompilerService extends CompilerService {
 

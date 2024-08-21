@@ -14,7 +14,7 @@ package raw.sources.jdbc.sqlite
 
 import java.io.Closeable
 import raw.sources.jdbc.api._
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class SqliteServerLocation(val path: String)(
     implicit settings: RawSettings

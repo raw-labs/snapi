@@ -12,10 +12,10 @@
 
 package raw.inferrer.local
 
+import com.rawlabs.utils.core.{RawException, RawSettings}
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
 import raw.compiler.rql2.api.LocationDescription
-import raw.utils.{RawException, RawSettings}
 import raw.inferrer.api._
 import raw.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
 import raw.inferrer.local.csv.{CsvInferrer, CsvMergeTypes}

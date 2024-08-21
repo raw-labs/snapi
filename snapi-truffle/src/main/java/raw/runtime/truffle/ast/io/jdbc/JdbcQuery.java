@@ -21,8 +21,8 @@ import java.sql.SQLException;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcReaderRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.utils.RawException;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawException;
+import com.rawlabs.utils.core.RawSettings;
 
 public class JdbcQuery {
 

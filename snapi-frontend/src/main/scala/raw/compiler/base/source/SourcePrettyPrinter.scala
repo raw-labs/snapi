@@ -12,9 +12,10 @@
 
 package raw.compiler.base.source
 
+import com.rawlabs.utils.core.RawUtils
 import com.typesafe.scalalogging.StrictLogging
 import raw.compiler.base.{Keywords, PrettyPrinter, SyntaxAnalyzer}
-import raw.utils._
+import com.rawlabs.utils.core._
 
 import scala.language.implicitConversions
 

@@ -14,7 +14,7 @@ package raw.sources.filesystem.s3
 
 import raw.sources.bytestream.api.{ByteStreamException, SeekableInputStream}
 import raw.sources.filesystem.api.{FileSystemLocation, FileSystemMetadata}
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 import java.io.InputStream
 import java.nio.file.Path

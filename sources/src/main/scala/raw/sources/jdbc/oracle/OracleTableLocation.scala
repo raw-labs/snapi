@@ -13,7 +13,7 @@
 package raw.sources.jdbc.oracle
 
 import raw.sources.jdbc.api.JdbcTableLocation
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class OracleTableLocation(
     cli: OracleClient,

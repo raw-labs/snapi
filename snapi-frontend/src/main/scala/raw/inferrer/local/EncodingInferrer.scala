@@ -14,12 +14,12 @@ package raw.inferrer.local
 
 import java.io.{InputStream, InputStreamReader, Reader}
 import com.ibm.icu.text.CharsetDetector
+import com.rawlabs.utils.core.RawSettings
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.RawSettings
 
 private[inferrer] case class TextBuffer(reader: Reader, encoding: Encoding, confidence: Int)
 

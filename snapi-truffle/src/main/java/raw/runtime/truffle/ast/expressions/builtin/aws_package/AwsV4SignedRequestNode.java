@@ -38,7 +38,7 @@ import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 import scala.None$;
 import scala.Option;
 import scala.Some;

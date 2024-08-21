@@ -23,7 +23,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.snowflake.SnowflakeServerLocation;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromSnowflakeCredential")
 public class LocationFromSnowflakeCredentialNode extends ExpressionNode {

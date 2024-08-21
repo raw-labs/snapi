@@ -18,7 +18,7 @@ import raw.client.api._
 import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
 import raw.client.sql.metadata.UserMetadataCache
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
-import raw.utils.{RawSettings, RawUtils}
+import com.rawlabs.utils.core.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 import java.sql.{ResultSet, SQLException}

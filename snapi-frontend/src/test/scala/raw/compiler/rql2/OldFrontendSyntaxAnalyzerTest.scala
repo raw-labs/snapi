@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2
 
+import com.rawlabs.utils.core.RawTestSuite
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.common.source.{IdnDef, IdnExp, IdnUse}
 import raw.compiler.rql2.source.{
@@ -40,7 +41,6 @@ import raw.compiler.rql2.source.{
   Rql2StringType,
   Rql2TypeProperty
 }
-import raw.utils.RawTestSuite
 
 class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
 

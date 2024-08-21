@@ -14,11 +14,11 @@ package raw.client.api
 
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import org.graalvm.polyglot.Engine
-import raw.utils.{RawException, RawService, RawSettings}
 
 import java.io.OutputStream
 import scala.collection.mutable
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
+import com.rawlabs.utils.core.{RawException, RawService, RawSettings}
 
 // Exception that wraps the underlying error so that it includes the extra debug info.
 final class CompilerServiceException(

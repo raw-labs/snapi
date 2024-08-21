@@ -13,7 +13,7 @@
 package raw.sources.jdbc.mysql
 
 import raw.sources.jdbc.api.JdbcTableLocation
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class MySqlTableLocation(cli: MySqlClient, val table: String) extends JdbcTableLocation(cli, None, table) {
 

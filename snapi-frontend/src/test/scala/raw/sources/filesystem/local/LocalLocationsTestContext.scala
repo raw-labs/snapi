@@ -12,7 +12,8 @@
 
 package raw.sources.filesystem.local
 
-import raw.utils._
+import com.rawlabs.utils.core.RawUtils
+import com.rawlabs.utils.core._
 
 import java.io.File
 import java.nio.file.Path

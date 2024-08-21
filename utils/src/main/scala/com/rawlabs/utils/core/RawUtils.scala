@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package com.rawlabs.utils.core
 
 import com.google.common.io.Resources
 import com.google.common.util.concurrent.ThreadFactoryBuilder

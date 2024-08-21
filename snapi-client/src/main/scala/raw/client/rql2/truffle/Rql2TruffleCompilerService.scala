@@ -12,6 +12,7 @@
 
 package raw.client.rql2.truffle
 
+import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot._
@@ -30,7 +31,6 @@ import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.CompilerLspService
 import raw.compiler.rql2.source._
 import raw.inferrer.api.InferrerServiceProvider
-import raw.utils.{RawSettings, RawUid, RawUtils}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable

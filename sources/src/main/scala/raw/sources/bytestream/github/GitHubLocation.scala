@@ -17,7 +17,7 @@ import java.nio.file.Path
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.bytestream.http.{HttpByteStreamException, HttpByteStreamLocation}
 import raw.sources.bytestream.api.{ByteStreamException, ByteStreamLocation, SeekableInputStream}
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 // Supports only public repositories.
 class GitHubLocation(val username: String, val repo: String, val file: String, val maybeBranch: Option[String])(

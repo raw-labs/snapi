@@ -20,7 +20,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.oracle.OracleServerLocation;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromOracle")
 public class LocationFromOracleNode extends ExpressionNode {

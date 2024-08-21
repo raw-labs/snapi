@@ -12,7 +12,7 @@
 
 package raw.client.api
 
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 trait CompilerServiceBuilder {
 

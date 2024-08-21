@@ -15,7 +15,7 @@ package raw.sources.filesystem.dropbox
 import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.oauth.DbxCredential
 import com.dropbox.core.v2.DbxClientV2
-import raw.utils.RawTestSuite
+import com.rawlabs.utils.core.RawTestSuite
 import raw.sources.filesystem.api.{FileSystem, TestFileSystems}
 
 import java.io.ByteArrayInputStream

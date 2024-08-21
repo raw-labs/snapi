@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package com.rawlabs.utils.core
 
 import org.scalatest.{Args, CompositeStatus, Status}
 

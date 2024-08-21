@@ -22,7 +22,7 @@ import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.filesystem.api.FileSystemLocation;
-import raw.utils.RawException;
+import com.rawlabs.utils.core.RawException;
 import scala.collection.IndexedSeq;
 
 @NodeInfo(shortName = "String.Read")

@@ -12,8 +12,8 @@
 
 package raw.client.python
 
+import com.rawlabs.utils.core.{RawTestSuite, RawUid, SettingsTestContext, TrainingWheelsContext}
 import raw.client.api.{CompilerService, ExecutionSuccess, ProgramEnvironment, RawInt}
-import raw.utils.{RawTestSuite, RawUid, SettingsTestContext, TrainingWheelsContext}
 
 import java.io.ByteArrayOutputStream
 

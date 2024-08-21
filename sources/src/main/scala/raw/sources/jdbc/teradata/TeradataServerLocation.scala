@@ -13,7 +13,7 @@
 package raw.sources.jdbc.teradata
 
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcServerLocation}
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 import java.io.Closeable
 

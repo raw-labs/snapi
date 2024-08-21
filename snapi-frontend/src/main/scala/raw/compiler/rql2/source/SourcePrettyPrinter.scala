@@ -12,13 +12,14 @@
 
 package raw.compiler.rql2.source
 
+import com.rawlabs.utils.core.RawUtils
 import org.bitbucket.inkytonik.kiama.output._
 import raw.compiler.base
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{Keywords, Rql2TypeUtils}
-import raw.utils._
+import com.rawlabs.utils.core._
 
 import scala.collection.mutable
 

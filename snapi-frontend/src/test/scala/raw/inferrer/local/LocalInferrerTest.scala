@@ -12,8 +12,9 @@
 
 package raw.inferrer.local
 
+import com.rawlabs.utils.core.{RawTestSuite, RawUtils, SettingsTestContext}
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils._
+import com.rawlabs.utils.core._
 import raw.inferrer.api._
 import raw.sources.api._
 import raw.sources.filesystem.local.LocalPath

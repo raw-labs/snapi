@@ -12,12 +12,12 @@
 
 package raw.inferrer.local.xml
 
+import com.rawlabs.utils.core.{RawException, RawSettings}
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.{RawException, RawSettings}
 
 import java.io.Reader
 import javax.xml.stream.XMLStreamException

@@ -14,7 +14,7 @@ package raw.sources.jdbc.sqlite
 
 import raw.sources.api.LocationException
 import raw.sources.jdbc.api._
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 import java.nio.file.{InvalidPathException, Path, Paths}
 import java.sql.SQLException

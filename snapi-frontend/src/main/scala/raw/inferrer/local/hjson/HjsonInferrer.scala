@@ -14,13 +14,13 @@ package raw.inferrer.local.hjson
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.rawlabs.utils.core.{RawException, RawSettings}
 import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.inferrer.local.json.JsonUtils
 import raw.inferrer.local.text.TextLineIterator
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.{RawException, RawSettings}
 
 import java.io.Reader
 import scala.util.control.NonFatal

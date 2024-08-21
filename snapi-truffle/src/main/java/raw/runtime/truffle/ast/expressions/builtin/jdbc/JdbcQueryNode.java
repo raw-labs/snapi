@@ -21,7 +21,7 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.iterable.sources.JdbcQueryCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Jdbc.Query")
 public class JdbcQueryNode extends ExpressionNode {

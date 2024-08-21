@@ -14,7 +14,7 @@ package raw.inferrer.api
 
 import com.google.common.base.Stopwatch
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
-import raw.utils.{RawException, RawService, RawSettings, RawUtils}
+import com.rawlabs.utils.core.{RawException, RawService, RawSettings, RawUtils}
 
 import java.util.concurrent.{ExecutionException, Executors, TimeUnit, TimeoutException}
 

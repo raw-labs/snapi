@@ -12,7 +12,7 @@
 
 package raw.sources.jdbc.teradata
 
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 import raw.sources.jdbc.api._
 
 import java.net.{NoRouteToHostException, SocketTimeoutException, UnknownHostException}

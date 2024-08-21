@@ -25,7 +25,7 @@ import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.JdbcQueryComputeNext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 @ExportLibrary(InteropLibrary.class)
 public class JdbcQueryCollection implements TruffleObject {

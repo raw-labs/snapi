@@ -12,7 +12,7 @@
 
 package raw.sources.filesystem.s3
 
-import raw.utils.RawTestSuite
+import com.rawlabs.utils.core.RawTestSuite
 import raw.sources.filesystem.api.{FileSystem, TestFileSystems}
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
 import software.amazon.awssdk.core.exception.SdkClientException

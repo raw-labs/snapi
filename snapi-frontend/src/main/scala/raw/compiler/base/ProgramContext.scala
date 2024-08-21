@@ -12,7 +12,7 @@
 
 package raw.compiler.base
 
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 import raw.client.api.{CompilerService, ProgramEnvironment}
 
 /**

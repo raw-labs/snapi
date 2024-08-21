@@ -15,7 +15,7 @@ package raw.client.sql
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import org.testcontainers.utility.DockerImageName
 import raw.client.api._
-import raw.utils._
+import com.rawlabs.utils.core._
 
 import java.io.ByteArrayOutputStream
 import java.sql.DriverManager

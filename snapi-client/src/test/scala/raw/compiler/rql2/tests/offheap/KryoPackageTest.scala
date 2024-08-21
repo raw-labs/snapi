@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.tests.offheap
 
+import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
@@ -40,7 +41,7 @@ class KryoPackageTest extends Rql2TruffleCompilerTestContext with TableDrivenPro
 
   test("all") { _ =>
     forAll(cases) { (value, tpe) =>
-      raw.utils.TestData(s"""let n: $tpe = $value in Kryo.Decode(Kryo.Encode(n), type $tpe)""") should evaluateTo(value)
+      TestData(s"""let n: $tpe = $value in Kryo.Decode(Kryo.Encode(n), type $tpe)""") should evaluateTo(value)
     }
   }
 

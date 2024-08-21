@@ -12,8 +12,8 @@
 
 package raw.inferrer.api
 
+import com.rawlabs.utils.core.RawSettings
 import raw.inferrer.local.LocalInferrerService
-import raw.utils.RawSettings
 
 object InferrerServiceProvider {
 

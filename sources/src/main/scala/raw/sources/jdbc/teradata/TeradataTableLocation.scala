@@ -13,7 +13,7 @@
 package raw.sources.jdbc.teradata
 
 import raw.sources.jdbc.api.JdbcTableLocation
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class TeradataTableLocation(
     cli: TeradataClient,

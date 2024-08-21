@@ -43,8 +43,8 @@ import raw.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
-import raw.utils.RawSettings;
-import raw.utils.RawUid;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.core.RawUid;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(

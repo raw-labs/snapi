@@ -16,7 +16,7 @@ import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.oauth.DbxCredential
 import com.dropbox.core.v2.DbxClientV2
 import raw.sources.filesystem.api.{FileSystemLocation, FileSystemMetadata}
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class DropboxUsernamePasswordPath(
     val username: String,

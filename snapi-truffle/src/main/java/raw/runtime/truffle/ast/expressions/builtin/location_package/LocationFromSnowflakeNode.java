@@ -29,7 +29,7 @@ import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.snowflake.SnowflakeServerLocation;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromSnowflake")
 public class LocationFromSnowflakeNode extends ExpressionNode {

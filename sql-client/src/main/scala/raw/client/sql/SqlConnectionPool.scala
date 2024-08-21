@@ -12,7 +12,7 @@
 
 package raw.client.sql
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils.{RawService, RawSettings, RawUtils}
+import com.rawlabs.utils.core.{RawService, RawSettings, RawUtils}
 
 import java.sql.{Connection, SQLException}
 import java.time.Instant

@@ -60,7 +60,7 @@ import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 public class ComputeNextNodes {
 

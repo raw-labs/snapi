@@ -24,8 +24,7 @@ import com.fasterxml.jackson.databind.{
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
-
-import raw.utils.RawUid
+import com.rawlabs.utils.core.RawUid
 import raw.protocol.LocationConfig
 
 final case class ProgramEnvironment(

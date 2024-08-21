@@ -20,7 +20,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.jdbc.api.JdbcServerLocation;
 import raw.sources.jdbc.mysql.MySqlServerLocation;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromMySQL")
 public class LocationFromMySQLNode extends ExpressionNode {

@@ -25,8 +25,8 @@ module raw.utils {
   requires com.google.common;
   requires jul.to.slf4j;
 
-  exports raw.utils;
+  exports com.rawlabs.utils.core;
 
-  opens raw.utils to
+  opens com.rawlabs.utils.core to
       com.fasterxml.jackson.databind;
 }

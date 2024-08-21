@@ -30,7 +30,7 @@ import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 import scala.None$;
 import scala.Option;
 import scala.Some;

@@ -12,10 +12,10 @@
 
 package raw.client.python
 
+import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
 import raw.client.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
-import raw.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 

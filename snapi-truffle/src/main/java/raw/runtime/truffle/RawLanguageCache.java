@@ -19,9 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import raw.compiler.base.CompilerContext;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
-import raw.utils.RawSettings;
-import raw.utils.RawUid;
-import raw.utils.RawUtils;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.core.RawUid;
+import com.rawlabs.utils.core.RawUtils;
 import scala.runtime.BoxedUnit;
 
 public class RawLanguageCache {

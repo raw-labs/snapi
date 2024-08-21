@@ -14,7 +14,7 @@ package raw.sources.jdbc.pgsql
 
 import java.io.Closeable
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcTableLocation}
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class PostgresqlSchemaLocation(
     cli: PostgresqlClient,

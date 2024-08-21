@@ -12,10 +12,10 @@
 
 package raw.inferrer.local
 
+import com.rawlabs.utils.core.{RawTestSuite, RawUtils, SettingsTestContext}
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api.{AutoInferrerProperties, CsvInputFormatDescriptor, TextInputStreamFormatDescriptor}
 import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
 import raw.sources.filesystem.local.LocalPath
 
 class RD3852 extends RawTestSuite with SettingsTestContext with StrictLogging with LocalLocationsTestContext {

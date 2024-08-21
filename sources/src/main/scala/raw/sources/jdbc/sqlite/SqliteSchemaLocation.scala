@@ -14,7 +14,7 @@ package raw.sources.jdbc.sqlite
 
 import java.io.Closeable
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcTableLocation}
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class SqliteSchemaLocation(
     cli: SqliteClient

@@ -12,8 +12,8 @@
 
 package raw.compiler.rql2.tests.regressions
 
+import com.rawlabs.utils.core.TestData
 import org.scalatest.matchers.{MatchResult, Matcher}
-import raw.utils.TestData
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 

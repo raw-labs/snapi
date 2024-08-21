@@ -13,7 +13,7 @@
 package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils.{RawTestSuite, SettingsTestContext}
+import com.rawlabs.utils.core.{RawTestSuite, SettingsTestContext}
 
 class TestRootS3FileSystem extends RawTestSuite with SettingsTestContext with StrictLogging {
 

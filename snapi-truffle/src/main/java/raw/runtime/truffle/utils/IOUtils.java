@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.utils.RawSettings;
+import com.rawlabs.utils.core.RawSettings;
 
 public class IOUtils {
 

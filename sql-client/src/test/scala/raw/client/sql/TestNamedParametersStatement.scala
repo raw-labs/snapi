@@ -17,7 +17,7 @@ import org.bitbucket.inkytonik.kiama.util.Positions
 import org.testcontainers.utility.DockerImageName
 import raw.client.api.{RawInt, RawString}
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
-import raw.utils._
+import com.rawlabs.utils.core._
 
 import java.sql.{Connection, ResultSet}
 

@@ -12,12 +12,13 @@
 
 package raw.compiler.base
 
+import com.rawlabs.utils.core.RawUtils
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.api._
 import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source._
 import raw.compiler.rql2.antlr4.ParseProgramResult
-import raw.utils._
+import com.rawlabs.utils.core._
 
 abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](
     val originalSource: String,

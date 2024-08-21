@@ -14,7 +14,7 @@ package raw.sources.jdbc.snowflake
 
 import java.io.Closeable
 import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcTableLocation}
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class SnowflakeSchemaLocation(
     cli: SnowflakeClient,

@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.antlr4
 
+import com.rawlabs.utils.core.RawUtils
 import org.antlr.v4.runtime.ParserRuleContext
 import org.apache.commons.codec.binary.Hex
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
@@ -21,7 +22,6 @@ import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
 import raw.compiler.rql2.source._
-import raw.utils.RawUtils
 
 import scala.collection.JavaConverters._
 import scala.util.Try

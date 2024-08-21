@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package com.rawlabs.utils.core
 
 final case class RawUid(uid: String) {
   override def toString: String = uid

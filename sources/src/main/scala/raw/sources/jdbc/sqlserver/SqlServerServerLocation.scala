@@ -14,7 +14,7 @@ package raw.sources.jdbc.sqlserver
 
 import java.io.Closeable
 import raw.sources.jdbc.api._
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 class SqlServerServerLocation(
     val host: String,

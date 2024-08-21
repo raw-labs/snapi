@@ -13,7 +13,7 @@
 package raw.sources.jdbc.snowflake
 
 import raw.sources.jdbc.api.JdbcTableLocation
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 import scala.collection.JavaConverters._
 

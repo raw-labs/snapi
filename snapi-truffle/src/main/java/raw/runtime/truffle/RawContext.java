@@ -24,8 +24,8 @@ import raw.inferrer.api.InferrerService;
 import raw.protocol.LocationConfig;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
-import raw.utils.RawSettings;
-import raw.utils.RawUid;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.core.RawUid;
 import scala.collection.JavaConverters;
 
 public final class RawContext {

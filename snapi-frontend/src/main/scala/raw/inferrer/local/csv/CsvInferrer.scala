@@ -12,6 +12,7 @@
 
 package raw.inferrer.local.csv
 
+import com.rawlabs.utils.core.{RawException, RawSettings}
 import java.io.Reader
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.local._
@@ -19,7 +20,6 @@ import raw.inferrer.local.text.TextLineIterator
 import raw.inferrer.api._
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.api.Encoding
-import raw.utils.{RawException, RawSettings}
 
 import scala.util.control.NonFatal
 

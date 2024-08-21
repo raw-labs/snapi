@@ -16,7 +16,7 @@ import com.dropbox.core.DbxRequestConfig
 import com.dropbox.core.oauth.DbxCredential
 import com.dropbox.core.v2.DbxClientV2
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils.{RawTestSuite, SettingsTestContext}
+import com.rawlabs.utils.core.{RawTestSuite, SettingsTestContext}
 
 class TestRootDropboxFileSystem extends RawTestSuite with SettingsTestContext with StrictLogging {
 

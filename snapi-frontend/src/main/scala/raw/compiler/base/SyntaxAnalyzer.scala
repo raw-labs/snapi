@@ -12,11 +12,12 @@
 
 package raw.compiler.base
 
+import com.rawlabs.utils.core.RawUtils
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.parsing._
 import org.bitbucket.inkytonik.kiama.util._
 import raw.compiler.base.source._
-import raw.utils._
+import com.rawlabs.utils.core._
 
 import scala.util.matching.Regex
 

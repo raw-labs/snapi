@@ -13,7 +13,7 @@
 package raw.sources.bytestream.http
 
 import raw.sources.bytestream.api.{ByteStreamException, ByteStreamLocation, SeekableInputStream}
-import raw.utils.RawSettings
+import com.rawlabs.utils.core.RawSettings
 
 import java.io.InputStream
 import java.net.{HttpURLConnection, MalformedURLException, URI, URISyntaxException}

@@ -14,7 +14,7 @@ package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.{RawTestSuite, SettingsTestContext}
+import com.rawlabs.utils.core.{RawTestSuite, SettingsTestContext}
 
 import scala.collection.mutable
 

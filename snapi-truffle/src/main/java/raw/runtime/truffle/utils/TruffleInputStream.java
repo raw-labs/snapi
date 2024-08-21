@@ -19,7 +19,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Encoding;
 import raw.sources.bytestream.api.ByteStreamLocation;
-import raw.utils.RawException;
+import com.rawlabs.utils.core.RawException;
 import scala.util.Either;
 
 public class TruffleInputStream {

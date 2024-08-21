@@ -12,13 +12,13 @@
 
 package raw.inferrer.local.text
 
+import com.rawlabs.utils.core.{RawException, RawSettings}
 import java.io.Reader
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.{RawException, RawSettings}
 
 import scala.util.control.NonFatal
 import scala.util.matching.Regex

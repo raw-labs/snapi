@@ -12,8 +12,8 @@
 
 package raw.inferrer.local
 
+import com.rawlabs.utils.core.{RawTestSuite, SettingsTestContext}
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.{RawTestSuite, SettingsTestContext}
 
 trait LocalInferrerTestContext extends BeforeAndAfterAll {
   this: RawTestSuite with SettingsTestContext =>
