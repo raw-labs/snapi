@@ -12,7 +12,18 @@
 
 package com.rawlabs.sql.compiler
 
-import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlFunctionCall, SqlIdentifierNode, SqlKeywordNode, SqlProgramNode, SqlProjNode, SqlStatementNode, SqlStringLiteralNode, SqlWithComaSeparatorNode}
+import com.rawlabs.sql.compiler.antlr4.{
+  ParseProgramResult,
+  RawSqlSyntaxAnalyzer,
+  SqlFunctionCall,
+  SqlIdentifierNode,
+  SqlKeywordNode,
+  SqlProgramNode,
+  SqlProjNode,
+  SqlStatementNode,
+  SqlStringLiteralNode,
+  SqlWithComaSeparatorNode
+}
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.scalatest.funsuite.AnyFunSuite
 

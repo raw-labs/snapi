@@ -24,8 +24,8 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.utils.RecordFieldsNaming;
+import com.rawlabs.snapi.truffle.runtime.RawLanguage;
 import java.util.Arrays;
 import java.util.Vector;
 

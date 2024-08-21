@@ -40,7 +40,7 @@ lazy val root = (project in file("."))
     utilsCore,
     utilsSources,
     compilerApi,
-    compilerSnapiParser,
+    snapiParser,
     compilerSnapiFrontend,
     snapiTruffle,
     compilerSnapi,
@@ -136,7 +136,7 @@ lazy val compilerApi = (project in file("compiler-api"))
     libraryDependencies += trufflePolyglot
   )
 
-lazy val compilerSnapiParser = (project in file("compiler-snapi-parser"))
+lazy val snapiParser = (project in file("snapi-parser"))
   .enablePlugins(GenParserPlugin)
   .settings(
     commonSettings,
@@ -144,9 +144,9 @@ lazy val compilerSnapiParser = (project in file("compiler-snapi-parser"))
     javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
       (
-        s"${javaSrcBasePath.value}/com/rawlabs/compiler/snapi/generated",
-        "com.rawlabs.compiler.snapi.generated",
-        s"${javaSrcBasePath.value}/com/rawlabs/compiler/snapi/grammar",
+        s"${javaSrcBasePath.value}/com/rawlabs/snapi/parser/generated",
+        "com.rawlabs.snapi.parser.generated",
+        s"${javaSrcBasePath.value}/com/rawlabs/snapi/parser/grammar",
         "Snapi"
       )
     ),
@@ -162,7 +162,7 @@ lazy val compilerSnapiFrontend = (project in file("compiler-snapi-frontend"))
     utilsCore % "compile->compile;test->test",
     compilerApi % "compile->compile;test->test",
     utilsSources % "compile->compile;test->test",
-    compilerSnapiParser % "compile->compile;test->test"
+    snapiParser % "compile->compile;test->test"
   )
   .settings(
     commonSettings,

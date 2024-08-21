@@ -20,7 +20,7 @@ import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import com.rawlabs.compiler.snapi.base.source.Type
 import com.rawlabs.compiler.snapi.common.source._
 import com.rawlabs.compiler.snapi.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
-import com.rawlabs.compiler.snapi.generated.{SnapiParser, SnapiParserBaseVisitor}
+import com.rawlabs.snapi.parser.generated.{SnapiParser, SnapiParserBaseVisitor}
 import com.rawlabs.compiler.snapi.rql2.source._
 
 import scala.collection.JavaConverters._

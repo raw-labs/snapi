@@ -13,8 +13,35 @@
 package com.rawlabs.sql.compiler
 
 import com.rawlabs.compiler.api
-import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange, RawBinary, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue}
-import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, SqlBaseNode, SqlParamDefaultCommentNode, SqlParamTypeCommentNode, SqlProgramNode, SqlStatementNode}
+import com.rawlabs.compiler.api.{
+  ErrorMessage,
+  ErrorPosition,
+  ErrorRange,
+  RawBinary,
+  RawBool,
+  RawByte,
+  RawDate,
+  RawDecimal,
+  RawDouble,
+  RawFloat,
+  RawInt,
+  RawInterval,
+  RawLong,
+  RawNull,
+  RawShort,
+  RawString,
+  RawTime,
+  RawTimestamp,
+  RawValue
+}
+import com.rawlabs.sql.compiler.antlr4.{
+  ParseProgramResult,
+  SqlBaseNode,
+  SqlParamDefaultCommentNode,
+  SqlParamTypeCommentNode,
+  SqlProgramNode,
+  SqlStatementNode
+}
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.util.Position
 import org.postgresql.util.PSQLException

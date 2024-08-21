@@ -19,7 +19,7 @@ import org.bitbucket.inkytonik.kiama.parsing.Parsers
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source, StringSource}
 import com.rawlabs.compiler.snapi.base.source.Type
 import com.rawlabs.compiler.snapi.common.source.SourceProgram
-import com.rawlabs.compiler.snapi.generated.{SnapiLexer, SnapiParser}
+import com.rawlabs.snapi.parser.generated.{SnapiLexer, SnapiParser}
 import com.rawlabs.compiler.snapi.rql2.source.Rql2Program
 
 abstract class ParseResult(errors: List[Message]) {

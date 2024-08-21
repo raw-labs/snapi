@@ -10,9 +10,9 @@ on:
       - compiler-api/**
       - compiler-snapi/**
       - compiler-snapi-frontend/**
-      - compiler-snapi-truffle/**
-      - compiler-python/**
-      - compiler-sql/**
+      - snapi-truffle/**
+      - python-compiler/**
+      - sql-compiler/**
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
@@ -46,8 +46,8 @@ jobs:
         component:
           - compiler-snapi-frontend
           - compiler-snapi
-          - compiler-sql
-          - compiler-python
+          - sql-compiler
+          - python-python
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4

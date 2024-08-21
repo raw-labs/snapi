@@ -60,55 +60,34 @@ module raw.snapi.truffle {
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       com.rawlabs.snapi.truffle.runtime.RawLanguageProvider;
   provides com.rawlabs.compiler.snapi.rql2.api.EntryExtension with
-      com.rawlabs.snapi.truffle.emitter.builtin.aws_extension
-          .TruffleAwsV4SignedRequestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.aws_extension.TruffleAwsV4SignedRequestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.byte_extension.TruffleByteFromEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleEmptyCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleBuildCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleFilterCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleOrderByCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleEmptyCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleBuildCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleFilterCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleOrderByCollectionEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
           .TruffleTransformCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleDistinctCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleCountCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleTupleAvgCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleMinCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleMaxCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleSumCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleFirstCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleLastCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleTakeCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleUnnestCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleFromCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleGroupCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleDistinctCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleCountCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleTupleAvgCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleMinCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleMaxCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleSumCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleFirstCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleLastCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleTakeCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleUnnestCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleFromCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleGroupCollectionEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
           .TruffleInternalJoinCollectionEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
           .TruffleInternalEquiJoinCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleUnionCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleExistsCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleZipCollectionEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension
-          .TruffleMkStringCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleUnionCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleExistsCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleZipCollectionEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleMkStringCollectionEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.csv_extension.TruffleCsvReadEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.csv_extension.TruffleCsvParseEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.decimal_extension.TruffleDecimalFromEntry,
@@ -116,14 +95,11 @@ module raw.snapi.truffle {
       com.rawlabs.snapi.truffle.emitter.builtin.environment_extension
           .TruffleEnvironmentParameterEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.error_extension.TruffleErrorBuildEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.error_extension
-          .TruffleErrorBuildWithTypeEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.error_extension.TruffleErrorBuildWithTypeEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.error_extension.TruffleErrorGetEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.float_extension.TruffleFloatFromEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.function_extension
-          .TruffleFunctionInvokeAfterEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleBuildIntervalEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.function_extension.TruffleFunctionInvokeAfterEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleBuildIntervalEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.int_extension.TruffleIntFromEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.int_extension.TruffleIntRangeEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.json_extension.TruffleReadJsonEntry,
@@ -146,45 +122,32 @@ module raw.snapi.truffle {
       com.rawlabs.snapi.truffle.emitter.builtin.list_extension.TruffleGroupListEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.list_extension.TruffleExistsListEntry,
       TruffleLocationFromStringEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.location_extension
-          .TruffleLocationDescribeEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.location_extension.TruffleLocationDescribeEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.location_extension.TruffleLocationLsEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.location_extension.TruffleLocationLlEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.long_extension.TruffleLongFromEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.long_extension.TruffleLongRangeEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.math_extension.TruffleMathAbsEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.mysql_extension.TruffleMySQLQueryEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension
-          .TruffleNullableEmptyEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension
-          .TruffleNullableBuildEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension
-          .TruffleNullableIsNullEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension
-          .TruffleNullableUnsafeGetEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension
-          .TruffleNullableTransformEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension.TruffleNullableEmptyEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension.TruffleNullableBuildEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension.TruffleNullableIsNullEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension.TruffleNullableUnsafeGetEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.nullable_extension.TruffleNullableTransformEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.nullable_tryable_extension
           .TruffleFlatMapNullableTryableEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.oracle_extension.TruffleOracleQueryEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.postgresql_extension
-          .TrufflePostgreSQLQueryEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.postgresql_extension.TrufflePostgreSQLQueryEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.record_extension.TruffleRecordBuildEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.record_extension.TruffleRecordConcatEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.record_extension.TruffleRecordFieldsEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.record_extension
-          .TruffleRecordAddFieldEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.record_extension
-          .TruffleRecordRemoveFieldEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.record_extension
-          .TruffleRecordGetFieldByIndexEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.snowflake_extension
-          .TruffleSnowflakeQueryEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.record_extension.TruffleRecordAddFieldEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.record_extension.TruffleRecordRemoveFieldEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.record_extension.TruffleRecordGetFieldByIndexEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.snowflake_extension.TruffleSnowflakeQueryEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateBuildEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.date_extension
-          .TruffleDateFromEpochDayEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.date_extension
-          .TruffleDateFromTimestampEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateFromEpochDayEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateFromTimestampEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateParseEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateNowEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateYearEntry,
@@ -192,35 +155,21 @@ module raw.snapi.truffle {
       com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateDayEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateSubtractEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateAddIntervalEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.date_extension
-          .TruffleDateSubtractIntervalEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.date_extension.TruffleDateSubtractIntervalEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.decimal_extension.TruffleDecimalRoundEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.environment_extension
-          .TruffleEnvironmentSecretEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.environment_extension
-          .TruffleEnvironmentScopesEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalToMillisEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalFromMillisEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalParseEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalYearsEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalMonthsEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalWeeksEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalDaysEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalHoursEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalMinutesEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalSecondsEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension
-          .TruffleIntervalMillisEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.environment_extension.TruffleEnvironmentSecretEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.environment_extension.TruffleEnvironmentScopesEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalToMillisEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalFromMillisEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalParseEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalYearsEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalMonthsEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalWeeksEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalDaysEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalHoursEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalMinutesEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalSecondsEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.interval_extension.TruffleIntervalMillisEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.math_extension.TruffleMathPiEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.math_extension.TruffleMathRandomEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.math_extension.TruffleMathPowerEntry,
@@ -260,40 +209,25 @@ module raw.snapi.truffle {
       com.rawlabs.snapi.truffle.emitter.builtin.type_extension.TruffleTypeProtectCastEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.binary_extension.TruffleBinaryBase64Entry,
       com.rawlabs.snapi.truffle.emitter.builtin.binary_extension.TruffleBinaryReadEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.binary_extension
-          .TruffleFromStringBinaryEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampBuildEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampFromDateEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampParseEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampNowEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampRangeEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampYearEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampMonthEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampDayEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampHourEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampMinuteEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampSecondEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampMillisEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.binary_extension.TruffleFromStringBinaryEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampBuildEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampFromDateEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampParseEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampNowEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampRangeEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampYearEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampMonthEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampDayEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampHourEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampMinuteEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampSecondEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampMillisEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
           .TruffleTimestampFromUnixTimestampEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
           .TruffleTimestampToUnixTimestampEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampTimeBucketEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
-          .TruffleTimestampSubtractEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampTimeBucketEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension.TruffleTimestampSubtractEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
           .TruffleTimestampAddIntervalEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension
@@ -307,8 +241,7 @@ module raw.snapi.truffle {
       com.rawlabs.snapi.truffle.emitter.builtin.time_extension.TruffleTimeMillisEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.time_extension.TruffleTimeSubtractEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.time_extension.TruffleTimeAddIntervalEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.time_extension
-          .TruffleTimeSubtractIntervalEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.time_extension.TruffleTimeSubtractIntervalEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.try_extension.TruffleTryFlatMapEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.try_extension.TruffleTryUnsafeGetEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.try_extension.TruffleTryIsErrorEntry,
@@ -317,90 +250,61 @@ module raw.snapi.truffle {
       com.rawlabs.snapi.truffle.emitter.builtin.success_extension.TruffleSuccessBuildEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringFromEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringReadEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.string_extension
-          .TruffleStringContainsEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringContainsEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringTrimEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringLTrimEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringRTrimEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringReplaceEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringReverseEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.string_extension
-          .TruffleStringReplicateEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringReplicateEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringUpperEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringLowerEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringSplitEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringLengthEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.string_extension
-          .TruffleStringSubStringEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.string_extension
-          .TruffleStringCountSubStringEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.string_extension
-          .TruffleStringStartsWithEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringSubStringEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringCountSubStringEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringStartsWithEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringEmptyEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.string_extension
-          .TruffleBase64EntryExtension,
+      com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleBase64EntryExtension,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringEncodeEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringDecodeEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.string_extension
           .TruffleStringLevenshteinDistanceEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.string_extension
-          .TruffleStringReadLinesEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.string_extension
-          .TruffleStringCapitalizeEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.sqlserver_extension
-          .TruffleSQLServerQueryEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringReadLinesEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.string_extension.TruffleStringCapitalizeEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.sqlserver_extension.TruffleSQLServerQueryEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.short_extension.TruffleShortFromEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.regex_extension.TruffleRegexReplaceEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.regex_extension.TruffleRegexMatchesEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.regex_extension
-          .TruffleRegexFirstMatchInEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.regex_extension.TruffleRegexFirstMatchInEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.regex_extension.TruffleRegexGroupsEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.s3_extension.TruffleS3BuildEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleByteValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleBoolValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleDateValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleDoubleValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleFloatValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleIntervalValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleByteValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleBoolValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleDateValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleDoubleValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleFloatValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleIntervalValueArgTestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleIntValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleListValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleLongValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleMandatoryExpArgsEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleMandatoryValueArgsEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleOptionalExpArgsTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleOptionalValueArgsTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleRecordValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleShortValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleListValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleLongValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleMandatoryExpArgsEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleMandatoryValueArgsEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleOptionalExpArgsTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleOptionalValueArgsTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleRecordValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleShortValueArgTestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.test_extension
           .TruffleStrictArgsColPassThroughTestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleStrictArgsTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleStringValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleTimestampValueArgTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleTimeValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleStringValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleTimestampValueArgTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleTimeValueArgTestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleVarExpArgsTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleVarNullableStringExpTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleVarNullableStringExpTestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.test_extension
           .TruffleVarNullableStringValueTestEntry,
-      com.rawlabs.snapi.truffle.emitter.builtin.test_extension
-          .TruffleVarValueArgsTestEntry,
+      com.rawlabs.snapi.truffle.emitter.builtin.test_extension.TruffleVarValueArgsTestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.kryo_extension.TruffleKryoDecodeEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.kryo_extension.TruffleKryoEncodeEntry;
 
@@ -422,15 +326,92 @@ module raw.snapi.truffle {
   exports com.rawlabs.snapi.truffle.runtime.runtime.generator.list;
   exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection;
   exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.operations;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.record_shaper;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.input_buffer;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.off_heap;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.off_heap.group_by;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.off_heap.order_by;
-  exports com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.off_heap.distinct;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .abstract_generator
+      .compute_next;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .abstract_generator
+      .compute_next
+      .sources;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .abstract_generator
+      .compute_next
+      .operations;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .off_heap_generator
+      .record_shaper;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .off_heap_generator
+      .input_buffer;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .off_heap_generator
+      .off_heap;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .off_heap_generator
+      .off_heap
+      .group_by;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .off_heap_generator
+      .off_heap
+      .order_by;
+  exports com.rawlabs
+      .snapi
+      .truffle
+      .runtime
+      .runtime
+      .generator
+      .collection
+      .off_heap_generator
+      .off_heap
+      .distinct;
   exports com.rawlabs.snapi.truffle.runtime.runtime.iterable;
   exports com.rawlabs.snapi.truffle.runtime.runtime.iterable.operations;
   exports com.rawlabs.snapi.truffle.runtime.runtime.iterable.list;

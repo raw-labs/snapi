@@ -13,7 +13,14 @@
 package com.rawlabs.sql.compiler
 
 import com.rawlabs.compiler.api.Pos
-import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, SqlBaseNode, SqlIdentifierNode, SqlParamUseNode, SqlProjNode, SqlStatementItemNode}
+import com.rawlabs.sql.compiler.antlr4.{
+  ParseProgramResult,
+  SqlBaseNode,
+  SqlIdentifierNode,
+  SqlParamUseNode,
+  SqlProjNode,
+  SqlStatementItemNode
+}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{oncetd, query}
 import org.bitbucket.inkytonik.kiama.util.Position
 
