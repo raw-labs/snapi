@@ -42,7 +42,7 @@ lazy val root = (project in file("."))
     compilerApi,
     compilerSnapiParser,
     compilerSnapiFrontend,
-    compilerSnapiTruffle,
+    snapiTruffle,
     compilerSnapi,
     sqlParser,
     sqlCompiler
@@ -193,7 +193,7 @@ val annotationProcessors = Seq(
   "com.oracle.truffle.dsl.processor.OptionProcessor"
 ).mkString(",")
 
-lazy val compilerSnapiTruffle = (project in file("compiler-snapi-truffle"))
+lazy val snapiTruffle = (project in file("snapi-truffle"))
   .dependsOn(
     utilsCore % "compile->compile;test->test",
     compilerSnapiFrontend % "compile->compile;test->test"
@@ -260,7 +260,7 @@ lazy val compilerSnapi = (project in file("compiler-snapi"))
   .dependsOn(
     compilerApi % "compile->compile;test->test",
     compilerSnapiFrontend % "compile->compile;test->test",
-    compilerSnapiTruffle % "compile->compile;test->test"
+    snapiTruffle % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
