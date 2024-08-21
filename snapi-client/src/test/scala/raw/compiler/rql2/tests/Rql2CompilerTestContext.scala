@@ -98,7 +98,7 @@ object TestCredentials {
   val unitTestPrivateBucketUsEast1Cred = S3Config
     .newBuilder()
     .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
-    .setRegion("eu-west-1")
+    .setRegion("us-east-1")
     .build()
 
   ///////////////////////////////////////////////////////////////////////////
