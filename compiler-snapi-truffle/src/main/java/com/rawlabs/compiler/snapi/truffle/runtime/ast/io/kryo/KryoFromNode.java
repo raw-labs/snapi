@@ -15,10 +15,10 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.io.kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.io.ByteArrayInputStream;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.kryo.KryoNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.kryo.KryoNodesFactory;
+import java.io.ByteArrayInputStream;
 
 public class KryoFromNode extends ExpressionNode {
   @Child private ExpressionNode valueNode;

@@ -16,11 +16,11 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
+import java.util.ArrayList;
+import java.util.List;
 
 @NodeInfo(shortName = "Record.Concat")
 @NodeChild("record1")

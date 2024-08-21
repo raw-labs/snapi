@@ -16,8 +16,8 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.Base64;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
+import java.util.Base64;
 
 @NodeInfo(shortName = "String.Base64")
 @NodeChild(value = "string")

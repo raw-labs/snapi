@@ -17,7 +17,6 @@ import static com.rawlabs.compiler.snapi.truffle.emitter.builtin.CompilerScalaCo
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.ParseJsonEntry;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
@@ -25,6 +24,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.json.reader.JsonParseNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.json.reader.JsonParseNodeGen;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.json.reader.TryableTopLevelWrapper;
+import java.util.List;
 
 public class TruffleParseJsonEntry extends ParseJsonEntry
     implements TruffleEntryExtension, WithJsonArgs {

@@ -15,11 +15,11 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.record;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
+import java.util.ArrayList;
+import java.util.List;
 
 @NodeInfo(shortName = "Record.AddField")
 @NodeChild("inRecordNode")

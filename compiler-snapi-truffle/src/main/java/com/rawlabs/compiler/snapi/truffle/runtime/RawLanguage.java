@@ -36,16 +36,16 @@ import com.rawlabs.compiler.snapi.inferrer.api.InferrerService;
 import com.rawlabs.compiler.snapi.rql2.*;
 import com.rawlabs.compiler.snapi.rql2.source.InternalSourcePrettyPrinter;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2Program;
+import com.rawlabs.compiler.snapi.truffle.emitter.compiler.TruffleEmit;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleValidationException;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.DuplicateKeyRecord;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.PureRecord;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.core.RawUid;
 import com.typesafe.config.ConfigFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
-import com.rawlabs.compiler.snapi.truffle.emitter.compiler.TruffleEmit;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleValidationException;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.DuplicateKeyRecord;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.PureRecord;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(

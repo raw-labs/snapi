@@ -29,9 +29,9 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
 import java.util.ArrayList;
 import java.util.Objects;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
 
 // A recursive function closure
 // Duplicate of Closure.java. It is differentiated in order to apply recursion optimizations in the

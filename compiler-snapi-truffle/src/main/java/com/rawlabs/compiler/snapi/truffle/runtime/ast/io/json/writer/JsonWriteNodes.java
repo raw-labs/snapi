@@ -21,12 +21,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.json.JsonWriterRawTruffleException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.ObjectList;
@@ -34,6 +28,12 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.*;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.DuplicateKeyRecord;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.PureRecord;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 
 public final class JsonWriteNodes {
 

@@ -20,12 +20,12 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources.JdbcQueryComputeNext;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
+import com.rawlabs.utils.core.RawSettings;
 
 @ExportLibrary(InteropLibrary.class)
 public class JdbcQueryCollection implements TruffleObject {

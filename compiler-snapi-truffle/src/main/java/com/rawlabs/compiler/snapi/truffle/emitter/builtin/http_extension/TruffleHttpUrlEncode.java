@@ -15,10 +15,10 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.http_extension;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.common.source.Exp;
 import com.rawlabs.compiler.snapi.rql2.builtin.HttpUrlEncodeEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleShortEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.http_package.HttpUrlEncodeNodeGen;
+import java.util.List;
 import scala.Tuple2;
 import scala.collection.immutable.ListMap;
 

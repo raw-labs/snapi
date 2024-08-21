@@ -13,12 +13,12 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import java.io.BufferedReader;
-import java.io.IOException;
-import org.apache.commons.io.IOUtils;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.BreakException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.ReadLinesRawTruffleException;
 import com.rawlabs.compiler.snapi.truffle.runtime.utils.TruffleCharInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import org.apache.commons.io.IOUtils;
 
 public class ReadLinesComputeNext {
   private final TruffleCharInputStream stream;

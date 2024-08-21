@@ -17,7 +17,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2Type;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.ArrayOperationNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.ArrayOperationNodesFactory;
@@ -31,6 +30,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.G
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.iterable.IterableNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.iterable.IterableNodesFactory;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.*;
+import java.util.ArrayList;
 
 @NodeInfo(shortName = "List.FromUnsafe")
 public class ListFromUnsafe extends ExpressionNode {

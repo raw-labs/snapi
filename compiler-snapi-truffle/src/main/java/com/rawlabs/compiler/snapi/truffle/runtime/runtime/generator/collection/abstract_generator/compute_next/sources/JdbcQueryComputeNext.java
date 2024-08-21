@@ -13,10 +13,10 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.oracle.truffle.api.RootCallTarget;
-import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.jdbc.JdbcQuery;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
+import com.rawlabs.utils.core.RawSettings;
 
 public class JdbcQueryComputeNext {
 

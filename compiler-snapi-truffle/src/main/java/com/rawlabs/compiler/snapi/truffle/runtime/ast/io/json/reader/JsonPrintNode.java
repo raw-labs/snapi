@@ -20,11 +20,11 @@ import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.json.writer.JsonWriteNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 @NodeInfo(shortName = "PrintJson")
 @NodeChild(value = "result")

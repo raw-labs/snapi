@@ -15,9 +15,9 @@ package com.rawlabs.compiler.snapi.truffle.emitter;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.common.source.Exp;
 import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
+import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import scala.Tuple2;
 import scala.collection.immutable.ListMap;
 

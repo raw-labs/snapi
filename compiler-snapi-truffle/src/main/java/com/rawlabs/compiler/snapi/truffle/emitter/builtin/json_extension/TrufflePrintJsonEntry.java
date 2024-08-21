@@ -15,13 +15,13 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.json_extension;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.PrintJsonEntry;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.util.List;
-import com.rawlabs.compiler.snapi.truffle.emitter.output.JsonWriter;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
+import com.rawlabs.compiler.snapi.truffle.emitter.output.JsonWriter;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.json.reader.JsonPrintNodeGen;
+import java.util.List;
 
 public class TrufflePrintJsonEntry extends PrintJsonEntry implements TruffleEntryExtension {
   @Override

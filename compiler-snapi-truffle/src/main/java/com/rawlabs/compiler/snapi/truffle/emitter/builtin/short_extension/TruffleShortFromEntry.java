@@ -14,12 +14,12 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.short_extension;
 
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.ShortFromEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.numeric.short_package.ShortFromNodeGen;
+import java.util.List;
 
 public class TruffleShortFromEntry extends ShortFromEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {

@@ -18,10 +18,10 @@ import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.iterable.list.ListIterable;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.operators.OperatorNodes;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ListNodes {
 

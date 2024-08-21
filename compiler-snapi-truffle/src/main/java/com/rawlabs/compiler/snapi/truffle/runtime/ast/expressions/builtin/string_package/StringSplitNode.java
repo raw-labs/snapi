@@ -16,9 +16,9 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.regex.Pattern;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
+import java.util.regex.Pattern;
 
 @NodeInfo(shortName = "String.Split")
 @NodeChild(value = "string")

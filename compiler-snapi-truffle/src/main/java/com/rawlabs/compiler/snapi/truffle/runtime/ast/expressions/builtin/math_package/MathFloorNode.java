@@ -16,9 +16,9 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.RoundingMode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.DecimalObject;
+import java.math.RoundingMode;
 
 @NodeInfo(shortName = "Math.Floor")
 @NodeChild(value = "argument", type = ExpressionNode.class)

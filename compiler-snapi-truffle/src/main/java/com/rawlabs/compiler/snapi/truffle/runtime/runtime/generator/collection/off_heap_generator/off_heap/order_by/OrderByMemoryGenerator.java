@@ -21,11 +21,11 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import java.util.Iterator;
-import java.util.Objects;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.data_structures.treemap.TreeMapIterator;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
+import java.util.Iterator;
+import java.util.Objects;
 
 // A simple in-memory generator over the map. Internally iterates through the
 // key set and returns items from the values list, one by one.

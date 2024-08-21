@@ -22,8 +22,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import java.io.IOException;
-import java.io.OutputStream;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawContext;
 import com.rawlabs.compiler.snapi.truffle.runtime.StatementNode;
@@ -32,6 +30,8 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.G
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodesFactory;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.iterable.IterableNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.iterable.IterableNodesFactory;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class CsvIterableWriterNode extends StatementNode {
 

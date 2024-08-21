@@ -14,12 +14,12 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.byte_extension;
 
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.ByteFromEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.numeric.byte_package.ByteFromNodeGen;
+import java.util.List;
 
 public class TruffleByteFromEntry extends ByteFromEntry implements TruffleEntryExtension {
   @Override

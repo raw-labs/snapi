@@ -19,12 +19,12 @@ import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
 import com.rawlabs.compiler.snapi.rql2.builtin.FromListEntry;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2ListType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2Type;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.list.ListFromNode;
+import java.util.List;
 
 public class TruffleFromListEntry extends FromListEntry implements TruffleEntryExtension {
   @Override

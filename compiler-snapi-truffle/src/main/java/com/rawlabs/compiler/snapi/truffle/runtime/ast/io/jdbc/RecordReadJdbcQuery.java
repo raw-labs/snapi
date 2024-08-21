@@ -17,13 +17,13 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2AttrType;
-import java.util.Arrays;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
+import java.util.Arrays;
+import java.util.List;
 
 @NodeInfo(shortName = "Jdbc.RecordRead")
 public class RecordReadJdbcQuery extends ExpressionNode {

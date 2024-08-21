@@ -19,10 +19,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.data_structures.treemap.TreeMapNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.BreakException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
@@ -42,6 +38,10 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.list.ListGen
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.kryo.KryoNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.ListNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.operators.OperatorNodes;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class GeneratorNodes {
   @NodeInfo(shortName = "AbstractGenerator.Next")

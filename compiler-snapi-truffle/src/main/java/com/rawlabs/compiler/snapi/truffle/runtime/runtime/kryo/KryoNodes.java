@@ -21,13 +21,6 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.snapi.rql2.source.*;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.TypeGuards;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
@@ -38,6 +31,13 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.*;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
 import com.rawlabs.compiler.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import scala.collection.immutable.Vector;
 
 public class KryoNodes {

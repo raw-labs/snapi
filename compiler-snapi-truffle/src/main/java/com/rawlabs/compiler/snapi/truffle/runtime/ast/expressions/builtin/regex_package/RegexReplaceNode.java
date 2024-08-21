@@ -15,10 +15,10 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.regex
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.ErrorObject;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @NodeInfo(shortName = "Regex.Replace")
 @NodeChild(value = "string")

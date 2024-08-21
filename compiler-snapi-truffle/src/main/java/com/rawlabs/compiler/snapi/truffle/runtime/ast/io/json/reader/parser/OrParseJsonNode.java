@@ -19,7 +19,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
-import java.io.IOException;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodes;
@@ -28,6 +27,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleR
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.json.JsonOrTypeException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.json.JsonParserRawTruffleException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.or.OrObject;
+import java.io.IOException;
 
 public class OrParseJsonNode extends ExpressionNode {
 

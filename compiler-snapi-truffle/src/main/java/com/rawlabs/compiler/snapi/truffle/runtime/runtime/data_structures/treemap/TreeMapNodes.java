@@ -15,9 +15,9 @@ package com.rawlabs.compiler.snapi.truffle.runtime.runtime.data_structures.treem
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.PropertyType;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.operators.OperatorNodes;
+import java.util.ArrayList;
 
 public class TreeMapNodes {
 

@@ -14,12 +14,12 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.decimal_extension;
 
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.DecimalFromEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.numeric.decimal_package.DecimalFromNodeGen;
+import java.util.List;
 
 public class TruffleDecimalFromEntry extends DecimalFromEntry implements TruffleEntryExtension {
   @Override

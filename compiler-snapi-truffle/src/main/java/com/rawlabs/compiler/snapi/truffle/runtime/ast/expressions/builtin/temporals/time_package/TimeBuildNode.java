@@ -16,12 +16,12 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.time.DateTimeException;
-import java.time.LocalTime;
-import java.util.concurrent.TimeUnit;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.TimeObject;
+import java.time.DateTimeException;
+import java.time.LocalTime;
+import java.util.concurrent.TimeUnit;
 
 @NodeInfo(shortName = "Time.Build")
 @NodeChild("h")

@@ -15,9 +15,6 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.binar
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.IOException;
-import java.io.InputStream;
-import org.apache.commons.io.IOUtils;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.StaticInitializers;
@@ -25,6 +22,9 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.BinaryObjec
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.utils.TruffleInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.apache.commons.io.IOUtils;
 
 @NodeInfo(shortName = "Binary.Read")
 @NodeChild(value = "binary")

@@ -16,12 +16,12 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.time.Duration;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.rawlabs.compiler.snapi.truffle.runtime.boundary.RawTruffleBoundaries;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.IntervalObject;
+import java.time.Duration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IntervalNodes {
 

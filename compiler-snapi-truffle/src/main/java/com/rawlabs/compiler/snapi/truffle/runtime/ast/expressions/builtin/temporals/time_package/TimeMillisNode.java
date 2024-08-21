@@ -15,9 +15,9 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.tempo
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.concurrent.TimeUnit;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.TimeObject;
+import java.util.concurrent.TimeUnit;
 
 @NodeInfo(shortName = "Time.Millis")
 @NodeChild("time")

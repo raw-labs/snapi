@@ -17,8 +17,6 @@ import com.rawlabs.compiler.snapi.rql2.builtin.AwsV4SignedRequest;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2AttrType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2ListType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2RecordType;
-import java.util.List;
-import java.util.Optional;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
@@ -27,6 +25,8 @@ import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.binary.PlusNod
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.aws_package.AwsV4SignedRequestNodeGen;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.list.ListBuildNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.literals.StringNode;
+import java.util.List;
+import java.util.Optional;
 import scala.collection.immutable.HashSet;
 import scala.collection.immutable.Vector;
 

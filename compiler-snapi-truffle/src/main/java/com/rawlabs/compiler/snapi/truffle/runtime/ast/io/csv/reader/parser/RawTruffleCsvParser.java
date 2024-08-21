@@ -19,14 +19,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLogger;
-import java.io.IOException;
-import java.io.Reader;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Objects;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.temporals.DateTimeFormatCache;
@@ -36,6 +28,14 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.csv.CsvPars
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.csv.CsvReaderRawTruffleException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.*;
 import com.rawlabs.compiler.snapi.truffle.runtime.utils.RawTruffleCharStream;
+import java.io.IOException;
+import java.io.Reader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Objects;
 
 public class RawTruffleCsvParser {
 

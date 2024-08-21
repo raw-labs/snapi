@@ -18,8 +18,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.math.BigDecimal;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
+import java.math.BigDecimal;
 
 @ExportLibrary(InteropLibrary.class)
 public final class DecimalObject implements TruffleObject {

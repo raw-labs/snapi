@@ -16,12 +16,12 @@ import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.RecordBuildEntry;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2AttrType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2RecordType;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.record.RecordBuildNode;
+import java.util.List;
 import scala.collection.JavaConverters;
 
 public class TruffleRecordBuildEntry extends RecordBuildEntry implements TruffleEntryExtension {

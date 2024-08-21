@@ -13,6 +13,16 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.ast.io.xml.parser;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.temporals.DateTimeFormatCache;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserRawTruffleException;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.xml.XmlReaderRawTruffleException;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.DateObject;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.DecimalObject;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.TimeObject;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.TimestampObject;
+import com.rawlabs.compiler.snapi.truffle.runtime.utils.RawTruffleCharStream;
+import com.rawlabs.compiler.snapi.truffle.runtime.utils.RawTruffleStringCharStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,16 +35,6 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.text.StringEscapeUtils;
-import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.temporals.DateTimeFormatCache;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserRawTruffleException;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.xml.XmlReaderRawTruffleException;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.DateObject;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.DecimalObject;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.TimeObject;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.TimestampObject;
-import com.rawlabs.compiler.snapi.truffle.runtime.utils.RawTruffleCharStream;
-import com.rawlabs.compiler.snapi.truffle.runtime.utils.RawTruffleStringCharStream;
 
 public class RawTruffleXmlParser {
 

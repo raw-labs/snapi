@@ -22,8 +22,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import java.io.IOException;
-import java.io.OutputStream;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawContext;
 import com.rawlabs.compiler.snapi.truffle.runtime.StatementNode;
@@ -31,6 +29,8 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.csv.CsvWrit
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.ListNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.ListNodesFactory;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.ObjectList;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class CsvListWriterNode extends StatementNode {
 

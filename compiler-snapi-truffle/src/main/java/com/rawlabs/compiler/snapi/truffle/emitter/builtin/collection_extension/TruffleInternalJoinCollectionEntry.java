@@ -20,12 +20,12 @@ import com.rawlabs.compiler.snapi.rql2.builtin.InternalJoinCollectionEntry;
 import com.rawlabs.compiler.snapi.rql2.source.FunType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2IterableType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionJoinNodeGen;
+import java.util.List;
 
 public class TruffleInternalJoinCollectionEntry extends InternalJoinCollectionEntry
     implements TruffleEntryExtension {

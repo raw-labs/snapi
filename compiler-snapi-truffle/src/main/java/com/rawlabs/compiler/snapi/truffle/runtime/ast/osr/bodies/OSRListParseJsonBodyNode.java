@@ -15,8 +15,8 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.osr.bodies;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
+import java.util.ArrayList;
 
 public class OSRListParseJsonBodyNode extends ExpressionNode {
 

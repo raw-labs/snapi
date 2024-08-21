@@ -13,10 +13,10 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.ast.osr.bodies;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodesFactory;
+import java.util.ArrayList;
 
 public class OSRListFromBodyNode extends ExpressionNode {
 

@@ -13,13 +13,13 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.utils;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.utils.core.RawException;
 import com.rawlabs.utils.sources.api.Encoding;
 import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation;
 import java.io.InputStream;
 import java.io.Reader;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import scala.util.Either;
 
 public class TruffleInputStream {

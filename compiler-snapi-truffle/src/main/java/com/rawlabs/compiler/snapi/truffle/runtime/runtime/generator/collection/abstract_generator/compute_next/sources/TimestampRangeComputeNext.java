@@ -13,10 +13,10 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import java.time.LocalDateTime;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.BreakException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.IntervalObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.TimestampObject;
+import java.time.LocalDateTime;
 
 public class TimestampRangeComputeNext {
   private final LocalDateTime end;

@@ -17,13 +17,13 @@ import com.rawlabs.compiler.snapi.rql2.TypesMerger;
 import com.rawlabs.compiler.snapi.rql2.builtin.TypeMatchEntry;
 import com.rawlabs.compiler.snapi.rql2.source.FunType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2OrType;
-import java.util.Comparator;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.type_package.TypeMatchNode;
+import java.util.Comparator;
+import java.util.List;
 
 public class TruffleTypeMatchEntry extends TypeMatchEntry implements TruffleEntryExtension {
 

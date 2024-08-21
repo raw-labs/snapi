@@ -14,10 +14,10 @@ package com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.io.File;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.data_structures.treemap.TreeMapObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.utils.KryoFootPrint;
+import java.io.File;
+import java.util.ArrayList;
 
 public class OffHeapDistinct {
   private final TreeMapObject

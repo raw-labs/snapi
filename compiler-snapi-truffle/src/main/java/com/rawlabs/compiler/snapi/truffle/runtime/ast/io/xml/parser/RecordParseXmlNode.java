@@ -20,7 +20,6 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.source.*;
-import java.util.*;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.ProgramExpressionNode;
@@ -29,6 +28,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.ObjectList;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.NullObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
+import java.util.*;
 
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {

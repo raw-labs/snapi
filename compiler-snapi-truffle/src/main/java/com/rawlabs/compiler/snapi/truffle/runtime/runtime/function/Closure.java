@@ -29,9 +29,9 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
 import java.util.ArrayList;
 import java.util.Objects;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
 
 // Runtime function object that encloses a materialized frame because it has free variables.
 @ExportLibrary(InteropLibrary.class)

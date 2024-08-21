@@ -22,12 +22,12 @@ import com.rawlabs.compiler.api.ProgramEnvironment;
 import com.rawlabs.compiler.api.ProgramEnvironment$;
 import com.rawlabs.compiler.protocol.LocationConfig;
 import com.rawlabs.compiler.snapi.inferrer.api.InferrerService;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.compiler.snapi.truffle.runtime.runtime.function.RawFunctionRegistry;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.core.RawUid;
 import java.io.OutputStream;
 import java.util.Set;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
-import com.rawlabs.compiler.snapi.truffle.runtime.runtime.function.RawFunctionRegistry;
 import scala.collection.JavaConverters;
 
 public final class RawContext {

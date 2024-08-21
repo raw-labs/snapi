@@ -16,11 +16,11 @@ import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
+import java.util.List;
 
 @NodeInfo(shortName = "Record.Build")
 public class RecordBuildNode extends ExpressionNode {

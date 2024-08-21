@@ -15,12 +15,12 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.locat
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.utils.core.RawSettings;
-import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
-import com.rawlabs.utils.sources.jdbc.sqlserver.SqlServerServerLocation;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawContext;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
+import com.rawlabs.utils.sources.jdbc.sqlserver.SqlServerServerLocation;
 
 @NodeInfo(shortName = "Location.FromSQLServer")
 public class LocationFromSQLServerNode extends ExpressionNode {

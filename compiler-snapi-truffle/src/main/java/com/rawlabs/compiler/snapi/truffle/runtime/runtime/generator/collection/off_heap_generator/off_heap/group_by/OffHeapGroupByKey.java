@@ -13,11 +13,11 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.off_heap.group_by;
 
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.io.File;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.data_structures.treemap.TreeMapObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import com.rawlabs.compiler.snapi.truffle.runtime.utils.KryoFootPrint;
+import java.io.File;
+import java.util.ArrayList;
 
 public class OffHeapGroupByKey {
   private final TreeMapObject

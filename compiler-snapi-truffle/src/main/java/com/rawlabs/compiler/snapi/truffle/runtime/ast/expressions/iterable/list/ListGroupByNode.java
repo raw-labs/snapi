@@ -19,7 +19,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.osr.OSRGeneratorNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.osr.bodies.OSRListEquiJoinInitBodyNode;
@@ -36,6 +35,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.iterable.IterableNodes
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.ListNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.ListNodesFactory;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.RawArrayList;
+import java.util.ArrayList;
 
 @NodeInfo(shortName = "List.GroupBy")
 public class ListGroupByNode extends ExpressionNode {

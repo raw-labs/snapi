@@ -15,9 +15,9 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.tempo
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.time.LocalDateTime;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.TimestampObject;
+import java.time.LocalDateTime;
 
 @NodeInfo(shortName = "Timestamp.Now")
 public abstract class TimestampNowNode extends ExpressionNode {

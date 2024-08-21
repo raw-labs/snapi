@@ -15,10 +15,10 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.time_extension;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.common.source.Exp;
 import com.rawlabs.compiler.snapi.rql2.builtin.TimeNowEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleShortEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.temporals.time_package.TimeNowNodeGen;
+import java.util.List;
 import scala.Tuple2;
 import scala.collection.immutable.ListMap;
 

@@ -14,13 +14,13 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.coll
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.aggregation.*;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.DecimalObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
+import java.math.BigDecimal;
 
 @NodeInfo(shortName = "Collection.TupleAvg")
 public class CollectionTupleAvgNode extends ExpressionNode {

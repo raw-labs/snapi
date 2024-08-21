@@ -21,13 +21,13 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.IOException;
 import com.rawlabs.compiler.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.ProgramStatementNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterRawTruffleException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
+import java.io.IOException;
 
 @NodeInfo(shortName = "RecordWriteCsv")
 public class RecordWriteCsvNode extends StatementNode {

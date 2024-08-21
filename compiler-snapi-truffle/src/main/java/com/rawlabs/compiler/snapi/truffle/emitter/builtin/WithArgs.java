@@ -13,10 +13,10 @@
 package com.rawlabs.compiler.snapi.truffle.emitter.builtin;
 
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.util.List;
-import java.util.Optional;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
+import java.util.List;
+import java.util.Optional;
 
 public interface WithArgs {
   default Optional<ExpressionNode> arg(List<TruffleArg> args, String kw) {

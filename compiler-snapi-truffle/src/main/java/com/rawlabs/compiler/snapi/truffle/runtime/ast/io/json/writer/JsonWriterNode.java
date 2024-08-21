@@ -22,12 +22,12 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.IOException;
-import java.io.OutputStream;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.StaticInitializers;
+import java.io.IOException;
+import java.io.OutputStream;
 
 @NodeInfo(shortName = "Json.Write")
 @NodeChild(value = "value", type = ExpressionNode.class)

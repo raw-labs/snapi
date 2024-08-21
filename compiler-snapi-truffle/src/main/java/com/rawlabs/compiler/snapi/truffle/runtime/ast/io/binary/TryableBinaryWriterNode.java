@@ -15,12 +15,12 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.io.binary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.OutputStream;
 import com.rawlabs.compiler.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.ProgramStatementNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.binary.BinaryWriterRawTruffleException;
 import com.rawlabs.compiler.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.tryable_nullable.TryableNullableNodesFactory;
+import java.io.OutputStream;
 
 @NodeInfo(shortName = "Binary.TryableWrite")
 public class TryableBinaryWriterNode extends StatementNode {

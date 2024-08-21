@@ -16,8 +16,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.util.Arrays;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.iterable.list.ListIterable;
+import java.util.Arrays;
 
 @ExportLibrary(InteropLibrary.class)
 public final class ShortList implements TruffleObject {

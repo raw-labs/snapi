@@ -13,11 +13,11 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.record;
 
 import com.oracle.truffle.api.nodes.Node;
-import java.util.ArrayList;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecordStaticInitializers {
 

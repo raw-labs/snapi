@@ -16,12 +16,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.utils.sources.api.LocationException;
-import com.rawlabs.utils.sources.bytestream.http.HttpByteStreamLocation;
-import com.rawlabs.utils.sources.bytestream.http.HttpResult;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.StaticInitializers;
@@ -32,6 +26,12 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.ErrorObject
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
+import com.rawlabs.utils.sources.api.LocationException;
+import com.rawlabs.utils.sources.bytestream.http.HttpByteStreamLocation;
+import com.rawlabs.utils.sources.bytestream.http.HttpResult;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;
 

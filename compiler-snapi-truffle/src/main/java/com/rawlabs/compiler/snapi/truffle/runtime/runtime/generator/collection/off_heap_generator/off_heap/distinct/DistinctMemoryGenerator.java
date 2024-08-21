@@ -21,10 +21,10 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import java.util.Objects;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.data_structures.treemap.TreeMapIterator;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
+import java.util.Objects;
 
 @ExportLibrary(InteropLibrary.class)
 public class DistinctMemoryGenerator implements TruffleObject {

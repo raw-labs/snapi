@@ -24,11 +24,6 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.utils.core.RawSettings;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawContext;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.csv.reader.CsvParserNodes;
@@ -61,6 +56,11 @@ import com.rawlabs.compiler.snapi.truffle.runtime.utils.IOUtils;
 import com.rawlabs.compiler.snapi.truffle.runtime.utils.RawTruffleStringCharStream;
 import com.rawlabs.compiler.snapi.truffle.runtime.utils.TruffleCharInputStream;
 import com.rawlabs.compiler.snapi.truffle.runtime.utils.TruffleInputStream;
+import com.rawlabs.utils.core.RawSettings;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 public class ComputeNextNodes {
 

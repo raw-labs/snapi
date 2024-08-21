@@ -14,7 +14,6 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.oracle_extension;
 
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.OracleQueryEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.emitter.builtin.WithArgs;
@@ -25,6 +24,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.locati
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.location_package.LocationFromOracleNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.literals.IntNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.rdbms.OracleExceptionHandler;
+import java.util.List;
 
 public class TruffleOracleQueryEntry extends OracleQueryEntry
     implements TruffleEntryExtension, WithArgs {

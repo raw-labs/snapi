@@ -14,13 +14,13 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.nullable_extension;
 
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.builtin.NullableIsNullEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.option.OptionIsDefinedNodeGen;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.unary.NotNodeGen;
+import java.util.List;
 
 public class TruffleNullableIsNullEntry extends NullableIsNullEntry
     implements TruffleEntryExtension {

@@ -17,13 +17,13 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.protocol.LocationConfig;
 import com.rawlabs.compiler.protocol.SQLServerConfig;
-import com.rawlabs.utils.core.RawSettings;
-import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
-import com.rawlabs.utils.sources.jdbc.sqlserver.SqlServerServerLocation;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawContext;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.*;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
+import com.rawlabs.utils.sources.jdbc.sqlserver.SqlServerServerLocation;
 
 @NodeInfo(shortName = "Location.FromSQLServerCredential")
 public class LocationFromSQLServerCredentialNode extends ExpressionNode {

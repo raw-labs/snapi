@@ -16,10 +16,10 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.Arrays;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
+import java.util.Arrays;
 
 @NodeInfo(shortName = "Record.Fields")
 @NodeChild("record")

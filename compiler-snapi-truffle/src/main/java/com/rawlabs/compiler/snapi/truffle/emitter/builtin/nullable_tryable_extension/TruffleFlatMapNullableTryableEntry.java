@@ -19,7 +19,6 @@ import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
 import com.rawlabs.compiler.snapi.rql2.builtin.FlatMapNullableTryableEntry;
 import com.rawlabs.compiler.snapi.rql2.source.FunType;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
@@ -31,6 +30,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.tryable.Tryabl
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.tryable.TryableNullableFlatMapNodeGen;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.tryable.TryableSuccessNodeGen;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import java.util.List;
 
 public class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry
     implements TruffleEntryExtension {

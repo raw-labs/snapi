@@ -15,7 +15,6 @@ package com.rawlabs.compiler.snapi.truffle.emitter.builtin.test_extension;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
 import com.rawlabs.compiler.snapi.rql2.builtin.StrictArgsColPassThroughTestEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
@@ -23,6 +22,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.binary.MultNod
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionTransformNodeGen;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.literals.IntNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.local.ReadParamNode;
+import java.util.List;
 
 public class TruffleStrictArgsColPassThroughTestEntry extends StrictArgsColPassThroughTestEntry
     implements TruffleEntryExtension {

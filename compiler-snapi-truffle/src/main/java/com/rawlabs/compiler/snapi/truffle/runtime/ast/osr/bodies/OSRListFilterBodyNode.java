@@ -13,7 +13,6 @@
 package com.rawlabs.compiler.snapi.truffle.runtime.ast.osr.bodies;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.function.FunctionExecuteNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.function.FunctionExecuteNodesFactory;
@@ -21,6 +20,7 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.G
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodesFactory;
 import com.rawlabs.compiler.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.tryable_nullable.TryableNullableNodesFactory;
+import java.util.ArrayList;
 
 public class OSRListFilterBodyNode extends ExpressionNode {
 

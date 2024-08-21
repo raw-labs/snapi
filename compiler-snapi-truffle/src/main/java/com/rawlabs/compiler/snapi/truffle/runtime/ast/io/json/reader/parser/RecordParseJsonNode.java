@@ -24,8 +24,6 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2IsNullableTypeProperty;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
-import java.util.BitSet;
-import java.util.LinkedHashMap;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.ProgramExpressionNode;
@@ -37,6 +35,8 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.json.JsonUn
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.NullObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
+import java.util.BitSet;
+import java.util.LinkedHashMap;
 
 @NodeInfo(shortName = "RecordParseJson")
 @ImportStatic(RawTruffleBoundaries.class)

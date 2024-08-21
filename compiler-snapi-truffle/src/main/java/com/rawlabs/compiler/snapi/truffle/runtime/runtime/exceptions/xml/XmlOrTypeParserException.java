@@ -14,8 +14,8 @@ package com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.xml;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParser;
+import java.util.List;
 
 public class XmlOrTypeParserException extends XmlParserRawTruffleException {
 

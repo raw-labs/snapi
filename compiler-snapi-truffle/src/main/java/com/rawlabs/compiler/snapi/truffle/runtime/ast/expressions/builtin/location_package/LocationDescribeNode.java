@@ -20,12 +20,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.snapi.inferrer.api.*;
 import com.rawlabs.compiler.snapi.rql2.Rql2TypeUtils$;
 import com.rawlabs.compiler.snapi.rql2.source.*;
-import com.rawlabs.utils.core.RawException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawContext;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawLanguage;
@@ -34,6 +28,12 @@ import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.ErrorObject
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.NullObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.record.RecordNodes;
+import com.rawlabs.utils.core.RawException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import scala.Some;
 
 // A.Z Similar implementation to Scala

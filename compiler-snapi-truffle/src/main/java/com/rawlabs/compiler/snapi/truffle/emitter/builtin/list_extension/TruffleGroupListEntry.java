@@ -18,13 +18,13 @@ import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
 import com.rawlabs.compiler.snapi.rql2.builtin.GroupListEntry;
 import com.rawlabs.compiler.snapi.rql2.source.*;
-import java.util.Arrays;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.list.ListGroupByNode;
+import java.util.Arrays;
+import java.util.List;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashSet;
 

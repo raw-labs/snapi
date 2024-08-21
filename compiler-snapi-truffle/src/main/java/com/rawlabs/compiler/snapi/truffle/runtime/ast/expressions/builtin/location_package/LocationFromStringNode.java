@@ -16,11 +16,11 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.compiler.snapi.rql2.api.LocationDescription$;
-import com.rawlabs.utils.sources.api.Location;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.RawContext;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.LocationObject;
+import com.rawlabs.utils.sources.api.Location;
 import scala.util.Either;
 
 @NodeInfo(shortName = "Location.FromString")

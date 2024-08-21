@@ -14,9 +14,9 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.osr.bodies;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.rawlabs.compiler.snapi.rql2.source.Rql2Type;
-import java.util.ArrayList;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.TypeGuards;
+import java.util.ArrayList;
 
 public class OSRToArrayBodyNode extends ExpressionNode {
 

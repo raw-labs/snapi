@@ -14,9 +14,9 @@ package com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.literals;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import java.math.BigDecimal;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.primitives.DecimalObject;
+import java.math.BigDecimal;
 
 public class DecimalNode extends ExpressionNode {
 

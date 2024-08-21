@@ -17,13 +17,13 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.compiler.snapi.base.source.Type;
 import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
 import com.rawlabs.compiler.snapi.rql2.builtin.MkStringCollectionEntry;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.compiler.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.compiler.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionMkStringNode;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.literals.StringNode;
+import java.util.List;
 
 public class TruffleMkStringCollectionEntry extends MkStringCollectionEntry
     implements TruffleEntryExtension {

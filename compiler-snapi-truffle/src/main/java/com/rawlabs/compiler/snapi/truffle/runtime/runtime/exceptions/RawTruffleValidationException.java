@@ -19,9 +19,9 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.rawlabs.compiler.api.Message;
-import java.util.List;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.exceptions.validation.ValidationErrorObject;
 import com.rawlabs.compiler.snapi.truffle.runtime.runtime.list.StringList;
+import java.util.List;
 
 @ExportLibrary(InteropLibrary.class)
 public class RawTruffleValidationException extends AbstractTruffleException {

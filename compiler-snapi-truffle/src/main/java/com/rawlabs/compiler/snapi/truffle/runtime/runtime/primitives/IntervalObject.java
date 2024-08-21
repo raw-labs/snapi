@@ -19,8 +19,8 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import java.time.Duration;
 import com.rawlabs.compiler.snapi.truffle.runtime.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
+import java.time.Duration;
 
 @ExportLibrary(InteropLibrary.class)
 public final class IntervalObject implements TruffleObject {
