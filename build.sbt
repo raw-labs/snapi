@@ -276,7 +276,7 @@ lazy val compilerSqlParser = (project in file("compiler-sql-parser"))
     javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
       (
-        s"${javaSrcBasePath.value}/raw/client/sql/generated",
+        s"${javaSrcBasePath.value}/com/rawlabs/compiler/sql/generated",
         "com.rawlabs.compiler.sql.generated",
         s"${javaSrcBasePath.value}/com/rawlabs/compiler/sql/grammar",
         "Psql"

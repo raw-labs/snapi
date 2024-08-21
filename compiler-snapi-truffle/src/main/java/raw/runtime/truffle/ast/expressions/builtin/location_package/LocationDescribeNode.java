@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import raw.compiler.rql2.Rql2TypeUtils$;
 import raw.compiler.rql2.source.*;
-import raw.inferrer.api.*;
+import com.rawlabs.compiler.snapi.inferrer.api.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;

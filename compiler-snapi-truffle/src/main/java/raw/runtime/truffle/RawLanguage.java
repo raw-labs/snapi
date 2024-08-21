@@ -42,7 +42,7 @@ import raw.compiler.rql2.*;
 import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
 import raw.compiler.rql2.source.Rql2Program;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
-import raw.inferrer.api.InferrerService;
+import com.rawlabs.compiler.snapi.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;

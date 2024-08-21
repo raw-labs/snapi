@@ -25,7 +25,7 @@ import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.core.RawUid;
 import java.io.OutputStream;
 import java.util.Set;
-import raw.inferrer.api.InferrerService;
+import com.rawlabs.compiler.snapi.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
 import scala.collection.JavaConverters;

@@ -11,7 +11,7 @@
  */
 
 import com.rawlabs.compiler.api.CompilerServiceBuilder;
-import com.rawlabs.compiler.sql.SqlCompilerServiceBuilder;
+import com.rawlabs.compiler.sql.impl.SqlCompilerServiceBuilder;
 
 module raw.sql.client {
   requires scala.library;

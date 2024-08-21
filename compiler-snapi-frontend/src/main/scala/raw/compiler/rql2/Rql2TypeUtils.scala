@@ -67,7 +67,7 @@ import raw.compiler.rql2.builtin.{
   TimestampPackageBuilder
 }
 import raw.compiler.rql2.source._
-import raw.inferrer.api._
+import com.rawlabs.compiler.snapi.inferrer.api._
 
 trait Rql2TypeUtils {
 

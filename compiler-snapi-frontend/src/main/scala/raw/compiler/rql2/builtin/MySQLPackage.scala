@@ -19,7 +19,7 @@ import raw.compiler.common.source._
 import raw.compiler.rql2.api._
 import raw.compiler.rql2.ProgramContext
 import raw.compiler.rql2.source._
-import raw.inferrer.api.{
+import com.rawlabs.compiler.snapi.inferrer.api.{
   SqlQueryInferrerProperties,
   SqlQueryInputFormatDescriptor,
   SqlTableInferrerProperties,

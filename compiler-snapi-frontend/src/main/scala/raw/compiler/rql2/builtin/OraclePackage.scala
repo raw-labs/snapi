@@ -32,7 +32,7 @@ import raw.compiler.rql2.api.{
 }
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.ProgramContext
-import raw.inferrer.api.{
+import com.rawlabs.compiler.snapi.inferrer.api.{
   SqlQueryInferrerProperties,
   SqlQueryInputFormatDescriptor,
   SqlTableInferrerProperties,

@@ -36,7 +36,7 @@ import raw.compiler.rql2.api.{
   ValueArg,
   ValueParam
 }
-import raw.inferrer.api.{
+import com.rawlabs.compiler.snapi.inferrer.api.{
   SqlQueryInferrerProperties,
   SqlQueryInputFormatDescriptor,
   SqlTableInferrerProperties,

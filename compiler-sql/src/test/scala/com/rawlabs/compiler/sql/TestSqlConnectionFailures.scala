@@ -13,23 +13,8 @@
 package com.rawlabs.compiler.sql
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
-import com.rawlabs.compiler.api.{
-  AutoCompleteResponse,
-  CompilerService,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  GetProgramDescriptionFailure,
-  GetProgramDescriptionResponse,
-  GetProgramDescriptionSuccess,
-  HoverResponse,
-  LetBindCompletion,
-  Pos,
-  ProgramEnvironment,
-  RawInt,
-  TypeCompletion,
-  ValidateResponse
-}
+import com.rawlabs.compiler.api.{AutoCompleteResponse, CompilerService, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, GetProgramDescriptionFailure, GetProgramDescriptionResponse, GetProgramDescriptionSuccess, HoverResponse, LetBindCompletion, Pos, ProgramEnvironment, RawInt, TypeCompletion, ValidateResponse}
+import com.rawlabs.compiler.sql.impl.SqlCompilerService
 import org.scalatest.matchers.must.Matchers.be
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.testcontainers.utility.DockerImageName

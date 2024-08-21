@@ -56,10 +56,10 @@ module raw.snapi.frontend {
   exports raw.compiler.rql2.source;
   exports raw.compiler.rql2.antlr4;
   exports raw.compiler.utils;
-  exports raw.inferrer.api;
-  exports raw.inferrer.local;
+  exports com.rawlabs.compiler.snapi.inferrer.api;
+  exports com.rawlabs.compiler.snapi.inferrer.local;
 
-  opens raw.inferrer.api to
+  opens com.rawlabs.compiler.snapi.inferrer.api to
       com.fasterxml.jackson.databind;
   opens raw.compiler.rql2.api to
       com.fasterxml.jackson.databind;

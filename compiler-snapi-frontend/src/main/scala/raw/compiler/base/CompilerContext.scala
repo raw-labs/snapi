@@ -14,7 +14,7 @@ package raw.compiler.base
 
 import com.rawlabs.utils.core.{RawSettings, RawUid}
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer.api.{InferrerProperties, InferrerService, InputFormatDescriptor}
+import com.rawlabs.compiler.snapi.inferrer.api.{InferrerProperties, InferrerService, InputFormatDescriptor}
 import com.rawlabs.utils.core._
 
 /**

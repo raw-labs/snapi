@@ -42,7 +42,7 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.client.rql2.api._
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
-import raw.inferrer.local.LocalInferrerTestContext
+import com.rawlabs.compiler.snapi.inferrer.local.LocalInferrerTestContext
 import com.rawlabs.compiler.protocol.{
   DropboxAccessTokenConfig,
   HttpHeadersConfig,

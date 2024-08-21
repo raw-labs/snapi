@@ -34,7 +34,7 @@ import com.rawlabs.compiler.api.{
   RawTimestampType,
   RawType
 }
-import com.rawlabs.compiler.sql.SqlIntervals.{intervalToString, parseInterval}
+import com.rawlabs.compiler.sql.impl.SqlIntervals.{intervalToString, parseInterval}
 import com.rawlabs.compiler.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}

@@ -29,7 +29,7 @@ import raw.compiler.rql2.api.{
   ValueParam
 }
 import raw.compiler.rql2.source._
-import raw.inferrer.api._
+import com.rawlabs.compiler.snapi.inferrer.api._
 
 class XmlPackage extends PackageExtension {
 

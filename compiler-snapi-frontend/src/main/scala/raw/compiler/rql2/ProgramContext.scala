@@ -15,7 +15,7 @@ package raw.compiler.rql2
 import raw.compiler.base.errors.ErrorCompilerMessage
 import raw.compiler.rql2.api.{PackageExtension, PackageExtensionProvider, Rql2Value}
 import raw.compiler.rql2.source.Rql2Program
-import raw.inferrer.api.{InferrerProperties, InputFormatDescriptor}
+import com.rawlabs.compiler.snapi.inferrer.api.{InferrerProperties, InputFormatDescriptor}
 
 import scala.collection.mutable
 

@@ -71,7 +71,7 @@ import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, String
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.CompilerLspService
 import raw.compiler.rql2.source._
-import raw.inferrer.api.InferrerServiceProvider
+import com.rawlabs.compiler.snapi.inferrer.api.InferrerServiceProvider
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
