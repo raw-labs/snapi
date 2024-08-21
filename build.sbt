@@ -36,16 +36,16 @@ writeVersionToFile := {
 
 lazy val root = (project in file("."))
   .aggregate(
-    protocol,
-    utils,
-    sources,
-    client,
-    snapiParser,
-    snapiFrontend,
-    snapiTruffle,
-    snapiClient,
-    sqlParser,
-    sqlClient
+    compilerProtocol,
+    utilsCore,
+    utilsSources,
+    compilerApi,
+    compilerSnapiParser,
+    compilerSnapiFrontend,
+    compilerSnapiTruffle,
+    compilerSnapi,
+    compilerSqlParser,
+    compilerSql
   )
   .settings(
     commonSettings,
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
     publishLocal / skip := true
   )
 
-lazy val utils = (project in file("utils-core"))
+lazy val utilsCore = (project in file("utils-core"))
   .settings(
     commonSettings,
     scalaCompileSettings,
@@ -77,9 +77,9 @@ lazy val utils = (project in file("utils-core"))
       jacksonDeps
   )
 
-lazy val sources = (project in file("utils-sources"))
+lazy val utilsSources = (project in file("utils-sources"))
   .dependsOn(
-    utils % "compile->compile;test->test"
+    utilsCore % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -102,7 +102,7 @@ lazy val sources = (project in file("utils-sources"))
     )
   )
 
-lazy val protocol = (project in file("compiler-protocol"))
+lazy val compilerProtocol = (project in file("compiler-protocol"))
   .enablePlugins(ProtobufPlugin)
   .settings(
     commonSettings,
@@ -113,10 +113,10 @@ lazy val protocol = (project in file("compiler-protocol"))
     Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
   )
 
-lazy val client = (project in file("compiler-api"))
+lazy val compilerApi = (project in file("compiler-api"))
   .dependsOn(
-    utils % "compile->compile;test->test",
-    protocol % "compile->compile;test->test"
+    utilsCore % "compile->compile;test->test",
+    compilerProtocol % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -125,7 +125,7 @@ lazy val client = (project in file("compiler-api"))
     libraryDependencies += trufflePolyglot
   )
 
-lazy val snapiParser = (project in file("compiler-snapi-parser"))
+lazy val compilerSnapiParser = (project in file("compiler-snapi-parser"))
   .enablePlugins(GenParserPlugin)
   .settings(
     commonSettings,
@@ -146,12 +146,12 @@ lazy val snapiParser = (project in file("compiler-snapi-parser"))
     )
   )
 
-lazy val snapiFrontend = (project in file("compiler-snapi-frontend"))
+lazy val compilerSnapiFrontend = (project in file("compiler-snapi-frontend"))
   .dependsOn(
-    utils % "compile->compile;test->test",
-    client % "compile->compile;test->test",
-    sources % "compile->compile;test->test",
-    snapiParser % "compile->compile;test->test"
+    utilsCore % "compile->compile;test->test",
+    compilerApi % "compile->compile;test->test",
+    utilsSources % "compile->compile;test->test",
+    compilerSnapiParser % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -182,10 +182,10 @@ val annotationProcessors = Seq(
   "com.oracle.truffle.dsl.processor.OptionProcessor"
 ).mkString(",")
 
-lazy val snapiTruffle = (project in file("compiler-snapi-truffle"))
+lazy val compilerSnapiTruffle = (project in file("compiler-snapi-truffle"))
   .dependsOn(
-    utils % "compile->compile;test->test",
-    snapiFrontend % "compile->compile;test->test"
+    utilsCore % "compile->compile;test->test",
+    compilerSnapiFrontend % "compile->compile;test->test"
   )
   .enablePlugins(JavaAnnotationProcessorPlugin)
   .settings(
@@ -245,11 +245,11 @@ lazy val snapiTruffle = (project in file("compiler-snapi-truffle"))
     publishSigned := (publishSigned dependsOn runJavaAnnotationProcessor).value
   )
 
-lazy val snapiClient = (project in file("compiler-snapi"))
+lazy val compilerSnapi = (project in file("compiler-snapi"))
   .dependsOn(
-    client % "compile->compile;test->test",
-    snapiFrontend % "compile->compile;test->test",
-    snapiTruffle % "compile->compile;test->test"
+    compilerApi % "compile->compile;test->test",
+    compilerSnapiFrontend % "compile->compile;test->test",
+    compilerSnapiTruffle % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -257,7 +257,7 @@ lazy val snapiClient = (project in file("compiler-snapi"))
     testSettings
   )
 
-lazy val sqlParser = (project in file("compiler-sql-parser"))
+lazy val compilerSqlParser = (project in file("compiler-sql-parser"))
   .enablePlugins(GenParserPlugin)
   .settings(
     commonSettings,
@@ -278,10 +278,10 @@ lazy val sqlParser = (project in file("compiler-sql-parser"))
     )
   )
 
-lazy val sqlClient = (project in file("compiler-sql"))
+lazy val compilerSql = (project in file("compiler-sql"))
   .dependsOn(
-    client % "compile->compile;test->test",
-    sqlParser % "compile->compile;test->test"
+    compilerApi % "compile->compile;test->test",
+    compilerSqlParser % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -296,9 +296,9 @@ lazy val sqlClient = (project in file("compiler-sql"))
     )
   )
 
-lazy val pythonClient = (project in file("compiler-python"))
+lazy val compilerPython = (project in file("compiler-python"))
   .dependsOn(
-    client % "compile->compile;test->test"
+    compilerApi % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
