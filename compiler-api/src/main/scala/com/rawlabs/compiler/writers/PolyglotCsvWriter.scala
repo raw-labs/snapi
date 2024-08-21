@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.client.writers
+package com.rawlabs.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonGenerator, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvFactory

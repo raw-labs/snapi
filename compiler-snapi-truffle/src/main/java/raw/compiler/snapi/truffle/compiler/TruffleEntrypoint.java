@@ -14,7 +14,7 @@ package raw.compiler.snapi.truffle.compiler;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.RootNode;
-import raw.client.api.Entrypoint;
+import com.rawlabs.compiler.api.Entrypoint;
 
 public class TruffleEntrypoint implements Entrypoint {
 

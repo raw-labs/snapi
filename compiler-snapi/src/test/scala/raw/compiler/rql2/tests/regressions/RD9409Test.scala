@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.client.api._
+import com.rawlabs.compiler.api.{HoverResponse, Pos, TypeCompletion}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class RD9409Test extends Rql2TruffleCompilerTestContext {

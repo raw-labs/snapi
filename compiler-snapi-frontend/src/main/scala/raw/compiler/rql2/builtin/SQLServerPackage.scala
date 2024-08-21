@@ -12,32 +12,14 @@
 
 package raw.compiler.rql2.builtin
 
+import com.rawlabs.compiler.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
-import raw.compiler.rql2.api.{
-  Arg,
-  EntryExtension,
-  ExpArg,
-  ExpParam,
-  PackageExtension,
-  Param,
-  Rql2StringValue,
-  SugarEntryExtension,
-  TypeArg,
-  TypeParam,
-  ValueArg,
-  ValueParam
-}
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpArg, ExpParam, PackageExtension, Param, Rql2StringValue, SugarEntryExtension, TypeArg, TypeParam, ValueArg, ValueParam}
 import raw.compiler.rql2.source._
-import raw.client.api._
-import raw.inferrer.api.{
-  SqlQueryInferrerProperties,
-  SqlQueryInputFormatDescriptor,
-  SqlTableInferrerProperties,
-  SqlTableInputFormatDescriptor
-}
+import raw.inferrer.api.{SqlQueryInferrerProperties, SqlQueryInputFormatDescriptor, SqlTableInferrerProperties, SqlTableInputFormatDescriptor}
 import com.rawlabs.utils.sources.jdbc.sqlserver.{SqlServerServerLocation, SqlServerTableLocation}
 
 class SQLServerPackage extends PackageExtension {

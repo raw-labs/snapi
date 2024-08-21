@@ -12,8 +12,8 @@
 
 package raw.compiler.base
 
+import com.rawlabs.compiler.api.{CompilerService, ProgramEnvironment}
 import com.rawlabs.utils.core.RawSettings
-import raw.client.api.{CompilerService, ProgramEnvironment}
 
 /**
  * Contains state that is shared between compilation phases of a single program.

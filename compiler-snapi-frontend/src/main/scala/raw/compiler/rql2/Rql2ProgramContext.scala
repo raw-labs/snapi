@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2
 
-import raw.client.api.ProgramEnvironment
+import com.rawlabs.compiler.api.ProgramEnvironment
 import raw.compiler.base.CompilerContext
 
 class Rql2ProgramContext(

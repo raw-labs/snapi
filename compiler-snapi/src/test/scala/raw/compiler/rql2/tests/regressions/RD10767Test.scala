@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.client.api.{GetProgramDescriptionSuccess, ProgramEnvironment}
+import com.rawlabs.compiler.api.{GetProgramDescriptionSuccess, ProgramEnvironment}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import raw.compiler.utils.SnapiInterpolator
 

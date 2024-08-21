@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.client.api
+package com.rawlabs.compiler.api
 
 import com.rawlabs.utils.core.RawSettings
 import java.util.ServiceLoader
@@ -35,7 +35,7 @@ object CompilerServiceProvider {
   }
 
   // This method is only used by the test framework.
-  private[raw] def set(language: Set[String], instance: CompilerService): Unit = {
+  private[rawlabs] def set(language: Set[String], instance: CompilerService): Unit = {
     instanceLock.synchronized {
       if (instance == null) {
         // Stop and remove entries that match the `language`, regardless the class loader.

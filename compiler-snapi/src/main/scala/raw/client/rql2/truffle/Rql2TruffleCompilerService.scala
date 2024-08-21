@@ -12,13 +12,14 @@
 
 package raw.client.rql2.truffle
 
+import com.rawlabs.compiler
+import com.rawlabs.compiler.api.{AutoCompleteResponse, CompilerService, CompilerServiceException, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, FormatCodeResponse, GetProgramDescriptionFailure, GetProgramDescriptionResponse, GetProgramDescriptionSuccess, GoToDefinitionResponse, HoverResponse, Message, ParamDescription, Pos, ProgramDescription, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue, RenameResponse, ValidateResponse}
+import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot._
-import raw.client.api._
 import raw.client.rql2.api._
-import raw.client.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import raw.compiler.base
 import raw.compiler.base.errors._
 import raw.compiler.base.source.BaseNode
@@ -166,7 +167,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
                       case TreeParamDescription(idn, tipe, required) =>
                         ParamDescription(idn, rql2TypeToRawType(tipe), defaultValue = None, comment = None, required)
                     }
-                    DeclDescription(Some(formattedParams), rql2TypeToRawType(outType), comment)
+                    compiler.api.DeclDescription(Some(formattedParams), rql2TypeToRawType(outType), comment)
                 }
                 (idn, formattedDecls)
             }
@@ -358,7 +359,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
                   val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
                   ErrorRange(begin, end)
                 }
-                ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
+                compiler.api.ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
               }
               ExecutionValidationFailure(errors.to)
             } else {
@@ -517,7 +518,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
             lspService => lspService.validate
           )(programContext) match {
             case Right(value) => value
-            case Left((err, pos)) => ValidateResponse(parseError(err, pos))
+            case Left((err, pos)) => compiler.api.ValidateResponse(parseError(err, pos))
           }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
@@ -562,7 +563,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
             case _: ExpectedTypeButGotExpression => true
             case _ => false
           }
-          ValidateResponse(formatErrors(selection, positions))
+          compiler.api.ValidateResponse(formatErrors(selection, positions))
         } else {
           ValidateResponse(parseResult.errors)
         }

@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2.builtin
 
+import com.rawlabs.compiler.api.{EntryDoc, PackageDoc}
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.rql2.source.{Rql2IsTryableTypeProperty, Rql2TypeWithProperties}
 import raw.compiler.rql2._
 import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
-import raw.client.api.{EntryDoc, PackageDoc}
 
 class SuccessPackage extends PackageExtension {
 

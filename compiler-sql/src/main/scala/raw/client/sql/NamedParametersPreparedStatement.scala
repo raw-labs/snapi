@@ -12,10 +12,11 @@
 
 package raw.client.sql
 
+import com.rawlabs.compiler.api
+import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange, RawBinary, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue}
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.util.Position
 import org.postgresql.util.PSQLException
-import raw.client.api._
 import raw.client.sql.antlr4._
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData}
@@ -417,7 +418,7 @@ class NamedParametersPreparedStatement(
 
   private def errorRange(position: Position, position1: Position) = {
     def errorPosition(p: Position): ErrorPosition = ErrorPosition(p.line, p.column)
-    ErrorRange(errorPosition(position), errorPosition(position1))
+    api.ErrorRange(errorPosition(position), errorPosition(position1))
   }
   def executeWith(parameters: Seq[(String, RawValue)]): Either[String, ResultSet] = {
     val mandatoryParameters = {
@@ -546,7 +547,7 @@ class NamedParametersPreparedStatement(
         errorRange(start, end)
       }
       val range = codeLocation.getOrElse(errorRange(parsedTree.tree))
-      ErrorMessage(message, List(range), "sqlError")
+      api.ErrorMessage(message, List(range), "sqlError")
     }
   }
 
@@ -610,7 +611,7 @@ class NamedParametersPreparedStatement(
 
   private def highlightError(nodes: Seq[SqlBaseNode]): String => ErrorMessage = { msg: String =>
     val positions = for (node <- nodes) yield errorRange(node)
-    ErrorMessage(msg, positions.toList, ErrorCode.SqlErrorCode)
+    api.ErrorMessage(msg, positions.toList, ErrorCode.SqlErrorCode)
   }
 
   private def highlightError(node: SqlBaseNode): String => ErrorMessage = highlightError(Seq(node))

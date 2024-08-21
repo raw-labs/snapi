@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2.antlr4
 
+import com.rawlabs.compiler.api.Message
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream, TokenStream}
 import org.bitbucket.inkytonik.kiama.parsing.Parsers
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source, StringSource}
-import raw.client.api.Message
 import raw.compiler.base.source.Type
 import raw.compiler.common.source.SourceProgram
 import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}

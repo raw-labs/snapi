@@ -12,8 +12,7 @@
 
 package raw.client.sql
 
-import raw.client.api.RawInterval
-
+import com.rawlabs.compiler.api.RawInterval
 import scala.util.matching.Regex
 
 object SqlIntervals {

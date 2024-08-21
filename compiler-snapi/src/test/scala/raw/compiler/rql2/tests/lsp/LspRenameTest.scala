@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.client.api._
+import com.rawlabs.compiler.api.{Pos, RenameResponse}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class LspRenameTest extends Rql2TruffleCompilerTestContext {

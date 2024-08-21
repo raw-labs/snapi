@@ -12,12 +12,12 @@
 
 package raw.compiler.rql2.api
 
+import com.rawlabs.compiler.api.{EntryDoc, PackageDoc}
 import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.{ProgramContext, Rql2TypeUtils}
-import raw.client.api._
 import com.rawlabs.utils.sources.api._
 import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation
 

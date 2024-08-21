@@ -26,7 +26,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
 import java.util.Arrays;
 import java.util.Vector;
-import raw.client.utils.RecordFieldsNaming;
+import com.rawlabs.compiler.utils.RecordFieldsNaming;
 import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)

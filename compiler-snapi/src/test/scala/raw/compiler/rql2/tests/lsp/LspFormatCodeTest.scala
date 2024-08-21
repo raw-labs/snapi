@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.client.api.FormatCodeResponse
+import com.rawlabs.compiler.api.FormatCodeResponse
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class LspFormatCodeTest extends Rql2TruffleCompilerTestContext {

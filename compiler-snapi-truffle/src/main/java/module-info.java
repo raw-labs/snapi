@@ -10,6 +10,7 @@
  * licenses/APL.txt.
  */
 
+import com.rawlabs.compiler.api.CompilerServiceBuilder;
 import raw.compiler.snapi.truffle.builtin.location_extension.TruffleLocationFromStringEntry;
 
 module raw.snapi.truffle {
@@ -54,7 +55,7 @@ module raw.snapi.truffle {
 
   uses raw.compiler.rql2.api.EntryExtension;
   uses raw.compiler.rql2.api.PackageExtension;
-  uses raw.client.api.CompilerServiceBuilder;
+  uses CompilerServiceBuilder;
 
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       raw.runtime.truffle.RawLanguageProvider;

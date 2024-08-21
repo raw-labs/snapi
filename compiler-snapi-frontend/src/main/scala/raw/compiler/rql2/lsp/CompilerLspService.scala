@@ -12,10 +12,11 @@
 
 package raw.compiler.rql2.lsp
 
+import com.rawlabs.compiler
+import com.rawlabs.compiler.api.{AutoCompleteResponse, Completion, ErrorPosition, ErrorRange, FieldCompletion, FunParamCompletion, GoToDefinitionResponse, HoverResponse, LetBindCompletion, LetFunCompletion, LetFunRecCompletion, Message, PackageCompletion, PackageEntryCompletion, Pos, ProgramEnvironment, RenameResponse, TypeCompletion, ValidateResponse}
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
-import raw.client.api._
 import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source.{BaseIdnNode, BaseNode}
 import raw.compiler.common.source._
@@ -125,12 +126,12 @@ class CompilerLspService(
             LetBind(_, _, Some(TypeAliasType(_)))
           ) | Some(Rql2AttrType(_, ErrorType())) | Some(TypeExp(ErrorType())) | Some(TypeAliasType(_)) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
-        AutoCompleteResponse(allTypes)
+        compiler.api.AutoCompleteResponse(allTypes)
       case _ => // Given that node, ask the "chain" for all entries in scope.
         nodeAtCurrentPosition match {
           case Some(Rql2ListType(ErrorType(), _)) =>
             val allTypes = getAllTypesInScope(maybeNode, prefix)
-            AutoCompleteResponse(allTypes)
+            compiler.api.AutoCompleteResponse(allTypes)
           case _ =>
             val maybeEntries = nodeAtCurrentPosition
               .map { n =>
@@ -191,7 +192,7 @@ class CompilerLspService(
               }
 
             maybeEntries match {
-              case Some(entries) => AutoCompleteResponse(entries.toArray)
+              case Some(entries) => compiler.api.AutoCompleteResponse(entries.toArray)
               case None => AutoCompleteResponse(Array.empty)
             }
         }
@@ -248,7 +249,7 @@ class CompilerLspService(
       }
 
     maybeEntries match {
-      case Some(entries) => AutoCompleteResponse(entries.toArray)
+      case Some(entries) => compiler.api.AutoCompleteResponse(entries.toArray)
       case None => AutoCompleteResponse(Array.empty)
     }
   }
@@ -444,7 +445,7 @@ class CompilerLspService(
     }
   }
 
-  def validate: ValidateResponse = ValidateResponse(errors)
+  def validate: ValidateResponse = compiler.api.ValidateResponse(errors)
 
   private lazy val errors: List[Message] = {
     analyzer.errors.map { err =>

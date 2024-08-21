@@ -13,8 +13,8 @@
 package raw.client.sql
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
+import com.rawlabs.compiler.api.{CompilerService, ErrorMessage, ErrorPosition, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GetProgramDescriptionFailure, GetProgramDescriptionSuccess, LetBindCompletion, ParamDescription, Pos, ProgramEnvironment, RawAttrType, RawDateType, RawDecimalType, RawInt, RawIntType, RawIterableType, RawLongType, RawNull, RawRecordType, RawString, RawStringType, RawValue, TypeCompletion, ValidateResponse}
 import org.testcontainers.utility.DockerImageName
-import raw.client.api._
 import com.rawlabs.utils.core._
 
 import java.io.ByteArrayOutputStream

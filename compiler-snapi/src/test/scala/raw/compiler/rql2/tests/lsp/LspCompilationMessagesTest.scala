@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.client.api.{ErrorMessage, WarningMessage}
+import com.rawlabs.compiler.api.{ErrorMessage, WarningMessage}
 import raw.compiler.base.errors.{MissingSecretWarning, UnknownDecl}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 class LspCompilationMessagesTest extends Rql2TruffleCompilerTestContext {

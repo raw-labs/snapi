@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2.builtin
 
+import com.rawlabs.compiler.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, TypeDoc}
 import raw.compiler.base.source.Type
 import raw.compiler.rql2._
 import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 import raw.compiler.rql2.source._
-import raw.client.api._
 
 class AwsPackage extends PackageExtension {
   override def name: String = "Aws"

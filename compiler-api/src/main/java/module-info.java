@@ -10,6 +10,8 @@
  * licenses/APL.txt.
  */
 
+import com.rawlabs.compiler.api.CompilerServiceBuilder;
+
 module raw.client {
   requires scala.library;
   requires org.slf4j;
@@ -23,12 +25,12 @@ module raw.client {
   requires raw.utils.core;
   requires raw.compiler.protocol;
 
-  exports raw.client.api;
-  exports raw.client.writers;
-  exports raw.client.utils;
+  exports com.rawlabs.compiler.api;
+  exports com.rawlabs.compiler.writers;
+  exports com.rawlabs.compiler.utils;
 
-  opens raw.client.api to
+  opens com.rawlabs.compiler.api to
       com.fasterxml.jackson.databind;
 
-  uses raw.client.api.CompilerServiceBuilder;
+  uses CompilerServiceBuilder;
 }

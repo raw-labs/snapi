@@ -12,11 +12,11 @@
 
 package raw.compiler.rql2.antlr4
 
+import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import com.rawlabs.utils.core.RawUtils
 import org.antlr.v4.runtime.ParserRuleContext
 import org.apache.commons.codec.binary.Hex
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
-import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}

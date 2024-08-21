@@ -13,8 +13,9 @@
 package raw.client.sql
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
+import com.rawlabs.compiler.api
+import com.rawlabs.compiler.api.{AutoCompleteResponse, CompilerService, CompilerServiceException, Completion, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, FormatCodeResponse, FunParamCompletion, GetProgramDescriptionFailure, GetProgramDescriptionResponse, GetProgramDescriptionSuccess, GoToDefinitionResponse, HoverResponse, LetBindCompletion, ParamDescription, Pos, ProgramDescription, ProgramEnvironment, RawAnyType, RawAttrType, RawIterableType, RawRecordType, RawType, RenameResponse, TypeCompletion, ValidateResponse}
 import org.bitbucket.inkytonik.kiama.util.Positions
-import raw.client.api._
 import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
 import raw.client.sql.metadata.UserMetadataCache
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
@@ -131,7 +132,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                     case _ =>
                       val errorMessages =
                         outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
-                      GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
+                      api.GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
                   }
                 case Left(errors) => GetProgramDescriptionFailure(errors)
               }
@@ -145,7 +146,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           } catch {
             case ex: SQLException if isConnectionFailure(ex) =>
               logger.warn("SqlConnectionPool connection failure", ex)
-              GetProgramDescriptionFailure(List(treeError(parsedTree, ex.getMessage)))
+              api.GetProgramDescriptionFailure(List(treeError(parsedTree, ex.getMessage)))
           }
       }
     } catch {
@@ -283,7 +284,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
               LetBindCompletion(name, tipe)
           }
           logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
-          AutoCompleteResponse(collectedValues.toArray)
+          api.AutoCompleteResponse(collectedValues.toArray)
         case Some(_: SqlParamUseNode) =>
           AutoCompleteResponse(Array.empty) // dot completion makes no sense on parameters
         case _ => AutoCompleteResponse(Array.empty)
@@ -316,7 +317,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           }.toSeq
         case _ => Array.empty[Completion]
       }
-      AutoCompleteResponse(matches.toArray)
+      api.AutoCompleteResponse(matches.toArray)
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
@@ -394,7 +395,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     try {
       logger.debug(s"Validating: $source")
       safeParse(source) match {
-        case Left(errors) => ValidateResponse(errors)
+        case Left(errors) => api.ValidateResponse(errors)
         case Right(parsedTree) =>
           try {
             val conn = connectionPool.getConnection(environment.jdbcUrl.get)
@@ -416,7 +417,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           } catch {
             case ex: SQLException if isConnectionFailure(ex) =>
               logger.warn("SqlConnectionPool connection failure", ex)
-              ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
+              api.ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
           }
       }
     } catch {

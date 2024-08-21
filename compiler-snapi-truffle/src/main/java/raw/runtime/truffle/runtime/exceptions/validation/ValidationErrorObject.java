@@ -17,7 +17,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.List;
-import raw.client.api.Message;
+import com.rawlabs.compiler.api.Message;
 
 @ExportLibrary(InteropLibrary.class)
 public class ValidationErrorObject implements TruffleObject {

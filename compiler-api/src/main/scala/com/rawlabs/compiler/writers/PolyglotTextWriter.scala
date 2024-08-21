@@ -10,24 +10,22 @@
  * licenses/APL.txt.
  */
 
-package raw.client.writers
+package com.rawlabs.compiler.writers
 
 import org.graalvm.polyglot.Value
 
-import java.io.{BufferedOutputStream, IOException, OutputStream}
+import java.io.{IOException, OutputStream}
+import java.nio.charset.Charset
 
-final class PolyglotBinaryWriter(os: OutputStream) {
+final class PolyglotTextWriter(os: OutputStream) {
 
   def writeAndFlush(v: Value): Unit = {
     if (v.isException) {
       v.throwException()
-    } else if (v.isNull) {} else if (v.hasBufferElements) {
-      // TODO (msb): I suspect this is still terribly slow but not sure what the correct polyglot interface is.
-      val bufferedOutputStream = new BufferedOutputStream(os)
-      for (i <- 0L until v.getBufferSize) {
-        bufferedOutputStream.write(v.readBufferByte(i))
-      }
-      bufferedOutputStream.flush()
+    } else if (v.isNull) {} else if (v.isString) {
+      val s = v.asString()
+      os.write(s.getBytes(Charset.forName("UTF-8")))
+      os.flush()
     } else {
       throw new IOException("unsupported type")
     }

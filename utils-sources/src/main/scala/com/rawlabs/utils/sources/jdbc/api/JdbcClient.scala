@@ -44,10 +44,10 @@ final case class NativeIntervalType(nullable: Boolean) extends TableColumnType
 case object UnsupportedColumnType extends TableColumnType
 
 object JdbcClient {
-  private val CONNECT_TIMEOUT = "com.rawlabs.utils.sources.rdbms.connect-timeout"
-  private val READ_TIMEOUT = "com.rawlabs.utils.sources.rdbms.read-timeout"
-  private val NETWORK_TIMEOUT = "com.rawlabs.utils.sources.rdbms.network-timeout"
-  private val LOGIN_TIMEOUT = "com.rawlabs.utils.sources.rdbms.login-timeout"
+  private val CONNECT_TIMEOUT = "raw.sources.rdbms.connect-timeout"
+  private val READ_TIMEOUT = "raw.sources.rdbms.read-timeout"
+  private val NETWORK_TIMEOUT = "raw.sources.rdbms.network-timeout"
+  private val LOGIN_TIMEOUT = "raw.sources.rdbms.login-timeout"
 }
 
 abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLogging {

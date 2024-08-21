@@ -12,10 +12,10 @@
 
 package raw.client.python
 
+import com.rawlabs.compiler.api.{AutoCompleteResponse, CompilerService, CompilerServiceException, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, FormatCodeResponse, GetProgramDescriptionResponse, GoToDefinitionResponse, HoverResponse, Pos, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue, RenameResponse, ValidateResponse}
+import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
-import raw.client.api._
-import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 
 import java.io.{IOException, OutputStream}
 
@@ -92,7 +92,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
 //          }
 //        } catch {
 //          case ex: CompilerParserException => GetProgramDescriptionFailure(
-//              List(ErrorMessage(ex.getMessage, List(raw.client.api.ErrorRange(ex.position, ex.position))))
+//              List(ErrorMessage(ex.getMessage, List(com.rawlabs.compiler.api.ErrorRange(ex.position, ex.position))))
 //            )
 //          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
 //        }

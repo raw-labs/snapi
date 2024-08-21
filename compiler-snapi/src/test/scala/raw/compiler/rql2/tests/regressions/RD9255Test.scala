@@ -12,8 +12,8 @@
 
 package raw.compiler.rql2.tests.regressions
 
+import com.rawlabs.compiler.api.{RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue}
 import org.scalatest.EitherValues
-import raw.client.api._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 import java.time.{Duration, LocalDate, LocalDateTime, LocalTime}

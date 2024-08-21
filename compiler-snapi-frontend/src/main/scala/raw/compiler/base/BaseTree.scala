@@ -12,9 +12,9 @@
 
 package raw.compiler.base
 
+import com.rawlabs.compiler.api.Message
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.relation.{EnsureTree, LeaveAlone, TreeRelation}
-import raw.client.api.Message
 import raw.compiler.base.errors.{CompilationMessageMapper, ErrorCompilerMessage}
 import raw.compiler.base.source._
 import raw.compiler.utils.ExtraRewriters

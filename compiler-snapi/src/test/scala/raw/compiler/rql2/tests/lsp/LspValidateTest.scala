@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.client.api._
+import com.rawlabs.compiler.api.ValidateResponse
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class LspValidateTest extends Rql2TruffleCompilerTestContext {

@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.client.api._
+import com.rawlabs.compiler.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._

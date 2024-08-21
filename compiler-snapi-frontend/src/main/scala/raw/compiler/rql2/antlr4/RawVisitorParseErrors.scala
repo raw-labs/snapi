@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.antlr4
 
-import raw.client.api.Message
+import com.rawlabs.compiler.api.Message
 
 case class RawVisitorParseErrors() {
   private var errors: List[Message] = List.empty

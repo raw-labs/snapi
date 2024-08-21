@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.client.api
+package com.rawlabs.compiler.api
 
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}

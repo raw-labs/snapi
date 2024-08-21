@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2
 
+import com.rawlabs.compiler.api.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment}
 import com.rawlabs.utils.core.RawSettings
 import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
-import raw.client.api.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment}
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.antlr4.ParserErrors
 import raw.compiler.rql2.api._

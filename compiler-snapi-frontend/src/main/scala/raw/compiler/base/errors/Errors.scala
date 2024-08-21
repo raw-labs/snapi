@@ -12,7 +12,7 @@
 
 package raw.compiler.base.errors
 
-import raw.client.api._
+import com.rawlabs.compiler.api.{ErrorMessage, ErrorRange, HintMessage, InfoMessage, Message, WarningMessage}
 import raw.compiler.base.source._
 
 object CompilationMessageMapper {

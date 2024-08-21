@@ -19,7 +19,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.List;
-import raw.client.api.Message;
+import com.rawlabs.compiler.api.Message;
 import raw.runtime.truffle.runtime.exceptions.validation.ValidationErrorObject;
 import raw.runtime.truffle.runtime.list.StringList;
 

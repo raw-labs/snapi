@@ -12,7 +12,7 @@
 
 package raw.client.sql
 
-import raw.client.api.{CompilerService, CompilerServiceBuilder}
+import com.rawlabs.compiler.api.{CompilerService, CompilerServiceBuilder}
 import com.rawlabs.utils.core.RawSettings
 
 class SqlCompilerServiceBuilder extends CompilerServiceBuilder {

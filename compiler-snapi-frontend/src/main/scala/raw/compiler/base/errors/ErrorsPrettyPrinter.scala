@@ -12,9 +12,9 @@
 
 package raw.compiler.base.errors
 
+import com.rawlabs.compiler.api.{ErrorMessage, ErrorRange}
 import raw.compiler.base
 import raw.compiler.base.source.{BaseNode, NotValueType}
-import raw.client.api.{ErrorMessage, ErrorRange}
 
 trait ErrorsPrettyPrinter extends base.source.SourcePrettyPrinter {
 

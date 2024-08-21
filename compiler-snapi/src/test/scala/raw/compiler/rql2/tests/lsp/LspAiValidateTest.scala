@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.client.api.ValidateResponse
+import com.rawlabs.compiler.api.ValidateResponse
 import raw.compiler.rql2.errors.OutputTypeRequiredForRecursiveFunction
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 

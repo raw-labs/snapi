@@ -10,6 +10,8 @@
  * licenses/APL.txt.
  */
 
+import com.rawlabs.compiler.api.CompilerServiceBuilder;
+
 module raw.snapi.client {
   requires scala.library;
   requires org.slf4j;
@@ -22,8 +24,8 @@ module raw.snapi.client {
   requires raw.client;
   requires raw.snapi.frontend;
 
-  uses raw.client.api.CompilerServiceBuilder;
+  uses CompilerServiceBuilder;
 
-  provides raw.client.api.CompilerServiceBuilder with
+  provides CompilerServiceBuilder with
       raw.client.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
 }

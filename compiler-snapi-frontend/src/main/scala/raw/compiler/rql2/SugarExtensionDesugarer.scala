@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2
 
+import com.rawlabs.compiler.api.CompilerException
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
-import raw.client.api.CompilerException
 import raw.compiler.base.Phase
 import raw.compiler.base.errors.ErrorCompilerMessage
 import raw.compiler.base.source.Type

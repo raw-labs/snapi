@@ -12,10 +12,10 @@
 
 package raw.client.sql.antlr4
 
+import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.misc.Interval
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
-import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import raw.client.sql.generated.{PsqlParser, PsqlParserBaseVisitor}
 
 import scala.collection.JavaConverters._

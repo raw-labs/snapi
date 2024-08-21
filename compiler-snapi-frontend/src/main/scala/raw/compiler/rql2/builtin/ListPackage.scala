@@ -12,31 +12,13 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.client.api._
+import com.rawlabs.compiler.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.compiler.base.errors.ErrorCompilerMessage
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
-import raw.compiler.rql2.api.{
-  Arg,
-  EntryExtension,
-  ExpArg,
-  ExpParam,
-  PackageExtension,
-  Param,
-  Rql2StringValue,
-  SugarEntryExtension,
-  TypeArg,
-  TypeParam,
-  ValueArg,
-  ValueParam
-}
-import raw.compiler.rql2.errors.{
-  InvalidOrderSpec,
-  ItemsNotComparable,
-  KeyNotComparable,
-  OrderSpecMustFollowOrderingFunction
-}
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpArg, ExpParam, PackageExtension, Param, Rql2StringValue, SugarEntryExtension, TypeArg, TypeParam, ValueArg, ValueParam}
+import raw.compiler.rql2.errors.{InvalidOrderSpec, ItemsNotComparable, KeyNotComparable, OrderSpecMustFollowOrderingFunction}
 import raw.compiler.rql2.source._
 
 class ListPackage extends PackageExtension {

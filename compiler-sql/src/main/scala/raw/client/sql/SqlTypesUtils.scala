@@ -12,7 +12,7 @@
 
 package raw.client.sql
 
-import raw.client.api._
+import com.rawlabs.compiler.api.{RawAnyType, RawBinaryType, RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawIntervalType, RawLongType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType}
 
 import scala.annotation.tailrec
 

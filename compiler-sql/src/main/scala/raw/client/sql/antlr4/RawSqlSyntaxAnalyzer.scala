@@ -12,11 +12,11 @@
 
 package raw.client.sql.antlr4
 
+import com.rawlabs.compiler.api.Message
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.bitbucket.inkytonik.kiama.parsing.Parsers
 import org.bitbucket.inkytonik.kiama.util.{Positions, StringSource}
-import raw.client.api.Message
 import raw.client.sql.generated.{PsqlLexer, PsqlParser}
 
 import scala.collection.mutable

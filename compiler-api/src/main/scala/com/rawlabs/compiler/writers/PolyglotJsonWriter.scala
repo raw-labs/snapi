@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.client.writers
+package com.rawlabs.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonGenerator, JsonParser}
 import org.graalvm.polyglot.{PolyglotException, Value}

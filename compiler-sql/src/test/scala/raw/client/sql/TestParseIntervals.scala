@@ -12,8 +12,8 @@
 
 package raw.client.sql
 
+import com.rawlabs.compiler.api.RawInterval
 import org.scalatest.funsuite.AnyFunSuite
-import raw.client.api.RawInterval
 import raw.client.sql.SqlIntervals.parseInterval
 class TestParseIntervals extends AnyFunSuite {
 

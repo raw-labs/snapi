@@ -10,6 +10,8 @@
  * licenses/APL.txt.
  */
 
+import com.rawlabs.compiler.api.CompilerServiceBuilder;
+
 module raw.sql.client {
   requires scala.library;
   requires org.slf4j;
@@ -24,6 +26,6 @@ module raw.sql.client {
   requires java.sql;
   requires com.zaxxer.hikari;
 
-  provides raw.client.api.CompilerServiceBuilder with
+  provides CompilerServiceBuilder with
       raw.client.sql.SqlCompilerServiceBuilder;
 }

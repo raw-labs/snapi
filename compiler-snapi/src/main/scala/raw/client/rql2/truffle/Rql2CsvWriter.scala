@@ -39,7 +39,7 @@ import raw.compiler.rql2.source.{
 }
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
-import raw.client.utils.RecordFieldsNaming
+import com.rawlabs.compiler.utils.RecordFieldsNaming
 
 import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter

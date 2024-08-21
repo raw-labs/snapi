@@ -14,9 +14,9 @@ package raw.client.sql.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import raw.client.api._
+import com.rawlabs.compiler.api.{RawAnyType, RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawIntervalType, RawIterableType, RawListType, RawLongType, RawRecordType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType}
 import raw.client.sql.SqlIntervals.{intervalToString, parseInterval}
-import raw.client.utils.RecordFieldsNaming
+import com.rawlabs.compiler.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet

@@ -13,9 +13,9 @@
 package raw.client.sql
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
+import com.rawlabs.compiler.api.{RawInt, RawString}
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.testcontainers.utility.DockerImageName
-import raw.client.api.{RawInt, RawString}
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
 import com.rawlabs.utils.core._
 

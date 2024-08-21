@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.client.api
+package com.rawlabs.compiler.api
 
 import com.fasterxml.jackson.core.{JsonGenerator, JsonParser}
 import com.fasterxml.jackson.databind.module.SimpleModule

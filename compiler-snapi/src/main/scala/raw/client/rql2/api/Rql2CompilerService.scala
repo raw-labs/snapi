@@ -12,8 +12,8 @@
 
 package raw.client.rql2.api
 
+import com.rawlabs.compiler.api.{CompilerService, Message, ProgramEnvironment}
 import com.rawlabs.utils.core.RawUid
-import raw.client.api.{CompilerService, Message, ProgramEnvironment}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.SourceProgram
 

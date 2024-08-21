@@ -15,8 +15,8 @@ package raw.client.sql.writers
 import com.fasterxml.jackson.core.{JsonEncoding, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
-import raw.client.api._
-import raw.client.utils.RecordFieldsNaming
+import com.rawlabs.compiler.api.{RawAnyType, RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawIterableType, RawListType, RawLongType, RawRecordType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType}
+import com.rawlabs.compiler.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet

@@ -10,9 +10,14 @@
  * licenses/APL.txt.
  */
 
-package raw.client.api
+package com.rawlabs.compiler.api
 
-// TODO (msb): Add methods for execution so that same interface is respected by all.
-trait Entrypoint {
-  def target: Any
+import com.rawlabs.utils.core.RawSettings
+
+trait CompilerServiceBuilder {
+
+  // A compiler service can respond to more than one name.
+  def language: Set[String]
+
+  def build()(implicit settings: RawSettings): CompilerService
 }

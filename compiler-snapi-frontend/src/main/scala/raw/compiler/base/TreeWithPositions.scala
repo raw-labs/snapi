@@ -12,9 +12,9 @@
 
 package raw.compiler.base
 
+import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 import com.rawlabs.utils.core.RawUtils
 import org.bitbucket.inkytonik.kiama.util.Positions
-import raw.client.api._
 import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source._
 import raw.compiler.rql2.antlr4.ParseProgramResult

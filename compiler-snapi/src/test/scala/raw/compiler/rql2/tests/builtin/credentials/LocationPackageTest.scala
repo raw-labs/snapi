@@ -22,7 +22,7 @@ class LocationPackageTest extends Rql2TruffleCompilerTestContext {
 
   s3Bucket(UnitTestPrivateBucket2, UnitTestPrivateBucket2Cred)
 
-  property("com.rawlabs.utils.sources.dropbox.clientId", dropboxClientId)
+  property("raw.sources.dropbox.clientId", dropboxClientId)
 
   test("""
     |String.Read(

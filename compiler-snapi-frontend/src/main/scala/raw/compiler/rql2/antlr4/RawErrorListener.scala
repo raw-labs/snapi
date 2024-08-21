@@ -12,8 +12,8 @@
 
 package raw.compiler.rql2.antlr4
 
+import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
-import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 
 class RawErrorListener() extends BaseErrorListener {
 

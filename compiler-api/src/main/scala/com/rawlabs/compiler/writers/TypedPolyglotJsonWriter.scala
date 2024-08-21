@@ -10,12 +10,12 @@
  * licenses/APL.txt.
  */
 
-package raw.client.writers
+package com.rawlabs.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
+import com.rawlabs.compiler.api.{RawBinaryType, RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawIntervalType, RawIterableType, RawListType, RawLongType, RawOrType, RawRecordType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType}
+import com.rawlabs.compiler.utils.RecordFieldsNaming
 import org.graalvm.polyglot.Value
-import raw.client.api._
-import raw.client.utils.RecordFieldsNaming
 
 import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter
