@@ -40,8 +40,7 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.client.rql2.api._
-import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
+import com.rawlabs.compiler.snapi.base.source.{BaseProgram, Type}
 import com.rawlabs.compiler.snapi.inferrer.local.LocalInferrerTestContext
 import com.rawlabs.compiler.protocol.{
   DropboxAccessTokenConfig,
@@ -56,6 +55,7 @@ import com.rawlabs.compiler.protocol.{
   SnowflakeConfig
 }
 import com.rawlabs.utils.core._
+import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
 
 import java.io.{ByteArrayOutputStream, FileWriter}
 import java.nio.charset.{Charset, StandardCharsets}

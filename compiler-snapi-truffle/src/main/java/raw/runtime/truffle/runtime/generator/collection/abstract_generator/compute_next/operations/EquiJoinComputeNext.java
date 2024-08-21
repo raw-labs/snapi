@@ -13,7 +13,7 @@
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
 
 public class EquiJoinComputeNext {
 

@@ -12,8 +12,8 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.utils._
-import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable, OrderSpecMustFollowOrderingFunction}
+import com.rawlabs.compiler.snapi.utils._
+import com.rawlabs.compiler.snapi.rql2.errors.{InvalidOrderSpec, KeyNotComparable, OrderSpecMustFollowOrderingFunction}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 

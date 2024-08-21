@@ -14,9 +14,10 @@ package raw.compiler.rql2
 
 import com.rawlabs.utils.core.RawTestSuite
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
-import raw.compiler.common.source.{Exp, SourceNode}
-import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
-import raw.compiler.rql2.source.TypeExp
+import com.rawlabs.compiler.snapi.common.source.{Exp, SourceNode}
+import com.rawlabs.compiler.snapi.rql2.FrontendSyntaxAnalyzer
+import com.rawlabs.compiler.snapi.rql2.antlr4.Antlr4SyntaxAnalyzer
+import com.rawlabs.compiler.snapi.rql2.source.TypeExp
 
 class FrontendSyntaxAnalyzerCompareTest extends RawTestSuite {
   val triple = "\"\"\""

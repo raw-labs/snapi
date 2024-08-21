@@ -27,7 +27,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import raw.compiler.rql2.source.*;
+import com.rawlabs.compiler.snapi.rql2.source.*;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;

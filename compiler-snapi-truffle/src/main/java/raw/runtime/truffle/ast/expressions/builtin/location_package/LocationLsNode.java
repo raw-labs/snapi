@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.utils.core.RawException;
 import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation;
-import raw.compiler.rql2.api.LocationDescription$;
+import com.rawlabs.compiler.snapi.rql2.api.LocationDescription$;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;

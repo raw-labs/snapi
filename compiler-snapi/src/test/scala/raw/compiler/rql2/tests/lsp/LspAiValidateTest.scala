@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.lsp
 
 import com.rawlabs.compiler.api.ValidateResponse
-import raw.compiler.rql2.errors.OutputTypeRequiredForRecursiveFunction
+import com.rawlabs.compiler.snapi.rql2.errors.OutputTypeRequiredForRecursiveFunction
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class LspAiValidateTest extends Rql2TruffleCompilerTestContext {

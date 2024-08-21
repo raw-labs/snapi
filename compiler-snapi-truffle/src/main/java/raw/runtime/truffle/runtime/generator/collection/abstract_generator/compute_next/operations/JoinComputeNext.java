@@ -16,7 +16,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import java.io.File;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
 
 public class JoinComputeNext {
   @CompilationFinal private File diskRight;

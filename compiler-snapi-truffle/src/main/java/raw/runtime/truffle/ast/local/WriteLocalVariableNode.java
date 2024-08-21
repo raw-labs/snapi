@@ -15,7 +15,7 @@ package raw.runtime.truffle.ast.local;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import raw.compiler.rql2.source.*;
+import com.rawlabs.compiler.snapi.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 

@@ -60,17 +60,17 @@ import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot._
 import raw.client.rql2.api._
-import raw.compiler.base
-import raw.compiler.base.errors._
-import raw.compiler.base.source.BaseNode
-import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
-import raw.compiler.common.source.{SourceNode, SourceProgram}
-import raw.compiler.rql2._
-import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
-import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
-import raw.compiler.rql2.errors._
-import raw.compiler.rql2.lsp.CompilerLspService
-import raw.compiler.rql2.source._
+import com.rawlabs.compiler.snapi.base
+import com.rawlabs.compiler.snapi.base.errors._
+import com.rawlabs.compiler.snapi.base.source.BaseNode
+import com.rawlabs.compiler.snapi.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
+import com.rawlabs.compiler.snapi.common.source.{SourceNode, SourceProgram}
+import com.rawlabs.compiler.snapi.rql2._
+import com.rawlabs.compiler.snapi.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
+import com.rawlabs.compiler.snapi.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
+import com.rawlabs.compiler.snapi.rql2.errors._
+import com.rawlabs.compiler.snapi.rql2.lsp.CompilerLspService
+import com.rawlabs.compiler.snapi.rql2.source._
 import com.rawlabs.compiler.snapi.inferrer.api.InferrerServiceProvider
 
 import java.io.{IOException, OutputStream}

@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.compiler.utils._
+import com.rawlabs.compiler.snapi.utils._
 
 class RD5697Test extends Rql2TruffleCompilerTestContext {
 

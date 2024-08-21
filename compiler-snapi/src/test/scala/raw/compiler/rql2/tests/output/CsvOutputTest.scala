@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.output
 
 import com.rawlabs.utils.core.RawUtils
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.compiler.utils._
+import com.rawlabs.compiler.snapi.utils._
 import com.rawlabs.utils.core._
 
 import java.nio.file.Files

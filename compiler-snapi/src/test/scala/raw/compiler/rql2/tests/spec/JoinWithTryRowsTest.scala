@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
-import raw.compiler.utils._
+import com.rawlabs.compiler.snapi.utils._
 
 class JoinWithTryRowsTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
 

@@ -12,10 +12,10 @@
 
 package raw.compiler.snapi.truffle.builtin.timestamp_extension;
 
-import raw.compiler.base.source.Type;
-import raw.compiler.rql2.builtin.TimestampTimeBucketEntry;
-import raw.compiler.rql2.source.Rql2IntervalType;
-import raw.compiler.rql2.source.Rql2StringType;
+import com.rawlabs.compiler.snapi.base.source.Type;
+import com.rawlabs.compiler.snapi.rql2.builtin.TimestampTimeBucketEntry;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2IntervalType;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2StringType;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ExpressionNode;

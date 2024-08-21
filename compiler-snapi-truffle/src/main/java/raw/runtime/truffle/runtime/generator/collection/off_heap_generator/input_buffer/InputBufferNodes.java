@@ -15,7 +15,7 @@ package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.inpu
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.runtime.kryo.KryoNodes;
 
 public class InputBufferNodes {

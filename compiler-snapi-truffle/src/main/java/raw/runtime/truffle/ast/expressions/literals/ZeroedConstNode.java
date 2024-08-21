@@ -13,7 +13,7 @@
 package raw.runtime.truffle.ast.expressions.literals;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import raw.compiler.rql2.source.*;
+import com.rawlabs.compiler.snapi.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 
 public class ZeroedConstNode extends ExpressionNode {

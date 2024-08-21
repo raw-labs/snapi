@@ -13,10 +13,10 @@
 package raw.compiler.rql2output.truffle.builtin;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import raw.compiler.rql2.source.Rql2BinaryType;
-import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
-import raw.compiler.rql2.source.Rql2IsTryableTypeProperty;
-import raw.compiler.rql2.source.Rql2StringType;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2BinaryType;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2IsNullableTypeProperty;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2IsTryableTypeProperty;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2StringType;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.binary.BinaryBytesWriterNode;

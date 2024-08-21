@@ -12,8 +12,8 @@
 
 package raw.compiler.snapi.truffle.builtin;
 
-import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
-import raw.compiler.rql2.source.Rql2IsTryableTypeProperty;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2IsNullableTypeProperty;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2IsTryableTypeProperty;
 
 public class CompilerScalaConsts {
   public static final Rql2IsTryableTypeProperty tryable = Rql2IsTryableTypeProperty.apply();

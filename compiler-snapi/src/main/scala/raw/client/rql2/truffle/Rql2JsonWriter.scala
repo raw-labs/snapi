@@ -15,8 +15,8 @@ package raw.client.rql2.truffle
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import org.graalvm.polyglot.Value
 import com.rawlabs.compiler.utils.RecordFieldsNaming
-import raw.compiler.rql2.Rql2TypeUtils
-import raw.compiler.rql2.source._
+import com.rawlabs.compiler.snapi.rql2.Rql2TypeUtils
+import com.rawlabs.compiler.snapi.rql2.source._
 
 import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter

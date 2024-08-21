@@ -12,8 +12,8 @@
 
 package raw.compiler.rql2.tests.parser
 
-import raw.compiler.common.source._
-import raw.compiler.rql2.source._
+import com.rawlabs.compiler.snapi.common.source._
+import com.rawlabs.compiler.snapi.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class OperatorPrecedenceTest extends Rql2TruffleCompilerTestContext {

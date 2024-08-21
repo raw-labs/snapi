@@ -12,7 +12,7 @@
 
 //package raw.compiler.rql2.tests.builtin
 //
-//import raw.compiler.rql2.tests.{RunnerScalaTestContext, RunnerTestContext}
+//import com.rawlabs.compiler.snapi.rql2.tests.{RunnerScalaTestContext, RunnerTestContext}
 //import raw.testing.tags.Tier1
 //
 //@Tier1

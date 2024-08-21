@@ -15,7 +15,7 @@ package raw.runtime.truffle.ast.io.kryo;
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.io.ByteArrayOutputStream;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.kryo.KryoNodes;
 import raw.runtime.truffle.runtime.kryo.KryoNodesFactory;

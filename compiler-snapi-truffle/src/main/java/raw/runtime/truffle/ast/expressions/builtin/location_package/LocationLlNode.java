@@ -21,7 +21,7 @@ import com.rawlabs.utils.core.RawException;
 import com.rawlabs.utils.sources.filesystem.api.*;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import raw.compiler.rql2.api.LocationDescription$;
+import com.rawlabs.compiler.snapi.rql2.api.LocationDescription$;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.list.ObjectList;

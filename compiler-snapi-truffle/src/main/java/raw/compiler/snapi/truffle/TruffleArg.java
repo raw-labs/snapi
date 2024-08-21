@@ -12,7 +12,7 @@
 
 package raw.compiler.snapi.truffle;
 
-import raw.compiler.base.source.Type;
+import com.rawlabs.compiler.snapi.base.source.Type;
 import raw.runtime.truffle.ExpressionNode;
 
 public record TruffleArg(ExpressionNode exprNode, Type type, String identifier) {}

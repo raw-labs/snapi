@@ -43,24 +43,24 @@ module raw.snapi.frontend {
   requires raw.utils.sources;
   requires raw.snapi.parser;
 
-  exports raw.compiler.base;
-  exports raw.compiler.base.errors;
-  exports raw.compiler.base.source;
-  exports raw.compiler.common;
-  exports raw.compiler.common.source;
-  exports raw.compiler.rql2;
-  exports raw.compiler.rql2.api;
-  exports raw.compiler.rql2.builtin;
-  exports raw.compiler.rql2.errors;
-  exports raw.compiler.rql2.lsp;
-  exports raw.compiler.rql2.source;
-  exports raw.compiler.rql2.antlr4;
-  exports raw.compiler.utils;
+  exports com.rawlabs.compiler.snapi.base;
+  exports com.rawlabs.compiler.snapi.base.errors;
+  exports com.rawlabs.compiler.snapi.base.source;
+  exports com.rawlabs.compiler.snapi.common;
+  exports com.rawlabs.compiler.snapi.common.source;
+  exports com.rawlabs.compiler.snapi.rql2;
+  exports com.rawlabs.compiler.snapi.rql2.api;
+  exports com.rawlabs.compiler.snapi.rql2.builtin;
+  exports com.rawlabs.compiler.snapi.rql2.errors;
+  exports com.rawlabs.compiler.snapi.rql2.lsp;
+  exports com.rawlabs.compiler.snapi.rql2.source;
+  exports com.rawlabs.compiler.snapi.rql2.antlr4;
+  exports com.rawlabs.compiler.snapi.utils;
   exports com.rawlabs.compiler.snapi.inferrer.api;
   exports com.rawlabs.compiler.snapi.inferrer.local;
 
   opens com.rawlabs.compiler.snapi.inferrer.api to
       com.fasterxml.jackson.databind;
-  opens raw.compiler.rql2.api to
+  opens com.rawlabs.compiler.snapi.rql2.api to
       com.fasterxml.jackson.databind;
 }

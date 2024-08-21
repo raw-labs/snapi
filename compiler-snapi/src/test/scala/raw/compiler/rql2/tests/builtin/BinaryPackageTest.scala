@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.utils._
+import com.rawlabs.compiler.snapi.utils._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 import java.nio.file.Path

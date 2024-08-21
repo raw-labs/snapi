@@ -25,8 +25,8 @@ import com.rawlabs.utils.sources.bytestream.http.HttpByteStreamLocation;
 import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation;
 import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
 import java.nio.ByteOrder;
-import raw.compiler.rql2.api.LocationDescription;
-import raw.compiler.rql2.api.LocationDescription$;
+import com.rawlabs.compiler.snapi.rql2.api.LocationDescription;
+import com.rawlabs.compiler.snapi.rql2.api.LocationDescription$;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 /**

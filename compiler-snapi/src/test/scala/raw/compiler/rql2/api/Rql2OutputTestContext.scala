@@ -19,9 +19,9 @@ import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModul
 import com.google.common.collect.HashMultiset
 import com.rawlabs.utils.core.{RawTestSuite, SettingsTestContext}
 import org.bitbucket.inkytonik.kiama.util.Positions
-import raw.compiler.base.source.Type
-import raw.compiler.rql2.FrontendSyntaxAnalyzer
-import raw.compiler.rql2.source._
+import com.rawlabs.compiler.snapi.base.source.Type
+import com.rawlabs.compiler.snapi.rql2.FrontendSyntaxAnalyzer
+import com.rawlabs.compiler.snapi.rql2.source._
 
 import java.nio.file.Path
 import scala.collection.JavaConverters._

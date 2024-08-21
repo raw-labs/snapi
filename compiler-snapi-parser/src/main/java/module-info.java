@@ -11,7 +11,7 @@
  */
 
 module raw.snapi.parser {
-  exports raw.compiler.rql2.generated;
+  exports com.rawlabs.compiler.snapi.generated;
 
   requires org.antlr.antlr4.runtime;
 }

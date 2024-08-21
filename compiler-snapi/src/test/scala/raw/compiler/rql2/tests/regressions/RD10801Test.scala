@@ -12,8 +12,8 @@
 
 package raw.compiler.rql2.tests.regressions
 
+import com.rawlabs.compiler.snapi.utils.SnapiInterpolator
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.compiler.utils.SnapiInterpolator
 
 class RD10801Test extends Rql2TruffleCompilerTestContext {
 

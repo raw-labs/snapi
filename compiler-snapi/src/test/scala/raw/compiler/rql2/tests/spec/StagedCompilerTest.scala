@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.utils._
+import com.rawlabs.compiler.snapi.utils._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class StagedCompilerTest extends Rql2TruffleCompilerTestContext {

@@ -21,7 +21,7 @@ import com.rawlabs.utils.core.RawUtils;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import raw.compiler.base.CompilerContext;
+import com.rawlabs.compiler.snapi.base.CompilerContext;
 import scala.runtime.BoxedUnit;
 
 public class RawLanguageCache {

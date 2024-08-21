@@ -14,11 +14,11 @@ package raw.compiler.snapi.truffle.builtin.aws_extension;
 
 import java.util.List;
 import java.util.Optional;
-import raw.compiler.base.source.Type;
-import raw.compiler.rql2.builtin.AwsV4SignedRequest;
-import raw.compiler.rql2.source.Rql2AttrType;
-import raw.compiler.rql2.source.Rql2ListType;
-import raw.compiler.rql2.source.Rql2RecordType;
+import com.rawlabs.compiler.snapi.base.source.Type;
+import com.rawlabs.compiler.snapi.rql2.builtin.AwsV4SignedRequest;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2AttrType;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2ListType;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2RecordType;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;

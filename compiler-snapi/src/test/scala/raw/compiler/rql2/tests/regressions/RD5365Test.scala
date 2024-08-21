@@ -15,8 +15,8 @@ package raw.compiler.rql2.tests.regressions
 import com.rawlabs.utils.core.TestData
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.scalatest.matchers.{MatchResult, Matcher}
-import raw.compiler.rql2.FrontendSyntaxAnalyzer
-import raw.compiler.rql2.source.SourcePrettyPrinter
+import com.rawlabs.compiler.snapi.rql2.FrontendSyntaxAnalyzer
+import com.rawlabs.compiler.snapi.rql2.source.SourcePrettyPrinter
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class RD5365Test extends Rql2TruffleCompilerTestContext {

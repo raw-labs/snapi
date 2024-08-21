@@ -13,8 +13,8 @@
 package raw.compiler.rql2.tests.regressions
 
 import com.rawlabs.compiler.api.{GetProgramDescriptionSuccess, ProgramEnvironment}
+import com.rawlabs.compiler.snapi.utils.SnapiInterpolator
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.compiler.utils.SnapiInterpolator
 
 class RD10767Test extends Rql2TruffleCompilerTestContext {
   private val data = tempFile("""

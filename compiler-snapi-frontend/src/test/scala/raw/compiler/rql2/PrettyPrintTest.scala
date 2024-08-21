@@ -14,7 +14,7 @@ package raw.compiler.rql2
 
 import com.rawlabs.utils.core.RawTestSuite
 import org.scalatest.Assertion
-import raw.compiler.rql2.source.SourceCommentsPrettyPrinter
+import com.rawlabs.compiler.snapi.rql2.source.SourceCommentsPrettyPrinter
 
 class PrettyPrintTest extends RawTestSuite {
 

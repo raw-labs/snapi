@@ -144,9 +144,9 @@ lazy val compilerSnapiParser = (project in file("compiler-snapi-parser"))
     javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
       (
-        s"${javaSrcBasePath.value}/raw/compiler/rql2/generated",
-        "raw.compiler.rql2.generated",
-        s"${javaSrcBasePath.value}/raw/snapi/grammar",
+        s"${javaSrcBasePath.value}/com/rawlabs/compiler/snapi/generated",
+        "com.rawlabs.compiler.snapi.generated",
+        s"${javaSrcBasePath.value}/com/rawlabs/compiler/snapi/grammar",
         "Snapi"
       )
     ),

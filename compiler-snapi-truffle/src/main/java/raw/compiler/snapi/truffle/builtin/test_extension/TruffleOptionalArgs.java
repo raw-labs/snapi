@@ -13,7 +13,7 @@
 package raw.compiler.snapi.truffle.builtin.test_extension;
 
 import java.util.List;
-import raw.compiler.base.source.Type;
+import com.rawlabs.compiler.snapi.base.source.Type;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.compiler.snapi.truffle.builtin.WithArgs;

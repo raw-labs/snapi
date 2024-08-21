@@ -15,7 +15,7 @@ package raw.client.rql2.truffle
 import com.fasterxml.jackson.core.JsonEncoding
 import com.fasterxml.jackson.core.JsonParser
 import org.graalvm.polyglot.Value
-import raw.compiler.rql2.source.{
+import com.rawlabs.compiler.snapi.rql2.source.{
   Rql2BinaryType,
   Rql2BoolType,
   Rql2ByteType,

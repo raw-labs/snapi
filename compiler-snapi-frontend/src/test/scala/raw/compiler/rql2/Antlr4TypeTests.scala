@@ -13,9 +13,9 @@
 package raw.compiler.rql2
 
 import com.rawlabs.utils.core.RawTestSuite
-import raw.compiler.base.source.Type
-import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
-import raw.compiler.rql2.source.{
+import com.rawlabs.compiler.snapi.base.source.Type
+import com.rawlabs.compiler.snapi.rql2.antlr4.Antlr4SyntaxAnalyzer
+import com.rawlabs.compiler.snapi.rql2.source.{
   FunOptTypeParam,
   FunType,
   Rql2AttrType,

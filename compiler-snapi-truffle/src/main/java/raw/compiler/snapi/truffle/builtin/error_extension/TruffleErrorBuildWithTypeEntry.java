@@ -13,8 +13,8 @@
 package raw.compiler.snapi.truffle.builtin.error_extension;
 
 import java.util.List;
-import raw.compiler.base.source.Type;
-import raw.compiler.rql2.builtin.ErrorBuildWithTypeEntry;
+import com.rawlabs.compiler.snapi.base.source.Type;
+import com.rawlabs.compiler.snapi.rql2.builtin.ErrorBuildWithTypeEntry;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;

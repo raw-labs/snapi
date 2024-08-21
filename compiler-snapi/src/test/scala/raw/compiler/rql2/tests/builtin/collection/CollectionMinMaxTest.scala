@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.rql2.errors.ItemsNotComparable
+import com.rawlabs.compiler.snapi.rql2.errors.ItemsNotComparable
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class CollectionMinMaxTest extends Rql2TruffleCompilerTestContext {

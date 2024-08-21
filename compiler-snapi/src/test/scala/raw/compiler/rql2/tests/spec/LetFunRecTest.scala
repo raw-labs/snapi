@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.errors.OutputTypeRequiredForRecursiveFunction
+import com.rawlabs.compiler.snapi.rql2.errors.OutputTypeRequiredForRecursiveFunction
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class LetFunRecTest extends Rql2TruffleCompilerTestContext {

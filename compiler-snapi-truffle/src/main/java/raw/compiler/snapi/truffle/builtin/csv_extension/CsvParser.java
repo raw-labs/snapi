@@ -13,8 +13,8 @@
 package raw.compiler.snapi.truffle.builtin.csv_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import raw.compiler.base.source.Type;
-import raw.compiler.rql2.source.*;
+import com.rawlabs.compiler.snapi.base.source.Type;
+import com.rawlabs.compiler.snapi.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;

@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.Arrays;
 import java.util.List;
-import raw.compiler.rql2.source.Rql2AttrType;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;

@@ -14,7 +14,7 @@ package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_
 
 import java.io.File;
 import java.util.ArrayList;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import raw.runtime.truffle.utils.KryoFootPrint;

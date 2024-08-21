@@ -15,11 +15,11 @@ package raw.compiler.snapi.truffle.compiler;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.rawlabs.compiler.api.Entrypoint;
-import raw.compiler.common.source.Exp;
-import raw.compiler.common.source.SourceProgram;
-import raw.compiler.rql2.ProgramContext;
-import raw.compiler.rql2.Tree;
-import raw.compiler.rql2.source.*;
+import com.rawlabs.compiler.snapi.common.source.Exp;
+import com.rawlabs.compiler.snapi.common.source.SourceProgram;
+import com.rawlabs.compiler.snapi.rql2.ProgramContext;
+import com.rawlabs.compiler.snapi.rql2.Tree;
+import com.rawlabs.compiler.snapi.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
@@ -31,8 +31,8 @@ public class TruffleEmit {
   public static Entrypoint doEmit(
       SourceProgram program,
       RawLanguage language,
-      raw.compiler.base.ProgramContext programContext) {
-    ProgramContext ctx = (raw.compiler.rql2.ProgramContext) programContext;
+      com.rawlabs.compiler.snapi.base.ProgramContext programContext) {
+    ProgramContext ctx = (com.rawlabs.compiler.snapi.rql2.ProgramContext) programContext;
     Tree tree = new Tree(program, true, ctx);
     SnapiTruffleEmitter emitter = new SnapiTruffleEmitter(tree, language, ctx);
     Rql2Program prog = (Rql2Program) tree.root();

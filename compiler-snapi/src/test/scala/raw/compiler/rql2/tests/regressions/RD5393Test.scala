@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.errors.CannotDetermineTypeOfParameter
+import com.rawlabs.compiler.snapi.rql2.errors.CannotDetermineTypeOfParameter
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class RD5393Test extends Rql2TruffleCompilerTestContext {
