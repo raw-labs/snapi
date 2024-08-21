@@ -1,0 +1,45 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+package com.rawlabs.compiler.snapi.truffle.runtime.runtime.function;
+
+import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.interop.TruffleObject;
+
+// A parent runtime object that contains the CallTarget. It is referenced by Lambda,
+// Closure, and RecClosure.
+public final class Function implements TruffleObject {
+
+  private final String name;
+
+  private final RootCallTarget rootCallTarget;
+
+  public final String[] argNames;
+
+  public Function(RootCallTarget rootCallTarget, String[] argNames) {
+    this.name = rootCallTarget.getRootNode().getName();
+    this.rootCallTarget = rootCallTarget;
+    this.argNames = argNames;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public RootCallTarget getCallTarget() {
+    return rootCallTarget;
+  }
+
+  public String[] getArgNames() {
+    return argNames;
+  }
+}
