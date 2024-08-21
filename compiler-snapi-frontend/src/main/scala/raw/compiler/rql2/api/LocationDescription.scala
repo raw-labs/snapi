@@ -50,7 +50,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.rawlabs.utils.core.RawSettings
 import com.typesafe.config.{ConfigException, ConfigFactory}
-import raw.protocol.LocationConfig
+import com.rawlabs.compiler.protocol.LocationConfig
 import raw.client.api.ProgramEnvironment
 
 import java.net.{HttpURLConnection, URI, URISyntaxException}

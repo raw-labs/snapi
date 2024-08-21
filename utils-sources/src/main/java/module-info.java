@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-module raw.sources {
+module raw.utils.sources {
   requires scala.library;
   requires org.slf4j;
   requires com.fasterxml.jackson.core;

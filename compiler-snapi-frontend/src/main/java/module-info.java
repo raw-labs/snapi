@@ -38,9 +38,9 @@ module raw.snapi.frontend {
   requires jul.to.slf4j;
   requires org.graalvm.polyglot;
   requires raw.utils.core;
-  requires raw.protocol;
+  requires raw.compiler.protocol;
   requires raw.client;
-  requires raw.sources;
+  requires raw.utils.sources;
   requires raw.snapi.parser;
 
   exports raw.compiler.base;

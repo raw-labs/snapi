@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-option java_package = "raw.protocol";
+option java_package = "com.rawlabs.compiler.protocol";
 option java_multiple_files = true;
 
-package raw.protocol;
+package com.rawlabs.compiler.protocol;
 
 message LocationConfig {
     oneof config {

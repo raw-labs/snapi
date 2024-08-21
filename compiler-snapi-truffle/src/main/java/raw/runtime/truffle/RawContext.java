@@ -23,7 +23,7 @@ import java.io.OutputStream;
 import java.util.Set;
 import raw.client.api.*;
 import raw.inferrer.api.InferrerService;
-import raw.protocol.LocationConfig;
+import com.rawlabs.compiler.protocol.LocationConfig;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
 import scala.collection.JavaConverters;

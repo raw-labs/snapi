@@ -30,7 +30,7 @@ import raw.client.rql2.api._
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
 import raw.inferrer.local.LocalInferrerTestContext
-import raw.protocol.{
+import com.rawlabs.compiler.protocol.{
   DropboxAccessTokenConfig,
   HttpHeadersConfig,
   LocationConfig,

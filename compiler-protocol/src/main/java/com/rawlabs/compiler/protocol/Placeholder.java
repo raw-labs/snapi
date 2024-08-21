@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.protocol;
+package com.rawlabs.compiler.protocol;
 
 class Placeholder {
   // Placeholder class to allow the module-info.java file to be compiled

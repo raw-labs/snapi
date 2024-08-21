@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.regressions.credentials
 
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
-import raw.protocol.DropboxAccessTokenConfig
+import com.rawlabs.compiler.protocol.DropboxAccessTokenConfig
 
 class RD4445Test extends Rql2TruffleCompilerTestContext {
 
