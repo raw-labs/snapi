@@ -41,7 +41,6 @@ import com.rawlabs.compiler.api.{
   TypeCompletion,
   ValidateResponse
 }
-import com.rawlabs.sql.compiler.impl.SqlCompilerService
 import org.testcontainers.utility.DockerImageName
 import com.rawlabs.utils.core._
 

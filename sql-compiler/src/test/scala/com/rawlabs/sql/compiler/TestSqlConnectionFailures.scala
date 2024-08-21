@@ -30,7 +30,6 @@ import com.rawlabs.compiler.api.{
   TypeCompletion,
   ValidateResponse
 }
-import com.rawlabs.sql.compiler.impl.SqlCompilerService
 import org.scalatest.matchers.must.Matchers.be
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.testcontainers.utility.DockerImageName

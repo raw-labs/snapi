@@ -15,7 +15,6 @@ package com.rawlabs.sql.compiler
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import com.rawlabs.compiler.api.{RawInt, RawString}
 import com.rawlabs.sql.compiler.antlr4.RawSqlSyntaxAnalyzer
-import com.rawlabs.sql.compiler.impl.{NamedParametersPreparedStatement, SqlConnectionPool}
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.testcontainers.utility.DockerImageName
 import com.rawlabs.utils.core._
