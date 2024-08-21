@@ -28,5 +28,5 @@ module raw.sql.client {
   requires com.zaxxer.hikari;
 
   provides CompilerServiceBuilder with
-          SqlCompilerServiceBuilder;
+      SqlCompilerServiceBuilder;
 }

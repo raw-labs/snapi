@@ -12,7 +12,18 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import com.rawlabs.compiler.api.{AutoCompleteResponse, FieldCompletion, FunParamCompletion, LetBindCompletion, LetFunCompletion, LetFunRecCompletion, PackageCompletion, PackageEntryCompletion, Pos, TypeCompletion}
+import com.rawlabs.compiler.api.{
+  AutoCompleteResponse,
+  FieldCompletion,
+  FunParamCompletion,
+  LetBindCompletion,
+  LetFunCompletion,
+  LetFunRecCompletion,
+  PackageCompletion,
+  PackageEntryCompletion,
+  Pos,
+  TypeCompletion
+}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class LspWordAutoCompleteTest extends Rql2TruffleCompilerTestContext {

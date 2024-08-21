@@ -14,7 +14,26 @@ package com.rawlabs.compiler.sql.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import com.rawlabs.compiler.api.{RawAnyType, RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawIntervalType, RawIterableType, RawListType, RawLongType, RawRecordType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType}
+import com.rawlabs.compiler.api.{
+  RawAnyType,
+  RawBoolType,
+  RawByteType,
+  RawDateType,
+  RawDecimalType,
+  RawDoubleType,
+  RawFloatType,
+  RawIntType,
+  RawIntervalType,
+  RawIterableType,
+  RawListType,
+  RawLongType,
+  RawRecordType,
+  RawShortType,
+  RawStringType,
+  RawTimeType,
+  RawTimestampType,
+  RawType
+}
 import com.rawlabs.compiler.sql.SqlIntervals.{intervalToString, parseInterval}
 import com.rawlabs.compiler.utils.RecordFieldsNaming
 

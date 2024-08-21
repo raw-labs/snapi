@@ -14,7 +14,40 @@ package com.rawlabs.compiler.sql
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.rawlabs.compiler.api
-import com.rawlabs.compiler.api.{AutoCompleteResponse, CompilerService, CompilerServiceException, Completion, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, FormatCodeResponse, FunParamCompletion, GetProgramDescriptionFailure, GetProgramDescriptionResponse, GetProgramDescriptionSuccess, GoToDefinitionResponse, HoverResponse, LetBindCompletion, ParamDescription, Pos, ProgramDescription, ProgramEnvironment, RawAnyType, RawAttrType, RawIterableType, RawRecordType, RawType, RenameResponse, TypeCompletion, ValidateResponse}
+import com.rawlabs.compiler.api.{
+  AutoCompleteResponse,
+  CompilerService,
+  CompilerServiceException,
+  Completion,
+  DeclDescription,
+  ErrorMessage,
+  ErrorPosition,
+  ErrorRange,
+  ExecutionResponse,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  FormatCodeResponse,
+  FunParamCompletion,
+  GetProgramDescriptionFailure,
+  GetProgramDescriptionResponse,
+  GetProgramDescriptionSuccess,
+  GoToDefinitionResponse,
+  HoverResponse,
+  LetBindCompletion,
+  ParamDescription,
+  Pos,
+  ProgramDescription,
+  ProgramEnvironment,
+  RawAnyType,
+  RawAttrType,
+  RawIterableType,
+  RawRecordType,
+  RawType,
+  RenameResponse,
+  TypeCompletion,
+  ValidateResponse
+}
 import com.rawlabs.compiler.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
 import com.rawlabs.compiler.sql.metadata.UserMetadataCache
 import com.rawlabs.compiler.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}

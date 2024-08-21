@@ -12,12 +12,60 @@
 
 package raw.compiler.rql2
 
-import com.rawlabs.compiler.api.{RawAttrType, RawBinaryType, RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawIntervalType, RawIterableType, RawListType, RawLongType, RawOrType, RawRecordType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType, RawUndefinedType}
+import com.rawlabs.compiler.api.{
+  RawAttrType,
+  RawBinaryType,
+  RawBoolType,
+  RawByteType,
+  RawDateType,
+  RawDecimalType,
+  RawDoubleType,
+  RawFloatType,
+  RawIntType,
+  RawIntervalType,
+  RawIterableType,
+  RawListType,
+  RawLongType,
+  RawOrType,
+  RawRecordType,
+  RawShortType,
+  RawStringType,
+  RawTimeType,
+  RawTimestampType,
+  RawType,
+  RawUndefinedType
+}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.common.source._
-import raw.compiler.rql2.api.{Rql2BoolValue, Rql2ByteValue, Rql2DateValue, Rql2DoubleValue, Rql2FloatValue, Rql2IntValue, Rql2IntervalValue, Rql2ListValue, Rql2LongValue, Rql2OptionValue, Rql2RecordAttr, Rql2RecordValue, Rql2ShortValue, Rql2StringValue, Rql2TimeValue, Rql2TimestampValue, Rql2Value}
-import raw.compiler.rql2.builtin.{DatePackageBuilder, IntervalPackageBuilder, ListPackageBuilder, NullablePackageBuilder, RecordPackageBuilder, TimePackageBuilder, TimestampPackageBuilder}
+import raw.compiler.rql2.api.{
+  Rql2BoolValue,
+  Rql2ByteValue,
+  Rql2DateValue,
+  Rql2DoubleValue,
+  Rql2FloatValue,
+  Rql2IntValue,
+  Rql2IntervalValue,
+  Rql2ListValue,
+  Rql2LongValue,
+  Rql2OptionValue,
+  Rql2RecordAttr,
+  Rql2RecordValue,
+  Rql2ShortValue,
+  Rql2StringValue,
+  Rql2TimeValue,
+  Rql2TimestampValue,
+  Rql2Value
+}
+import raw.compiler.rql2.builtin.{
+  DatePackageBuilder,
+  IntervalPackageBuilder,
+  ListPackageBuilder,
+  NullablePackageBuilder,
+  RecordPackageBuilder,
+  TimePackageBuilder,
+  TimestampPackageBuilder
+}
 import raw.compiler.rql2.source._
 import raw.inferrer.api._
 

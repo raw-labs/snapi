@@ -12,7 +12,19 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import com.rawlabs.compiler.api.{AutoCompleteResponse, Completion, FieldCompletion, FunParamCompletion, LetBindCompletion, LetFunCompletion, LetFunRecCompletion, PackageCompletion, PackageEntryCompletion, Pos, TypeCompletion}
+import com.rawlabs.compiler.api.{
+  AutoCompleteResponse,
+  Completion,
+  FieldCompletion,
+  FunParamCompletion,
+  LetBindCompletion,
+  LetFunCompletion,
+  LetFunRecCompletion,
+  PackageCompletion,
+  PackageEntryCompletion,
+  Pos,
+  TypeCompletion
+}
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
 class RD5851Test extends Rql2TruffleCompilerTestContext {

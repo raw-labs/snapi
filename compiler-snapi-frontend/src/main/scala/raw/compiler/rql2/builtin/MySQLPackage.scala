@@ -19,7 +19,12 @@ import raw.compiler.common.source._
 import raw.compiler.rql2.api._
 import raw.compiler.rql2.ProgramContext
 import raw.compiler.rql2.source._
-import raw.inferrer.api.{SqlQueryInferrerProperties, SqlQueryInputFormatDescriptor, SqlTableInferrerProperties, SqlTableInputFormatDescriptor}
+import raw.inferrer.api.{
+  SqlQueryInferrerProperties,
+  SqlQueryInputFormatDescriptor,
+  SqlTableInferrerProperties,
+  SqlTableInputFormatDescriptor
+}
 import com.rawlabs.utils.sources.jdbc.mysql.{MySqlServerLocation, MySqlTableLocation}
 
 class MySQLPackage extends PackageExtension {

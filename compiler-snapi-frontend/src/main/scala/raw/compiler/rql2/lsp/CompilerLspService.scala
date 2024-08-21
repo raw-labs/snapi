@@ -13,7 +13,27 @@
 package raw.compiler.rql2.lsp
 
 import com.rawlabs.compiler
-import com.rawlabs.compiler.api.{AutoCompleteResponse, Completion, ErrorPosition, ErrorRange, FieldCompletion, FunParamCompletion, GoToDefinitionResponse, HoverResponse, LetBindCompletion, LetFunCompletion, LetFunRecCompletion, Message, PackageCompletion, PackageEntryCompletion, Pos, ProgramEnvironment, RenameResponse, TypeCompletion, ValidateResponse}
+import com.rawlabs.compiler.api.{
+  AutoCompleteResponse,
+  Completion,
+  ErrorPosition,
+  ErrorRange,
+  FieldCompletion,
+  FunParamCompletion,
+  GoToDefinitionResponse,
+  HoverResponse,
+  LetBindCompletion,
+  LetFunCompletion,
+  LetFunRecCompletion,
+  Message,
+  PackageCompletion,
+  PackageEntryCompletion,
+  Pos,
+  ProgramEnvironment,
+  RenameResponse,
+  TypeCompletion,
+  ValidateResponse
+}
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}

@@ -17,7 +17,19 @@ import raw.compiler.base.errors.{ErrorCompilerMessage, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
-import raw.compiler.rql2.api.{Arg, EntryExtension, EntryExtensionHelper, ExpParam, PackageExtension, Param, Rql2LocationValue, SugarEntryExtension, TypeParam, ValueArg, ValueParam}
+import raw.compiler.rql2.api.{
+  Arg,
+  EntryExtension,
+  EntryExtensionHelper,
+  ExpParam,
+  PackageExtension,
+  Param,
+  Rql2LocationValue,
+  SugarEntryExtension,
+  TypeParam,
+  ValueArg,
+  ValueParam
+}
 import raw.compiler.rql2.source._
 import raw.inferrer.api._
 import com.rawlabs.utils.sources.bytestream.inmemory.InMemoryByteStreamLocation
