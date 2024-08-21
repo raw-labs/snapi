@@ -35,7 +35,7 @@ object CompilerServiceProvider {
   }
 
   // This method is only used by the test framework.
-  private[rawlabs] def set(language: Set[String], instance: CompilerService): Unit = {
+  def set(language: Set[String], instance: CompilerService): Unit = {
     instanceLock.synchronized {
       if (instance == null) {
         // Stop and remove entries that match the `language`, regardless the class loader.

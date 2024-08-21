@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.client.python
+package com.rawlabs.compiler.python
 
 import com.rawlabs.compiler.api.{CompilerService, CompilerServiceBuilder}
 import com.rawlabs.utils.core.RawSettings
