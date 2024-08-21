@@ -17,6 +17,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.utils.core.RawException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,6 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import com.rawlabs.utils.core.RawException;
 import scala.Some;
 
 // A.Z Similar implementation to Scala

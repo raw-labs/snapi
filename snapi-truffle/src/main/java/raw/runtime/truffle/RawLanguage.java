@@ -24,6 +24,8 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.Shape;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.core.RawUid;
 import com.typesafe.config.ConfigFactory;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,8 +45,6 @@ import raw.inferrer.api.InferrerService;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
-import com.rawlabs.utils.core.RawSettings;
-import com.rawlabs.utils.core.RawUid;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(

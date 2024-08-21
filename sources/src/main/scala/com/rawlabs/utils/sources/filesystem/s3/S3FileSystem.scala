@@ -19,7 +19,11 @@ import software.amazon.awssdk.services.s3.S3Configuration
 import java.net.ConnectException
 import com.google.common.collect.AbstractIterator
 import org.springframework.util.AntPathMatcher
-import com.rawlabs.utils.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
+import com.rawlabs.utils.sources.bytestream.api.{
+  DelegatingSeekableInputStream,
+  GenericSkippableInputStream,
+  SeekableInputStream
+}
 import com.rawlabs.utils.sources.filesystem.api._
 import com.rawlabs.utils.core._
 import software.amazon.awssdk.auth.credentials.{

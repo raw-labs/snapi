@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.generator.collection;
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
+import com.rawlabs.utils.core.RawSettings;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,7 +26,6 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OffHeapGroupByKeys;
 import raw.runtime.truffle.utils.IOUtils;
-import com.rawlabs.utils.core.RawSettings;
 
 public class StaticInitializers {
 

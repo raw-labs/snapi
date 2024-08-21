@@ -19,6 +19,9 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
+import com.rawlabs.utils.sources.jdbc.snowflake.SnowflakeServerLocation;
 import java.util.HashMap;
 import java.util.Map;
 import raw.runtime.truffle.ExpressionNode;
@@ -27,9 +30,6 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.primitives.*;
-import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
-import com.rawlabs.utils.sources.jdbc.snowflake.SnowflakeServerLocation;
-import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromSnowflake")
 public class LocationFromSnowflakeNode extends ExpressionNode {

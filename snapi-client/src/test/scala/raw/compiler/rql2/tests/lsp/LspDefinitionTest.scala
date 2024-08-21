@@ -15,7 +15,6 @@ package raw.compiler.rql2.tests.lsp
 import raw.client.api._
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
-
 class LspDefinitionTest extends Rql2TruffleCompilerTestContext {
 
   test("go to definition identifier at usage test") { _ =>

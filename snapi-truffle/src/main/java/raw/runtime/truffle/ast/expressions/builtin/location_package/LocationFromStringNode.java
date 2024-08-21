@@ -15,12 +15,12 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.utils.sources.api.Location;
 import raw.compiler.rql2.api.LocationDescription$;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import com.rawlabs.utils.sources.api.Location;
 import scala.util.Either;
 
 @NodeInfo(shortName = "Location.FromString")

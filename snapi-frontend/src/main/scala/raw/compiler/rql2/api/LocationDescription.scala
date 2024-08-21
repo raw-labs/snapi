@@ -23,10 +23,22 @@ import com.rawlabs.utils.sources.filesystem.mock.MockPath
 import com.rawlabs.utils.sources.filesystem.s3.S3Path
 import com.rawlabs.utils.sources.jdbc.mysql.{MySqlSchemaLocation, MySqlServerLocation, MySqlTableLocation}
 import com.rawlabs.utils.sources.jdbc.oracle.{OracleSchemaLocation, OracleServerLocation, OracleTableLocation}
-import com.rawlabs.utils.sources.jdbc.pgsql.{PostgresqlSchemaLocation, PostgresqlServerLocation, PostgresqlTableLocation}
-import com.rawlabs.utils.sources.jdbc.snowflake.{SnowflakeSchemaLocation, SnowflakeServerLocation, SnowflakeTableLocation}
+import com.rawlabs.utils.sources.jdbc.pgsql.{
+  PostgresqlSchemaLocation,
+  PostgresqlServerLocation,
+  PostgresqlTableLocation
+}
+import com.rawlabs.utils.sources.jdbc.snowflake.{
+  SnowflakeSchemaLocation,
+  SnowflakeServerLocation,
+  SnowflakeTableLocation
+}
 import com.rawlabs.utils.sources.jdbc.sqlite.{SqliteSchemaLocation, SqliteServerLocation, SqliteTableLocation}
-import com.rawlabs.utils.sources.jdbc.sqlserver.{SqlServerSchemaLocation, SqlServerServerLocation, SqlServerTableLocation}
+import com.rawlabs.utils.sources.jdbc.sqlserver.{
+  SqlServerSchemaLocation,
+  SqlServerServerLocation,
+  SqlServerTableLocation
+}
 import com.rawlabs.utils.sources.jdbc.teradata.{TeradataSchemaLocation, TeradataServerLocation, TeradataTableLocation}
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}

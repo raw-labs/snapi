@@ -14,6 +14,8 @@ package raw.runtime.truffle.ast.io.jdbc;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
+import com.rawlabs.utils.core.RawException;
+import com.rawlabs.utils.core.RawSettings;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,8 +23,6 @@ import java.sql.SQLException;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcReaderRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.*;
-import com.rawlabs.utils.core.RawException;
-import com.rawlabs.utils.core.RawSettings;
 
 public class JdbcQuery {
 

@@ -17,6 +17,8 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.core.RawUid;
 import java.io.OutputStream;
 import java.util.Set;
 import raw.client.api.*;
@@ -24,8 +26,6 @@ import raw.inferrer.api.InferrerService;
 import raw.protocol.LocationConfig;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
-import com.rawlabs.utils.core.RawSettings;
-import com.rawlabs.utils.core.RawUid;
 import scala.collection.JavaConverters;
 
 public final class RawContext {

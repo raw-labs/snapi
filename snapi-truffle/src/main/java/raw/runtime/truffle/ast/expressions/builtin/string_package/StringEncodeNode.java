@@ -16,11 +16,11 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.utils.sources.api.Encoding;
 import java.nio.charset.Charset;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
-import com.rawlabs.utils.sources.api.Encoding;
 
 @NodeInfo(shortName = "String.Encode")
 @NodeChild(value = "string")

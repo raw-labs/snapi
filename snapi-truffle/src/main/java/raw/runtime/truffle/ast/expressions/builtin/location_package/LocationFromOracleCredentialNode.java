@@ -15,15 +15,15 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.utils.core.RawSettings;
+import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
+import com.rawlabs.utils.sources.jdbc.oracle.OracleServerLocation;
 import raw.protocol.LocationConfig;
 import raw.protocol.OracleConfig;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.*;
-import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
-import com.rawlabs.utils.sources.jdbc.oracle.OracleServerLocation;
-import com.rawlabs.utils.core.RawSettings;
 
 @NodeInfo(shortName = "Location.FromOracleCredential")
 public class LocationFromOracleCredentialNode extends ExpressionNode {

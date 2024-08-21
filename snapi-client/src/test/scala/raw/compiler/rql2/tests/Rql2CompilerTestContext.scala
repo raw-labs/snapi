@@ -12,7 +12,15 @@
 
 package raw.compiler.rql2.tests
 
-import com.rawlabs.utils.core.{RawException, RawTestSuite, RawUid, RawUtils, SettingsTestContext, TestData, TrainingWheelsContext}
+import com.rawlabs.utils.core.{
+  RawException,
+  RawTestSuite,
+  RawUid,
+  RawUtils,
+  SettingsTestContext,
+  TestData,
+  TrainingWheelsContext
+}
 import org.scalatest.Tag
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
@@ -22,7 +30,18 @@ import raw.client.rql2.api._
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
 import raw.inferrer.local.LocalInferrerTestContext
-import raw.protocol.{DropboxAccessTokenConfig, HttpHeadersConfig, LocationConfig, MySqlConfig, OracleConfig, PostgreSQLConfig, S3AccessSecretKey, S3Config, SQLServerConfig, SnowflakeConfig}
+import raw.protocol.{
+  DropboxAccessTokenConfig,
+  HttpHeadersConfig,
+  LocationConfig,
+  MySqlConfig,
+  OracleConfig,
+  PostgreSQLConfig,
+  S3AccessSecretKey,
+  S3Config,
+  SQLServerConfig,
+  SnowflakeConfig
+}
 import com.rawlabs.utils.core._
 
 import java.io.{ByteArrayOutputStream, FileWriter}

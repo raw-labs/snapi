@@ -16,7 +16,11 @@ import com.dropbox.core._
 import com.dropbox.core.v2.DbxClientV2
 import com.dropbox.core.v2.files.{DownloadErrorException, FolderMetadata, Metadata, FileMetadata => DropboxFileMetadata}
 import org.springframework.util.AntPathMatcher
-import com.rawlabs.utils.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
+import com.rawlabs.utils.sources.bytestream.api.{
+  DelegatingSeekableInputStream,
+  GenericSkippableInputStream,
+  SeekableInputStream
+}
 import com.rawlabs.utils.sources.filesystem.api._
 
 import java.io.InputStream

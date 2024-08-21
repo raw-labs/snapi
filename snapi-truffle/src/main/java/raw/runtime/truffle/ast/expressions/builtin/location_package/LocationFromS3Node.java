@@ -14,13 +14,13 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.utils.sources.filesystem.s3.S3Path;
 import raw.protocol.LocationConfig;
 import raw.protocol.S3Config;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.*;
-import com.rawlabs.utils.sources.filesystem.s3.S3Path;
 import scala.None$;
 import scala.Option;
 import scala.Some;

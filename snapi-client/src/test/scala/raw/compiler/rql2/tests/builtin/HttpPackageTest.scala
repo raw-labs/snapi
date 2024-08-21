@@ -16,7 +16,6 @@ import com.sun.net.httpserver.{BasicAuthenticator, HttpExchange, HttpServer}
 import com.typesafe.scalalogging.StrictLogging
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerTestContext
 
-
 import java.net.InetSocketAddress
 import scala.collection.JavaConverters._
 

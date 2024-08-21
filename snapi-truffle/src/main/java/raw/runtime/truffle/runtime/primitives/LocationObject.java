@@ -19,15 +19,15 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.nio.ByteOrder;
-import raw.compiler.rql2.api.LocationDescription;
-import raw.compiler.rql2.api.LocationDescription$;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import com.rawlabs.utils.sources.api.Location;
 import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation;
 import com.rawlabs.utils.sources.bytestream.http.HttpByteStreamLocation;
 import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation;
 import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
+import java.nio.ByteOrder;
+import raw.compiler.rql2.api.LocationDescription;
+import raw.compiler.rql2.api.LocationDescription$;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 /**
  * Truffle object representing a location.

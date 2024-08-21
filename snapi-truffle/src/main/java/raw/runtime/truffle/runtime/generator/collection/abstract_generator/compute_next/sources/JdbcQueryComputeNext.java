@@ -13,10 +13,10 @@
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.oracle.truffle.api.RootCallTarget;
+import com.rawlabs.utils.core.RawSettings;
 import raw.runtime.truffle.ast.io.jdbc.JdbcQuery;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import com.rawlabs.utils.core.RawSettings;
 
 public class JdbcQueryComputeNext {
 
