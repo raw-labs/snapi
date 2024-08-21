@@ -44,8 +44,8 @@ lazy val root = (project in file("."))
     compilerSnapiFrontend,
     compilerSnapiTruffle,
     compilerSnapi,
-    compilerSqlParser,
-    compilerSql
+    sqlParser,
+    sqlCompiler
   )
   .settings(
     commonSettings,
@@ -268,7 +268,7 @@ lazy val compilerSnapi = (project in file("compiler-snapi"))
     testSettings
   )
 
-lazy val compilerSqlParser = (project in file("compiler-sql-parser"))
+lazy val sqlParser = (project in file("sql-parser"))
   .enablePlugins(GenParserPlugin)
   .settings(
     commonSettings,
@@ -276,9 +276,9 @@ lazy val compilerSqlParser = (project in file("compiler-sql-parser"))
     javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
       (
-        s"${javaSrcBasePath.value}/com/rawlabs/compiler/sql/generated",
-        "com.rawlabs.compiler.sql.generated",
-        s"${javaSrcBasePath.value}/com/rawlabs/compiler/sql/grammar",
+        s"${javaSrcBasePath.value}/com/rawlabs/sql/parser/generated",
+        "com.rawlabs.sql.parser.generated",
+        s"${javaSrcBasePath.value}/com/rawlabs/sql/parser/grammar",
         "Psql"
       )
     ),
@@ -289,10 +289,10 @@ lazy val compilerSqlParser = (project in file("compiler-sql-parser"))
     )
   )
 
-lazy val compilerSql = (project in file("compiler-sql"))
+lazy val sqlCompiler = (project in file("sql-compiler"))
   .dependsOn(
     compilerApi % "compile->compile;test->test",
-    compilerSqlParser % "compile->compile;test->test"
+    sqlParser % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -307,7 +307,7 @@ lazy val compilerSql = (project in file("compiler-sql"))
     )
   )
 
-lazy val compilerPython = (project in file("compiler-python"))
+lazy val pythonCompiler = (project in file("python-compiler"))
   .dependsOn(
     compilerApi % "compile->compile;test->test"
   )
