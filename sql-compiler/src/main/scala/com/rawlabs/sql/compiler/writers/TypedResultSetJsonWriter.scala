@@ -39,8 +39,8 @@ import com.rawlabs.compiler.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoField
 import scala.annotation.tailrec
 
 object TypedResultSetJsonWriter {
@@ -135,8 +135,17 @@ class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
         val date = v.getDate(i).toLocalDate
         gen.writeString(dateFormatter.format(date))
       case _: RawTimeType =>
+        // Extract the SQL time (a JDBC object) from the result set.
         val sqlTime = v.getTime(i)
-        val time = LocalTime.ofNanoOfDay(sqlTime.getTime * 1000000)
+        // Turn it into LocalTime. It does something proper with potential timezone conversion, but
+        // doesn't have the milliseconds (toLocalTime's doc says it sets the LocalTime nanoseconds field to zero).
+        val withoutMilliseconds = sqlTime.toLocalTime
+        // Get the value as milliseconds (possibly shifted by a certain timezone) but we have the milliseconds.
+        val asMillis = sqlTime.getTime
+        // Extract the actual milliseconds.
+        val millis = asMillis % 1000
+        // Fix the LocalTime milliseconds.
+        val time = withoutMilliseconds.`with`(ChronoField.MILLI_OF_SECOND, millis)
         val formatted = timeFormatter.format(time)
         gen.writeString(formatted)
       case _: RawTimestampType =>
