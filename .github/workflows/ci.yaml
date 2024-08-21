@@ -6,14 +6,13 @@ on:
       - build.sbt
       - project/**
       - deps/**
-      - utils/**
-      - client/**
-      - snapi-client/**
-      - snapi-frontend/**
-      - parsers/**
-      - snapi-truffle/**
-      - python-client/**
-      - sql-client/**
+      - utils-core/**
+      - compiler-api/**
+      - compiler-snapi/**
+      - compiler-snapi-frontend/**
+      - compiler-snapi-truffle/**
+      - compiler-python/**
+      - compiler-sql/**
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
@@ -45,10 +44,10 @@ jobs:
       fail-fast: false
       matrix:
         component:
-          - snapi-frontend
-          - snapi-client
-          - sql-client
-          - python-client
+          - compiler-snapi-frontend
+          - compiler-snapi
+          - compiler-sql
+          - compiler-python
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
