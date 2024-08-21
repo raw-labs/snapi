@@ -47,7 +47,7 @@ jobs:
           - compiler-snapi-frontend
           - compiler-snapi
           - sql-compiler
-          - python-python
+          - python-compiler
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
