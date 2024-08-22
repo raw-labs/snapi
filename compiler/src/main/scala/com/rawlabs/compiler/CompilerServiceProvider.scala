@@ -10,9 +10,10 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.compiler.api
+package com.rawlabs.compiler
 
 import com.rawlabs.utils.core.RawSettings
+
 import java.util.ServiceLoader
 import scala.collection.JavaConverters._
 import scala.collection.mutable

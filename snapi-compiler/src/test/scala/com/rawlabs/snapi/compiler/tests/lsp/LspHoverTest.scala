@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.lsp
 
-import com.rawlabs.compiler.api.{HoverResponse, PackageCompletion, PackageEntryCompletion, Pos, TypeCompletion}
+import com.rawlabs.compiler.{HoverResponse, PackageCompletion, PackageEntryCompletion, Pos, TypeCompletion}
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 
 class LspHoverTest extends Rql2TruffleCompilerTestContext {

@@ -10,9 +10,9 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler.api
+package com.rawlabs.snapi.compiler
 
-import com.rawlabs.compiler.api.CompilerServiceProvider
+import com.rawlabs.compiler.CompilerServiceProvider
 import com.rawlabs.utils.core.RawTestSuite
 import org.scalatest.BeforeAndAfterAll
 

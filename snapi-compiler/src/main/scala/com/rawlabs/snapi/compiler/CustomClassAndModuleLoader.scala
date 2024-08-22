@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler.truffle
+package com.rawlabs.snapi.compiler
 
 import com.typesafe.scalalogging.StrictLogging
 

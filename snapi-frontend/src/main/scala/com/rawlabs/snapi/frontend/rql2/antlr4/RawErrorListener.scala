@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2.antlr4
 
-import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange, Message}
+import com.rawlabs.compiler.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
 
 class RawErrorListener() extends BaseErrorListener {

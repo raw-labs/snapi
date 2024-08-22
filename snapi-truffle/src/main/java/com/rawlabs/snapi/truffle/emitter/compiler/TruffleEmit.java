@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter.compiler;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.rawlabs.compiler.api.Entrypoint;
+import com.rawlabs.compiler.Entrypoint;
 import com.rawlabs.snapi.frontend.common.source.Exp;
 import com.rawlabs.snapi.frontend.common.source.SourceProgram;
 import com.rawlabs.snapi.frontend.rql2.ProgramContext;

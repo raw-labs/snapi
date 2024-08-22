@@ -12,7 +12,7 @@
 
 package com.rawlabs.sql.compiler
 
-import com.rawlabs.compiler.api._
+import com.rawlabs.compiler._
 
 import scala.annotation.tailrec
 

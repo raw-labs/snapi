@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.frontend.rql2.lsp
 
 import com.rawlabs.compiler
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   AutoCompleteResponse,
   Completion,
   ErrorPosition,
@@ -146,12 +146,12 @@ class CompilerLspService(
             LetBind(_, _, Some(TypeAliasType(_)))
           ) | Some(Rql2AttrType(_, ErrorType())) | Some(TypeExp(ErrorType())) | Some(TypeAliasType(_)) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
-        compiler.api.AutoCompleteResponse(allTypes)
+        AutoCompleteResponse(allTypes)
       case _ => // Given that node, ask the "chain" for all entries in scope.
         nodeAtCurrentPosition match {
           case Some(Rql2ListType(ErrorType(), _)) =>
             val allTypes = getAllTypesInScope(maybeNode, prefix)
-            compiler.api.AutoCompleteResponse(allTypes)
+            AutoCompleteResponse(allTypes)
           case _ =>
             val maybeEntries = nodeAtCurrentPosition
               .map { n =>
@@ -212,7 +212,7 @@ class CompilerLspService(
               }
 
             maybeEntries match {
-              case Some(entries) => compiler.api.AutoCompleteResponse(entries.toArray)
+              case Some(entries) => AutoCompleteResponse(entries.toArray)
               case None => AutoCompleteResponse(Array.empty)
             }
         }
@@ -269,7 +269,7 @@ class CompilerLspService(
       }
 
     maybeEntries match {
-      case Some(entries) => compiler.api.AutoCompleteResponse(entries.toArray)
+      case Some(entries) => AutoCompleteResponse(entries.toArray)
       case None => AutoCompleteResponse(Array.empty)
     }
   }
@@ -465,7 +465,7 @@ class CompilerLspService(
     }
   }
 
-  def validate: ValidateResponse = compiler.api.ValidateResponse(errors)
+  def validate: ValidateResponse = ValidateResponse(errors)
 
   private lazy val errors: List[Message] = {
     analyzer.errors.map { err =>

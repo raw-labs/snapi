@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.lsp
 
-import com.rawlabs.compiler.api.{Pos, RenameResponse}
+import com.rawlabs.compiler.{Pos, RenameResponse}
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 
 class LspRenameTest extends Rql2TruffleCompilerTestContext {

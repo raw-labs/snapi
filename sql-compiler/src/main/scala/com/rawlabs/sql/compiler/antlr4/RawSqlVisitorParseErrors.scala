@@ -12,7 +12,7 @@
 
 package com.rawlabs.sql.compiler.antlr4
 
-import com.rawlabs.compiler.api.Message
+import com.rawlabs.compiler.Message
 
 case class RawSqlVisitorParseErrors() {
   private var errors: List[Message] = List.empty

@@ -14,7 +14,7 @@ package com.rawlabs.sql.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   RawAnyType,
   RawBoolType,
   RawByteType,

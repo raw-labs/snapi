@@ -12,8 +12,8 @@
 
 package com.rawlabs.sql.compiler
 
-import com.rawlabs.compiler.api
-import com.rawlabs.compiler.api.{
+
+import com.rawlabs.compiler.{
   ErrorMessage,
   ErrorPosition,
   ErrorRange,
@@ -445,7 +445,7 @@ class NamedParametersPreparedStatement(
 
   private def errorRange(position: Position, position1: Position) = {
     def errorPosition(p: Position): ErrorPosition = ErrorPosition(p.line, p.column)
-    api.ErrorRange(errorPosition(position), errorPosition(position1))
+    ErrorRange(errorPosition(position), errorPosition(position1))
   }
   def executeWith(parameters: Seq[(String, RawValue)]): Either[String, ResultSet] = {
     val mandatoryParameters = {
@@ -574,7 +574,7 @@ class NamedParametersPreparedStatement(
         errorRange(start, end)
       }
       val range = codeLocation.getOrElse(errorRange(parsedTree.tree))
-      api.ErrorMessage(message, List(range), "sqlError")
+      ErrorMessage(message, List(range), "sqlError")
     }
   }
 
@@ -638,7 +638,7 @@ class NamedParametersPreparedStatement(
 
   private def highlightError(nodes: Seq[SqlBaseNode]): String => ErrorMessage = { msg: String =>
     val positions = for (node <- nodes) yield errorRange(node)
-    api.ErrorMessage(msg, positions.toList, ErrorCode.SqlErrorCode)
+    ErrorMessage(msg, positions.toList, ErrorCode.SqlErrorCode)
   }
 
   private def highlightError(node: SqlBaseNode): String => ErrorMessage = highlightError(Seq(node))

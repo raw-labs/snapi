@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.base.errors
 
-import com.rawlabs.compiler.api.{ErrorMessage, ErrorRange}
+import com.rawlabs.compiler.{ErrorMessage, ErrorRange}
 import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.base.source.{BaseNode, NotValueType}
 

@@ -12,7 +12,7 @@
 
 package com.rawlabs.sql.compiler.antlr4
 
-import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange}
+import com.rawlabs.compiler.{ErrorMessage, ErrorPosition, ErrorRange}
 import com.rawlabs.sql.parser.generated.{PsqlParser, PsqlParserBaseVisitor}
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.misc.Interval

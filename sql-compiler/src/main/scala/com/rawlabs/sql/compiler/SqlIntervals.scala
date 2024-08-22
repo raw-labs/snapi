@@ -12,7 +12,7 @@
 
 package com.rawlabs.sql.compiler
 
-import com.rawlabs.compiler.api.RawInterval
+import com.rawlabs.compiler.RawInterval
 
 import scala.util.matching.Regex
 

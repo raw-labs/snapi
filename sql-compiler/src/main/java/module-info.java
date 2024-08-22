@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-import com.rawlabs.compiler.api.CompilerServiceBuilder;
+import com.rawlabs.compiler.CompilerServiceBuilder;
 import com.rawlabs.sql.compiler.SqlCompilerServiceBuilder;
 
 module raw.sql.compiler {

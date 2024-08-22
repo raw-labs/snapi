@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-import com.rawlabs.compiler.api.CompilerServiceBuilder;
+import com.rawlabs.compiler.CompilerServiceBuilder;
 
 module raw.compiler {
   requires scala.library;
@@ -25,11 +25,11 @@ module raw.compiler {
   requires raw.utils.core;
   requires raw.protocol.compiler;
 
-  exports com.rawlabs.compiler.api;
+  exports com.rawlabs.compiler;
   exports com.rawlabs.compiler.writers;
   exports com.rawlabs.compiler.utils;
 
-  opens com.rawlabs.compiler.api to
+  opens com.rawlabs.compiler to
       com.fasterxml.jackson.databind;
 
   uses CompilerServiceBuilder;

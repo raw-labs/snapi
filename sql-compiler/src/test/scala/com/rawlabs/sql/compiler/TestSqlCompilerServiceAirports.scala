@@ -13,7 +13,7 @@
 package com.rawlabs.sql.compiler
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   CompilerService,
   ErrorMessage,
   ErrorPosition,

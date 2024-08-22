@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   RawAttrType,
   RawBinaryType,
   RawBoolType,

@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2.antlr4
 
-import com.rawlabs.compiler.api.Message
+import com.rawlabs.compiler.Message
 
 case class RawVisitorParseErrors() {
   private var errors: List[Message] = List.empty

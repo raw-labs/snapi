@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.lsp
 
-import com.rawlabs.compiler.api.{ErrorMessage, WarningMessage}
+import com.rawlabs.compiler.{ErrorMessage, WarningMessage}
 import com.rawlabs.snapi.frontend.base.errors.{MissingSecretWarning, UnknownDecl}
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 class LspCompilationMessagesTest extends Rql2TruffleCompilerTestContext {

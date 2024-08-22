@@ -15,7 +15,7 @@ package com.rawlabs.sql.compiler.writers
 import com.fasterxml.jackson.core.{JsonEncoding, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   RawAnyType,
   RawBoolType,
   RawByteType,

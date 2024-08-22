@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.lsp
 
-import com.rawlabs.compiler.api.FormatCodeResponse
+import com.rawlabs.compiler.FormatCodeResponse
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 
 class LspFormatCodeTest extends Rql2TruffleCompilerTestContext {

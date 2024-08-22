@@ -12,7 +12,7 @@
 
 package com.rawlabs.sql.compiler
 
-import com.rawlabs.compiler.api.RawInterval
+import com.rawlabs.compiler.RawInterval
 import com.rawlabs.sql.compiler.SqlIntervals.intervalToString
 import org.scalatest.funsuite.AnyFunSuite
 

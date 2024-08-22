@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.compiler.api.{HoverResponse, Pos, TypeCompletion}
+import com.rawlabs.compiler.{HoverResponse, Pos, TypeCompletion}
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 
 class RD9409Test extends Rql2TruffleCompilerTestContext {

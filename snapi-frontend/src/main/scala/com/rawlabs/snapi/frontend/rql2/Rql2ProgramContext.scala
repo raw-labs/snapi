@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.compiler.api.ProgramEnvironment
+import com.rawlabs.compiler.ProgramEnvironment
 import com.rawlabs.snapi.frontend.base.CompilerContext
 
 class Rql2ProgramContext(

@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.compiler.api.CompilerException
+import com.rawlabs.compiler.CompilerException
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 import com.rawlabs.snapi.frontend.base.Phase

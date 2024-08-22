@@ -10,36 +10,14 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler.truffle
+package com.rawlabs.snapi.compiler
 
-import com.fasterxml.jackson.core.JsonEncoding
-import com.fasterxml.jackson.core.JsonParser
-import org.graalvm.polyglot.Value
-import com.rawlabs.snapi.frontend.rql2.source.{
-  Rql2BinaryType,
-  Rql2BoolType,
-  Rql2ByteType,
-  Rql2DateType,
-  Rql2DecimalType,
-  Rql2DoubleType,
-  Rql2FloatType,
-  Rql2IntType,
-  Rql2IntervalType,
-  Rql2IsNullableTypeProperty,
-  Rql2IsTryableTypeProperty,
-  Rql2IterableType,
-  Rql2ListType,
-  Rql2LongType,
-  Rql2RecordType,
-  Rql2ShortType,
-  Rql2StringType,
-  Rql2TimeType,
-  Rql2TimestampType,
-  Rql2TypeWithProperties
-}
-import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
+import com.fasterxml.jackson.core.{JsonEncoding, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
+import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import com.rawlabs.compiler.utils.RecordFieldsNaming
+import com.rawlabs.snapi.frontend.rql2.source._
+import org.graalvm.polyglot.Value
 
 import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter

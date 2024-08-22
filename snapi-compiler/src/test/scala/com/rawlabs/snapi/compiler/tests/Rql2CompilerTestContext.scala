@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests
 
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   AutoCompleteResponse,
   ExecutionRuntimeFailure,
   ExecutionSuccess,
@@ -39,7 +39,7 @@ import org.scalatest.Tag
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
-import com.rawlabs.snapi.compiler.api._
+import com.rawlabs.snapi.compiler._
 import com.rawlabs.snapi.frontend.base.source.{BaseProgram, Type}
 import com.rawlabs.snapi.frontend.inferrer.local.LocalInferrerTestContext
 import com.rawlabs.protocol.compiler.{
@@ -55,7 +55,7 @@ import com.rawlabs.protocol.compiler.{
   SnowflakeConfig
 }
 import com.rawlabs.utils.core._
-import com.rawlabs.snapi.compiler.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
+import com.rawlabs.snapi.compiler.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
 
 import java.io.{ByteArrayOutputStream, FileWriter}
 import java.nio.charset.{Charset, StandardCharsets}

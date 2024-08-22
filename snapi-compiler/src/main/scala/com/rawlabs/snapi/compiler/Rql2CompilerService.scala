@@ -10,9 +10,9 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler.api
+package com.rawlabs.snapi.compiler
 
-import com.rawlabs.compiler.api.{CompilerService, Message, ProgramEnvironment}
+import com.rawlabs.compiler.{CompilerService, Message, ProgramEnvironment}
 import com.rawlabs.utils.core.RawUid
 import com.rawlabs.snapi.frontend.base.source.{BaseNode, Type}
 import com.rawlabs.snapi.frontend.common.source.SourceProgram

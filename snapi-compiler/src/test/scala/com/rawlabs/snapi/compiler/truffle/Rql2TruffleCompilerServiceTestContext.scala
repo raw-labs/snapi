@@ -14,7 +14,7 @@ package com.rawlabs.snapi.compiler.truffle
 
 import com.rawlabs.utils.core.{RawTestSuite, RawUtils, SettingsTestContext}
 import org.graalvm.polyglot.Engine
-import com.rawlabs.snapi.compiler.api.Rql2CompilerServiceTestContext
+import com.rawlabs.snapi.compiler.{Rql2CompilerServiceTestContext, Rql2TruffleCompilerService}
 
 trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>

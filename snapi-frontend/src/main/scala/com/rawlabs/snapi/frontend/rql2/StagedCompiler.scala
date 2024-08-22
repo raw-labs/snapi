@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.compiler.api.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment}
+import com.rawlabs.compiler.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment}
 import com.rawlabs.utils.core.RawSettings
 import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
 import com.rawlabs.snapi.frontend.base.source.Type

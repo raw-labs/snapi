@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.lsp
 
-import com.rawlabs.compiler.api.{AutoCompleteResponse, FieldCompletion, PackageEntryCompletion, Pos}
+import com.rawlabs.compiler.{AutoCompleteResponse, FieldCompletion, PackageEntryCompletion, Pos}
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 
 class LspDotAutoCompleteTest extends Rql2TruffleCompilerTestContext {

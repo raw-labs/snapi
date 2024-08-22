@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.base
 
-import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange, Message}
+import com.rawlabs.compiler.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 import com.rawlabs.utils.core.RawUtils
 import org.bitbucket.inkytonik.kiama.util.Positions
 import com.rawlabs.snapi.frontend.base.errors.CompilationMessageMapper

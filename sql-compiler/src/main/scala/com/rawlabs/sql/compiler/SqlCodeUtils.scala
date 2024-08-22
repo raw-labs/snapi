@@ -12,7 +12,7 @@
 
 package com.rawlabs.sql.compiler
 
-import com.rawlabs.compiler.api.Pos
+import com.rawlabs.compiler.Pos
 import com.rawlabs.sql.compiler.antlr4.{
   ParseProgramResult,
   SqlBaseNode,

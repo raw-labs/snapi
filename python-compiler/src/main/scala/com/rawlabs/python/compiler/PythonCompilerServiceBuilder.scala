@@ -12,7 +12,8 @@
 
 package com.rawlabs.python.compiler
 
-import com.rawlabs.compiler.api.{CompilerService, CompilerServiceBuilder}
+import com.rawlabs.compiler.CompilerServiceBuilder
+import com.rawlabs.compiler.CompilerService
 import com.rawlabs.utils.core.RawSettings
 
 class PythonCompilerServiceBuilder extends CompilerServiceBuilder {

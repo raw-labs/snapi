@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.lsp
 
-import com.rawlabs.compiler.api.{GoToDefinitionResponse, Pos}
+import com.rawlabs.compiler.{GoToDefinitionResponse, Pos}
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 
 class LspDefinitionTest extends Rql2TruffleCompilerTestContext {

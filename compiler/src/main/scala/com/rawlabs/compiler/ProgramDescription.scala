@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.compiler.api
+package com.rawlabs.compiler
 
 final case class ProgramDescription(
     decls: Map[String, List[DeclDescription]],

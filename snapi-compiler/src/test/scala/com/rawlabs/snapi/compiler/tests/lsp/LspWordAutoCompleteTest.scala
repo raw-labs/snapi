@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.lsp
 
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   AutoCompleteResponse,
   FieldCompletion,
   FunParamCompletion,

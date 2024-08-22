@@ -12,7 +12,7 @@
 
 package com.rawlabs.python.compiler
 
-import com.rawlabs.compiler.api.{CompilerService, ExecutionSuccess, ProgramEnvironment, RawInt}
+import com.rawlabs.compiler.{CompilerService, ExecutionSuccess, ProgramEnvironment, RawInt}
 import com.rawlabs.utils.core.{RawTestSuite, RawUid, SettingsTestContext, TrainingWheelsContext}
 
 import java.io.ByteArrayOutputStream

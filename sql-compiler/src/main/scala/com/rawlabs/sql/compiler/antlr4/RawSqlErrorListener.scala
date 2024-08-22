@@ -12,7 +12,7 @@
 
 package com.rawlabs.sql.compiler.antlr4
 
-import com.rawlabs.compiler.api.{ErrorMessage, ErrorPosition, ErrorRange, Message}
+import com.rawlabs.compiler.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
 
 class RawSqlErrorListener() extends BaseErrorListener {

@@ -13,8 +13,7 @@
 package com.rawlabs.sql.compiler
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
-import com.rawlabs.compiler.api
-import com.rawlabs.compiler.api._
+import com.rawlabs.compiler._
 import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
 import com.rawlabs.sql.compiler.metadata.UserMetadataCache
 import com.rawlabs.sql.compiler.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
@@ -132,7 +131,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                     case _ =>
                       val errorMessages =
                         outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
-                      api.GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
+                      GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
                   }
                 case Left(errors) => GetProgramDescriptionFailure(errors)
               }
@@ -146,7 +145,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           } catch {
             case ex: SQLException if isConnectionFailure(ex) =>
               logger.warn("SqlConnectionPool connection failure", ex)
-              api.GetProgramDescriptionFailure(List(treeError(parsedTree, ex.getMessage)))
+              GetProgramDescriptionFailure(List(treeError(parsedTree, ex.getMessage)))
           }
       }
     } catch {
@@ -284,7 +283,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
               LetBindCompletion(name, tipe)
           }
           logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
-          api.AutoCompleteResponse(collectedValues.toArray)
+          AutoCompleteResponse(collectedValues.toArray)
         case Some(_: SqlParamUseNode) =>
           AutoCompleteResponse(Array.empty) // dot completion makes no sense on parameters
         case _ => AutoCompleteResponse(Array.empty)
@@ -317,7 +316,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           }.toSeq
         case _ => Array.empty[Completion]
       }
-      api.AutoCompleteResponse(matches.toArray)
+      AutoCompleteResponse(matches.toArray)
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
@@ -395,7 +394,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     try {
       logger.debug(s"Validating: $source")
       safeParse(source) match {
-        case Left(errors) => api.ValidateResponse(errors)
+        case Left(errors) => ValidateResponse(errors)
         case Right(parsedTree) =>
           try {
             val conn = connectionPool.getConnection(environment.jdbcUrl.get)
@@ -417,7 +416,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           } catch {
             case ex: SQLException if isConnectionFailure(ex) =>
               logger.warn("SqlConnectionPool connection failure", ex)
-              api.ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
+              ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
           }
       }
     } catch {

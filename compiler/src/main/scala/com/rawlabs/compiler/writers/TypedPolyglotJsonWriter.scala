@@ -13,7 +13,7 @@
 package com.rawlabs.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   RawBinaryType,
   RawBoolType,
   RawByteType,

@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.compiler.api
+package com.rawlabs.compiler
 
 // TODO (msb): Add methods for execution so that same interface is respected by all.
 trait Entrypoint {

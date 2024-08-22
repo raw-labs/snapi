@@ -16,7 +16,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.rawlabs.compiler.api.Message;
+import com.rawlabs.compiler.Message;
 import java.util.List;
 
 @ExportLibrary(InteropLibrary.class)

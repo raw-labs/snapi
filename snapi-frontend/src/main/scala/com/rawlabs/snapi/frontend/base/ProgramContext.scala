@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.base
 
-import com.rawlabs.compiler.api.{CompilerService, ProgramEnvironment}
+import com.rawlabs.compiler.{CompilerService, ProgramEnvironment}
 import com.rawlabs.utils.core.RawSettings
 
 /**

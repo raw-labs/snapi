@@ -10,9 +10,10 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler.truffle
+package com.rawlabs.snapi.compiler
 
-import com.rawlabs.compiler.api.{CompilerService, CompilerServiceBuilder}
+import com.rawlabs.compiler.CompilerServiceBuilder
+import com.rawlabs.compiler.CompilerService
 import com.rawlabs.utils.core.RawSettings
 
 class Rql2TruffleCompilerServiceBuilder extends CompilerServiceBuilder {

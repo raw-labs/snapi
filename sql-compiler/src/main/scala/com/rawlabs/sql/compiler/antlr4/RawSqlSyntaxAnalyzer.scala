@@ -12,7 +12,7 @@
 
 package com.rawlabs.sql.compiler.antlr4
 
-import com.rawlabs.compiler.api.Message
+import com.rawlabs.compiler.Message
 import com.rawlabs.sql.parser.generated.{PsqlLexer, PsqlParser}
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}

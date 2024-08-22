@@ -10,13 +10,13 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler.truffle
+package com.rawlabs.snapi.compiler
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
-import org.graalvm.polyglot.Value
 import com.rawlabs.compiler.utils.RecordFieldsNaming
 import com.rawlabs.snapi.frontend.rql2.Rql2TypeUtils
 import com.rawlabs.snapi.frontend.rql2.source._
+import org.graalvm.polyglot.Value
 
 import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter

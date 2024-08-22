@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.compiler.api.{
+import com.rawlabs.compiler.{
   AutoCompleteResponse,
   Completion,
   FieldCompletion,

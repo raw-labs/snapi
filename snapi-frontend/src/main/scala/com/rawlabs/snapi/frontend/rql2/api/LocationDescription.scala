@@ -48,7 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
-import com.rawlabs.compiler.api.ProgramEnvironment
+import com.rawlabs.compiler.ProgramEnvironment
 import com.rawlabs.protocol.compiler.LocationConfig
 import com.rawlabs.utils.core.RawSettings
 import com.typesafe.config.{ConfigException, ConfigFactory}

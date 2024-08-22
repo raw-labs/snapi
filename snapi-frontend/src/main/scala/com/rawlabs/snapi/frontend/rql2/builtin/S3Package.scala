@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2.builtin
 
-import com.rawlabs.compiler.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
+import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.rql2.source.{Rql2LocationType, Rql2StringType}
 import com.rawlabs.snapi.frontend.rql2._
