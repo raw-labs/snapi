@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.utils
+package com.rawlabs.snapi.frontend.base
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.attribution.Attribute

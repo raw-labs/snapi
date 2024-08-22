@@ -29,7 +29,7 @@ import com.rawlabs.snapi.frontend.base.CompilerContext;
 import com.rawlabs.snapi.frontend.base.InitPhase;
 import com.rawlabs.snapi.frontend.base.Phase;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.common.PhaseDescriptor;
+import com.rawlabs.snapi.frontend.rql2.PhaseDescriptor;
 import com.rawlabs.snapi.frontend.common.source.SourceProgram;
 import com.rawlabs.snapi.frontend.inferrer.api.InferrerService;
 import com.rawlabs.snapi.frontend.rql2.*;
@@ -124,7 +124,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     RawContext context = RawContext.get(null);
 
     ProgramContext programContext =
-        new Rql2ProgramContext(
+        new ProgramContext(
             context.getProgramEnvironment(),
             getCompilerContext(context.getUid(), context.getSettings()));
 

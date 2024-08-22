@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.common
+package com.rawlabs.snapi.frontend.rql2
 
 import com.rawlabs.snapi.frontend.common.source._
 

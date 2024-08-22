@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.frontend.utils._
+import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 
 class XmlPackageTest extends Rql2TruffleCompilerTestContext {

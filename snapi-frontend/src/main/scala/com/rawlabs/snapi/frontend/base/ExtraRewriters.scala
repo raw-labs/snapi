@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.utils
+package com.rawlabs.snapi.frontend.base
 
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.id

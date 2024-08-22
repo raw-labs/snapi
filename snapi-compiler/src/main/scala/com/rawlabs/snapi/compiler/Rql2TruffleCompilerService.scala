@@ -130,7 +130,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
 
   private def getProgramContext(user: RawUid, environment: ProgramEnvironment): ProgramContext = {
     val compilerContext = getCompilerContext(user)
-    new Rql2ProgramContext(environment, compilerContext)
+    new ProgramContext(environment, compilerContext)
   }
 
   override def prettyPrint(node: BaseNode, user: RawUid): String = {

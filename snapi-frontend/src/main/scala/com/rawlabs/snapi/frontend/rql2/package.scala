@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend
 
 import java.nio.file.Path
 
-package object utils {
+package object rql2 {
 
   /**
    * An interpolator for RQL code.

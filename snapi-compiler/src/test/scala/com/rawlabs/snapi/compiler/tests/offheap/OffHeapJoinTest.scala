@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.compiler.tests.offheap
 
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
-import com.rawlabs.snapi.frontend.utils._
+import com.rawlabs.snapi.frontend.rql2._
 
 class OffHeapJoinTest extends Rql2TruffleCompilerTestContext with OffHeapDatasets {
 

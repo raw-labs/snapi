@@ -12,6 +12,8 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
+import com.rawlabs.compiler.ProgramEnvironment
+import com.rawlabs.snapi.frontend.base.CompilerContext
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
 import com.rawlabs.snapi.frontend.rql2.api.{PackageExtension, PackageExtensionProvider, Rql2Value}
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Program
@@ -19,7 +21,10 @@ import com.rawlabs.snapi.frontend.inferrer.api.{InferrerProperties, InputFormatD
 
 import scala.collection.mutable
 
-trait ProgramContext extends com.rawlabs.snapi.frontend.base.ProgramContext {
+class ProgramContext(
+    override val programEnvironment: ProgramEnvironment,
+    override val compilerContext: CompilerContext
+) extends com.rawlabs.snapi.frontend.base.ProgramContext {
 
   private val inferCache = new mutable.HashMap[InferrerProperties, Either[String, InputFormatDescriptor]]
 

@@ -17,7 +17,6 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.relation.{EnsureTree, LeaveAlone, TreeRelation}
 import com.rawlabs.snapi.frontend.base.errors.{CompilationMessageMapper, ErrorCompilerMessage}
 import com.rawlabs.snapi.frontend.base.source._
-import com.rawlabs.snapi.frontend.utils.ExtraRewriters
 
 abstract class BaseTree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](ensureTree: Boolean)(
     implicit val programContext: ProgramContext
