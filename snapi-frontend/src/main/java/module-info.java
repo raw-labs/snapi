@@ -52,6 +52,7 @@ module raw.snapi.frontend {
   exports com.rawlabs.snapi.frontend.rql2;
   exports com.rawlabs.snapi.frontend.rql2.api;
   exports com.rawlabs.snapi.frontend.rql2.builtin;
+  exports com.rawlabs.snapi.frontend.rql2.phases;
   exports com.rawlabs.snapi.frontend.rql2.errors;
   exports com.rawlabs.snapi.frontend.rql2.lsp;
   exports com.rawlabs.snapi.frontend.rql2.source;

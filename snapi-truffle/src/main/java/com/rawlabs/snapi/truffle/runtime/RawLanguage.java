@@ -33,6 +33,10 @@ import com.rawlabs.snapi.frontend.common.PhaseDescriptor;
 import com.rawlabs.snapi.frontend.common.source.SourceProgram;
 import com.rawlabs.snapi.frontend.inferrer.api.InferrerService;
 import com.rawlabs.snapi.frontend.rql2.*;
+import com.rawlabs.snapi.frontend.rql2.phases.ImplicitCastsPhase;
+import com.rawlabs.snapi.frontend.rql2.phases.ListProjDesugarerPhase;
+import com.rawlabs.snapi.frontend.rql2.phases.PropagationPhase;
+import com.rawlabs.snapi.frontend.rql2.phases.SugarExtensionDesugarerPhase;
 import com.rawlabs.snapi.frontend.rql2.source.InternalSourcePrettyPrinter;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Program;
 import com.rawlabs.snapi.truffle.emitter.compiler.TruffleEmit;
@@ -175,23 +179,23 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
           new PhaseDescriptor(
               "SugarExtensionDesugarer",
               (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
-                  (Class<?>) SugarExtensionDesugarer.class),
+                  (Class<?>) SugarExtensionDesugarerPhase.class),
           new PhaseDescriptor(
               "(Sugar)SugarExtensionDesugarer",
               (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
-                  (Class<?>) SugarExtensionDesugarer.class),
+                  (Class<?>) SugarExtensionDesugarerPhase.class),
           new PhaseDescriptor(
               "ListProjDesugarer",
               (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
-                  (Class<?>) ListProjDesugarer.class),
+                  (Class<?>) ListProjDesugarerPhase.class),
           new PhaseDescriptor(
               "Propagation",
               (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
-                  (Class<?>) Propagation.class),
+                  (Class<?>) PropagationPhase.class),
           new PhaseDescriptor(
               "ImplicitCasts",
               (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
-                  (Class<?>) ImplicitCasts.class));
+                  (Class<?>) ImplicitCastsPhase.class));
 
   @CompilerDirectives.TruffleBoundary
   SourceProgram transpile(SourceProgram root, ProgramContext programContext) {

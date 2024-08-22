@@ -10,19 +10,20 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.rql2
+package com.rawlabs.snapi.frontend.rql2.phases
 
 import com.rawlabs.compiler.CompilerException
-import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
-import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 import com.rawlabs.snapi.frontend.base.Phase
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
 import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.common.source._
 import com.rawlabs.snapi.frontend.rql2.api.SugarEntryExtension
 import com.rawlabs.snapi.frontend.rql2.source._
+import com.rawlabs.snapi.frontend.rql2.{FunAppPackageEntryArguments, PipelinedPhase, Tree}
+import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
+import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 
-class SugarExtensionDesugarer(protected val parent: Phase[SourceProgram], protected val phaseName: String)(
+class SugarExtensionDesugarerPhase(protected val parent: Phase[SourceProgram], protected val phaseName: String)(
     protected val baseProgramContext: com.rawlabs.snapi.frontend.base.ProgramContext
 ) extends PipelinedPhase {
 

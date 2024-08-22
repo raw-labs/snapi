@@ -13,5 +13,5 @@
 package com.rawlabs.sql.parser.generated;
 
 class Placeholder {
-    // Placeholder class to allow the module-info.java file to be compiled
+  // Placeholder class to allow the module-info.java file to be compiled
 }
