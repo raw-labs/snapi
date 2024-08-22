@@ -14,9 +14,9 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
-import com.rawlabs.compiler.snapi.rql2.builtin.MaxCollectionEntry;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.rql2.api.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.builtin.MaxCollectionEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;

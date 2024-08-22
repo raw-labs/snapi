@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.compiler.snapi.rql2.source.*;
+import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.ArrayOperationNodes;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.ArrayOperationNodesFactory;

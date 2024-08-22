@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.off_heap.distinct;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.runtime.data_structures.treemap.TreeMapObject;
 import com.rawlabs.snapi.truffle.runtime.utils.KryoFootPrint;
 import java.io.File;

@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.compiler.snapi.rql2.source.*;
+import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.snapi.truffle.runtime.ast.TypeGuards;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;

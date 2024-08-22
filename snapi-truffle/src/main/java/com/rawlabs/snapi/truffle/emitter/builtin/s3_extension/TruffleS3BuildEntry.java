@@ -12,8 +12,8 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.s3_extension;
 
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.rql2.builtin.S3BuildEntry;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.rql2.builtin.S3BuildEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.emitter.builtin.WithArgs;

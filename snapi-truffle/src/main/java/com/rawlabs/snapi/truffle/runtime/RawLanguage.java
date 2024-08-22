@@ -26,16 +26,16 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.Shape;
 import com.rawlabs.compiler.api.*;
 import com.rawlabs.compiler.api.Entrypoint;
-import com.rawlabs.compiler.snapi.base.CompilerContext;
-import com.rawlabs.compiler.snapi.base.InitPhase;
-import com.rawlabs.compiler.snapi.base.Phase;
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.common.PhaseDescriptor;
-import com.rawlabs.compiler.snapi.common.source.SourceProgram;
-import com.rawlabs.compiler.snapi.inferrer.api.InferrerService;
-import com.rawlabs.compiler.snapi.rql2.*;
-import com.rawlabs.compiler.snapi.rql2.source.InternalSourcePrettyPrinter;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2Program;
+import com.rawlabs.snapi.frontend.base.CompilerContext;
+import com.rawlabs.snapi.frontend.base.InitPhase;
+import com.rawlabs.snapi.frontend.base.Phase;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.common.PhaseDescriptor;
+import com.rawlabs.snapi.frontend.common.source.SourceProgram;
+import com.rawlabs.snapi.frontend.inferrer.api.InferrerService;
+import com.rawlabs.snapi.frontend.rql2.*;
+import com.rawlabs.snapi.frontend.rql2.source.InternalSourcePrettyPrinter;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2Program;
 import com.rawlabs.snapi.truffle.emitter.compiler.TruffleEmit;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleValidationException;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.DuplicateKeyRecord;
@@ -175,23 +175,23 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
       Arrays.asList(
           new PhaseDescriptor(
               "SugarExtensionDesugarer",
-              (Class<com.rawlabs.compiler.snapi.base.PipelinedPhase<SourceProgram>>)
+              (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
                   (Class<?>) SugarExtensionDesugarer.class),
           new PhaseDescriptor(
               "(Sugar)SugarExtensionDesugarer",
-              (Class<com.rawlabs.compiler.snapi.base.PipelinedPhase<SourceProgram>>)
+              (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
                   (Class<?>) SugarExtensionDesugarer.class),
           new PhaseDescriptor(
               "ListProjDesugarer",
-              (Class<com.rawlabs.compiler.snapi.base.PipelinedPhase<SourceProgram>>)
+              (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
                   (Class<?>) ListProjDesugarer.class),
           new PhaseDescriptor(
               "Propagation",
-              (Class<com.rawlabs.compiler.snapi.base.PipelinedPhase<SourceProgram>>)
+              (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
                   (Class<?>) Propagation.class),
           new PhaseDescriptor(
               "ImplicitCasts",
-              (Class<com.rawlabs.compiler.snapi.base.PipelinedPhase<SourceProgram>>)
+              (Class<com.rawlabs.snapi.frontend.base.PipelinedPhase<SourceProgram>>)
                   (Class<?>) ImplicitCasts.class));
 
   @CompilerDirectives.TruffleBoundary

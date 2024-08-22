@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.truffle.emitter;
 
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.common.source.Exp;
-import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.common.source.Exp;
+import com.rawlabs.snapi.frontend.rql2.api.Rql2Arg;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import java.util.List;
 import java.util.stream.Collectors;

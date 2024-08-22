@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.location_packa
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.compiler.protocol.LocationConfig;
-import com.rawlabs.compiler.protocol.OracleConfig;
+import com.rawlabs.protocol.compiler.LocationConfig;
+import com.rawlabs.protocol.compiler.OracleConfig;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.RawContext;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;

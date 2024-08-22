@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.runtime.ast;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Idempotent;
-import com.rawlabs.compiler.snapi.rql2.source.*;
+import com.rawlabs.snapi.frontend.rql2.source.*;
 
 public class TypeGuards {
 

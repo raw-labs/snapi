@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.rql2.api.Rql2Arg;
-import com.rawlabs.compiler.snapi.rql2.builtin.StrictArgsColPassThroughTestEntry;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.rql2.api.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.builtin.StrictArgsColPassThroughTestEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;

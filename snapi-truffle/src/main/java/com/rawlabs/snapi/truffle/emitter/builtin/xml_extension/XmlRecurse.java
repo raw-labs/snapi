@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.xml_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.rawlabs.compiler.snapi.rql2.source.*;
+import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;

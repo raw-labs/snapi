@@ -36,14 +36,15 @@ writeVersionToFile := {
 
 lazy val root = (project in file("."))
   .aggregate(
-    compilerProtocol,
+    protocolCompiler,
+    protocolRaw,
     utilsCore,
     utilsSources,
     compilerApi,
     snapiParser,
-    compilerSnapiFrontend,
+    snapiFrontend,
     snapiTruffle,
-    compilerSnapi,
+    snapiCompiler,
     sqlParser,
     sqlCompiler
   )
@@ -102,7 +103,7 @@ lazy val utilsSources = (project in file("utils-sources"))
     )
   )
 
-lazy val rawProtocol = (project in file("raw-protocol"))
+lazy val protocolRaw = (project in file("protocol-raw"))
   .enablePlugins(ProtobufPlugin)
   .settings(
     commonSettings,
@@ -113,7 +114,7 @@ lazy val rawProtocol = (project in file("raw-protocol"))
     Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
   )
 
-lazy val compilerProtocol = (project in file("compiler-protocol"))
+lazy val protocolCompiler = (project in file("protocol-compiler"))
   .enablePlugins(ProtobufPlugin)
   .settings(
     commonSettings,
@@ -127,7 +128,7 @@ lazy val compilerProtocol = (project in file("compiler-protocol"))
 lazy val compilerApi = (project in file("compiler-api"))
   .dependsOn(
     utilsCore % "compile->compile;test->test",
-    compilerProtocol % "compile->compile;test->test"
+    protocolCompiler % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -157,7 +158,7 @@ lazy val snapiParser = (project in file("snapi-parser"))
     )
   )
 
-lazy val compilerSnapiFrontend = (project in file("compiler-snapi-frontend"))
+lazy val snapiFrontend = (project in file("snapi-frontend"))
   .dependsOn(
     utilsCore % "compile->compile;test->test",
     compilerApi % "compile->compile;test->test",
@@ -196,7 +197,7 @@ val annotationProcessors = Seq(
 lazy val snapiTruffle = (project in file("snapi-truffle"))
   .dependsOn(
     utilsCore % "compile->compile;test->test",
-    compilerSnapiFrontend % "compile->compile;test->test"
+    snapiFrontend % "compile->compile;test->test"
   )
   .enablePlugins(JavaAnnotationProcessorPlugin)
   .settings(
@@ -256,10 +257,10 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     publishSigned := (publishSigned dependsOn runJavaAnnotationProcessor).value
   )
 
-lazy val compilerSnapi = (project in file("compiler-snapi"))
+lazy val snapiCompiler = (project in file("snapi-compiler"))
   .dependsOn(
     compilerApi % "compile->compile;test->test",
-    compilerSnapiFrontend % "compile->compile;test->test",
+    snapiFrontend % "compile->compile;test->test",
     snapiTruffle % "compile->compile;test->test"
   )
   .settings(

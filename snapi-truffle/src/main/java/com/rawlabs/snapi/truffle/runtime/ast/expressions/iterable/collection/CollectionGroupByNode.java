@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.operations.GroupByCollection;
 

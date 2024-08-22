@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
-import com.rawlabs.compiler.snapi.rql2.builtin.IntervalValueArgTestEntry;
+import com.rawlabs.snapi.frontend.rql2.builtin.IntervalValueArgTestEntry;
 
 public class TruffleIntervalValueArgTestEntry extends IntervalValueArgTestEntry
     implements TruffleValueArg {}

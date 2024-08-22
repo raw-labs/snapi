@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.runtime.ast.io.kryo;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.runtime.kryo.KryoNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.kryo.KryoNodesFactory;

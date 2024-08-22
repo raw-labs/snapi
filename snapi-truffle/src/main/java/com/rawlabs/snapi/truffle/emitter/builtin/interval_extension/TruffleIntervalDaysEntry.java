@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.interval_extension;
 
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.common.source.Exp;
-import com.rawlabs.compiler.snapi.rql2.builtin.IntervalDaysEntry;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.common.source.Exp;
+import com.rawlabs.snapi.frontend.rql2.builtin.IntervalDaysEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleShortEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.interval_package.IntervalDaysNodeGen;

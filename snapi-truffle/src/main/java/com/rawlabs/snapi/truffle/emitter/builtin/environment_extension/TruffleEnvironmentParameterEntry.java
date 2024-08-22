@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.environment_extension;
 
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.rql2.builtin.EnvironmentParameterEntry;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2Type;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.rql2.builtin.EnvironmentParameterEntry;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;

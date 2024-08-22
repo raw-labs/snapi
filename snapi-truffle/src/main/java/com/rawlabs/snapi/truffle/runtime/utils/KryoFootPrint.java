@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.utils;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.rawlabs.compiler.snapi.rql2.source.*;
+import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
 import scala.collection.immutable.Vector;
 

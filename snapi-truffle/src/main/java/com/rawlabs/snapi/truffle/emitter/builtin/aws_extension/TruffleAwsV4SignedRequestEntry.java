@@ -12,11 +12,11 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.aws_extension;
 
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.rql2.builtin.AwsV4SignedRequest;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2AttrType;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2ListType;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2RecordType;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.rql2.builtin.AwsV4SignedRequest;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2AttrType;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2ListType;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2RecordType;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;

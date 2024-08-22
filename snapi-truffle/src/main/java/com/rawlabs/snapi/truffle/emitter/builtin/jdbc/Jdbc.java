@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.emitter.builtin.jdbc;
 import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.*;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.rql2.source.*;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.RawLanguage;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;

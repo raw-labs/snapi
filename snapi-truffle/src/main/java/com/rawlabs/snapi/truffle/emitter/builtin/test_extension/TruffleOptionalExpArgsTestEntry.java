@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
-import com.rawlabs.compiler.snapi.rql2.builtin.OptionalExpArgsTestEntry;
+import com.rawlabs.snapi.frontend.rql2.builtin.OptionalExpArgsTestEntry;
 
 public class TruffleOptionalExpArgsTestEntry extends OptionalExpArgsTestEntry
     implements TruffleOptionalArgs {}

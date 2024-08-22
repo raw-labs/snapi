@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
-import com.rawlabs.compiler.snapi.rql2.builtin.StringValueArgTestEntry;
+import com.rawlabs.snapi.frontend.rql2.builtin.StringValueArgTestEntry;
 
 public class TruffleStringValueArgTestEntry extends StringValueArgTestEntry
     implements TruffleValueArg {}

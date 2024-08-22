@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.ast.local;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.compiler.snapi.rql2.source.*;
+import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.TypeGuards;
 

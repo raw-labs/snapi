@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.truffle.runtime;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import com.rawlabs.compiler.snapi.base.CompilerContext;
-import com.rawlabs.compiler.snapi.inferrer.api.InferrerService;
-import com.rawlabs.compiler.snapi.inferrer.api.InferrerServiceProvider;
+import com.rawlabs.snapi.frontend.base.CompilerContext;
+import com.rawlabs.snapi.frontend.inferrer.api.InferrerService;
+import com.rawlabs.snapi.frontend.inferrer.api.InferrerServiceProvider;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.core.RawUid;
 import com.rawlabs.utils.core.RawUtils;

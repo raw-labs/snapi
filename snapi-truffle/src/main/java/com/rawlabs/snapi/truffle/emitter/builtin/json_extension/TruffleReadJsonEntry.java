@@ -14,10 +14,10 @@ package com.rawlabs.snapi.truffle.emitter.builtin.json_extension;
 
 import java.util.List;
 
-import com.rawlabs.compiler.snapi.base.source.Type;
-import com.rawlabs.compiler.snapi.rql2.builtin.ReadJsonEntry;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2IterableType;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.rql2.builtin.ReadJsonEntry;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2IterableType;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;

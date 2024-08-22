@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.ast.osr.bodies;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.compiler.snapi.rql2.source.Rql2Type;
+import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.TypeGuards;
 import java.util.ArrayList;
