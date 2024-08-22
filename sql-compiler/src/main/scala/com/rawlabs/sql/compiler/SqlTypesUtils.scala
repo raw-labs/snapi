@@ -83,7 +83,12 @@ object SqlTypesUtils {
     //    java.sql.Types.TIMESTAMP_WITH_TIMEZONE ->
   )
 
-  // Renames the postgres type to what a user would need to write to match the actual type. Or return an error.
+  /**
+   * Validates and renames the parameter type and returns the PostgresType if it is valid.
+   *
+   * @param t the PostgresType to validate
+   * @return either an error message or the validated PostgresType
+   */
   def validateParamType(t: PostgresType): Either[String, PostgresType] = {
     t.jdbcType match {
       case java.sql.Types.BIT | java.sql.Types.BOOLEAN =>
@@ -105,6 +110,12 @@ object SqlTypesUtils {
     }
   }
 
+  /**
+   * Returns the RawType corresponding to the given PostgresType.
+   *
+   * @param tipe the PostgresType to convert
+   * @return either an error message or the corresponding RawType
+   */
   def rawTypeFromPgType(tipe: PostgresType): Either[String, RawType] = {
     val jdbcType = tipe.jdbcType
     val pgTypeName = tipe.typeName

@@ -581,7 +581,7 @@ class TestSqlParser extends AnyFunSuite {
     val SqlProgramNode(stmt) = result.tree
     val SqlStatementNode(statementItems) = stmt
     assert(statementItems.size == 4)
-    val node = statementItems(1).asInstanceOf[SqlStringLiteralNode]
+    val node = statementItems(1).asInstanceOf[SqlIdentifierNode]
     val finish = result.positions.getFinish(node)
     assert(finish.get.line == 3)
   }

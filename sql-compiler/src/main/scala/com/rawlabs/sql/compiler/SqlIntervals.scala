@@ -18,15 +18,15 @@ import scala.util.matching.Regex
 
 object SqlIntervals {
 
-  val POSTGRES_INTERVAL_REGEX: Regex =
+  private val POSTGRES_INTERVAL_REGEX: Regex =
     """(?:(\d+)\s+years?)?(?:\s*(\d+) mons?)?(?:\s*(\d+) days?)?(?:\s*(\d+):(\d+):(\d+)(?:\.(\d+))?)?""".r
 
-  private def padRight(s: String, n: Int): String = {
-    val padding = n - s.length
-    if (padding <= 0) s
-    else s + "0" * padding
-  }
-
+  /**
+   * Converts a string representation of an interval to a RawInterval
+   *
+   * @param in the string representation of the interval
+   * @return the RawInterval
+   */
   def stringToInterval(in: String): RawInterval = {
     in match {
       case POSTGRES_INTERVAL_REGEX(years, months, days, hours, minutes, seconds, fraction) =>
@@ -45,6 +45,12 @@ object SqlIntervals {
     }
   }
 
+  /**
+   * Converts a RawInterval to a string representation
+   *
+   * @param in the RawInterval
+   * @return the string representation of the interval
+   */
   def intervalToString(in: RawInterval): String = {
     val time = new StringBuilder()
     val result = new StringBuilder("P")
@@ -72,6 +78,12 @@ object SqlIntervals {
     if (time.nonEmpty) result.append("T" + time.toString())
 
     result.toString()
+  }
+
+  private def padRight(s: String, n: Int): String = {
+    val padding = n - s.length
+    if (padding <= 0) s
+    else s + "0" * padding
   }
 
 }
