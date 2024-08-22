@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.json_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.PrintJsonEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.PrintJsonEntry;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;

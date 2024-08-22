@@ -48,13 +48,12 @@ module raw.snapi.frontend {
   exports com.rawlabs.snapi.frontend.base.errors;
   exports com.rawlabs.snapi.frontend.base.source;
   exports com.rawlabs.snapi.frontend.rql2;
-  exports com.rawlabs.snapi.frontend.rql2.extensions;
   exports com.rawlabs.snapi.frontend.rql2.source;
-  exports com.rawlabs.snapi.frontend.rql2.builtin;
   exports com.rawlabs.snapi.frontend.rql2.phases;
   exports com.rawlabs.snapi.frontend.rql2.errors;
-  exports com.rawlabs.snapi.frontend.rql2.lsp;
   exports com.rawlabs.snapi.frontend.rql2.antlr4;
+  exports com.rawlabs.snapi.frontend.rql2.extensions;
+  exports com.rawlabs.snapi.frontend.rql2.extensions.builtin;
   exports com.rawlabs.snapi.frontend.inferrer.api;
   exports com.rawlabs.snapi.frontend.inferrer.local;
 

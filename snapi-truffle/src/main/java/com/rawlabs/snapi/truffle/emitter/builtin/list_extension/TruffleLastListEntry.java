@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.list_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.LastListEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.LastListEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;

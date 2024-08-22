@@ -17,7 +17,7 @@ import org.bitbucket.inkytonik.kiama.util.Trampolines.Done
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import com.rawlabs.snapi.frontend.base.source.BaseNode
 import com.rawlabs.snapi.frontend.rql2.antlr4.{CommentsAntlrSyntaxAnalyzer, NodeComments}
-import com.rawlabs.snapi.frontend.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{ListPackageBuilder, RecordPackageBuilder}
 
 import java.util
 import scala.collection.JavaConverters._

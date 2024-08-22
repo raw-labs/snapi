@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.aws_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.AwsV4SignedRequest;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.AwsV4SignedRequest;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2AttrType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2ListType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2RecordType;

@@ -16,7 +16,7 @@ import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.*;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.builtin.FlatMapNullableTryableEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.FlatMapNullableTryableEntry;
 import com.rawlabs.snapi.frontend.rql2.source.FunType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;

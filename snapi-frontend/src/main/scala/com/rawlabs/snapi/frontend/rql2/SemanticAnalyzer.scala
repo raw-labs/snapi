@@ -34,7 +34,6 @@ import com.rawlabs.snapi.frontend.rql2.extensions.{
   ValueArg,
   ValueParam
 }
-import com.rawlabs.snapi.frontend.rql2.builtin.TypePackageBuilder
 import com.rawlabs.snapi.frontend.rql2.errors.{
   CannotDetermineTypeOfParameter,
   ExpectedTypeButGotExpression,
@@ -52,6 +51,7 @@ import com.rawlabs.snapi.frontend.rql2.errors.{
   UnexpectedArguments,
   UnexpectedOptionalArgument
 }
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TypePackageBuilder
 import com.rawlabs.snapi.frontend.rql2.source._
 
 import scala.collection.mutable

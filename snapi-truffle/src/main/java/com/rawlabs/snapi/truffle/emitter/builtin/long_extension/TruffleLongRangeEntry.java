@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.long_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.LongRangeEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.LongRangeEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;

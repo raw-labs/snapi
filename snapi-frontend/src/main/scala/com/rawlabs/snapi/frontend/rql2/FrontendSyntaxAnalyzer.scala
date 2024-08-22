@@ -18,7 +18,7 @@ import com.rawlabs.snapi.frontend.base.SyntaxAnalyzer.identRegex
 import com.rawlabs.snapi.frontend.base.source.{BaseProgram, Type}
 import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import com.rawlabs.snapi.frontend.rql2.source._
 
 import scala.util.matching.Regex

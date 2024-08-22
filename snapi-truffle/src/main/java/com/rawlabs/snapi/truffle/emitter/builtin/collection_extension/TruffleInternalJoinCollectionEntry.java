@@ -16,7 +16,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.builtin.InternalJoinCollectionEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.InternalJoinCollectionEntry;
 import com.rawlabs.snapi.frontend.rql2.source.FunType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2IterableType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;

@@ -66,11 +66,10 @@ import com.rawlabs.snapi.frontend.base.{CompilerContext, TreeDeclDescription, Tr
 import com.rawlabs.snapi.frontend.rql2.source.{SourceNode, SourceProgram}
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
-import com.rawlabs.snapi.frontend.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 import com.rawlabs.snapi.frontend.rql2.errors._
-import com.rawlabs.snapi.frontend.rql2.lsp.CompilerLspService
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.inferrer.api.InferrerServiceProvider
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
@@ -603,7 +602,7 @@ class Rql2CompilerService(engineDefinition: (Engine, Boolean))(implicit protecte
     )
   }
 
-  private def withLspTree[T](source: String, f: CompilerLspService => T)(
+  private def withLspTree[T](source: String, f: LspAnalyzer => T)(
       implicit programContext: base.ProgramContext
   ): Either[(String, Position), T] = {
     val positions = new Positions()
@@ -615,7 +614,7 @@ class Rql2CompilerService(engineDefinition: (Engine, Boolean))(implicit protecte
     )
     val analyzer = new SemanticAnalyzer(tree)(programContext.asInstanceOf[ProgramContext])
     // Handle the LSP request.
-    val lspService = new CompilerLspService(errors, analyzer, positions)(programContext.asInstanceOf[ProgramContext])
+    val lspService = new LspAnalyzer(errors, analyzer, positions)(programContext.asInstanceOf[ProgramContext])
     Right(f(lspService))
   }
 

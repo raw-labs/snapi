@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.http_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.HttpCallEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.HttpCallEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.emitter.builtin.WithArgs;

@@ -16,7 +16,7 @@ import com.rawlabs.snapi.frontend.base.Phase
 import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, Rql2Value, ValueArg}
-import com.rawlabs.snapi.frontend.rql2.builtin._
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{NullablePackageBuilder, NullableTryablePackageBuilder, SuccessPackageBuilder, TryPackageBuilder, TypePackageBuilder}
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.{FunAppPackageEntryArguments, PipelinedPhase, Rql2TypeUtils, Tree}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._

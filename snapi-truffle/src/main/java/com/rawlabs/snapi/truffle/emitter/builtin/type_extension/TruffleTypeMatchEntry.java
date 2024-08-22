@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter.builtin.type_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.TypesMerger;
-import com.rawlabs.snapi.frontend.rql2.builtin.TypeMatchEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TypeMatchEntry;
 import com.rawlabs.snapi.frontend.rql2.source.FunType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2OrType;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;

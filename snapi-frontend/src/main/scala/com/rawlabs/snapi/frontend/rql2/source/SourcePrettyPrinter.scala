@@ -16,10 +16,8 @@ import com.rawlabs.utils.core.RawUtils
 import org.bitbucket.inkytonik.kiama.output._
 import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}
-import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import com.rawlabs.snapi.frontend.rql2.{Keywords, Rql2TypeUtils}
-import com.rawlabs.utils.core._
 
 import scala.collection.mutable
 

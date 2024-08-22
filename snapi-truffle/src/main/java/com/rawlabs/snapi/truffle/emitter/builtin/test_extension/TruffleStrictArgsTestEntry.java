@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.StrictArgsTestEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.StrictArgsTestEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.emitter.builtin.WithArgs;

@@ -57,17 +57,16 @@ import com.rawlabs.snapi.frontend.rql2.extensions.{
   Rql2TimestampValue,
   Rql2Value
 }
-import com.rawlabs.snapi.frontend.rql2.builtin.{
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.IntervalPackageBuilder
+import com.rawlabs.snapi.frontend.inferrer.api._
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{
   DatePackageBuilder,
-  IntervalPackageBuilder,
   ListPackageBuilder,
   NullablePackageBuilder,
   RecordPackageBuilder,
   TimePackageBuilder,
   TimestampPackageBuilder
 }
-import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.inferrer.api._
 
 trait Rql2TypeUtils {
 

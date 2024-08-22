@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.interval_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.IntervalMillisEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.IntervalMillisEntry;
 import com.rawlabs.snapi.frontend.rql2.source.Exp;
 import com.rawlabs.snapi.truffle.emitter.TruffleShortEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
