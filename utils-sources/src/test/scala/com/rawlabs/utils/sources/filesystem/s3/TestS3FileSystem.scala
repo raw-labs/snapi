@@ -102,7 +102,7 @@ class TestNoForwardSlashS3FileSystem extends RawTestSuite with TestS3FileSystem 
 }
 
 class TestRootOfBucketS3FileSystem extends RawTestSuite with TestS3FileSystem {
-  override val bucketName = "rawlabs-unit-tests\""
+  override val bucketName = "rawlabs-unit-tests"
   override val bucketRegion = "eu-west-1"
   override val bucketAccessKey = sys.env("RAW_AWS_ACCESS_KEY_ID")
   override val bucketSecretKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")

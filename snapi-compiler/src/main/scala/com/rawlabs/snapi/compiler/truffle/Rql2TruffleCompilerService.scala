@@ -308,10 +308,9 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           if (!CsvPackage.outputWriteSupport(tipe)) {
             return ExecutionRuntimeFailure("unsupported type")
           }
-          val programContext = getProgramContext(environment.uid, environment)
           val windowsLineEnding = environment.options.get("windows-line-ending") match {
             case Some("true") => true
-            case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
+            case _ => false
           }
           val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
           val w = new Rql2CsvWriter(outputStream, lineSeparator, maxRows)
