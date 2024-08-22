@@ -49,10 +49,10 @@ import java.util.concurrent.TimeUnit
 import scala.collection.JavaConverters._
 
 object S3FileSystem {
-  private val CONNECT_TIMEOUT = "raw.sources.s3.connect-timeout"
-  private val READ_TIMEOUT = "raw.sources.s3.read-timeout"
-  private val MAX_CONNECTIONS = "raw.sources.s3.max-connections"
-  private val DEFAULT_REGION = "raw.sources.s3.default-region"
+  private val CONNECT_TIMEOUT = "raw.utils.sources.s3.connect-timeout"
+  private val READ_TIMEOUT = "raw.utils.sources.s3.read-timeout"
+  private val MAX_CONNECTIONS = "raw.utils.sources.s3.max-connections"
+  private val DEFAULT_REGION = "raw.utils.sources.s3.default-region"
 }
 
 class S3FileSystem(

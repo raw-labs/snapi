@@ -20,7 +20,7 @@ import java.io.InputStream
 import java.nio.file.Path
 
 object BaseDropboxPath {
-  val DROPBOX_CLIENT_ID = "raw.sources.dropbox.clientId"
+  val DROPBOX_CLIENT_ID = "raw.utils.sources.dropbox.clientId"
 }
 
 abstract class BaseDropboxPath(dbxClientV2: DbxClientV2, path: String) extends FileSystemLocation {

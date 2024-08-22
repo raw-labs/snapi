@@ -41,16 +41,17 @@ final private case class ConnectionState(
 class SqlConnectionPool()(implicit settings: RawSettings) extends RawService with StrictLogging {
 
   // Total max connections to the FDW database (across all users).
-  private val maxConnections = settings.getInt("raw.client.sql.pool.max-connections")
+  private val maxConnections = settings.getInt("raw.sql.compiler.pool.max-connections")
   // Max connections per user
-  private val maxConnectionsPerDb = settings.getInt("raw.client.sql.pool.max-connections-per-db")
+  private val maxConnectionsPerDb = settings.getInt("raw.sql.compiler.pool.max-connections-per-db")
   // Time in milliseconds after which a connection may be released (if not borrowed).
-  private val idleTimeout = settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS)
+  private val idleTimeout = settings.getDuration("raw.sql.compiler.pool.idle-timeout", TimeUnit.MILLISECONDS)
 
-  private val healthCheckPeriod = settings.getDuration("raw.client.sql.pool.health-check-period", TimeUnit.MILLISECONDS)
+  private val healthCheckPeriod =
+    settings.getDuration("raw.sql.compiler.pool.health-check-period", TimeUnit.MILLISECONDS)
 
   // The JDBC isValid(<seconds>) value to use.
-  private val isValidSeconds = settings.getInt("raw.client.sql.pool.is-valid-seconds")
+  private val isValidSeconds = settings.getInt("raw.sql.compiler.pool.is-valid-seconds")
 
   private val connectionPoolLock = new Object
   // Holds the connections available for each location.

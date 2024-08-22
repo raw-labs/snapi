@@ -75,7 +75,7 @@ class SnowflakePackageTest extends Rql2TruffleCompilerTestContext {
       |}]""".stripMargin)
   }
 
-  property("raw.sources.rdbms.network-timeout", "10s")
+  property("raw.utils.sources.rdbms.network-timeout", "10s")
 
   test(s"""Snowflake.InferAndRead("snowflake", "$snowflakeSchema", "$snowflakeMainTable")""") { it =>
     it should evaluateTo(

@@ -16,7 +16,7 @@ import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 
 class RD9485Test extends Rql2TruffleCompilerTestContext {
 
-  property("raw.inferrer.local.xml.sample-size", "2")
+  property("raw.snapi.frontend.inferrer.local.xml.sample-size", "2")
 
   val xmlList = tempFile("""<?xml version="1.0" encoding="UTF-8"?>
     |<top>

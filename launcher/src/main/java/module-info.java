@@ -12,7 +12,7 @@
 
 module raw.cli {
     requires org.graalvm.polyglot;
-    requires raw.client;
+    requires raw.compiler;
     requires raw.utils.core;
     requires typesafe.config;
     requires scala.library;

@@ -26,7 +26,7 @@ import java.io.Reader
 import scala.util.control.NonFatal
 
 object HjsonInferrer {
-  private val HJSON_SAMPLE_SIZE = "raw.inferrer.local.hjson.sample-size"
+  private val HJSON_SAMPLE_SIZE = "raw.snapi.frontend.inferrer.local.hjson.sample-size"
 }
 
 class HjsonInferrer(implicit protected val settings: RawSettings)

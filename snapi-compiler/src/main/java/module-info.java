@@ -20,8 +20,8 @@ module raw.snapi.client {
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.core;
   requires raw.utils.sources;
-  requires raw.compiler.protocol;
-  requires raw.client;
+  requires raw.protocol.compiler;
+  requires raw.compiler;
   requires raw.snapi.frontend;
 
   uses CompilerServiceBuilder;

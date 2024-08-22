@@ -24,7 +24,7 @@ import com.rawlabs.utils.sources.bytestream.api.SeekableInputStream
 private[inferrer] case class TextBuffer(reader: Reader, encoding: Encoding, confidence: Int)
 
 object EncodingInferrer {
-  private val ENCODING_DETECTION_READ_SIZE = "raw.inferrer.local.encoding-detection-read-size"
+  private val ENCODING_DETECTION_READ_SIZE = "raw.snapi.frontend.inferrer.local.encoding-detection-read-size"
 }
 
 private[inferrer] trait EncodingInferrer extends StrictLogging {

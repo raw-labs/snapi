@@ -26,7 +26,7 @@ import scala.util.matching.Regex
 private case class RegexToType(regex: Regex, atts: Seq[SourceAttrType])
 
 object TextInferrer {
-  private val TEXT_SAMPLE_SIZE = "raw.inferrer.local.text.sample-size"
+  private val TEXT_SAMPLE_SIZE = "raw.snapi.frontend.inferrer.local.text.sample-size"
 }
 
 class TextInferrer(implicit protected val settings: RawSettings)

@@ -21,7 +21,7 @@ trait LocalInferrerTestContext extends BeforeAndAfterAll {
   override def beforeAll(): Unit = {
     super.beforeAll()
 
-    property("raw.inferrer.impl", "local")
+    property("raw.snapi.frontend.inferrer.impl", "local")
   }
 
 }

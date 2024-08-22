@@ -53,9 +53,9 @@ class LocalInferrerService(implicit settings: RawSettings)
     xmlInferrer
   )
 
-  private val defaultSampleFiles = settings.getInt("raw.inferrer.local.sample-files")
+  private val defaultSampleFiles = settings.getInt("raw.snapi.frontend.inferrer.local.sample-files")
   // This buffered-IS is only valid for text formats
-  private val useBufferedSeekableIs = settings.getBoolean("raw.inferrer.local.use-buffered-seekable-is")
+  private val useBufferedSeekableIs = settings.getBoolean("raw.snapi.frontend.inferrer.local.use-buffered-seekable-is")
 
   private def textInputStream(loc: ByteStreamLocation) = {
     if (useBufferedSeekableIs) {

@@ -24,7 +24,7 @@ import javax.xml.stream.XMLStreamException
 import scala.util.control.NonFatal
 
 object XmlInferrer {
-  private val XML_SAMPLE_SIZE = "raw.inferrer.local.xml.sample-size"
+  private val XML_SAMPLE_SIZE = "raw.snapi.frontend.inferrer.local.xml.sample-size"
 }
 
 class XmlInferrer(implicit protected val settings: RawSettings)

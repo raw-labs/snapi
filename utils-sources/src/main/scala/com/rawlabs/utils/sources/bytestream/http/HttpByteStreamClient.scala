@@ -32,8 +32,8 @@ import scala.collection.mutable
 
 object HttpByteStreamClient {
 
-  private val HTTP_CONNECT_TIMEOUT = "raw.sources.bytestream.http.connect-timeout"
-  private val HTTP_READ_TIMEOUT = "raw.sources.bytestream.http.read-timeout"
+  private val HTTP_CONNECT_TIMEOUT = "raw.utils.sources.bytestream.http.connect-timeout"
+  private val HTTP_READ_TIMEOUT = "raw.utils.sources.bytestream.http.read-timeout"
 
   private val ERROR_RESPONSE_MAX_OUTPUT_SIZE = 2048
 

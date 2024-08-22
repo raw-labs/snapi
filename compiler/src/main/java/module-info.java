@@ -12,7 +12,7 @@
 
 import com.rawlabs.compiler.api.CompilerServiceBuilder;
 
-module raw.client {
+module raw.compiler {
   requires scala.library;
   requires org.slf4j;
   requires org.graalvm.polyglot;
@@ -23,7 +23,7 @@ module raw.client {
   requires com.fasterxml.jackson.datatype.jsr310;
   requires com.fasterxml.jackson.datatype.jdk8;
   requires raw.utils.core;
-  requires raw.compiler.protocol;
+  requires raw.protocol.compiler;
 
   exports com.rawlabs.compiler.api;
   exports com.rawlabs.compiler.writers;

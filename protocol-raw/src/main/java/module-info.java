@@ -10,8 +10,8 @@
  * licenses/APL.txt.
  */
 
-module raw.protocol.compiler {
+module raw.protocol.raw {
   requires com.google.protobuf;
 
-  exports com.rawlabs.protocol.compiler;
+  exports com.rawlabs.protocol.raw;
 }

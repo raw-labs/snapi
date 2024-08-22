@@ -26,7 +26,7 @@ import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation
 import com.rawlabs.utils.sources.filesystem.api.{DirectoryMetadata, FileSystemLocation}
 
 object AutoInferrer {
-  private val USE_BUFFERED_SEEKABLE_IS = "raw.inferrer.local.use-buffered-seekable-is"
+  private val USE_BUFFERED_SEEKABLE_IS = "raw.snapi.frontend.inferrer.local.use-buffered-seekable-is"
 }
 
 class AutoInferrer(

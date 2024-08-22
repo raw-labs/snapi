@@ -120,8 +120,8 @@ class TestSqlConnectionFailures
     // because it could pick a connection.
     val joe = users.head
     val others = users.tail
-    property("raw.client.sql.pool.max-connections", s"$nUsers") // enough for everyone
-    property("raw.client.sql.pool.max-connections-per-db", s"1")
+    property("raw.sql.compiler.pool.max-connections", s"$nUsers") // enough for everyone
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1")
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(others.size)
     try {
@@ -157,8 +157,8 @@ class TestSqlConnectionFailures
     // because the number of max-connections is set to others.size, they're all taken.
     val joe = users.head
     val others = users.tail
-    property("raw.client.sql.pool.max-connections", s"${others.size}") // one less than needed
-    property("raw.client.sql.pool.max-connections-per-db", s"1")
+    property("raw.sql.compiler.pool.max-connections", s"${others.size}") // one less than needed
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1")
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(others.size)
     try {
@@ -190,8 +190,8 @@ class TestSqlConnectionFailures
     // Again, a single user runs LSP calls while all (including itself) are running long connections.
     // With two connections available, the single user manages to run all LSP calls.
     val joe = users.head
-    property("raw.client.sql.pool.max-connections", s"${nUsers * 2}")
-    property("raw.client.sql.pool.max-connections-per-db", s"2")
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers * 2}")
+    property("raw.sql.compiler.pool.max-connections-per-db", s"2")
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(users.size)
     try {
@@ -223,8 +223,8 @@ class TestSqlConnectionFailures
     // All users run a long query, including the one who then issues an LSP request. The LSP fails because
     // only one connection per user is allowed.
     val joe = users.head
-    property("raw.client.sql.pool.max-connections", s"${nUsers * 2}") // plenty
-    property("raw.client.sql.pool.max-connections-per-db", s"1") // only one per user
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers * 2}") // plenty
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1") // only one per user
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(users.size)
     try {
@@ -259,8 +259,8 @@ class TestSqlConnectionFailures
      * In total, there's one connection per user. Setting max-connections to nUsers is working.
      */
     val nCalls = 2
-    property("raw.client.sql.pool.max-connections", s"$nUsers")
-    property("raw.client.sql.pool.max-connections-per-db", s"1")
+    property("raw.sql.compiler.pool.max-connections", s"$nUsers")
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1")
     val compilerService = new SqlCompilerService()
     val iterations = 1 to nCalls
     try {
@@ -281,8 +281,8 @@ class TestSqlConnectionFailures
     // a total number of queries of nUsers x nCalls. We set max-connections to that value to be sure and
     // set max-connections-per-db to nCalls so that all concurrent queries can run.
     val nCalls = 3
-    property("raw.client.sql.pool.max-connections", s"${nUsers * nCalls}") // enough total
-    property("raw.client.sql.pool.max-connections-per-db", s"$nCalls") // exactly what is needed per user
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers * nCalls}") // enough total
+    property("raw.sql.compiler.pool.max-connections-per-db", s"$nCalls") // exactly what is needed per user
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(nUsers * nCalls)
     val iterations = 1 to nCalls
@@ -309,8 +309,8 @@ class TestSqlConnectionFailures
      * expected failure. The number of errors hit should be positive (checked in the end)
      */
     val nCalls = 2
-    property("raw.client.sql.pool.max-connections", s"${nUsers - 1}")
-    property("raw.client.sql.pool.max-connections-per-db", s"1")
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers - 1}")
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1")
     val compilerService = new SqlCompilerService()
     val iterations = 1 to nCalls
     try {
@@ -335,8 +335,8 @@ class TestSqlConnectionFailures
      * expected failure. The number of errors hit should be positive (checked in the end)
      */
     val nCalls = 2
-    property("raw.client.sql.pool.max-connections", s"${nUsers - 1}")
-    property("raw.client.sql.pool.max-connections-per-db", s"1")
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers - 1}")
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1")
     val compilerService = new SqlCompilerService()
     val iterations = 1 to nCalls
     try {
@@ -362,8 +362,8 @@ class TestSqlConnectionFailures
      * expected failure. The number of errors hit should be positive (checked in the end)
      */
     val nCalls = 2
-    property("raw.client.sql.pool.max-connections", s"${nUsers - 1}")
-    property("raw.client.sql.pool.max-connections-per-db", s"1")
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers - 1}")
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1")
     val compilerService = new SqlCompilerService()
     val iterations = 1 to nCalls
     try {
@@ -389,8 +389,8 @@ class TestSqlConnectionFailures
     // set max-connections-per-db to two so that all concurrent queries cannot all get a connection although
     // max-connections would allow it.
     val nCalls = 10
-    property("raw.client.sql.pool.max-connections", s"${nUsers * nCalls}") // in principle enough
-    property("raw.client.sql.pool.max-connections-per-db", s"1") // but only few connections per user
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers * nCalls}") // in principle enough
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1") // but only few connections per user
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(nUsers * nCalls)
     val iterations = 1 to nCalls
@@ -420,8 +420,8 @@ class TestSqlConnectionFailures
     // set max-connections-per-db to two so that all concurrent queries cannot all get a connection although
     // max-connections would allow it.
     val nCalls = 10
-    property("raw.client.sql.pool.max-connections", s"${nUsers * nCalls}") // in principle enough
-    property("raw.client.sql.pool.max-connections-per-db", s"1") // but only few connections per user
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers * nCalls}") // in principle enough
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1") // but only few connections per user
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(nUsers * nCalls)
     val iterations = 1 to nCalls
@@ -454,8 +454,8 @@ class TestSqlConnectionFailures
     // set max-connections-per-db to two so that all concurrent queries cannot all get a connection although
     // max-connections would allow it.
     val nCalls = 10
-    property("raw.client.sql.pool.max-connections", s"${nUsers * nCalls}") // in principle enough
-    property("raw.client.sql.pool.max-connections-per-db", s"1") // but only few connections per user
+    property("raw.sql.compiler.pool.max-connections", s"${nUsers * nCalls}") // in principle enough
+    property("raw.sql.compiler.pool.max-connections-per-db", s"1") // but only few connections per user
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(nUsers * nCalls)
     val iterations = 1 to nCalls

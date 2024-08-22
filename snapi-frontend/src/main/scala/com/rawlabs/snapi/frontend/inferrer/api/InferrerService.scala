@@ -19,12 +19,12 @@ import com.rawlabs.utils.core.{RawException, RawService, RawSettings, RawUtils}
 import java.util.concurrent.{ExecutionException, Executors, TimeUnit, TimeoutException}
 
 object InferrerService {
-  private val INFERRER_TIMEOUT = "raw.inferrer.timeout"
-  private val INFERRER_EXPIRY = "raw.inferrer.expiry"
+  private val INFERRER_TIMEOUT = "raw.snapi.frontend.inferrer.timeout"
+  private val INFERRER_EXPIRY = "raw.snapi.frontend.inferrer.expiry"
 
-  private val INFERRER_CACHE_SIZE = "raw.inferrer.cache-size"
+  private val INFERRER_CACHE_SIZE = "raw.snapi.frontend.inferrer.cache-size"
 
-  private val INFERRER_THREAD_POOL_SIZE = "raw.inferrer.thread-pool-size"
+  private val INFERRER_THREAD_POOL_SIZE = "raw.snapi.frontend.inferrer.thread-pool-size"
 
   private val prettyPrinter = new SourceTypePrettyPrinter
 }

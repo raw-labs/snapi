@@ -17,7 +17,7 @@ import com.rawlabs.snapi.frontend.inferrer.local.LocalInferrerService
 
 object InferrerServiceProvider {
 
-  private val INFERRER_IMPL = "raw.inferrer.impl"
+  private val INFERRER_IMPL = "raw.snapi.frontend.inferrer.impl"
 
   def apply()(implicit settings: RawSettings): InferrerService = {
     settings.getStringOpt(INFERRER_IMPL) match {

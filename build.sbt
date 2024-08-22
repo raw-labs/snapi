@@ -40,7 +40,7 @@ lazy val root = (project in file("."))
     protocolRaw,
     utilsCore,
     utilsSources,
-    compilerApi,
+    compiler,
     snapiParser,
     snapiFrontend,
     snapiTruffle,
@@ -125,7 +125,7 @@ lazy val protocolCompiler = (project in file("protocol-compiler"))
     Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
   )
 
-lazy val compilerApi = (project in file("compiler-api"))
+lazy val compiler = (project in file("compiler"))
   .dependsOn(
     utilsCore % "compile->compile;test->test",
     protocolCompiler % "compile->compile;test->test"
@@ -161,7 +161,7 @@ lazy val snapiParser = (project in file("snapi-parser"))
 lazy val snapiFrontend = (project in file("snapi-frontend"))
   .dependsOn(
     utilsCore % "compile->compile;test->test",
-    compilerApi % "compile->compile;test->test",
+    compiler % "compile->compile;test->test",
     utilsSources % "compile->compile;test->test",
     snapiParser % "compile->compile;test->test"
   )
@@ -259,7 +259,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
 
 lazy val snapiCompiler = (project in file("snapi-compiler"))
   .dependsOn(
-    compilerApi % "compile->compile;test->test",
+    compiler % "compile->compile;test->test",
     snapiFrontend % "compile->compile;test->test",
     snapiTruffle % "compile->compile;test->test"
   )
@@ -292,7 +292,7 @@ lazy val sqlParser = (project in file("sql-parser"))
 
 lazy val sqlCompiler = (project in file("sql-compiler"))
   .dependsOn(
-    compilerApi % "compile->compile;test->test",
+    compiler % "compile->compile;test->test",
     sqlParser % "compile->compile;test->test"
   )
   .settings(
@@ -310,7 +310,7 @@ lazy val sqlCompiler = (project in file("sql-compiler"))
 
 lazy val pythonCompiler = (project in file("python-compiler"))
   .dependsOn(
-    compilerApi % "compile->compile;test->test"
+    compiler % "compile->compile;test->test"
   )
   .settings(
     commonSettings,

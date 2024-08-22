@@ -19,7 +19,7 @@ class RD4445Test extends Rql2TruffleCompilerTestContext {
 
   import com.rawlabs.snapi.compiler.tests.TestCredentials._
 
-  property("raw.sources.dropbox.clientId", dropboxClientId)
+  property("raw.utils.sources.dropbox.clientId", dropboxClientId)
 
   dropbox("rawlabs-dropbox", DropboxAccessTokenConfig.newBuilder().setAccessToken(dropboxLongLivedAccessToken).build())
 

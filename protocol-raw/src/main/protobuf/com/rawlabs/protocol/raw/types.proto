@@ -1,0 +1,149 @@
+/**
+ * Copyright 2024 RAW Labs S.A.
+ * All rights reserved.
+ *
+ * This source code is the property of RAW Labs S.A. It contains
+ * proprietary and confidential information that is protected by applicable
+ * intellectual property and other laws. Unauthorized use, reproduction,
+ * or distribution of this code, or any portion of it, may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum
+ * extent possible under the law.
+ */
+
+syntax = "proto3";
+
+option java_package = "com.rawlabs.protocol.raw";
+option java_multiple_files = true;
+
+package com.rawlabs.protocol.raw;
+
+message Type {
+  oneof type {
+    AnyType any = 1;
+    UndefinedType undefined = 2;
+    ByteType byte = 3;
+    ShortType short = 4;
+    IntType int = 5;
+    LongType long = 6;
+    FloatType float = 7;
+    DoubleType double = 8;
+    DecimalType decimal = 9;
+    BoolType bool = 10;
+    StringType string = 11;
+    BinaryType binary = 12;
+    DateType date = 13;
+    TimeType time = 14;
+    TimestampType timestamp = 15;
+    IntervalType interval = 16;
+    RecordType record = 17;
+    ListType list = 18;
+    IterableType iterable = 19;
+    OrType or = 20;
+  }
+}
+
+message AnyType {}
+
+message UndefinedType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message ByteType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message ShortType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message IntType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message LongType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message FloatType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message DoubleType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message DecimalType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message BoolType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message StringType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message BinaryType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message DateType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message TimeType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message TimestampType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message IntervalType {
+  bool nullable = 1;
+  bool triable = 2;
+}
+
+message RecordType {
+  repeated AttrType atts = 1;
+  bool nullable = 2;
+  bool triable = 3;
+}
+
+message AttrType {
+  string idn = 1;
+  Type tipe = 2;
+}
+
+message ListType {
+  Type innerType = 1;
+  bool nullable = 2;
+  bool triable = 3;
+}
+
+message IterableType {
+  Type innerType = 1;
+  bool nullable = 2;
+  bool triable = 3;
+}
+
+message OrType {
+  repeated Type ors = 1;
+  bool nullable = 2;
+  bool triable = 3;
+}

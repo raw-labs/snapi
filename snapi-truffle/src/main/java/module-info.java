@@ -27,8 +27,8 @@ module raw.snapi.truffle {
   requires scala.library;
   requires com.ctc.wstx;
   requires raw.utils.core;
-  requires raw.compiler.protocol;
-  requires raw.client;
+  requires raw.protocol.compiler;
+  requires raw.compiler;
   requires raw.utils.sources;
   requires raw.snapi.frontend;
 

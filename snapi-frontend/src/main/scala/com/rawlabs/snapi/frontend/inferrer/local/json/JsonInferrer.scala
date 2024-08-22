@@ -25,7 +25,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.control.NonFatal
 
 object JsonInferrer {
-  private val JSON_SAMPLE_SIZE = "raw.inferrer.local.json.sample-size"
+  private val JSON_SAMPLE_SIZE = "raw.snapi.frontend.inferrer.local.json.sample-size"
 }
 
 class JsonInferrer(implicit protected val settings: RawSettings)

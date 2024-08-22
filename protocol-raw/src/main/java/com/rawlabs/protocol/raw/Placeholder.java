@@ -10,8 +10,8 @@
  * licenses/APL.txt.
  */
 
-module raw.protocol.compiler {
-  requires com.google.protobuf;
+package com.rawlabs.protocol.raw;
 
-  exports com.rawlabs.protocol.compiler;
+class Placeholder {
+  // Placeholder class to allow the module-info.java file to be compiled
 }
