@@ -18,7 +18,7 @@ import com.rawlabs.snapi.frontend.inferrer.api._
 import com.rawlabs.snapi.frontend.inferrer.local.jdbc.JdbcInferrer
 import com.rawlabs.utils.sources.jdbc.mysql.{MySqlClient, MySqlTableLocation}
 
-class RD10439 extends RawTestSuite with SettingsTestContext with StrictLogging {
+class RD10439Test extends RawTestSuite with SettingsTestContext with StrictLogging {
 
   val mysqlHostname: String = sys.env("RAW_MYSQL_TEST_HOST")
   val mysqlDb: String = sys.env("RAW_MYSQL_TEST_DB")

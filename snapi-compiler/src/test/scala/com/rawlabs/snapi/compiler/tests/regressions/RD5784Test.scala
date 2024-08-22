@@ -12,10 +12,10 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 import com.rawlabs.snapi.frontend.rql2._
 
-class RD5784Test extends Rql2TruffleCompilerTestContext {
+class RD5784Test extends Rql2TestContext {
 
   private val xmlFile = tempFile("""<?xml version="1.0"?>
     |<r>

@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.FormatCodeResponse
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class LspCommentsFormatTest extends Rql2TruffleCompilerTestContext {
+class LspCommentsFormatTest extends Rql2TestContext {
 
   def assertFormattedCode(
       code: String,

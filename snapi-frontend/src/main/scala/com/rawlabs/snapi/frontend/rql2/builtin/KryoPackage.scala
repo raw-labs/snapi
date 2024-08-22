@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.rql2.builtin
 import com.rawlabs.compiler.{EntryDoc, PackageDoc}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.api._
+import com.rawlabs.snapi.frontend.rql2.extensions._
 import com.rawlabs.snapi.frontend.rql2.source._
 
 class KryoPackage extends PackageExtension {

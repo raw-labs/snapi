@@ -11,7 +11,7 @@
  */
 
 import com.rawlabs.compiler.CompilerServiceBuilder;
-import com.rawlabs.snapi.compiler.Rql2TruffleCompilerServiceBuilder;
+import com.rawlabs.snapi.compiler.Rql2CompilerServiceBuilder;
 
 module raw.snapi.client {
   requires scala.library;
@@ -29,5 +29,5 @@ module raw.snapi.client {
   uses CompilerServiceBuilder;
 
   provides CompilerServiceBuilder with
-      Rql2TruffleCompilerServiceBuilder;
+      Rql2CompilerServiceBuilder;
 }

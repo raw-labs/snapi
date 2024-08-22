@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.rql2.api
+package com.rawlabs.snapi.frontend.rql2.extensions
 
 import com.rawlabs.compiler.{EntryDoc, PackageDoc}
 import com.rawlabs.snapi.frontend.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}

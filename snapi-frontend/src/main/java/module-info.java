@@ -48,7 +48,7 @@ module raw.snapi.frontend {
   exports com.rawlabs.snapi.frontend.base.errors;
   exports com.rawlabs.snapi.frontend.base.source;
   exports com.rawlabs.snapi.frontend.rql2;
-  exports com.rawlabs.snapi.frontend.rql2.api;
+  exports com.rawlabs.snapi.frontend.rql2.extensions;
   exports com.rawlabs.snapi.frontend.rql2.source;
   exports com.rawlabs.snapi.frontend.rql2.builtin;
   exports com.rawlabs.snapi.frontend.rql2.phases;
@@ -60,6 +60,6 @@ module raw.snapi.frontend {
 
   opens com.rawlabs.snapi.frontend.inferrer.api to
       com.fasterxml.jackson.databind;
-  opens com.rawlabs.snapi.frontend.rql2.api to
+  opens com.rawlabs.snapi.frontend.rql2.extensions to
       com.fasterxml.jackson.databind;
 }

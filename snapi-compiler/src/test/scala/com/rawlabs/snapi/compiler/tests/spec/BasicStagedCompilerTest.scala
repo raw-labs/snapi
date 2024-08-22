@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class BasicStagedCompilerTest extends Rql2TruffleCompilerTestContext {
+class BasicStagedCompilerTest extends Rql2TestContext {
 
   test("""TestPackage.ByteValueArg(22b)""")(_ should evaluateTo("{arg: 22b}"))
   test("""TestPackage.ShortValueArg(22s)""")(_ should evaluateTo("{arg: 22s}"))

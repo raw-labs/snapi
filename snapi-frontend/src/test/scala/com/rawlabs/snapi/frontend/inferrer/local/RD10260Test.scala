@@ -18,7 +18,8 @@ import com.rawlabs.snapi.frontend.inferrer.api._
 import com.rawlabs.snapi.frontend.inferrer.local.json.JsonInferrer
 
 import java.io.StringReader
-class RD10260 extends RawTestSuite with SettingsTestContext with StrictLogging {
+
+class RD10260Test extends RawTestSuite with SettingsTestContext with StrictLogging {
 
   test("Infer or-type starting on a record") { _ =>
     val json = """[

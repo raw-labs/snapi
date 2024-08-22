@@ -10,22 +10,21 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler
+package com.rawlabs.compiler
 
-import com.rawlabs.compiler.CompilerServiceProvider
 import com.rawlabs.utils.core.RawTestSuite
 import org.scalatest.BeforeAndAfterAll
 
-trait Rql2CompilerServiceTestContext extends BeforeAndAfterAll {
+trait CompilerServiceTestContext extends BeforeAndAfterAll {
   this: RawTestSuite =>
 
-  private var instance: Rql2CompilerService = _
+  private var instance: CompilerService = _
 
   private var language: Set[String] = _
 
-  def compilerService: Rql2CompilerService = instance
+  def compilerService: CompilerService = instance
 
-  def setCompilerService(compilerService: Rql2CompilerService): Unit = {
+  def setCompilerService(compilerService: CompilerService): Unit = {
     // Remember the language we have set.
     if (compilerService != null) {
       language = compilerService.language

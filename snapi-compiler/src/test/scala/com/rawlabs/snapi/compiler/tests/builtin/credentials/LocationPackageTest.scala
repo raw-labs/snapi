@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.credentials
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class LocationPackageTest extends Rql2TruffleCompilerTestContext {
+class LocationPackageTest extends Rql2TestContext {
 
   import com.rawlabs.snapi.compiler.tests.TestCredentials._
 

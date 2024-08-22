@@ -12,12 +12,12 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 import com.rawlabs.snapi.frontend.rql2._
 
 import java.nio.file.{Files, Path}
 
-class RD9359Test extends Rql2TruffleCompilerTestContext {
+class RD9359Test extends Rql2TestContext {
 
   private val duplicateCsvString = """a,b,a
     |1,2,3

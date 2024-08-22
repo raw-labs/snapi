@@ -20,7 +20,7 @@ import com.rawlabs.snapi.frontend.base._
 import com.rawlabs.snapi.frontend.base.errors._
 import com.rawlabs.snapi.frontend.base.source._
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.api.{
+import com.rawlabs.snapi.frontend.rql2.extensions.{
   Arg,
   EntryExtension,
   ExpArg,

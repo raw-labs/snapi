@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.credentials
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class EnvironmentPackageTest extends Rql2TruffleCompilerTestContext {
+class EnvironmentPackageTest extends Rql2TestContext {
 
   secret("my-secret", "my-secret-value")
 

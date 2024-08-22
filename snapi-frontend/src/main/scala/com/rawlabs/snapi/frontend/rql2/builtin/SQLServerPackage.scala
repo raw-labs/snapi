@@ -17,7 +17,7 @@ import com.rawlabs.snapi.frontend.base.errors.{ErrorCompilerMessage, InvalidSema
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.api.{
+import com.rawlabs.snapi.frontend.rql2.extensions.{
   Arg,
   EntryExtension,
   ExpArg,

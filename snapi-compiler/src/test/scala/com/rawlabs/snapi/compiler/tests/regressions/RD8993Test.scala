@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD8993Test extends Rql2TruffleCompilerTestContext {
+class RD8993Test extends Rql2TestContext {
 
   test("""apply(f: int -> bool) = f(1)
     |apply((x: int) -> true)""".stripMargin)(_ should evaluateTo("true"))

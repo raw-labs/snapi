@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD10194Test extends Rql2TruffleCompilerTestContext {
+class RD10194Test extends Rql2TestContext {
 
   private val q =
     """main(title: string = null, description: string = null, category: string = null, rating: string = null, actor: string = null) =

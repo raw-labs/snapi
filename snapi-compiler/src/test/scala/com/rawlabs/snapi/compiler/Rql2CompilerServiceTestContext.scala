@@ -10,16 +10,16 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler.truffle
+package com.rawlabs.snapi.compiler
 
+import com.rawlabs.compiler.CompilerServiceTestContext
 import com.rawlabs.utils.core.{RawTestSuite, RawUtils, SettingsTestContext}
 import org.graalvm.polyglot.Engine
-import com.rawlabs.snapi.compiler.{Rql2CompilerServiceTestContext, Rql2TruffleCompilerService}
 
-trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestContext {
+trait Rql2CompilerServiceTestContext extends CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>
 
-  var rql2TruffleCompilerService: Rql2TruffleCompilerService = _
+  var rql2TruffleCompilerService: Rql2CompilerService = _
 
   var engine: Engine = _
 
@@ -75,7 +75,7 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
       .options(options)
       .build()
 
-    rql2TruffleCompilerService = new Rql2TruffleCompilerService((engine, false))
+    rql2TruffleCompilerService = new Rql2CompilerService((engine, false))
     setCompilerService(rql2TruffleCompilerService)
   }
 

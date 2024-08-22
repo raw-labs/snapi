@@ -22,7 +22,7 @@ import com.rawlabs.snapi.frontend.inferrer.api.{
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalPath
 
-class RD3852 extends RawTestSuite with SettingsTestContext with StrictLogging with LocalLocationsTestContext {
+class RD3852Test extends RawTestSuite with SettingsTestContext with StrictLogging with LocalLocationsTestContext {
 
   // CSV is the last in the list in the auto inferrer.
   // So inferring this a csv file means that the other inferrers threw  correctly

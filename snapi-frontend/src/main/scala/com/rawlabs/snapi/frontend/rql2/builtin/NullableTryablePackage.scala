@@ -16,7 +16,7 @@ import com.rawlabs.compiler.{EntryDoc, PackageDoc}
 import com.typesafe.scalalogging.StrictLogging
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
+import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 import com.rawlabs.snapi.frontend.rql2.source._
 
 class NullableTryablePackage extends PackageExtension {

@@ -14,10 +14,10 @@ package com.rawlabs.snapi.compiler.tests.builtin.list
 
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.errors.KeyNotComparable
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-class ListJoinTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
+class ListJoinTest extends Rql2TestContext with LocalLocationsTestContext {
 
   private val listOfCountries = """[
     | {region: "AFRICA", nation: "ALGERIA"},

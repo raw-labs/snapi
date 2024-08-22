@@ -14,9 +14,9 @@ package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class BinaryExpAndTest extends Rql2TruffleCompilerTestContext with TableDrivenPropertyChecks {
+class BinaryExpAndTest extends Rql2TestContext with TableDrivenPropertyChecks {
 
   test("""true and true""")(_ should evaluateTo("true"))
   test("""true and false""")(_ should evaluateTo("false"))

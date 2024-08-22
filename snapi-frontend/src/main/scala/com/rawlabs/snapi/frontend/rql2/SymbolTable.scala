@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.rql2
 import org.bitbucket.inkytonik.kiama.util.Entity
 import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.api.PackageExtension
+import com.rawlabs.snapi.frontend.rql2.extensions.PackageExtension
 import com.rawlabs.snapi.frontend.rql2.source._
 
 /** Entity for a program parameter. */

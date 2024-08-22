@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend.rql2.builtin
 
 import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import com.rawlabs.snapi.frontend.base.source.Type
-import com.rawlabs.snapi.frontend.rql2.api.{PackageExtension, ShortEntryExtension}
+import com.rawlabs.snapi.frontend.rql2.extensions.{PackageExtension, ShortEntryExtension}
 import com.rawlabs.snapi.frontend.rql2.source._
 
 class BinaryPackage extends PackageExtension {

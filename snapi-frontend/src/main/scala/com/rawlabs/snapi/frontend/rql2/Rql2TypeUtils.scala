@@ -38,7 +38,7 @@ import com.rawlabs.compiler.{
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.api.{
+import com.rawlabs.snapi.frontend.rql2.extensions.{
   Rql2BoolValue,
   Rql2ByteValue,
   Rql2DateValue,

@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.inferrer.local
 import com.rawlabs.utils.core.{RawException, RawSettings}
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
-import com.rawlabs.snapi.frontend.rql2.api.LocationDescription
+import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription
 import com.rawlabs.snapi.frontend.inferrer.api._
 import com.rawlabs.snapi.frontend.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
 import com.rawlabs.snapi.frontend.inferrer.local.csv.{CsvInferrer, CsvMergeTypes}

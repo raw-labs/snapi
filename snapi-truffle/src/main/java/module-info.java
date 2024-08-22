@@ -54,13 +54,13 @@ module raw.snapi.truffle {
   requires com.google.common;
   requires jul.to.slf4j;
 
-  uses com.rawlabs.snapi.frontend.rql2.api.EntryExtension;
-  uses com.rawlabs.snapi.frontend.rql2.api.PackageExtension;
+  uses com.rawlabs.snapi.frontend.rql2.extensions.EntryExtension;
+  uses com.rawlabs.snapi.frontend.rql2.extensions.PackageExtension;
   uses CompilerServiceBuilder;
 
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       com.rawlabs.snapi.truffle.runtime.RawLanguageProvider;
-  provides com.rawlabs.snapi.frontend.rql2.api.EntryExtension with
+  provides com.rawlabs.snapi.frontend.rql2.extensions.EntryExtension with
       com.rawlabs.snapi.truffle.emitter.builtin.aws_extension.TruffleAwsV4SignedRequestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.byte_extension.TruffleByteFromEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.collection_extension.TruffleEmptyCollectionEntry,

@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.emitter.builtin.list_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.api.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
 import com.rawlabs.snapi.frontend.rql2.builtin.UnsafeFromListEntry;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2ListType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;

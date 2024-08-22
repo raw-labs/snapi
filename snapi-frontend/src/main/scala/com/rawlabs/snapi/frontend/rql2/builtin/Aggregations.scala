@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.rql2.builtin
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.errors.ItemsNotComparable
-import com.rawlabs.snapi.frontend.rql2.api.{EntryExtension, EntryExtensionHelper}
+import com.rawlabs.snapi.frontend.rql2.extensions.{EntryExtension, EntryExtensionHelper}
 import com.rawlabs.snapi.frontend.rql2.source.{
   HasTypeProperties,
   IsNullable,

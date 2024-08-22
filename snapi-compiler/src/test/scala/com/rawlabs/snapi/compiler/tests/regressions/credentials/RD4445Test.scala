@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions.credentials
 
 import com.rawlabs.protocol.compiler.DropboxAccessTokenConfig
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD4445Test extends Rql2TruffleCompilerTestContext {
+class RD4445Test extends Rql2TestContext {
 
   import com.rawlabs.snapi.compiler.tests.TestCredentials._
 

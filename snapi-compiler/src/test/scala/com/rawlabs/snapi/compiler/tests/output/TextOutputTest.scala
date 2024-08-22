@@ -12,11 +12,11 @@
 
 package com.rawlabs.snapi.compiler.tests.output
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
 import java.nio.file.Files
 
-class TextOutputTest extends Rql2TruffleCompilerTestContext {
+class TextOutputTest extends Rql2TestContext {
 
   option("output-format", "text")
 

@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.rql2
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.Entity
-import com.rawlabs.snapi.frontend.base.{ExpectedType, MultipleEntity, TreeDescription, UnknownEntity}
+import com.rawlabs.snapi.frontend.base.{MultipleEntity, TreeDescription, UnknownEntity}
 import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.base.source._
 import com.rawlabs.snapi.frontend.base.errors._

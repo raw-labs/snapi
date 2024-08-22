@@ -16,7 +16,7 @@ import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnD
 import com.rawlabs.snapi.frontend.base.errors.{ErrorCompilerMessage, InvalidSemantic}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.api._
+import com.rawlabs.snapi.frontend.rql2.extensions._
 import com.rawlabs.snapi.frontend.rql2.ProgramContext
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.inferrer.api.{

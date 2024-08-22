@@ -14,9 +14,9 @@ package com.rawlabs.snapi.compiler.tests.parser
 
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class OperatorPrecedenceTest extends Rql2TruffleCompilerTestContext {
+class OperatorPrecedenceTest extends Rql2TestContext {
 
   test("""1+2*3""") { it =>
     it should evaluateTo("(1+(2*3))")

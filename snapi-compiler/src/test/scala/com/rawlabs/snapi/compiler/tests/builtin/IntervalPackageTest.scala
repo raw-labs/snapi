@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class IntervalPackageTest extends Rql2TruffleCompilerTestContext {
+class IntervalPackageTest extends Rql2TestContext {
 
   test("Interval.Build(months=12) == Interval.Build(years=1)")(_ should evaluateTo("true"))
   test("Interval.Build(hours=24) == Interval.Build(days=1)")(_ should evaluateTo("true"))

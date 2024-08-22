@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions.credentials
 
 import com.rawlabs.snapi.compiler.tests.TestCredentials
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD5932Test extends Rql2TruffleCompilerTestContext {
+class RD5932Test extends Rql2TestContext {
 
   s3Bucket(TestCredentials.UnitTestPrivateBucket, TestCredentials.UnitTestPrivateBucketCred)
 

@@ -14,6 +14,7 @@ package com.rawlabs.snapi.compiler.tests
 
 import com.rawlabs.compiler.{
   AutoCompleteResponse,
+  CompilerServiceTestContext,
   ExecutionRuntimeFailure,
   ExecutionSuccess,
   ExecutionValidationFailure,
@@ -55,7 +56,7 @@ import com.rawlabs.protocol.compiler.{
   SnowflakeConfig
 }
 import com.rawlabs.utils.core._
-import com.rawlabs.snapi.compiler.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
+import com.rawlabs.snapi.compiler.Rql2OutputTestContext
 
 import java.io.{ByteArrayOutputStream, FileWriter}
 import java.nio.charset.{Charset, StandardCharsets}
@@ -198,15 +199,14 @@ object TestCredentials {
 
 }
 
-trait Rql2CompilerTestContext
+trait Rql2TestContext
     extends RawTestSuite
     with Matchers
     with SettingsTestContext
     with TrainingWheelsContext
-    with Rql2CompilerServiceTestContext
+    with CompilerServiceTestContext
     with Rql2OutputTestContext
-
-    // Simple inferrer
+    with Rql2CompilerServiceTestContext
     with LocalInferrerTestContext {
 
   private val secrets = new mutable.HashMap[String, String]()
@@ -214,6 +214,8 @@ trait Rql2CompilerTestContext
   private val locationConfigs = new mutable.HashMap[String, LocationConfig]()
 
   protected val programOptions = new mutable.HashMap[String, String]()
+
+  override def compilerService: Rql2CompilerService = super.compilerService.asInstanceOf[Rql2CompilerService]
 
   def authorizedUser: RawUid = RawUid("janeUid")
 

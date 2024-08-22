@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.rql2.api
+package com.rawlabs.snapi.frontend.rql2.extensions
 
 import com.rawlabs.utils.sources.api.Location
 import com.rawlabs.utils.sources.bytestream.github.GitHubLocation

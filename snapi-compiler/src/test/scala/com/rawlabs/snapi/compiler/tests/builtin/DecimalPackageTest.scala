@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class DecimalPackageTest extends Rql2TruffleCompilerTestContext {
+class DecimalPackageTest extends Rql2TestContext {
 
   test("""Decimal.Round(Decimal.From("1.423"), 2)""") { it =>
     it should evaluateTo("""1.42q""")

@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD5893Test extends Rql2TruffleCompilerTestContext {
+class RD5893Test extends Rql2TestContext {
 
   // this has a list of text
   private val data = tempFile("""

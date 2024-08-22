@@ -14,12 +14,12 @@ package com.rawlabs.snapi.compiler.tests.builtin
 
 import com.sun.net.httpserver.{BasicAuthenticator, HttpExchange, HttpServer}
 import com.typesafe.scalalogging.StrictLogging
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
 import java.net.InetSocketAddress
 import scala.collection.JavaConverters._
 
-class HttpPackageTest extends Rql2TruffleCompilerTestContext {
+class HttpPackageTest extends Rql2TestContext {
 
   val expectedUser = "user"
   val expectedPassword = "passwd"

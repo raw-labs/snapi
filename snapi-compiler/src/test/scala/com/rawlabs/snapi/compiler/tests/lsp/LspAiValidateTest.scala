@@ -14,9 +14,9 @@ package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.ValidateResponse
 import com.rawlabs.snapi.frontend.rql2.errors.OutputTypeRequiredForRecursiveFunction
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class LspAiValidateTest extends Rql2TruffleCompilerTestContext {
+class LspAiValidateTest extends Rql2TestContext {
 
   test("AI validate package that does not exist") { _ =>
     val code = """let

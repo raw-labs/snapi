@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.offheap
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class OffHeapDistinctTest extends Rql2TruffleCompilerTestContext {
+class OffHeapDistinctTest extends Rql2TestContext {
 
   // This is to ensure the test triggers spill to disk.
   property("raw.runtime.external.disk-block-max-size", "30kB")

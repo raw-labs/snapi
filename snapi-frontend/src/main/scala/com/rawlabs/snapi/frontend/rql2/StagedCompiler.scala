@@ -17,7 +17,7 @@ import com.rawlabs.utils.core.RawSettings
 import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
 import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.rql2.antlr4.ParserErrors
-import com.rawlabs.snapi.frontend.rql2.api._
+import com.rawlabs.snapi.frontend.rql2.extensions._
 import com.rawlabs.snapi.frontend.rql2.source._
 
 import scala.collection.mutable

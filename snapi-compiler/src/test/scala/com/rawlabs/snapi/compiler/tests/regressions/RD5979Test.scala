@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD5979Test extends Rql2TruffleCompilerTestContext {
+class RD5979Test extends Rql2TestContext {
 
   test("""[{a: 12, b: 14}, {c: 23, d: 54}]""")(_ should runErrorAs("expected compatible with"))
   test("""[{a: 12, b: 14}, {a: 23, d: 54}]""")(_ should runErrorAs("expected compatible with"))

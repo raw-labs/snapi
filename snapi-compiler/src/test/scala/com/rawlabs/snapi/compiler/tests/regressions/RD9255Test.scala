@@ -30,11 +30,11 @@ import com.rawlabs.compiler.{
   RawValue
 }
 import org.scalatest.EitherValues
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
 import java.time.{Duration, LocalDate, LocalDateTime, LocalTime}
 
-class RD9255Test extends Rql2TruffleCompilerTestContext with EitherValues {
+class RD9255Test extends Rql2TestContext with EitherValues {
 
   private val declarations = """
     |string_func(x: string) = String.Length(x)

@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.rql2
 import com.rawlabs.compiler.ProgramEnvironment
 import com.rawlabs.snapi.frontend.base.CompilerContext
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
-import com.rawlabs.snapi.frontend.rql2.api.{PackageExtension, PackageExtensionProvider, Rql2Value}
+import com.rawlabs.snapi.frontend.rql2.extensions.{PackageExtension, PackageExtensionProvider, Rql2Value}
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Program
 import com.rawlabs.snapi.frontend.inferrer.api.{InferrerProperties, InputFormatDescriptor}
 
