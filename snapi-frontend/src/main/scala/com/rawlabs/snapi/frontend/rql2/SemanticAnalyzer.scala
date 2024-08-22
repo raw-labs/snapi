@@ -19,7 +19,7 @@ import org.bitbucket.inkytonik.kiama.util.Entity
 import com.rawlabs.snapi.frontend.base._
 import com.rawlabs.snapi.frontend.base.errors._
 import com.rawlabs.snapi.frontend.base.source._
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.api.{
   Arg,
   EntryExtension,

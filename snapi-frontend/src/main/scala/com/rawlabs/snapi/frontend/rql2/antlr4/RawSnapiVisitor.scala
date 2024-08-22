@@ -18,7 +18,7 @@ import org.antlr.v4.runtime.ParserRuleContext
 import org.apache.commons.codec.binary.Hex
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import com.rawlabs.snapi.frontend.base.source.Type
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import com.rawlabs.snapi.parser.generated.{SnapiParser, SnapiParserBaseVisitor}
 import com.rawlabs.snapi.frontend.rql2.source._

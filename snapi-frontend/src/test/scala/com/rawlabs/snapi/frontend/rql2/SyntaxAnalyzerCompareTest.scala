@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.snapi.frontend.common.source.{Exp, SourceNode}
+import com.rawlabs.snapi.frontend.rql2.source.{Exp, SourceNode}
 import com.rawlabs.snapi.frontend.rql2.antlr4.Antlr4SyntaxAnalyzer
 import com.rawlabs.snapi.frontend.rql2.source.TypeExp
 import com.rawlabs.utils.core.RawTestSuite

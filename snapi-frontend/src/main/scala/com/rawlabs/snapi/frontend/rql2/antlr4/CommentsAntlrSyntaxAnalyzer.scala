@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend.rql2.antlr4
 
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import com.rawlabs.snapi.frontend.base.source.{BaseNode, BaseProgram}
-import com.rawlabs.snapi.frontend.common.source.SourceProgram
+import com.rawlabs.snapi.frontend.rql2.source.SourceProgram
 
 import java.util
 import scala.collection.JavaConverters._

@@ -12,7 +12,6 @@
 
 package com.rawlabs.snapi.frontend.rql2.lsp
 
-import com.rawlabs.compiler
 import com.rawlabs.compiler.{
   AutoCompleteResponse,
   Completion,
@@ -39,7 +38,7 @@ import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import com.rawlabs.snapi.frontend.base.errors.CompilationMessageMapper
 import com.rawlabs.snapi.frontend.base.source.{BaseIdnNode, BaseNode}
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.errors.ErrorsPrettyPrinter

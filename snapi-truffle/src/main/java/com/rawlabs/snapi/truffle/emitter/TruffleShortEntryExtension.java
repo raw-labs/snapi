@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.common.source.Exp;
+import com.rawlabs.snapi.frontend.rql2.source.Exp;
 import com.rawlabs.snapi.frontend.rql2.api.Rql2Arg;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import java.util.List;

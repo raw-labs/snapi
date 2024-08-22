@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.frontend.rql2
 
 import com.rawlabs.snapi.frontend.base.source.{BaseProgram, Type}
-import com.rawlabs.snapi.frontend.common.source.{IdnDef, IdnExp, IdnUse}
+import com.rawlabs.snapi.frontend.rql2.source.{IdnDef, IdnExp, IdnUse}
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.utils.core.RawTestSuite
 

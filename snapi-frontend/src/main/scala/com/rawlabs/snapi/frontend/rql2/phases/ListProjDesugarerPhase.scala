@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.frontend.rql2.phases
 
 import com.rawlabs.snapi.frontend.base.Phase
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.builtin.{CollectionPackageBuilder, ListPackageBuilder}
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.{PipelinedPhase, Tree}

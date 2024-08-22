@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.parser
 
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
 

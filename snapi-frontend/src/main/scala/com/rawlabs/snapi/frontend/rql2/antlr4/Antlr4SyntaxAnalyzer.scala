@@ -18,7 +18,7 @@ import org.antlr.v4.runtime.{CharStreams, CommonTokenStream, TokenStream}
 import org.bitbucket.inkytonik.kiama.parsing.Parsers
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source, StringSource}
 import com.rawlabs.snapi.frontend.base.source.Type
-import com.rawlabs.snapi.frontend.common.source.SourceProgram
+import com.rawlabs.snapi.frontend.rql2.source.SourceProgram
 import com.rawlabs.snapi.parser.generated.{SnapiLexer, SnapiParser}
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Program
 

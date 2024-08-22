@@ -63,7 +63,7 @@ import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.base.errors._
 import com.rawlabs.snapi.frontend.base.source.BaseNode
 import com.rawlabs.snapi.frontend.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
-import com.rawlabs.snapi.frontend.common.source.{SourceNode, SourceProgram}
+import com.rawlabs.snapi.frontend.rql2.source.{SourceNode, SourceProgram}
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
 import com.rawlabs.snapi.frontend.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}

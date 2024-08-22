@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend.rql2.builtin
 
 import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.api.{Arg, EntryExtension, ExpArg, ExpParam, PackageExtension, Param, ValueParam}
 import com.rawlabs.snapi.frontend.rql2.source._

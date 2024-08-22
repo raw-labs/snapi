@@ -16,7 +16,7 @@ import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnD
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import com.rawlabs.snapi.frontend.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.api.{
   Arg,

@@ -30,7 +30,7 @@ import com.rawlabs.snapi.frontend.base.InitPhase;
 import com.rawlabs.snapi.frontend.base.Phase;
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.PhaseDescriptor;
-import com.rawlabs.snapi.frontend.common.source.SourceProgram;
+import com.rawlabs.snapi.frontend.rql2.source.SourceProgram;
 import com.rawlabs.snapi.frontend.inferrer.api.InferrerService;
 import com.rawlabs.snapi.frontend.rql2.*;
 import com.rawlabs.snapi.frontend.rql2.phases.ImplicitCastsPhase;

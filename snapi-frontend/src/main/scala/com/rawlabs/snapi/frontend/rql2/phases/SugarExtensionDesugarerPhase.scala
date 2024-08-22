@@ -16,7 +16,7 @@ import com.rawlabs.compiler.CompilerException
 import com.rawlabs.snapi.frontend.base.Phase
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
 import com.rawlabs.snapi.frontend.base.source.Type
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.api.SugarEntryExtension
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.{FunAppPackageEntryArguments, PipelinedPhase, Tree}

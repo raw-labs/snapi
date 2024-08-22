@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.frontend.rql2.builtin
 
 import com.rawlabs.snapi.frontend.base.source.Type
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.source._
 
 object ErrorPackageBuilder {

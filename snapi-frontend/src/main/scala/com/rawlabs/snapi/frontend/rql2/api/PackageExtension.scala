@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.rql2.api
 import com.rawlabs.compiler.{EntryDoc, PackageDoc}
 import com.rawlabs.snapi.frontend.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.{ProgramContext, Rql2TypeUtils}
 import com.rawlabs.utils.sources.api._

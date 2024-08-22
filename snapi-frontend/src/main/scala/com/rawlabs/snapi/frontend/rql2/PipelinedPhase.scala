@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.snapi.frontend.common.source.SourceProgram
+import com.rawlabs.snapi.frontend.rql2.source.SourceProgram
 
 trait PipelinedPhase
     extends com.rawlabs.snapi.frontend.base.PipelinedPhase[SourceProgram]

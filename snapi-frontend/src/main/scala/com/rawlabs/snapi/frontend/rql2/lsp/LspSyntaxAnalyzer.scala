@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend.rql2.lsp
 
 import org.bitbucket.inkytonik.kiama.util.Positions
 import com.rawlabs.snapi.frontend.base.source.{BaseProgram, Type}
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.{FrontendSyntaxAnalyzer, ParsedNamedAttribute, ParsedUnnamedAttribute}
 import com.rawlabs.snapi.frontend.rql2.FrontendSyntaxAnalyzerTokens._
 import com.rawlabs.snapi.frontend.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}

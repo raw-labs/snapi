@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend.rql2.phases
 
 import com.rawlabs.snapi.frontend.base.Phase
 import com.rawlabs.snapi.frontend.base.source.Type
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.api.{Arg, Rql2Value, ValueArg}
 import com.rawlabs.snapi.frontend.rql2.builtin._
 import com.rawlabs.snapi.frontend.rql2.source._

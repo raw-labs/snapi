@@ -19,7 +19,7 @@
 //import com.rawlabs.snapi.frontend.base.source.Type
 //import com.rawlabs.snapi.frontend.base.{ExpDecl, ExpDeclParam}
 //import com.rawlabs.snapi.frontend.common.CommonCompilerProvider
-//import com.rawlabs.snapi.frontend.common.source.{Exp, VoidType}
+//import com.rawlabs.snapi.frontend.rql2.source.{Exp, VoidType}
 //import raw.runtime.JvmEntrypoint
 //import com.rawlabs.snapi.frontend.rql2._
 //import com.rawlabs.snapi.frontend.rql2.source._

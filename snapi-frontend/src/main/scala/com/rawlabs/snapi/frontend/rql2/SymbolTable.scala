@@ -14,18 +14,12 @@ package com.rawlabs.snapi.frontend.rql2
 
 import org.bitbucket.inkytonik.kiama.util.Entity
 import com.rawlabs.snapi.frontend.base
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.api.PackageExtension
 import com.rawlabs.snapi.frontend.rql2.source._
 
 /** Entity for a program parameter. */
 final class ProgramParamEntity(val p: SourceProgramParam) extends Entity
-
-/**
- *  Entity for a bound identifier.
- *  TODO (msb): Move out of common onto L4 + core.
- */
-final class BindEntity(val b: Bind) extends Entity
 
 trait SymbolTable extends base.SymbolTable
 

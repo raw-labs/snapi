@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 
 final case class PhaseDescriptor(
     name: String,
