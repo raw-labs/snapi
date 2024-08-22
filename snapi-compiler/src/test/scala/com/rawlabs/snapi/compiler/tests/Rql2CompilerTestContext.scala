@@ -42,7 +42,18 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 import com.rawlabs.snapi.compiler.api._
 import com.rawlabs.snapi.frontend.base.source.{BaseProgram, Type}
 import com.rawlabs.snapi.frontend.inferrer.local.LocalInferrerTestContext
-import com.rawlabs.protocol.compiler.{DropboxAccessTokenConfig, HttpHeadersConfig, LocationConfig, MySqlConfig, OracleConfig, PostgreSQLConfig, S3AccessSecretKey, S3Config, SQLServerConfig, SnowflakeConfig}
+import com.rawlabs.protocol.compiler.{
+  DropboxAccessTokenConfig,
+  HttpHeadersConfig,
+  LocationConfig,
+  MySqlConfig,
+  OracleConfig,
+  PostgreSQLConfig,
+  S3AccessSecretKey,
+  S3Config,
+  SQLServerConfig,
+  SnowflakeConfig
+}
 import com.rawlabs.utils.core._
 import com.rawlabs.snapi.compiler.api.{Rql2CompilerServiceTestContext, Rql2OutputTestContext}
 
