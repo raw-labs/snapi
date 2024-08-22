@@ -12,7 +12,47 @@
 
 package com.rawlabs.snapi.compiler
 
-import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, CompilerServiceException, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, FormatCodeResponse, GetProgramDescriptionFailure, GetProgramDescriptionResponse, GetProgramDescriptionSuccess, GoToDefinitionResponse, HoverResponse, Message, ParamDescription, Pos, ProgramDescription, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue, RenameResponse, ValidateResponse}
+import com.rawlabs.compiler.{
+  AutoCompleteResponse,
+  CompilerService,
+  CompilerServiceException,
+  DeclDescription,
+  ErrorMessage,
+  ErrorPosition,
+  ErrorRange,
+  ExecutionResponse,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  FormatCodeResponse,
+  GetProgramDescriptionFailure,
+  GetProgramDescriptionResponse,
+  GetProgramDescriptionSuccess,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Message,
+  ParamDescription,
+  Pos,
+  ProgramDescription,
+  ProgramEnvironment,
+  RawBool,
+  RawByte,
+  RawDate,
+  RawDecimal,
+  RawDouble,
+  RawFloat,
+  RawInt,
+  RawInterval,
+  RawLong,
+  RawNull,
+  RawShort,
+  RawString,
+  RawTime,
+  RawTimestamp,
+  RawValue,
+  RenameResponse,
+  ValidateResponse
+}
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone

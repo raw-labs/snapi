@@ -12,7 +12,6 @@
 
 package com.rawlabs.sql.compiler
 
-
 import com.rawlabs.compiler.{
   ErrorMessage,
   ErrorPosition,

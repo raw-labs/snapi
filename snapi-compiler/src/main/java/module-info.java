@@ -28,5 +28,5 @@ module raw.snapi.client {
   uses CompilerServiceBuilder;
 
   provides CompilerServiceBuilder with
-          Rql2TruffleCompilerServiceBuilder;
+      Rql2TruffleCompilerServiceBuilder;
 }
