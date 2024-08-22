@@ -44,6 +44,10 @@ import scala.annotation.tailrec
 
 object TypedResultSetJsonWriter {
 
+  final private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  final private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
+  final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
+
   def outputWriteSupport(tipe: RawType): Boolean = tipe match {
     case _: RawIterableType => true
     case _: RawListType => true
@@ -54,6 +58,8 @@ object TypedResultSetJsonWriter {
 
 class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
 
+  import TypedResultSetJsonWriter._
+
   final private val gen =
     try {
       val factory = new JsonFactory
@@ -63,10 +69,7 @@ class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
       case e: IOException => throw new RuntimeException(e)
     }
 
-  final private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-  final private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
-  final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
-  final private val mapper = new ObjectMapper();
+  final private val mapper = new ObjectMapper()
 
   private var maxRowsReached = false
 
@@ -125,7 +128,7 @@ class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
               val json = mapper.readTree(data)
               writeRawJson(json)
             }
-          case t => throw new IOException(s"unsupported type $t")
+          case _ => throw new IOException("unsupported type")
         }
       case _: RawDateType =>
         val date = v.getDate(i).toLocalDate

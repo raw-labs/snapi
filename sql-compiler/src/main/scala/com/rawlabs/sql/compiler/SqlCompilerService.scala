@@ -54,6 +54,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
 
   override def language: Set[String] = Set("sql")
 
+  // Parse and check the program for syntax errors.
   private def safeParse(prog: String): Either[List[ErrorMessage], ParseProgramResult] = {
     val positions = new Positions
     val syntaxAnalyzer = new SqlSyntaxAnalyzer(positions)
@@ -63,6 +64,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     else Right(tree)
   }
 
+  // Parse the program and return the parse tree without checking for syntax errors.
   private def parse(prog: String): ParseProgramResult = {
     val positions = new Positions
     val syntaxAnalyzer = new SqlSyntaxAnalyzer(positions)
@@ -359,7 +361,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                 logger.warn("SqlConnectionPool connection failure", ex)
                 HoverResponse(None)
             }
-          case other => throw new MatchError(other)
+          case other => throw new AssertionError(s"Unexpected node type: $other")
         }
         .getOrElse(HoverResponse(None))
     } catch {

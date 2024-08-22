@@ -104,7 +104,7 @@ class SqlVisitor(
                     case stmt: SqlStatementNode => if (!stmt.statementItems.forall(_.isInstanceOf[SqlCommentNode])) {
                         addError("Only one statement is allowed", md)
                       }
-                    case other => throw new MatchError(other)
+                    case other => throw new AssertionError(s"Unexpected node type: $other")
                   }
                 )
             )

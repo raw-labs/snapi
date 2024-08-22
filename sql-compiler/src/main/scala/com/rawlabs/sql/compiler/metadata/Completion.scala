@@ -26,9 +26,6 @@ import java.sql.{Connection, PreparedStatement}
  */
 abstract class Completion(q: String) extends StrictLogging {
 
-  protected def needsQuotes(s: String): Boolean = s.exists(c => !c.isLetterOrDigit && c != '_' || c.isUpper)
-  protected def setParams(preparedStatement: PreparedStatement, items: Seq[String]): Unit
-
   def run(
       con: Connection,
       items: Seq[String]
@@ -56,5 +53,9 @@ abstract class Completion(q: String) extends StrictLogging {
       preparedStatement.close()
     }
   }
+
+  protected def needsQuotes(s: String): Boolean = s.exists(c => !c.isLetterOrDigit && c != '_' || c.isUpper)
+
+  protected def setParams(preparedStatement: PreparedStatement, items: Seq[String]): Unit
 
 }

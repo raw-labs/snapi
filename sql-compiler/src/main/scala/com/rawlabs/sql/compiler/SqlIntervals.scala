@@ -41,7 +41,7 @@ object SqlIntervals {
         val fractionInt = Option(fraction).map(x => padRight(x, 3).take(3).toInt).getOrElse(0)
         val weeks = 0
         RawInterval(yearsInt, monthsInt, weeks, daysInt, hoursInt, minutesInt, secondsInt, fractionInt)
-      case _ => throw new IllegalArgumentException(s"Invalid interval format: $in")
+      case _ => throw new AssertionError(s"Invalid interval format: $in")
     }
   }
 
