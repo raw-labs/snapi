@@ -7,11 +7,11 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 yes n | sdk install java 21.0.1-graalce || true
 sdk use java 21.0.1-graalce
 
-# snapi-frontend
-sbt snapiFrontend/test
+# compiler-snapi-frontend
+sbt compilerSnapiFrontend/test
 
-# snapi-client
-sbt snapiClient/test
+# compiler-snapi
+sbt compilerSnapi/test
 
-# sql-client
-sbt sqlClient/test
+# compiler-sql
+sbt compilerSql/test

@@ -11,7 +11,7 @@
  */
 
 module raw.sql.parser {
-  exports raw.client.sql.generated;
+  exports com.rawlabs.sql.parser.generated;
 
   requires org.antlr.antlr4.runtime;
 }
