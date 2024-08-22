@@ -18,7 +18,7 @@ import scala.annotation.tailrec
 
 object SqlTypesUtils {
 
-  // types accepted in @type declarations:
+  // Types accepted in @type declarations:
   // https://www.postgresql.org/docs/current/datatype-numeric.html
 
   def jdbcFromParameterType(typeName: String): Either[String, Int] = {
@@ -41,7 +41,7 @@ object SqlTypesUtils {
     }
   }
 
-  // a mapping from JDBC types to a RawType. We also store the name of the JDBC type for error reporting.
+  // Mapping from JDBC types to a RawType.
   private val jdbcToRawType: Map[Int, RawType] = Map(
     java.sql.Types.BIT -> RawBoolType(false, false),
     java.sql.Types.TINYINT -> RawByteType(false, false),
@@ -83,8 +83,7 @@ object SqlTypesUtils {
     //    java.sql.Types.TIMESTAMP_WITH_TIMEZONE ->
   )
 
-  // renames the postgres type to what a user would need to write to match
-  // the actual type. Or return an error.
+  // Renames the postgres type to what a user would need to write to match the actual type. Or return an error.
   def validateParamType(t: PostgresType): Either[String, PostgresType] = {
     t.jdbcType match {
       case java.sql.Types.BIT | java.sql.Types.BOOLEAN =>

@@ -54,6 +54,7 @@ import com.rawlabs.compiler.{
   ValidateResponse
 }
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
+import com.rawlabs.snapi.compiler.writers.{Rql2CsvWriter, Rql2JsonWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}

@@ -34,7 +34,7 @@ import com.rawlabs.compiler.{
   RawTimestampType,
   RawType
 }
-import com.rawlabs.sql.compiler.SqlIntervals.{intervalToString, parseInterval}
+import com.rawlabs.sql.compiler.SqlIntervals.{intervalToString, stringToInterval}
 import com.rawlabs.compiler.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
@@ -139,7 +139,7 @@ class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
         val formatted = timestampFormatter.format(dateTime)
         gen.writeString(formatted)
       case _: RawIntervalType =>
-        val interval = parseInterval(v.getString(i))
+        val interval = stringToInterval(v.getString(i))
         gen.writeString(intervalToString(interval))
       case _ => throw new IOException("unsupported type")
     }

@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler
+package com.rawlabs.snapi.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import com.rawlabs.compiler.utils.RecordFieldsNaming

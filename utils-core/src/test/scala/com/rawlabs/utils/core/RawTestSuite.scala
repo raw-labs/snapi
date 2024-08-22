@@ -34,7 +34,6 @@ object RawTestSuite extends StrictLogging {
   }
 }
 
-// TODO (msb): Replace all uses of FunSuite in our source code by RawTest.
 trait RawTestSuite extends FixtureAnyFunSuite with BeforeAndAfterAll with StrictLogging {
   RawTestSuite.printJvmInfo()
 
@@ -51,6 +50,8 @@ trait RawTestSuite extends FixtureAnyFunSuite with BeforeAndAfterAll with Strict
   }
 
   override def afterAll(): Unit = {
+    // Always ensure that all services have been stopped correctly.
+    // If not, this means the code under test is not cleaning up properly.
     logger.info("Checking if all services have stopped")
     var attempts = 10
     while (!RawService.isStopped() && attempts > 0) {
