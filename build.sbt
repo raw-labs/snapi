@@ -36,8 +36,8 @@ writeVersionToFile := {
 
 lazy val root = (project in file("."))
   .aggregate(
-    protocolCompiler,
     protocolRaw,
+    protocolCompiler,
     utilsCore,
     utilsSources,
     compiler,
@@ -115,12 +115,17 @@ lazy val protocolRaw = (project in file("protocol-raw"))
   )
 
 lazy val protocolCompiler = (project in file("protocol-compiler"))
+  .dependsOn(
+    protocolRaw % "compile->compile;test->test;protobuf->protobuf"
+  )
   .enablePlugins(ProtobufPlugin)
   .settings(
     commonSettings,
     commonCompileSettings,
     testSettings,
     ProtobufConfig / version := "3.25.4",
+    ProtobufConfig / protobufIncludePaths += (protocolRaw / ProtobufConfig / sourceDirectory).value,
+
     // Include the protobuf files in the JAR
     Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
   )

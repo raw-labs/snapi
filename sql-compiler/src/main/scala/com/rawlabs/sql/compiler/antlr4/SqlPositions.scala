@@ -15,10 +15,10 @@ package com.rawlabs.sql.compiler.antlr4
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, Source}
 
-class RawSqlPositions(positions: Positions, source: Source) {
+class SqlPositions(positions: Positions, source: Source) {
 
   /**
-   * * Sets the position of the node in the position map based on start and end of a
+   * Sets the position of the node in the position map based on start and end of a
    * ParserRuleContext object
    *
    * @param ctx  the context to get the position from
@@ -39,7 +39,7 @@ class RawSqlPositions(positions: Positions, source: Source) {
   }
 
   /**
-   * * Sets the position of the node in the position map based on start and end of a Token object
+   * Sets the position of the node in the position map based on start and end of a Token object.
    *
    * @param token the token to get the position from
    * @param node  the node to store in the positions map
@@ -55,7 +55,7 @@ class RawSqlPositions(positions: Positions, source: Source) {
   }
 
   /**
-   * * Sets the position of the node in the position map based on start token and end token object
+   * Sets the position of the node in the position map based on start token and end token object
    *
    * @param startToken start of the position
    * @param endToken   end of the position

@@ -17,9 +17,13 @@ import com.typesafe.scalalogging.StrictLogging
 
 import java.sql.{Connection, PreparedStatement}
 
-/* Runs a completion query, taking care of running the statement, closing it, passing the resultSet to a custom
+/**
+ * Runs a completion query, taking care of running the statement, closing it, passing the resultSet to a custom
  * `process` method that returns a list of identifiers. It's abstract and customized by the couple flavors we need
- * for dot/word completion  */
+ * for dot/word completion.
+ *
+ * @param q the query to complete
+ */
 abstract class Completion(q: String) extends StrictLogging {
 
   protected def needsQuotes(s: String): Boolean = s.exists(c => !c.isLetterOrDigit && c != '_' || c.isUpper)

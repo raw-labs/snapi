@@ -15,9 +15,11 @@ package com.rawlabs.sql.compiler.antlr4
 import com.rawlabs.compiler.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
 
-class RawSqlErrorListener() extends BaseErrorListener {
+import scala.collection.mutable
 
-  private var errors = List[Message]()
+class SqlErrorListener extends BaseErrorListener {
+
+  private val errors = new mutable.ListBuffer[Message]
 
   private def improveErrorMessage(msg: String): String = {
     val extraneousPattern = "extraneous input '(.+)' expecting \\{(.*?)}".r
@@ -69,9 +71,11 @@ class RawSqlErrorListener() extends BaseErrorListener {
           ErrorPosition(line, getCharPositionInLinePlusOne + 1)
         )
       }
-    errors = errors :+ ErrorMessage(improveErrorMessage(msg), List(positions), SqlParserErrors.ParserErrorCode)
+    errors.append(ErrorMessage(improveErrorMessage(msg), List(positions), SqlParserErrors.ParserErrorCode))
   }
 
-  def getErrors: List[Message] = errors
+  def getErrors: List[Message] = errors.to
+
   def hasErrors: Boolean = errors.nonEmpty
+
 }

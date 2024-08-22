@@ -14,8 +14,14 @@ package com.rawlabs.sql.compiler.antlr4
 
 import com.rawlabs.compiler.Message
 
-case class RawSqlVisitorParseErrors() {
-  private var errors: List[Message] = List.empty
-  def addError(error: Message): Unit = errors = errors :+ error
-  def getErrors: List[Message] = errors
+import scala.collection.mutable
+
+class SqlVisitorParseErrors {
+
+  private val errors = new mutable.ListBuffer[Message]
+
+  def addError(error: Message): Unit = errors.append(error)
+
+  def getErrors: List[Message] = errors.to
+
 }

@@ -24,7 +24,7 @@ import com.rawlabs.sql.compiler.antlr4.{
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{oncetd, query}
 import org.bitbucket.inkytonik.kiama.util.Position
 
-case class SqlIdentifier(value: String, quoted: Boolean)
+final case class SqlIdentifier(value: String, quoted: Boolean)
 
 class SqlCodeUtils(parsedTree: ParseProgramResult) {
 

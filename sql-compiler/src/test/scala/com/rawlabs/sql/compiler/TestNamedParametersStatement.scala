@@ -14,7 +14,7 @@ package com.rawlabs.sql.compiler
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import com.rawlabs.compiler.{RawInt, RawString}
-import com.rawlabs.sql.compiler.antlr4.RawSqlSyntaxAnalyzer
+import com.rawlabs.sql.compiler.antlr4.SqlSyntaxAnalyzer
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.testcontainers.utility.DockerImageName
 import com.rawlabs.utils.core._
@@ -40,7 +40,7 @@ class TestNamedParametersStatement
     val dbName = container.databaseName
     val user = container.username
     val password = container.password
-    connectionPool = new SqlConnectionPool()
+    connectionPool = new SqlConnectionPool
     jdbcUrl = s"jdbc:postgresql://localhost:$dbPort/$dbName?user=$user&password=$password"
   }
 
@@ -178,7 +178,7 @@ class TestNamedParametersStatement
 
   private def parse(sourceCode: String) = {
     val positions = new Positions
-    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
+    val syntaxAnalyzer = new SqlSyntaxAnalyzer(positions)
     syntaxAnalyzer.parse(sourceCode)
   }
 

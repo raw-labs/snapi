@@ -21,10 +21,11 @@ import org.bitbucket.inkytonik.kiama.util.{Positions, StringSource}
 
 import scala.collection.mutable
 
-class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) {
+class SqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) {
+
   def parse(s: String): ParseProgramResult = {
     val source = StringSource(s)
-    val rawErrorListener = new RawSqlErrorListener()
+    val rawErrorListener = new SqlErrorListener()
 
     val striped = s.stripTrailing()
     val lexer = new PsqlLexer(CharStreams.fromString(striped))
@@ -37,13 +38,14 @@ class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     parser.addErrorListener(rawErrorListener)
 
     val tree: ParseTree = parser.prog
-    val visitorParseErrors = RawSqlVisitorParseErrors()
+    val visitorParseErrors = new SqlVisitorParseErrors
     val params = mutable.Map.empty[String, SqlParam]
-    val visitor = new RawSqlVisitor(positions, params, source, visitorParseErrors)
+    val visitor = new SqlVisitor(positions, params, source, visitorParseErrors)
     val result = visitor.visit(tree).asInstanceOf[SqlProgramNode]
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
     ParseProgramResult(totalErrors, params, visitor.returnDescription, result, positions)
   }
+
 }
 
 final case class ParseProgramResult(

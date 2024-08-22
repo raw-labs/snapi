@@ -21,6 +21,7 @@ module raw.sql.compiler {
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
+  requires raw.protocol.raw;
   requires raw.protocol.compiler;
   requires raw.compiler;
   requires raw.sql.parser;

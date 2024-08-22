@@ -257,10 +257,10 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
           // Prior to .execute, some checks on parameters since we may have
           // to fill optional parameters with their default value
 
-          // mandatory arguments are those that don't have a matching 'name' in optional parameters
+          // Mandatory arguments are those that don't have a matching 'name' in optional parameters
           val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
 
-          // split the provided parameters in two (mandatory/optional)
+          // Split the provided parameters in two (mandatory/optional)
           val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
             case Some(args) =>
               val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
@@ -268,13 +268,13 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
             case None => (Map.empty[String, RawValue], Array.empty[RawValue])
           }
 
-          // mandatory args have to be all provided
+          // Mandatory args have to be all provided
           if (mandatoryArgs.length != funType.ms.size) {
             return ExecutionRuntimeFailure("missing mandatory arguments")
           }
           val mandatoryPolyglotArguments = mandatoryArgs.map(arg => rawValueToPolyglotValue(arg, ctx))
-          // optional arguments can be missing from the provided arguments.
-          // we replace the missing ones by their default value.
+          // Optional arguments can be missing from the provided arguments.
+          // We replace the missing ones by their default value.
           val optionalPolyglotArguments = funType.os.map { arg =>
             optionalArgs.get(arg.i) match {
               // if the argument is provided, use it
@@ -283,10 +283,10 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
               case None => f.invokeMember("default_" + arg.i)
             }
           }
-          // all arguments are there. Call .execute.
+          // All arguments are there. Call .execute.
           val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
           val tipe = funType.r
-          // return the result and its type
+          // Return the result and its type.
           (result, tipe)
         case None =>
           val truffleSource = Source
@@ -294,7 +294,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           val result = ctx.eval(truffleSource)
-          // the value type is found in polyglot bindings after calling eval().
+          // The value type is found in polyglot bindings after calling eval().
           val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
           val ParseTypeSuccess(tipe) = parseType(rawType, environment.uid, internal = true)
           (result, tipe)
@@ -483,12 +483,6 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean))(implicit p
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
-    /*
-    withLspTree(source, lspService => lspService.hover(source, environment, position)) match {
-      case Right(value) => value
-      case Left((err, pos)) => HoverResponse(None, parseError(err, pos))
-    }
-     */
     withTruffleContext(
       environment,
       _ => {

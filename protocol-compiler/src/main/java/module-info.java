@@ -12,6 +12,7 @@
 
 module raw.protocol.compiler {
   requires com.google.protobuf;
+  requires raw.protocol.raw;
 
   exports com.rawlabs.protocol.compiler;
 }
