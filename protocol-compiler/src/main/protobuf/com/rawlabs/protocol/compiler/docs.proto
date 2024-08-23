@@ -24,11 +24,6 @@ message PackageDoc {
   optional string danger = 4;
 }
 
-message EntryCompletion {
-  string name = 1;
-  EntryDoc doc = 2;
-}
-
 message EntryDoc {
   string summary = 1;
   optional string description = 2;
