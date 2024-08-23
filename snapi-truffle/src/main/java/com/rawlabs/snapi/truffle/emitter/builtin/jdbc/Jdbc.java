@@ -17,13 +17,13 @@ import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.*;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.Rql2Language;
-import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.jdbc.JdbcQueryNode;
-import com.rawlabs.snapi.truffle.runtime.ast.io.jdbc.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms.JdbcExceptionHandler;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.jdbc.JdbcQueryNode;
+import com.rawlabs.snapi.truffle.ast.io.jdbc.*;
+import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import scala.collection.JavaConverters;
 
 public class Jdbc {

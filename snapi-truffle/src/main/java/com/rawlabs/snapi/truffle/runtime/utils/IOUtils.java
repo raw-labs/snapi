@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.utils;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.utils.core.RawSettings;
 import java.io.IOException;
 import java.nio.file.Files;

@@ -17,12 +17,12 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TimestampTimeBucketEnt
 import com.rawlabs.snapi.frontend.rql2.source.Rql2IntervalType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2StringType;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
-import com.rawlabs.snapi.truffle.runtime.Rql2Language;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.timestamp_package.TimestampTimeBucketIntervalNodeGen;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.timestamp_package.TimestampTimeBucketStringNodeGen;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.temporals.timestamp_package.TimestampTimeBucketIntervalNodeGen;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.temporals.timestamp_package.TimestampTimeBucketStringNodeGen;
+import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 
 import java.util.List;
 

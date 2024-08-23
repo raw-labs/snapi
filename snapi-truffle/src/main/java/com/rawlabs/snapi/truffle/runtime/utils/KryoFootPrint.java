@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.runtime.utils;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import scala.collection.immutable.Vector;
 
 public class KryoFootPrint {

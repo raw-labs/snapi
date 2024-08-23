@@ -14,12 +14,12 @@ package com.rawlabs.snapi.truffle.emitter.builtin.xml_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.Rql2Language;
-import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.option.OptionSomeNodeGen;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.option.OptionSomeNodeGen;
+import com.rawlabs.snapi.truffle.ast.io.xml.parser.*;
+import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
 import java.util.stream.Stream;

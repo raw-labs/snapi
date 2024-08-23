@@ -20,11 +20,11 @@ import com.rawlabs.snapi.frontend.rql2.source.Rql2IterableType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.Rql2Language;
-import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonReadCollectionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonReadValueNode;
-import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.TryableTopLevelWrapper;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.io.json.reader.JsonReadCollectionNode;
+import com.rawlabs.snapi.truffle.ast.io.json.reader.JsonReadValueNode;
+import com.rawlabs.snapi.truffle.ast.io.json.reader.TryableTopLevelWrapper;
 
 import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.*;
 

@@ -20,8 +20,8 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ExistsCollectionEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionExistsNode;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionExistsNode;
 import java.util.List;
 
 public class TruffleExistsCollectionEntry extends ExistsCollectionEntry

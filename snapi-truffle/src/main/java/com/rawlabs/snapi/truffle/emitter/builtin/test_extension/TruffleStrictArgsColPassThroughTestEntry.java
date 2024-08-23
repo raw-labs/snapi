@@ -17,11 +17,11 @@ import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.StrictArgsColPassThroughTestEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.binary.MultNodeGen;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionTransformNodeGen;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.IntNode;
-import com.rawlabs.snapi.truffle.runtime.ast.local.ReadParamNode;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.binary.MultNodeGen;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionTransformNodeGen;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.IntNode;
+import com.rawlabs.snapi.truffle.ast.local.ReadParamNode;
 import java.util.List;
 
 public class TruffleStrictArgsColPassThroughTestEntry extends StrictArgsColPassThroughTestEntry

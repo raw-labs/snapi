@@ -25,13 +25,13 @@ import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.list.ListFromNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.list.ListFromUnsafe;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.StringNode;
-import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.TryableTopLevelWrapper;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.XmlReadCollectionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.XmlReadValueNode;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListFromNode;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListFromUnsafe;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.StringNode;
+import com.rawlabs.snapi.truffle.ast.io.json.reader.TryableTopLevelWrapper;
+import com.rawlabs.snapi.truffle.ast.io.xml.parser.XmlReadCollectionNode;
+import com.rawlabs.snapi.truffle.ast.io.xml.parser.XmlReadValueNode;
 
 public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExtension {
 

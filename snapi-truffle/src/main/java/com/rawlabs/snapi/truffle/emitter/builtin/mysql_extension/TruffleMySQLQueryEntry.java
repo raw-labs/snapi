@@ -18,12 +18,12 @@ import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.emitter.builtin.WithArgs;
 import com.rawlabs.snapi.truffle.emitter.builtin.jdbc.Jdbc;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.Rql2Language;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.location_package.LocationFromMySQLCredentialNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.location_package.LocationFromMySQLNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.IntNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms.MySQLExceptionHandler;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package.LocationFromMySQLCredentialNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package.LocationFromMySQLNode;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.IntNode;
+import com.rawlabs.snapi.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler;
 import java.util.List;
 
 public class TruffleMySQLQueryEntry extends MySQLQueryEntry

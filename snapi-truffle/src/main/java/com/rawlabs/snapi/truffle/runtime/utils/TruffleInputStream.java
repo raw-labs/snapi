@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.runtime.utils;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
-import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
+import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.primitives.LocationObject;
 import com.rawlabs.utils.core.RawException;
 import com.rawlabs.utils.sources.api.Encoding;
 import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation;

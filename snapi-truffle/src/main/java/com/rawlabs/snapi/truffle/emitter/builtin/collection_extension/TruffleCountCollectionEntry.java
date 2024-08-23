@@ -20,9 +20,9 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.CountCollectionEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.aggregation.AggregateSingleNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.aggregation.Aggregations;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.aggregation.AggregateSingleNode;
+import com.rawlabs.snapi.truffle.ast.expressions.aggregation.Aggregations;
 import java.util.List;
 
 public class TruffleCountCollectionEntry extends CountCollectionEntry
