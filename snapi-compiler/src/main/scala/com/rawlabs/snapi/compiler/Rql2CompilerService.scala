@@ -78,7 +78,7 @@ import scala.util.control.NonFatal
 object Rql2CompilerService {
   val LANGUAGE: Set[String] = Set("rql2", "rql2-truffle", "snapi")
 
-  val JARS_PATH = "com.rawlabs.snapi.compiler.jars-path"
+  val JARS_PATH = "raw.snapi.compiler.jars-path"
 }
 
 class Rql2CompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
