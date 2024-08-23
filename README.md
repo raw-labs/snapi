@@ -250,7 +250,8 @@ Before starting:
 To setup the project in Intellij, we recommend cloning the repo and opening it with "Import project from existing sources".
 You can choose to import as an "SBT" project, but we found that "BSP" with "SBT" also works well.
 "SBT" with "Shell for importing building" is also recommended.
-Reach out to us [Discord](https://discord.com/invite/AwFHYThJeh) if you have issues setting up the project.
+
+If you have issues setting up the project, reach out to us on [Discord](https://discord.com/invite/AwFHYThJeh).
 
 If Intellij prompts you to use 'scalafmt', say "Yes" as this is our code formatter.
 
