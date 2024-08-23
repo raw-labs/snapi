@@ -13,26 +13,26 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.StrictArgsTestEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.StrictArgsTestEntry;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.binary.PlusNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.numeric.float_package.FloatFromNodeGen;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListCountNodeGen;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.FloatNode;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.LongNode;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.StringNode;
+import com.rawlabs.snapi.truffle.ast.expressions.record.RecordBuildNode;
+import com.rawlabs.snapi.truffle.ast.expressions.record.RecordProjNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.emitter.builtin.WithArgs;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.binary.PlusNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.numeric.float_package.FloatFromNodeGen;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.list.ListCountNodeGen;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.FloatNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.LongNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.StringNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.record.RecordBuildNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.record.RecordProjNodeGen;
 import java.util.List;
 
 public class TruffleStrictArgsTestEntry extends StrictArgsTestEntry
     implements TruffleEntryExtension, WithArgs {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode listArg = args.get(0).exprNode();
     ExpressionNode[] optionalArgs = optionalArgs(args);
     ExpressionNode recordArg =

@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 trait SettingsTestContext {
-  protected var properties = mutable.Map[String, Any]()
+  protected var properties: mutable.Map[String, Any] = mutable.Map[String, Any]()
 
   implicit def settings: RawSettings = new RawSettings(
     ConfigFactory.load(),

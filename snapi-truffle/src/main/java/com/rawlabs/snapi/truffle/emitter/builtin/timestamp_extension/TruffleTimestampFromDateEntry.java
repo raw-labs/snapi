@@ -13,11 +13,11 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.common.source.Exp;
-import com.rawlabs.snapi.frontend.rql2.builtin.TimestampFromDateEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TimestampFromDateEntry;
+import com.rawlabs.snapi.frontend.rql2.source.Exp;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.temporals.timestamp_package.TimestampFromDateNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleShortEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.timestamp_package.TimestampFromDateNodeGen;
 import java.util.List;
 import scala.Tuple2;
 import scala.collection.immutable.ListMap;

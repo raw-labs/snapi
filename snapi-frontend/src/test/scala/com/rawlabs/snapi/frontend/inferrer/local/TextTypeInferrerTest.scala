@@ -21,7 +21,7 @@ class TextTypeInferrerTest extends AnyFunSuite with StrictLogging with TextTypeI
   val nulls = Seq("null")
   def assertType(values: Seq[String], expected: SourceType) = {
     val inferred = values.foldLeft(SourceNothingType(): SourceType) {
-      case (acc: SourceNullableType, value) if nulls.contains(value) => SourceNullableType.cloneAsNullable(acc)
+      case (acc: SourceNullableType, value) if nulls.contains(value) => SourceNullableType.setNullableShallowClone(acc)
       case (_: SourceNothingType, value) if nulls.contains(value) => SourceNullType()
       case (acc, value) => getType(value, acc)
     }

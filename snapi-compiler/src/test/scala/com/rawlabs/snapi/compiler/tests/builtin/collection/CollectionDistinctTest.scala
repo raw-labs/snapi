@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin.collection
 
 import com.rawlabs.snapi.frontend.rql2.errors.ItemsNotComparable
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class CollectionDistinctTest extends Rql2TruffleCompilerTestContext {
+class CollectionDistinctTest extends Rql2TestContext {
 
   test("""let numbers = Collection.From([5, 2, 4, 2, 2, 4, 5])
     |in Collection.Distinct(numbers)""".stripMargin)(_ should evaluateTo("[2, 4, 5]"))

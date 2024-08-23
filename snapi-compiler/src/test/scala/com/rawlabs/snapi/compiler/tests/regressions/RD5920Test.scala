@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD5920Test extends Rql2TruffleCompilerTestContext {
+class RD5920Test extends Rql2TestContext {
 
   test("""let f(x: int) = x * 10
     |in f(10)""".stripMargin)(_ should evaluateTo("100"))

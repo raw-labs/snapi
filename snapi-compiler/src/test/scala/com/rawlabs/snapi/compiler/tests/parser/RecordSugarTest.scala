@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.parser
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RecordSugarTest extends Rql2TruffleCompilerTestContext {
+class RecordSugarTest extends Rql2TestContext {
 
   test("""{a: 1, b: "2"}""") { it =>
     it should typeAs("record(a: int, b: string)")

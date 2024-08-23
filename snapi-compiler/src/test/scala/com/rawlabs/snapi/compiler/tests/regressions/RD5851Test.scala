@@ -25,9 +25,9 @@ import com.rawlabs.compiler.{
   Pos,
   TypeCompletion
 }
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD5851Test extends Rql2TruffleCompilerTestContext {
+class RD5851Test extends Rql2TestContext {
 
   def autoCompleteNames(entries: Array[Completion]): Seq[String] = {
     entries.map {

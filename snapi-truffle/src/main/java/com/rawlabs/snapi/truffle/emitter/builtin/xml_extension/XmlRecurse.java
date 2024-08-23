@@ -14,12 +14,12 @@ package com.rawlabs.snapi.truffle.emitter.builtin.xml_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.option.OptionSomeNodeGen;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.option.OptionSomeNodeGen;
+import com.rawlabs.snapi.truffle.ast.io.xml.parser.*;
+import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
 import java.util.stream.Stream;
@@ -41,17 +41,17 @@ public class XmlRecurse {
       case Rql2DateType v -> DateParseXmlNodeGen.create();
       case Rql2TimeType v -> TimeParseXmlNodeGen.create();
       case Rql2TimestampType v -> TimestampParseXmlNodeGen.create();
-      default -> throw new RawTruffleInternalErrorException();
+      default -> throw new TruffleInternalErrorException();
     };
   }
 
 
-  public static ProgramExpressionNode recurseXmlParser(Rql2TypeWithProperties tipe, RawLanguage lang) {
+  public static ProgramExpressionNode recurseXmlParser(Rql2TypeWithProperties tipe, Rql2Language lang) {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new ProgramExpressionNode(lang, frameDescriptor, recurse(lang, frameDescriptor, tipe, "*"));
   }
 
-  private static ExpressionNode recurse(RawLanguage lang, FrameDescriptor frameDescriptor, Rql2TypeWithProperties tipe, String fieldName) {
+  private static ExpressionNode recurse(Rql2Language lang, FrameDescriptor frameDescriptor, Rql2TypeWithProperties tipe, String fieldName) {
     boolean isAttribute = fieldName.startsWith("@");
     boolean isText = fieldName.equals("#text");
     ExpressionNode parserNode;

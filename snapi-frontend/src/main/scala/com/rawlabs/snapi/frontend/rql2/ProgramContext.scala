@@ -12,24 +12,29 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
+import com.rawlabs.compiler.ProgramEnvironment
+import com.rawlabs.snapi.frontend.base.CompilerContext
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
-import com.rawlabs.snapi.frontend.rql2.api.{PackageExtension, PackageExtensionProvider, Rql2Value}
+import com.rawlabs.snapi.frontend.rql2.extensions.{PackageExtension, PackageExtensionProvider}
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Program
-import com.rawlabs.snapi.frontend.inferrer.api.{InferrerProperties, InputFormatDescriptor}
+import com.rawlabs.snapi.frontend.inferrer.api.{InferrerInput, InferrerOutput}
 
 import scala.collection.mutable
 
-trait ProgramContext extends com.rawlabs.snapi.frontend.base.ProgramContext {
+class ProgramContext(
+    override val programEnvironment: ProgramEnvironment,
+    override val compilerContext: CompilerContext
+) extends com.rawlabs.snapi.frontend.base.ProgramContext {
 
-  private val inferCache = new mutable.HashMap[InferrerProperties, Either[String, InputFormatDescriptor]]
+  private val inferCache = new mutable.HashMap[InferrerInput, Either[String, InferrerOutput]]
 
   private val dynamicPackageCache = new mutable.HashMap[String, PackageExtension]
 
   private val stageCompilerCache = new mutable.HashMap[Rql2Program, Either[ErrorCompilerMessage, Rql2Value]]
 
   def infer(
-      inferrerProperties: InferrerProperties
-  ): Either[String, InputFormatDescriptor] = {
+      inferrerProperties: InferrerInput
+  ): Either[String, InferrerOutput] = {
     inferCache.getOrElseUpdate(
       inferrerProperties,
       compilerContext.infer(inferrerProperties)

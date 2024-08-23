@@ -13,7 +13,8 @@
 package com.rawlabs.sql.compiler.antlr4
 
 /**
- * Represents a parameter in a SQL program
+ * Represents a parameter in a SQL program.
+ *
  * @param name the name of the parameter
  * @param description the description of the parameter
  * @param tipe the type of the parameter
@@ -21,7 +22,7 @@ package com.rawlabs.sql.compiler.antlr4
  * @param nodes tree nodes where the parameter is defined, used for deduplication
  * @param occurrences tree nodes where the parameter occurs
  */
-case class SqlParam(
+final case class SqlParam(
     name: String,
     description: Option[String],
     tipe: Option[String],

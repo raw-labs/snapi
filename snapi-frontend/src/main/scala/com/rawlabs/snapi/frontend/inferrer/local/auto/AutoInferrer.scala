@@ -42,7 +42,7 @@ class AutoInferrer(
 
   import AutoInferrer._
 
-  def infer(location: ByteStreamLocation, maybeSampleSize: Option[Int]): InputStreamFormatDescriptor = {
+  def infer(location: ByteStreamLocation, maybeSampleSize: Option[Int]): InputStreamInferrerOutput = {
     location match {
       case fs: FileSystemLocation =>
         // If it is a file system, check if it is a directory, to attempt to detect Hadoop-like files.
@@ -62,7 +62,7 @@ class AutoInferrer(
   private def inferTextFormats(
       location: ByteStreamLocation,
       maybeSampleSize: Option[Int]
-  ): TextInputStreamFormatDescriptor = {
+  ): TextInputStreamInferrerOutput = {
     // Will try multiple inferrers in turn
     // The current code instantiates a decoded stream of Char and passes
     // it to several text format inferrers. If needed to try inferrers in
@@ -82,11 +82,11 @@ class AutoInferrer(
       // TODO (ctm): Probably rely on r.charsetConfidence as well?
       def tryReaderInfer(
           format: String,
-          f: Reader => TextInputFormatDescriptor
-      ): Either[String, TextInputStreamFormatDescriptor] = {
+          f: Reader => TextFormatDescriptor
+      ): Either[String, TextInputStreamInferrerOutput] = {
         is.seek(0)
         val reader = getReader(is, encoding)
-        tryInfer(format, TextInputStreamFormatDescriptor(encoding, confidence, f(reader)))
+        tryInfer(format, TextInputStreamInferrerOutput(encoding, confidence, f(reader)))
       }
 
       // for json, hjson and csv making prefer_nulls = true
@@ -97,7 +97,7 @@ class AutoInferrer(
               // Check whether it is a text file with a known regex
               val resText = tryReaderInfer("text", reader => textInferrer.infer(reader, maybeSampleSize))
               resText match {
-                case Right(TextInputStreamFormatDescriptor(_, _, LinesInputFormatDescriptor(_, Some(_), _))) =>
+                case Right(TextInputStreamInferrerOutput(_, _, LinesFormatDescriptor(_, Some(_), _))) =>
                   // Found a meaningful text with regex, so accept it
                   resText
                 case _ =>
@@ -119,10 +119,10 @@ class AutoInferrer(
                   )
                   resCsv match {
                     case Right(
-                          TextInputStreamFormatDescriptor(
+                          TextInputStreamInferrerOutput(
                             _,
                             _,
-                            CsvInputFormatDescriptor(
+                            CsvFormatDescriptor(
                               SourceCollectionType(SourceRecordType(atts, false), false),
                               hasHeader,
                               _,

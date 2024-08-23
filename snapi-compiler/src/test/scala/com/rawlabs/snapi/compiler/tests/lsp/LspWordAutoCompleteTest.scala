@@ -24,9 +24,9 @@ import com.rawlabs.compiler.{
   Pos,
   TypeCompletion
 }
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class LspWordAutoCompleteTest extends Rql2TruffleCompilerTestContext {
+class LspWordAutoCompleteTest extends Rql2TestContext {
 
   private lazy val allTypes = Seq(
     ("byte", Some("")),

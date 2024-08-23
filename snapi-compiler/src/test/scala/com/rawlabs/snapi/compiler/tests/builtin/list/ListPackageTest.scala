@@ -12,13 +12,13 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.list
 
-import com.rawlabs.snapi.frontend.utils._
+import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.errors.ItemsNotComparable
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
 import java.nio.file.Path
 
-class ListPackageTest extends Rql2TruffleCompilerTestContext {
+class ListPackageTest extends Rql2TestContext {
 
   test("""["Hello", Error.Build("Argh!!"), null]""") {
     _ should evaluateTo("""["Hello", Error.Build("Argh!!"), null]""")

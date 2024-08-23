@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend.rql2.antlr4
 
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import com.rawlabs.snapi.frontend.base.source.{BaseNode, BaseProgram}
-import com.rawlabs.snapi.frontend.common.source.SourceProgram
+import com.rawlabs.snapi.frontend.rql2.source.SourceProgram
 
 import java.util
 import scala.collection.JavaConverters._
@@ -28,7 +28,7 @@ class CommentsAntlrSyntaxAnalyzer(
 ) extends Antlr4SyntaxAnalyzer(positions, isFrontend) {
 
   override def parse(s: String): ParseProgramResult[SourceProgram] = {
-    val rawErrorListener = new RawErrorListener()
+    val rawErrorListener = new Rql2ErrorListener()
     val source = StringSource(s)
     val stream = getTokenStream(s, rawErrorListener)
     val r = parse(stream, source, rawErrorListener)

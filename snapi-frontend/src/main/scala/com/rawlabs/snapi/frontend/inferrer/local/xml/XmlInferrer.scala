@@ -41,10 +41,10 @@ class XmlInferrer(implicit protected val settings: RawSettings)
       is: SeekableInputStream,
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
-  ): TextInputStreamFormatDescriptor = {
+  ): TextInputStreamInferrerOutput = {
     val r = getTextBuffer(is, maybeEncoding)
     try {
-      TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
+      TextInputStreamInferrerOutput(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
     } catch {
       case ex: RawException => throw ex
       case NonFatal(e) => throw new RawException(s"xml inference failed unexpectedly", e)
@@ -53,7 +53,7 @@ class XmlInferrer(implicit protected val settings: RawSettings)
     }
   }
 
-  def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {
+  def infer(reader: Reader, maybeSampleSize: Option[Int]): TextFormatDescriptor = {
     try {
       var nobjs = maybeSampleSize.getOrElse(defaultSampleSize)
       if (nobjs < 0) {
@@ -71,7 +71,7 @@ class XmlInferrer(implicit protected val settings: RawSettings)
       val result = xmlReader.uniquifyTemporalFormats(innerType)
       // If multiple top-level XML documents, make it a collection.
       val tipe = if (count > 1) SourceCollectionType(result.cleanedType, false) else result.cleanedType
-      XmlInputFormatDescriptor(tipe, xmlReader.sampled, result.timeFormat, result.dateFormat, result.timestampFormat)
+      XmlFormatDescriptor(tipe, xmlReader.sampled, result.timeFormat, result.dateFormat, result.timestampFormat)
     } catch {
       case ex: XMLStreamException =>
         val col = ex.getLocation.getColumnNumber

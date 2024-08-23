@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RecordPackageTest extends Rql2TruffleCompilerTestContext {
+class RecordPackageTest extends Rql2TestContext {
 
   test("""Record.Build(a = 1, b = "Hello")""".stripMargin)(_ should (typeAs("record(a: int, b: string)") and run))
 

@@ -13,16 +13,16 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.string_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.StringFromEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.StringFromEntry;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.string_package.StringFromNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.string_package.StringFromNodeGen;
 import java.util.List;
 
 public class TruffleStringFromEntry extends StringFromEntry implements TruffleEntryExtension {
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     return StringFromNodeGen.create(args.get(0).exprNode());
   }
 }

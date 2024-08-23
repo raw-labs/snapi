@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.compiler
+package com.rawlabs.snapi.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING

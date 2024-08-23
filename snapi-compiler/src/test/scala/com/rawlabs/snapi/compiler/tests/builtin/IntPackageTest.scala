@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class IntPackageTest extends Rql2TruffleCompilerTestContext {
+class IntPackageTest extends Rql2TestContext {
 
   test(""" Int.From(1)""")(it => it should evaluateTo("1"))
 

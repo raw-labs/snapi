@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD5644Test extends Rql2TruffleCompilerTestContext {
+class RD5644Test extends Rql2TestContext {
 
   // Basic reference behavior. The function parameter isn't type and inherits the list item type. Everything matches.
   test("""

@@ -13,17 +13,17 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.regex_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.RegexFirstMatchInEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.RegexFirstMatchInEntry;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.regex_package.RegexFirstMatchInNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.regex_package.RegexFirstMatchInNodeGen;
 import java.util.List;
 
 public class TruffleRegexFirstMatchInEntry extends RegexFirstMatchInEntry
     implements TruffleEntryExtension {
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     return RegexFirstMatchInNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

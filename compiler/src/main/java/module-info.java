@@ -23,6 +23,7 @@ module raw.compiler {
   requires com.fasterxml.jackson.datatype.jsr310;
   requires com.fasterxml.jackson.datatype.jdk8;
   requires raw.utils.core;
+  requires raw.protocol.raw;
   requires raw.protocol.compiler;
 
   exports com.rawlabs.compiler;

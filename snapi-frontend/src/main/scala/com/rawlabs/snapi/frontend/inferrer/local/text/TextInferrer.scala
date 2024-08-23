@@ -45,10 +45,10 @@ class TextInferrer(implicit protected val settings: RawSettings)
       is: SeekableInputStream,
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
-  ): TextInputStreamFormatDescriptor = {
+  ): TextInputStreamInferrerOutput = {
     val r = getTextBuffer(is, maybeEncoding)
     try {
-      TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
+      TextInputStreamInferrerOutput(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
     } catch {
       case ex: RawException => throw ex
       case NonFatal(e) => throw new RawException(s"text inference failed unexpectedly", e)
@@ -57,7 +57,7 @@ class TextInferrer(implicit protected val settings: RawSettings)
     }
   }
 
-  def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {
+  def infer(reader: Reader, maybeSampleSize: Option[Int]): TextFormatDescriptor = {
     var count = 0
     val sampleSize = maybeSampleSize.getOrElse(defaultSampleSize)
     val nObjs = if (sampleSize <= 0) Int.MaxValue else sampleSize
@@ -87,11 +87,11 @@ class TextInferrer(implicit protected val settings: RawSettings)
     if (value < minMatch) {
       val innerType = SourceStringType(false)
       val tipe = SourceCollectionType(innerType, false)
-      LinesInputFormatDescriptor(tipe, None, false)
+      LinesFormatDescriptor(tipe, None, false)
     } else {
       val innerType = SourceRecordType(choice.atts.toVector, true)
       val tipe = SourceCollectionType(innerType, false)
-      LinesInputFormatDescriptor(tipe, Some(choice.regex.regex), it.hasNext)
+      LinesFormatDescriptor(tipe, Some(choice.regex.regex), it.hasNext)
     }
   }
 

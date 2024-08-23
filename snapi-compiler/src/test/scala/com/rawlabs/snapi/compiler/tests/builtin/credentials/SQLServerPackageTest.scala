@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin.credentials
 
 import com.rawlabs.snapi.compiler.tests.TestCredentials
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class SQLServerPackageTest extends Rql2TruffleCompilerTestContext {
+class SQLServerPackageTest extends Rql2TestContext {
 
   import TestCredentials._
 

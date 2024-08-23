@@ -55,7 +55,7 @@ final case class SourceRecordType(atts: Vector[SourceAttrType], nullable: Boolea
 final case class SourceCollectionType(innerType: SourceType, nullable: Boolean) extends SourceNullableType
 
 object SourceNullableType {
-  def cloneNullable(t: SourceNullableType, nullable: Boolean): SourceNullableType = t match {
+  def setNullableShallowClone(t: SourceNullableType, nullable: Boolean): SourceNullableType = t match {
     case SourceByteType(_) => SourceByteType(nullable)
     case SourceShortType(_) => SourceShortType(nullable)
     case SourceIntType(_) => SourceIntType(nullable)
@@ -77,16 +77,17 @@ object SourceNullableType {
       t
   }
 
-  def cloneAsNullable(t: SourceNullableType): SourceNullableType = cloneNullable(t, nullable = true)
+  def setNullableShallowClone(t: SourceNullableType): SourceNullableType = setNullableShallowClone(t, nullable = true)
 
-  def cloneAsNotNullable(t: SourceNullableType): SourceNullableType = cloneNullable(t, nullable = false)
+  def setNotNullableShallowClone(t: SourceNullableType): SourceNullableType =
+    setNullableShallowClone(t, nullable = false)
 
-  def deepCloneAsNullable(t: SourceType): SourceType = t match {
-    case SourceCollectionType(innerType, _) => SourceCollectionType(deepCloneAsNullable(innerType), true)
+  def setNullableDeepClone(t: SourceType): SourceType = t match {
+    case SourceCollectionType(innerType, _) => SourceCollectionType(setNullableDeepClone(innerType), true)
     case SourceRecordType(atts, _) =>
-      SourceRecordType(atts.map(att => SourceAttrType(att.idn, deepCloneAsNullable(att.tipe))), true)
-    case x: SourceNullableType => cloneAsNullable(x)
-    case SourceOrType(inner) => SourceOrType(inner.map(x => deepCloneAsNullable(x).asInstanceOf[SourceNullableType]))
+      SourceRecordType(atts.map(att => SourceAttrType(att.idn, setNullableDeepClone(att.tipe))), true)
+    case x: SourceNullableType => setNullableShallowClone(x)
+    case SourceOrType(inner) => SourceOrType(inner.map(x => setNullableDeepClone(x).asInstanceOf[SourceNullableType]))
     case _ => t
   }
 

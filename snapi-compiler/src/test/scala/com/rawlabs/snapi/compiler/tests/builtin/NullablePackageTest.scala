@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class NullablePackageTest extends Rql2TruffleCompilerTestContext {
+class NullablePackageTest extends Rql2TestContext {
 
   test("""Nullable.IsNull(null)""")(_ should evaluateTo("true"))
   test("""Nullable.IsNull(1)""")(_ should evaluateTo("false"))

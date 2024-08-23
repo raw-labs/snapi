@@ -22,13 +22,19 @@ import java.sql.SQLException
 
 case class IdentifierInfo(name: Seq[SqlIdentifier], tipe: String)
 
-/* This class is used to cache metadata info about the user's database.
+/**
+ * This class is used to cache metadata info about the user's database.
  * It is used to provide completion for the SQL editor. Each user has its own instance.
  * The cache contains two completion caches:
  * - word completion: when the user types a word, it is used to find tables, columns, that match the beginning of a word.
  * - dot completion: when the user types a dot, it is used to find columns or tables that match the prefix items.
  * Entries in these two caches are fairly short-lived. They get deleted (and recomputed if needed) after a few seconds
- * so that the user can see new schemas, tables or columns that have been created in the database.
+ * *o that the user can see new schemas, tables or columns that have been created in the database.
+ *
+ * @param jdbcUrl the JDBC URL to connect to the database
+ * @param connectionPool the connection pool to use to connect to the database
+ * @param maxSize the maximum size of the cache
+ * @param expiry the duration after which an entry is deleted from the cache
  */
 class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxSize: Int, expiry: Duration)
     extends StrictLogging {
@@ -73,7 +79,7 @@ class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxS
         } else Seq.empty
     }
 
-    // on word completion we get a tokenized sequence of identifiers like [raw, airp] and should find potential
+    // On word completion we get a tokenized sequence of identifiers like [raw, airp] and should find potential
     // matches. In order to use the completion cache more often, instead of sending these tokens in a WHERE clause,
     // we replace the last item (here 'airp') and keep only one letter before issuing the search. This is a trick
     // that permits to reused the cache soon after, since any following keystroke will likely only append a new letter.
@@ -82,7 +88,7 @@ class UserMetadataCache(jdbcUrl: String, connectionPool: SqlConnectionPool, maxS
     // [raw,airports,cit] => [raw,airports,c]
     // [air] => [a]
     //
-    // when the user keeps typing example.ai, air, airp => we reuse that cached entry.
+    // When the user keeps typing example.ai, air, airp => we reuse that cached entry.
 
     seq.lastOption
       .map {

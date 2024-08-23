@@ -15,13 +15,13 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.api.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.builtin.TupleAvgCollectionEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TupleAvgCollectionEntry;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionTupleAvgNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionTupleAvgNode;
 import java.util.List;
 
 public class TruffleTupleAvgCollectionEntry extends TupleAvgCollectionEntry

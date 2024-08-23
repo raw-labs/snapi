@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD9932Test extends Rql2TruffleCompilerTestContext {
+class RD9932Test extends Rql2TestContext {
 
   val ttt = "\"\"\""
   test(s"""Json.Parse(

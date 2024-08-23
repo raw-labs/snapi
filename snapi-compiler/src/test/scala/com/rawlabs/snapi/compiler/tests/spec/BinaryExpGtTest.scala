@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class BinaryExpGtTest extends Rql2TruffleCompilerTestContext with CombinationSpecTestHelper {
+class BinaryExpGtTest extends Rql2TestContext with CombinationSpecTestHelper {
 
   test("1 > 1")(it => it should evaluateTo("false"))
   test("1 > 2")(it => it should evaluateTo("false"))

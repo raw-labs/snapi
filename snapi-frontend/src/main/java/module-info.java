@@ -38,6 +38,7 @@ module raw.snapi.frontend {
   requires jul.to.slf4j;
   requires org.graalvm.polyglot;
   requires raw.utils.core;
+  requires raw.protocol.raw;
   requires raw.protocol.compiler;
   requires raw.compiler;
   requires raw.utils.sources;
@@ -46,21 +47,18 @@ module raw.snapi.frontend {
   exports com.rawlabs.snapi.frontend.base;
   exports com.rawlabs.snapi.frontend.base.errors;
   exports com.rawlabs.snapi.frontend.base.source;
-  exports com.rawlabs.snapi.frontend.common;
-  exports com.rawlabs.snapi.frontend.common.source;
   exports com.rawlabs.snapi.frontend.rql2;
-  exports com.rawlabs.snapi.frontend.rql2.api;
-  exports com.rawlabs.snapi.frontend.rql2.builtin;
-  exports com.rawlabs.snapi.frontend.rql2.errors;
-  exports com.rawlabs.snapi.frontend.rql2.lsp;
   exports com.rawlabs.snapi.frontend.rql2.source;
+  exports com.rawlabs.snapi.frontend.rql2.phases;
+  exports com.rawlabs.snapi.frontend.rql2.errors;
   exports com.rawlabs.snapi.frontend.rql2.antlr4;
-  exports com.rawlabs.snapi.frontend.utils;
+  exports com.rawlabs.snapi.frontend.rql2.extensions;
+  exports com.rawlabs.snapi.frontend.rql2.extensions.builtin;
   exports com.rawlabs.snapi.frontend.inferrer.api;
   exports com.rawlabs.snapi.frontend.inferrer.local;
 
   opens com.rawlabs.snapi.frontend.inferrer.api to
       com.fasterxml.jackson.databind;
-  opens com.rawlabs.snapi.frontend.rql2.api to
+  opens com.rawlabs.snapi.frontend.rql2.extensions to
       com.fasterxml.jackson.databind;
 }

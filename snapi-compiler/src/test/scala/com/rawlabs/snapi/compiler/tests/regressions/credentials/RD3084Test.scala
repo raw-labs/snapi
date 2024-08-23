@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions.credentials
 
 import com.rawlabs.snapi.compiler.tests.TestCredentials
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD3084Test extends Rql2TruffleCompilerTestContext {
+class RD3084Test extends Rql2TestContext {
 
   rdbms("mysql-test", TestCredentials.mysqlCreds)
   rdbms("postgres-test", TestCredentials.pgsqlCreds)

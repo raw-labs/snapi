@@ -14,14 +14,14 @@ package com.rawlabs.snapi.truffle.emitter.builtin.type_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.TypesMerger;
-import com.rawlabs.snapi.frontend.rql2.builtin.TypeMatchEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TypeMatchEntry;
 import com.rawlabs.snapi.frontend.rql2.source.FunType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2OrType;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.type_package.TypeMatchNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.type_package.TypeMatchNode;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class TruffleTypeMatchEntry extends TypeMatchEntry implements TruffleEntr
 
   private record Handler(int idx, TruffleArg arg) {}
 
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     Rql2OrType orType = (Rql2OrType) args.get(0).type();
     ExpressionNode[] handlers =
         args.stream()

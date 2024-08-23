@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class NullableTryablePackageTest extends Rql2TruffleCompilerTestContext {
+class NullableTryablePackageTest extends Rql2TestContext {
   test("""1 / null""")(_ should evaluateTo("null"))
   test(""" 1.0 / (if true then null else 2)""")(_ should evaluateTo("null"))
   test(""" 1.0 / (if false then null else 2)""")(_ should evaluateTo("0.5"))

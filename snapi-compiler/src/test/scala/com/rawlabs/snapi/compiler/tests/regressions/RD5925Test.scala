@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD5925Test extends Rql2TruffleCompilerTestContext {
+class RD5925Test extends Rql2TestContext {
 
   test("""let c = Collection.Build(1, 2, 3, 4)
     |in Collection.Filter(c, s -> null)""".stripMargin) { it =>

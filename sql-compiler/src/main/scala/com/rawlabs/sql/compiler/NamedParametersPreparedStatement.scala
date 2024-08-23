@@ -48,11 +48,6 @@ import org.postgresql.util.PSQLException
 import java.sql.{Connection, ResultSet, ResultSetMetaData}
 import scala.collection.mutable
 
-/* This class is wrapping the PreparedStatement class from the JDBC API.
- * It parses the SQL code and extract the named parameters, infer their types from how they're used.
- * It also provides methods to set the parameters by name and execute the query.
- */
-
 class NamedParametersPreparedStatementException(val errors: List[ErrorMessage]) extends Exception
 
 // A postgres type, described by its JDBC enum type + the regular postgres type name.
@@ -69,8 +64,17 @@ private case class ParamLocation(
     jdbcIndex: Int // index in the source code to use in JDBC `set` APIs
 )
 
-/* The parameter `parsedTree` implies parsing errors have been potential caught and reported
-   upfront, but we can't assume that tree is error-free. Indeed, for
+/**
+ * This class is wrapping the PreparedStatement class from the JDBC API.
+ * It parses the SQL code and extract the named parameters, infer their types from how they're used.
+ * It also provides methods to set the parameters by name and execute the query.
+ *
+ * The parameter `parsedTree` implies parsing errors have been potential caught and reported upfront,
+ * but we can't assume that tree is error-free. Indeed, for
+ *
+ * @param conn the JDBC connection
+ * @param parsedTree the parsed SQL code
+ * @param scopes the query scopes
  */
 class NamedParametersPreparedStatement(
     conn: Connection,
@@ -108,7 +112,7 @@ class NamedParametersPreparedStatement(
 
   private val treePositions = parsedTree.positions
 
-  // If this crashes on None.get, that's a bug
+  // If this crashes on None.get, that's a bug.
   private def getStart(node: SqlBaseNode): Position = treePositions.getStart(node).get
 
   private def getStartOffset(node: SqlBaseNode): Int = getStart(node).optOffset.get
@@ -158,8 +162,8 @@ class NamedParametersPreparedStatement(
   // Now we'll populate this parameter Map with info, or errors.
   private val declaredTypeInfo = mutable.Map.empty[String, Either[List[ErrorMessage], QueryParamInfo]]
 
-  /* This Map contains only entries that have a '@type'. If the type can be parsed, the value is
-   * a Right(PostgresType), else a Left(ErrorMessage) */
+  // This Map contains only entries that have a '@type'. If the type can be parsed, the value is
+  // a Right(PostgresType), else a Left(ErrorMessage).
   private val userSpecifiedTypes =
     for ((name, info) <- parsedTree.params; tipe <- info.tipe) yield name -> {
       SqlTypesUtils
@@ -178,9 +182,9 @@ class NamedParametersPreparedStatement(
 
   private case class DefaultValue(value: RawValue, tipe: PostgresType)
 
-  /* This is a Map containing only entries that have a '@default'. If there's a Right entry in `userSpecifiedTypes` (a
-   * proper `@type` was specified), we use it: force a cast, otherwise not. If the expression runs fine, we get
-   * a Right(DefaultValue) that potentially confirms the expression matches with the `@type`, else a Left(ErrorMessage) */
+  // This is a Map containing only entries that have a '@default'. If there's a Right entry in `userSpecifiedTypes`
+  // (a proper `@type` was specified), we use it: force a cast, otherwise not. If the expression runs fine, we get
+  // a Right(DefaultValue) that potentially confirms the expression matches with the `@type`, else a Left(ErrorMessage).
   private val userSpecifiedDefaultValues = {
     val quickStatement = conn.createStatement()
     for ((paramName, info) <- parsedTree.params; sqlCode <- info.default) yield paramName -> {
@@ -238,13 +242,12 @@ class NamedParametersPreparedStatement(
       declaredTypeInfo.put(p, newState)
   }
 
-  /* We have the single query code in `code` (with named parameters). Internally we need to replace
-   * the named parameters with question marks, and keep track of the mapping between the
-   * parameter names and the question marks.
-   *
-   * However we want to remap offset of errors returned by Postgres, to an offset in the user code.
-   * For that, we can use `fromPgsqlOffset`.
-   */
+  // We have the single query code in `code` (with named parameters). Internally we need to replace
+  // the named parameters with question marks, and keep track of the mapping between the
+  // parameter names and the question marks.
+  //
+  // However we want to remap offset of errors returned by Postgres, to an offset in the user code.
+  // For that, we can use `fromPgsqlOffset`.
 
   // a table of offset -> shift, meant to remap a postgres error offset to the original user's code. Used
   // by fromPgsqlOffset, computed when generating the JDBC plain code.
@@ -294,7 +297,7 @@ class NamedParametersPreparedStatement(
         case None => "?"
       }
       jdbc.append(argToken) // that's the '?' replacing the argument
-      /* we saw ? is eventually sent to postgres as $X. The arg size is different */
+      // we saw ? is eventually sent to postgres as $X. The arg size is different
       val pgArgSize = argToken.length + 1
       pgCodeSize += pgArgSize
       // shift that would permit to compute the user offset from the postgres offset
@@ -321,9 +324,9 @@ class NamedParametersPreparedStatement(
         }
     }
 
+  // When we're collecting metadata info, an SQLException can highlight a problem with the statement
+  // (syntax error, semantic error).
   private val paramMetadata =
-    /* When we're collecting metadata info, an SQLException can highlight a problem with the statement
-     * (syntax error, semantic error) */
     try {
       stmt.getParameterMetaData // throws SQLException in case of problem
     } catch {

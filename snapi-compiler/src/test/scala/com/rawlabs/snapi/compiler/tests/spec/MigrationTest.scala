@@ -18,9 +18,9 @@ import com.rawlabs.snapi.frontend.rql2.source.{
   Rql2IsTryableTypeProperty,
   Rql2UndefinedType
 }
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class MigrationTest extends Rql2TruffleCompilerTestContext {
+class MigrationTest extends Rql2TestContext {
 
   test("1") { it =>
     it should typeAs("int")

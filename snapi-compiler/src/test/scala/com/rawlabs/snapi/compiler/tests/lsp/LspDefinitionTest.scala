@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.{GoToDefinitionResponse, Pos}
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class LspDefinitionTest extends Rql2TruffleCompilerTestContext {
+class LspDefinitionTest extends Rql2TestContext {
 
   test("go to definition identifier at usage test") { _ =>
     val code = """let

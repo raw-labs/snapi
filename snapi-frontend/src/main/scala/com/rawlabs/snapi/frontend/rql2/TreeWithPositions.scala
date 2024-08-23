@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult}
 
 class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, frontend: Boolean = false)(

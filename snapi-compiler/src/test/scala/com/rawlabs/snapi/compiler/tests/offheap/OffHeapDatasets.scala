@@ -12,10 +12,10 @@
 
 package com.rawlabs.snapi.compiler.tests.offheap
 
-import com.rawlabs.snapi.frontend.utils._
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-trait OffHeapDatasets { this: Rql2TruffleCompilerTestContext =>
+trait OffHeapDatasets { this: Rql2TestContext =>
 
   protected val N = 100
 

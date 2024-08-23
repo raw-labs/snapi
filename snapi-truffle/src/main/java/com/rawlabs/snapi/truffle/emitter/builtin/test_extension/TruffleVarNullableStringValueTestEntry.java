@@ -13,20 +13,20 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.VarNullableStringValueTestEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.VarNullableStringValueTestEntry;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.binary.PlusNode;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.StringNode;
+import com.rawlabs.snapi.truffle.ast.expressions.option.OptionGetOrElseNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.binary.PlusNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.StringNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.option.OptionGetOrElseNodeGen;
 import java.util.List;
 
 public class TruffleVarNullableStringValueTestEntry extends VarNullableStringValueTestEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode result = new StringNode("");
     for (TruffleArg arg : args) {
       result =

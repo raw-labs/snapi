@@ -25,8 +25,6 @@ object InferrerService {
   private val INFERRER_CACHE_SIZE = "raw.snapi.frontend.inferrer.cache-size"
 
   private val INFERRER_THREAD_POOL_SIZE = "raw.snapi.frontend.inferrer.thread-pool-size"
-
-  private val prettyPrinter = new SourceTypePrettyPrinter
 }
 
 abstract class InferrerService(implicit settings: RawSettings) extends RawService {
@@ -45,22 +43,22 @@ abstract class InferrerService(implicit settings: RawSettings) extends RawServic
   // The main entrypoint for the inferrer.
   // Using an exception for inference is reasonable because we often want inference to exit early.
   @throws[RawException]
-  def infer(properties: InferrerProperties): InputFormatDescriptor
+  def infer(properties: InferrerInput): InferrerOutput
 
   // Inferrer that uses internal cache and expiry.
   // Instead of an exception, it returns an Either (since the timeout error is returned as a Left).
   // @param timeout How long the inference can take before aborting with an exception.
   // @param expiry How long an old result of the inference is still accepted as valid.
-  final def inferWithExpiry(properties: InferrerProperties): Either[String, InputFormatDescriptor] = {
+  final def inferWithExpiry(properties: InferrerInput): Either[String, InferrerOutput] = {
     inferCache.get(properties)
   }
 
-  private val inferCache: LoadingCache[InferrerProperties, Either[String, InputFormatDescriptor]] = CacheBuilder
+  private val inferCache: LoadingCache[InferrerInput, Either[String, InferrerOutput]] = CacheBuilder
     .newBuilder()
     .maximumSize(inferrerCacheSize)
     .expireAfterAccess(inferrerExpirySeconds, TimeUnit.SECONDS)
-    .build(new CacheLoader[InferrerProperties, Either[String, InputFormatDescriptor]] {
-      def load(properties: InferrerProperties): Either[String, InputFormatDescriptor] = {
+    .build(new CacheLoader[InferrerInput, Either[String, InferrerOutput]] {
+      def load(properties: InferrerInput): Either[String, InferrerOutput] = {
         val inferrerFuture = inferrerThreadPool.submit(() => {
           try {
             Right(infer(properties))
@@ -85,10 +83,6 @@ abstract class InferrerService(implicit settings: RawSettings) extends RawServic
         }
       }
     })
-
-  final def prettyPrint(sourceType: SourceType): String = {
-    prettyPrinter.format(sourceType)
-  }
 
   final override def doStop(): Unit = {
     RawUtils.withSuppressNonFatalException {

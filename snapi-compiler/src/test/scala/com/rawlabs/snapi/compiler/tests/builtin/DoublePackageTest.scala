@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class DoublePackageTest extends Rql2TruffleCompilerTestContext {
+class DoublePackageTest extends Rql2TestContext {
 
   test(""" Double.From(1)""")(it => it should evaluateTo("1.0"))
 

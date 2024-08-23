@@ -18,7 +18,6 @@ import org.bitbucket.inkytonik.kiama.attribution.Decorators
 import org.bitbucket.inkytonik.kiama.util.{Entity, Environments}
 import com.rawlabs.snapi.frontend.base.errors._
 import com.rawlabs.snapi.frontend.base.source._
-import com.rawlabs.snapi.frontend.utils.{Attribution, ExtraRewriters}
 
 /** Used by some methods as a helper to avoid returning Either. */
 class UnsupportedTypeException(val t: Type) extends Throwable {

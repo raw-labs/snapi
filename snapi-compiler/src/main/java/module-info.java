@@ -11,7 +11,7 @@
  */
 
 import com.rawlabs.compiler.CompilerServiceBuilder;
-import com.rawlabs.snapi.compiler.Rql2TruffleCompilerServiceBuilder;
+import com.rawlabs.snapi.compiler.Rql2CompilerServiceBuilder;
 
 module raw.snapi.client {
   requires scala.library;
@@ -21,6 +21,7 @@ module raw.snapi.client {
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.core;
   requires raw.utils.sources;
+  requires raw.protocol.raw;
   requires raw.protocol.compiler;
   requires raw.compiler;
   requires raw.snapi.frontend;
@@ -28,5 +29,5 @@ module raw.snapi.client {
   uses CompilerServiceBuilder;
 
   provides CompilerServiceBuilder with
-      Rql2TruffleCompilerServiceBuilder;
+      Rql2CompilerServiceBuilder;
 }

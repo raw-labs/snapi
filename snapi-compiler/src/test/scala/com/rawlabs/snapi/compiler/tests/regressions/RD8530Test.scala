@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import org.scalatest.BeforeAndAfterEach
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD8530Test extends Rql2TruffleCompilerTestContext with BeforeAndAfterEach {
+class RD8530Test extends Rql2TestContext with BeforeAndAfterEach {
 
   test("""List.Filter([1,2,3,4], n -> n > 2, a = 12)""".stripMargin)(
     _ should typeErrorAs("no optional arguments expected")

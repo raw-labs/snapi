@@ -109,7 +109,8 @@ private[xml] class InferrerXmlTypeReader(reader: Reader, maxRepeatedTags: Int)
     def getTypeFromAtts(atts: Vector[SourceAttrType]) = {
       atts.find(att => att.idn == idn).map(_.tipe).getOrElse(SourceNothingType()) match {
         case t: SourcePrimitiveType => t
-        case SourceCollectionType(t: SourcePrimitiveType, n) => SourceNullableType.cloneNullable(t, t.nullable || n)
+        case SourceCollectionType(t: SourcePrimitiveType, n) =>
+          SourceNullableType.setNullableShallowClone(t, t.nullable || n)
         case _ => SourceNothingType()
       }
     }
@@ -181,7 +182,8 @@ private[xml] class InferrerXmlTypeReader(reader: Reader, maxRepeatedTags: Int)
           val fieldType = currentType match {
             case t: SourcePrimitiveType => t
             case record: SourceRecordType => getCurrentTypeOfTextField(TEXT_FIELD_NAME, record)
-            case SourceCollectionType(t: SourcePrimitiveType, n) => SourceNullableType.cloneNullable(t, t.nullable || n)
+            case SourceCollectionType(t: SourcePrimitiveType, n) =>
+              SourceNullableType.setNullableShallowClone(t, t.nullable || n)
             case _ => SourceNothingType()
           }
 

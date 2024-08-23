@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.benchmark
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class BenchmarkTests extends Rql2TruffleCompilerTestContext {
+class BenchmarkTests extends Rql2TestContext {
 
   property("raw.training-wheels", "false")
 

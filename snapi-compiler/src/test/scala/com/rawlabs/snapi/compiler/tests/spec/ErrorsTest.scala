@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class ErrorsTest extends Rql2TruffleCompilerTestContext {
+class ErrorsTest extends Rql2TestContext {
 
   test("""Collection.Count("a")""")(_ shouldNot tipe)
   test("""Collection.Count(Collection.Count("a"))""")(_ shouldNot tipe)

@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class ProjTest extends Rql2TruffleCompilerTestContext {
+class ProjTest extends Rql2TestContext {
 
   test("""let a = {x: 1}
     |in a.x

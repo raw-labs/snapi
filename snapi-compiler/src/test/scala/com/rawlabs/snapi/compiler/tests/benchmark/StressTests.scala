@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.benchmark
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class StressTests extends Rql2TruffleCompilerTestContext {
+class StressTests extends Rql2TestContext {
 
   val shouldBeExecuted = false
 

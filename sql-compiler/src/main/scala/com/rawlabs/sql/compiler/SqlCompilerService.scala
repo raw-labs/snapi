@@ -14,7 +14,7 @@ package com.rawlabs.sql.compiler
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.rawlabs.compiler._
-import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
+import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, SqlIdnNode, SqlParamUseNode, SqlSyntaxAnalyzer}
 import com.rawlabs.sql.compiler.metadata.UserMetadataCache
 import com.rawlabs.sql.compiler.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
@@ -54,18 +54,20 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
 
   override def language: Set[String] = Set("sql")
 
+  // Parse and check the program for syntax errors.
   private def safeParse(prog: String): Either[List[ErrorMessage], ParseProgramResult] = {
     val positions = new Positions
-    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
+    val syntaxAnalyzer = new SqlSyntaxAnalyzer(positions)
     val tree = syntaxAnalyzer.parse(prog)
     val errors = tree.errors.collect { case e: ErrorMessage => e }
     if (errors.nonEmpty) Left(errors)
     else Right(tree)
   }
 
+  // Parse the program and return the parse tree without checking for syntax errors.
   private def parse(prog: String): ParseProgramResult = {
     val positions = new Positions
-    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
+    val syntaxAnalyzer = new SqlSyntaxAnalyzer(positions)
     syntaxAnalyzer.parse(prog)
   }
 
@@ -359,6 +361,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                 logger.warn("SqlConnectionPool connection failure", ex)
                 HoverResponse(None)
             }
+          case other => throw new AssertionError(s"Unexpected node type: $other")
         }
         .getOrElse(HoverResponse(None))
     } catch {

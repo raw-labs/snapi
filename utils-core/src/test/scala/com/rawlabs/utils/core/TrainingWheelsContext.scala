@@ -16,5 +16,4 @@ trait TrainingWheelsContext {
   this: RawTestSuite with SettingsTestContext =>
 
   property("raw.training-wheels", "true")
-  property("raw.snapi.frontend.check-syntax-analyzers", "false")
 }

@@ -43,6 +43,12 @@ import scala.annotation.tailrec
 
 object TypedResultSetCsvWriter {
 
+  final private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  final private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
+  final private val timeFormatterNoMs = DateTimeFormatter.ofPattern("HH:mm:ss")
+  final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
+  final private val timestampFormatterNoMs = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+
   def outputWriteSupport(tipe: RawType): Boolean = tipe match {
     case _: RawIterableType => true
     case _: RawListType => true
@@ -52,6 +58,8 @@ object TypedResultSetCsvWriter {
 }
 
 class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String, maxRows: Option[Long]) {
+
+  import TypedResultSetCsvWriter._
 
   final private val gen =
     try {
@@ -68,12 +76,6 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String, maxRows: 
   schemaBuilder.setLineSeparator(lineSeparator)
   schemaBuilder.setQuoteChar('"')
   schemaBuilder.setNullValue("")
-
-  final private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-  final private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
-  final private val timeFormatterNoMs = DateTimeFormatter.ofPattern("HH:mm:ss")
-  final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
-  final private val timestampFormatterNoMs = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
   private var maxRowsReached = false
 
@@ -135,7 +137,7 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String, maxRows: 
             else {
               gen.writeString(data)
             }
-          case t => throw new IOException(s"unsupported type $t")
+          case _ => throw new IOException(s"unsupported type")
         }
       case _: RawDateType =>
         val date = v.getDate(i).toLocalDate

@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.rql2
 
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.source.InternalSourcePrettyPrinter
 
 class Tree(originalRoot: SourceProgram, ensureTree: Boolean = true)(

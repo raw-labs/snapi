@@ -16,7 +16,7 @@ import com.rawlabs.utils.core.RawUtils
 import org.apache.commons.lang3.StringUtils
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import com.rawlabs.snapi.frontend.base.source._
-import com.rawlabs.snapi.frontend.common.source.ErrorType
+import com.rawlabs.snapi.frontend.rql2.source.ErrorType
 import com.rawlabs.utils.core._
 
 abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](

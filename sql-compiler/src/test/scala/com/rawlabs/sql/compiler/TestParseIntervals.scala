@@ -13,7 +13,7 @@
 package com.rawlabs.sql.compiler
 
 import com.rawlabs.compiler.RawInterval
-import com.rawlabs.sql.compiler.SqlIntervals.parseInterval
+import com.rawlabs.sql.compiler.SqlIntervals.stringToInterval
 import org.scalatest.funsuite.AnyFunSuite
 
 class TestParseIntervals extends AnyFunSuite {
@@ -36,20 +36,20 @@ class TestParseIntervals extends AnyFunSuite {
       "00:00:00.002" -> RawInterval(0, 0, 0, 0, 0, 0, 0, 2)
     ).foreach {
       case (k, v) =>
-        val interval = parseInterval(k)
+        val interval = stringToInterval(k)
         assert(interval == v)
     }
   }
 
   test("parse multiple items") {
-    val interval = parseInterval("1 year 2 mons 3 days 04:05:06.007")
+    val interval = stringToInterval("1 year 2 mons 3 days 04:05:06.007")
     assert(interval == RawInterval(1, 2, 0, 3, 4, 5, 6, 7))
   }
 
   test("parse milliseconds") {
-    var interval = parseInterval("00:00:00.01")
+    var interval = stringToInterval("00:00:00.01")
     assert(interval == RawInterval(0, 0, 0, 0, 0, 0, 0, 10))
-    interval = parseInterval("00:00:00.1234567")
+    interval = stringToInterval("00:00:00.1234567")
     assert(interval == RawInterval(0, 0, 0, 0, 0, 0, 0, 123))
   }
 }

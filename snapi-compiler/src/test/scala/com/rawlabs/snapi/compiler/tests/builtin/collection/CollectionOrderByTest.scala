@@ -12,12 +12,12 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.collection
 
-import com.rawlabs.snapi.frontend.utils._
+import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.errors.{InvalidOrderSpec, KeyNotComparable, OrderSpecMustFollowOrderingFunction}
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-class CollectionOrderByTest extends Rql2TruffleCompilerTestContext with LocalLocationsTestContext {
+class CollectionOrderByTest extends Rql2TestContext with LocalLocationsTestContext {
 
   private val coolBandsWithoutHeader = tempFile("""Bee Gees|Maurice|Gibb|1949
     |Bee Gees|Robin|Gibb|1949

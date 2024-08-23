@@ -15,15 +15,15 @@ package com.rawlabs.snapi.truffle.emitter.builtin.list_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.api.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.builtin.MinListEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.MinListEntry;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.aggregation.AggregateSingleNode;
+import com.rawlabs.snapi.truffle.ast.expressions.aggregation.Aggregations;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionFromNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.aggregation.AggregateSingleNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.aggregation.Aggregations;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionFromNodeGen;
 import java.util.List;
 
 public class TruffleMinListEntry extends MinListEntry implements TruffleEntryExtension {

@@ -16,32 +16,38 @@ import com.rawlabs.compiler._
 
 import scala.annotation.tailrec
 
+// Types accepted in @type declarations:
+// https://www.postgresql.org/docs/current/datatype-numeric.html
 object SqlTypesUtils {
 
-  // types accepted in @type declarations:
-  // https://www.postgresql.org/docs/current/datatype-numeric.html
+  // Prioritized list of number types
+  private val prioritizedNumberTypes = Vector(
+    java.sql.Types.DECIMAL,
+    java.sql.Types.NUMERIC,
+    java.sql.Types.DOUBLE,
+    java.sql.Types.FLOAT,
+    java.sql.Types.BIGINT,
+    java.sql.Types.INTEGER,
+    java.sql.Types.SMALLINT,
+    java.sql.Types.TINYINT
+  )
 
-  def jdbcFromParameterType(typeName: String): Either[String, Int] = {
-    val pgMap: Map[String, Int] = Map(
-      "smallint" -> java.sql.Types.SMALLINT,
-      "integer" -> java.sql.Types.INTEGER,
-      "bigint" -> java.sql.Types.BIGINT,
-      "decimal" -> java.sql.Types.DECIMAL,
-      "real" -> java.sql.Types.FLOAT,
-      "double precision" -> java.sql.Types.DOUBLE,
-      "date" -> java.sql.Types.DATE,
-      "time" -> java.sql.Types.TIME,
-      "timestamp" -> java.sql.Types.TIMESTAMP,
-      "boolean" -> java.sql.Types.BOOLEAN,
-      "varchar" -> java.sql.Types.VARCHAR
-    )
-    pgMap.get(typeName.strip.toLowerCase) match {
-      case Some(value) => Right(value)
-      case None => Left(s"unsupported type $typeName")
-    }
-  }
+  // Map from Postgres type names to JDBC types
+  private val pgMap: Map[String, Int] = Map(
+    "smallint" -> java.sql.Types.SMALLINT,
+    "integer" -> java.sql.Types.INTEGER,
+    "bigint" -> java.sql.Types.BIGINT,
+    "decimal" -> java.sql.Types.DECIMAL,
+    "real" -> java.sql.Types.FLOAT,
+    "double precision" -> java.sql.Types.DOUBLE,
+    "date" -> java.sql.Types.DATE,
+    "time" -> java.sql.Types.TIME,
+    "timestamp" -> java.sql.Types.TIMESTAMP,
+    "boolean" -> java.sql.Types.BOOLEAN,
+    "varchar" -> java.sql.Types.VARCHAR
+  )
 
-  // a mapping from JDBC types to a RawType. We also store the name of the JDBC type for error reporting.
+  // Map from JDBC types to RawTypes
   private val jdbcToRawType: Map[Int, RawType] = Map(
     java.sql.Types.BIT -> RawBoolType(false, false),
     java.sql.Types.TINYINT -> RawByteType(false, false),
@@ -83,8 +89,19 @@ object SqlTypesUtils {
     //    java.sql.Types.TIMESTAMP_WITH_TIMEZONE ->
   )
 
-  // renames the postgres type to what a user would need to write to match
-  // the actual type. Or return an error.
+  def jdbcFromParameterType(typeName: String): Either[String, Int] = {
+    pgMap.get(typeName.strip.toLowerCase) match {
+      case Some(value) => Right(value)
+      case None => Left(s"unsupported type $typeName")
+    }
+  }
+
+  /**
+   * Validates and renames the parameter type and returns the PostgresType if it is valid.
+   *
+   * @param t the PostgresType to validate
+   * @return either an error message or the validated PostgresType
+   */
   def validateParamType(t: PostgresType): Either[String, PostgresType] = {
     t.jdbcType match {
       case java.sql.Types.BIT | java.sql.Types.BOOLEAN =>
@@ -106,6 +123,12 @@ object SqlTypesUtils {
     }
   }
 
+  /**
+   * Returns the RawType corresponding to the given PostgresType.
+   *
+   * @param tipe the PostgresType to convert
+   * @return either an error message or the corresponding RawType
+   */
   def rawTypeFromPgType(tipe: PostgresType): Either[String, RawType] = {
     val jdbcType = tipe.jdbcType
     val pgTypeName = tipe.typeName
@@ -133,20 +156,15 @@ object SqlTypesUtils {
     }
   }
 
-  // This is merging the inferred types of parameters. For example, if a parameter is used as both
-  // a double and an int, it will be inferred as a double. It's very conservative and better rely on
-  // explicitly typed parameters.
+  /**
+   * Merges a sequence of PostgresTypes into a single PostgresType.
+   * For example, if a parameter is used as both a double and an int, it will be inferred as a double.
+   * It's very conservative and it's a;ways better rely on explicitly typed parameters.
+   *
+   * @param options the sequence of PostgresTypes to merge
+   * @return either an error message or the merged PostgresType
+   */
   def mergePgTypes(options: Seq[PostgresType]): Either[String, PostgresType] = {
-    val prioritizedNumberTypes = Vector(
-      java.sql.Types.DECIMAL,
-      java.sql.Types.NUMERIC,
-      java.sql.Types.DOUBLE,
-      java.sql.Types.FLOAT,
-      java.sql.Types.BIGINT,
-      java.sql.Types.INTEGER,
-      java.sql.Types.SMALLINT,
-      java.sql.Types.TINYINT
-    )
 
     @tailrec
     def recurse(tipes: Seq[PostgresType], current: PostgresType): Either[String, PostgresType] = {

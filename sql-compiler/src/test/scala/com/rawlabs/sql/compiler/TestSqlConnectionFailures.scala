@@ -40,19 +40,18 @@ import java.sql.DriverManager
 import java.util.concurrent.{Executors, TimeUnit}
 import scala.io.Source
 
+// The test suite triggers connection failures for both 'no connections
+// available' (the pool can't open a new connection) and 'too many
+// connections active' (the user runs too many queries in parallel)
+// for all implemented calls: execute, validate, getProgramDescription,
+// hover, dotCompletion, wordCompletion. For each we use sequential
+// or parallel queries to exhaust the pool in some way and assert the
+// failure is hit as expected.
 class TestSqlConnectionFailures
     extends RawTestSuite
     with ForAllTestContainer
     with SettingsTestContext
     with TrainingWheelsContext {
-
-  // The test suite triggers connection failures for both 'no connections
-  // available' (the pool can't open a new connection) and 'too many
-  // connections active' (the user runs too many queries in parallel)
-  // for all implemented calls: execute, validate, getProgramDescription,
-  // hover, dotCompletion, wordCompletion. For each we use sequential
-  // or parallel queries to exhaust the pool in some way and assert the
-  // failure is hit as expected.
 
   // Number of users to run with. This allows testing errors that occur
   // when a single user exhausts their allocated share.
@@ -254,10 +253,9 @@ class TestSqlConnectionFailures
   }
 
   test("[execute] enough connections in total") { _ =>
-    /* Each user runs three times the same long query, one call at a time. The same connection is reused per user.
-     * This is confirmed by setting max-connections-per-db to 1 although several calls are performed per DB.
-     * In total, there's one connection per user. Setting max-connections to nUsers is working.
-     */
+    // Each user runs three times the same long query, one call at a time. The same connection is reused per user.
+    // This is confirmed by setting max-connections-per-db to 1 although several calls are performed per DB.
+    // In total, there's one connection per user. Setting max-connections to nUsers is working.
     val nCalls = 2
     property("raw.sql.compiler.pool.max-connections", s"$nUsers")
     property("raw.sql.compiler.pool.max-connections-per-db", s"1")
@@ -304,10 +302,9 @@ class TestSqlConnectionFailures
   }
 
   test("[execute] not enough connections") { _ =>
-    /* Each user runs twice execute, one call at a time. The same connection can be reused per user.
-     * In total, there's one connection per user. Setting max-connections to nUsers - 1 triggers the
-     * expected failure. The number of errors hit should be positive (checked in the end)
-     */
+    // Each user runs twice execute, one call at a time. The same connection can be reused per user.
+    // In total, there's one connection per user. Setting max-connections to nUsers - 1 triggers the
+    // expected failure. The number of errors hit should be positive (checked in the end)
     val nCalls = 2
     property("raw.sql.compiler.pool.max-connections", s"${nUsers - 1}")
     property("raw.sql.compiler.pool.max-connections-per-db", s"1")
@@ -330,10 +327,9 @@ class TestSqlConnectionFailures
   }
 
   test("[getProgramDescription] not enough connections") { _ =>
-    /* Each user runs twice getProgramDescription, one call at a time. The same connection can be reused per user.
-     * In total, there's one connection per user. Setting max-connections to nUsers - 1 triggers the
-     * expected failure. The number of errors hit should be positive (checked in the end)
-     */
+    // Each user runs twice getProgramDescription, one call at a time. The same connection can be reused per user.
+    // In total, there's one connection per user. Setting max-connections to nUsers - 1 triggers the
+    // expected failure. The number of errors hit should be positive (checked in the end)
     val nCalls = 2
     property("raw.sql.compiler.pool.max-connections", s"${nUsers - 1}")
     property("raw.sql.compiler.pool.max-connections-per-db", s"1")
@@ -357,10 +353,9 @@ class TestSqlConnectionFailures
   }
 
   test("[validate] not enough connections") { _ =>
-    /* Each user runs twice validate, one call at a time. The same connection can be reused per user.
-     * In total, there's one connection per user. Setting max-connections to nUsers - 1 triggers the
-     * expected failure. The number of errors hit should be positive (checked in the end)
-     */
+    // Each user runs twice validate, one call at a time. The same connection can be reused per user.
+    // In total, there's one connection per user. Setting max-connections to nUsers - 1 triggers the
+    // expected failure. The number of errors hit should be positive (checked in the end)
     val nCalls = 2
     property("raw.sql.compiler.pool.max-connections", s"${nUsers - 1}")
     property("raw.sql.compiler.pool.max-connections-per-db", s"1")

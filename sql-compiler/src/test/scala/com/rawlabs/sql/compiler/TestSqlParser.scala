@@ -14,7 +14,6 @@ package com.rawlabs.sql.compiler
 
 import com.rawlabs.sql.compiler.antlr4.{
   ParseProgramResult,
-  RawSqlSyntaxAnalyzer,
   SqlFunctionCall,
   SqlIdentifierNode,
   SqlKeywordNode,
@@ -22,6 +21,7 @@ import com.rawlabs.sql.compiler.antlr4.{
   SqlProjNode,
   SqlStatementNode,
   SqlStringLiteralNode,
+  SqlSyntaxAnalyzer,
   SqlWithComaSeparatorNode
 }
 import org.bitbucket.inkytonik.kiama.util.Positions
@@ -31,7 +31,7 @@ class TestSqlParser extends AnyFunSuite {
 
   private def doTest(code: String): ParseProgramResult = {
     val positions = new Positions
-    val parser = new RawSqlSyntaxAnalyzer(positions)
+    val parser = new SqlSyntaxAnalyzer(positions)
     parser.parse(code)
   }
 
@@ -41,21 +41,17 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.isSuccess)
     assert(result.params.isEmpty)
     assert(result.returnDescription.isEmpty)
-    result.tree match {
-      case SqlProgramNode(statement) => statement match {
-          case SqlStatementNode(statementItems) =>
-            assert(statementItems.size == 4)
-            assert(statementItems(0).isInstanceOf[SqlKeywordNode])
-            assert(statementItems(1).isInstanceOf[SqlKeywordNode])
-            assert(statementItems(2).isInstanceOf[SqlKeywordNode])
-            assert(statementItems(3).isInstanceOf[SqlIdentifierNode])
-            val identifier = statementItems(3).asInstanceOf[SqlIdentifierNode]
-            assert(
-              identifier.name == "table"
-            )
-        }
-
-    }
+    val SqlProgramNode(statement) = result.tree
+    val SqlStatementNode(statementItems) = statement
+    assert(statementItems.size == 4)
+    assert(statementItems(0).isInstanceOf[SqlKeywordNode])
+    assert(statementItems(1).isInstanceOf[SqlKeywordNode])
+    assert(statementItems(2).isInstanceOf[SqlKeywordNode])
+    assert(statementItems(3).isInstanceOf[SqlIdentifierNode])
+    val identifier = statementItems(3).asInstanceOf[SqlIdentifierNode]
+    assert(
+      identifier.name == "table"
+    )
   }
 
   test("Test with all parameters values single line comments") {
@@ -225,20 +221,15 @@ class TestSqlParser extends AnyFunSuite {
     val code = """select hello, NOW() from "some"."table"""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
-    result.tree match {
-      case SqlProgramNode(statement) => statement match {
-          case SqlStatementNode(statementItems) =>
-            assert(statementItems.size == 4)
-            statementItems(1) match {
-              case SqlWithComaSeparatorNode(inStatements) => inStatements(1) match {
-                  case SqlFunctionCall(name, arguments) =>
-                    assert(name == "NOW")
-                    assert(arguments.isEmpty)
-                  case _ => fail("Expected function call")
-                }
-            }
-
-        }
+    val SqlProgramNode(statement) = result.tree
+    val SqlStatementNode(statementItems) = statement
+    assert(statementItems.size == 4)
+    val SqlWithComaSeparatorNode(inStatements) = statementItems(1)
+    inStatements(1) match {
+      case SqlFunctionCall(name, arguments) =>
+        assert(name == "NOW")
+        assert(arguments.isEmpty)
+      case _ => fail("Expected function call")
     }
   }
 
@@ -420,25 +411,26 @@ class TestSqlParser extends AnyFunSuite {
     assert(
       result.errors.head.message == "Missing identifier after '.'"
     )
-    result.tree match {
-      case SqlProgramNode(statement) => statement match {
-          case SqlStatementNode(statementItems) =>
-            assert(statementItems.size == 8)
-            statementItems(5) match {
-              case SqlProjNode(identifiers) => identifiers(0) match {
-                  case identifier: SqlIdentifierNode =>
-                    assert(identifier.name == "ai")
-                    assert(!identifier.isQuoted)
-                }
-            }
-            statementItems(7) match {
-              case SqlProjNode(identifiers) => identifiers(0) match {
-                  case identifier: SqlIdentifierNode =>
-                    assert(identifier.name == "airports")
-                    assert(!identifier.isQuoted)
-                }
-            }
+    val SqlProgramNode(statement) = result.tree
+    val SqlStatementNode(statementItems) = statement
+    assert(statementItems.size == 8)
+    statementItems(5) match {
+      case SqlProjNode(identifiers) => identifiers(0) match {
+          case identifier: SqlIdentifierNode =>
+            assert(identifier.name == "ai")
+            assert(!identifier.isQuoted)
+          case _ => fail("Expected identifier")
         }
+      case _ => fail("Expected projection node")
+    }
+    statementItems(7) match {
+      case SqlProjNode(identifiers) => identifiers(0) match {
+          case identifier: SqlIdentifierNode =>
+            assert(identifier.name == "airports")
+            assert(!identifier.isQuoted)
+          case _ => fail("Expected identifier")
+        }
+      case _ => fail("Expected projection node")
     }
   }
 
@@ -446,17 +438,12 @@ class TestSqlParser extends AnyFunSuite {
     val code = "SELECT smth from \"\"\"hello\""
     val result = doTest(code)
     assert(result.isSuccess)
-    result.tree match {
-      case SqlProgramNode(statement) => statement match {
-          case SqlStatementNode(statementItems) =>
-            assert(statementItems.size == 4)
-            statementItems(3) match {
-              case identifier: SqlIdentifierNode =>
-                assert(identifier.name == "\"\"hello")
-                assert(identifier.isQuoted)
-            }
-        }
-    }
+    val SqlProgramNode(statement) = result.tree
+    val SqlStatementNode(statementItems) = statement
+    assert(statementItems.size == 4)
+    val identifier = statementItems(3).asInstanceOf[SqlIdentifierNode]
+    assert(identifier.name == "\"\"hello")
+    assert(identifier.isQuoted)
   }
 
   test("Test unicode parsing properly") {
@@ -483,11 +470,9 @@ class TestSqlParser extends AnyFunSuite {
     val code = """select * from smth; -- a comment""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
-    result.tree match {
-      case SqlProgramNode(statement) => statement match {
-          case SqlStatementNode(statementItems) => assert(statementItems.size == 4)
-        }
-    }
+    val SqlProgramNode(statement) = result.tree
+    val SqlStatementNode(statementItems) = statement
+    assert(statementItems.size == 4)
   }
 
   test("Test multiple statements with comments more advanced") {
@@ -496,11 +481,9 @@ class TestSqlParser extends AnyFunSuite {
       | -- @param hello hello""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
-    result.tree match {
-      case SqlProgramNode(statement) => statement match {
-          case SqlStatementNode(statementItems) => assert(statementItems.size == 4)
-        }
-    }
+    val SqlProgramNode(statement) = result.tree
+    val SqlStatementNode(statementItems) = statement
+    assert(statementItems.size == 4)
     assert(result.params.isEmpty)
   }
 
@@ -596,15 +579,11 @@ class TestSqlParser extends AnyFunSuite {
       |" from anything """.stripMargin
     val result = doTest(code)
     val SqlProgramNode(stmt) = result.tree
-    stmt match {
-      case SqlStatementNode(statementItems) =>
-        assert(statementItems.size == 4)
-        statementItems(1) match {
-          case node: SqlIdentifierNode =>
-            val finish = result.positions.getFinish(node)
-            assert(finish.get.line == 3)
-        }
-    }
+    val SqlStatementNode(statementItems) = stmt
+    assert(statementItems.size == 4)
+    val node = statementItems(1).asInstanceOf[SqlIdentifierNode]
+    val finish = result.positions.getFinish(node)
+    assert(finish.get.line == 3)
   }
 
   test("multiline string test") {
@@ -613,15 +592,11 @@ class TestSqlParser extends AnyFunSuite {
       |' from anything """.stripMargin
     val result = doTest(code)
     val SqlProgramNode(stmt) = result.tree
-    stmt match {
-      case SqlStatementNode(statementItems) =>
-        assert(statementItems.size == 4)
-        statementItems(1) match {
-          case node: SqlStringLiteralNode =>
-            val finish = result.positions.getFinish(node)
-            assert(finish.get.line == 3)
-        }
-    }
+    val SqlStatementNode(statementItems) = stmt
+    assert(statementItems.size == 4)
+    val node = statementItems(1).asInstanceOf[SqlStringLiteralNode]
+    val finish = result.positions.getFinish(node)
+    assert(finish.get.line == 3)
   }
 
   test("newline after comment") {

@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.utils;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.utils.core.RawSettings;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +29,7 @@ public class IOUtils {
       try {
         Files.createDirectories(p);
       } catch (IOException ex) {
-        throw new RawTruffleRuntimeException("failed to create scratch file", ex);
+        throw new TruffleRuntimeException("failed to create scratch file", ex);
       }
     }
     return p;
@@ -40,7 +40,7 @@ public class IOUtils {
     try {
       return Files.createTempFile(getScratchPath(rawSettings), prefix, suffix);
     } catch (IOException ex) {
-      throw new RawTruffleRuntimeException("failed to create scratch file", ex);
+      throw new TruffleRuntimeException("failed to create scratch file", ex);
     }
   }
 }

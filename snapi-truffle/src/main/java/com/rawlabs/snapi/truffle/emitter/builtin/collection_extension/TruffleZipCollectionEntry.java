@@ -13,17 +13,17 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.ZipCollectionEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ZipCollectionEntry;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionZipNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionZipNodeGen;
 import java.util.List;
 
 public class TruffleZipCollectionEntry extends ZipCollectionEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     return CollectionZipNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

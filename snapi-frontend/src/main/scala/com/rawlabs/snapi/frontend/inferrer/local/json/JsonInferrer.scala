@@ -42,11 +42,11 @@ class JsonInferrer(implicit protected val settings: RawSettings)
       is: SeekableInputStream,
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
-  ): TextInputStreamFormatDescriptor = {
+  ): TextInputStreamInferrerOutput = {
     val buffer = getTextBuffer(is, maybeEncoding)
     try {
       val result = infer(buffer.reader, maybeSampleSize)
-      TextInputStreamFormatDescriptor(buffer.encoding, buffer.confidence, result)
+      TextInputStreamInferrerOutput(buffer.encoding, buffer.confidence, result)
     } catch {
       case ex: RawException => throw ex
       case NonFatal(e) => throw new RawException(s"json inference failed unexpectedly", e)
@@ -55,7 +55,7 @@ class JsonInferrer(implicit protected val settings: RawSettings)
     }
   }
 
-  def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {
+  def infer(reader: Reader, maybeSampleSize: Option[Int]): TextFormatDescriptor = {
     try {
       var nobjs = maybeSampleSize.getOrElse(defaultSampleSize)
       // if you define a sample-size < 0 then it will read the full file
@@ -84,7 +84,7 @@ class JsonInferrer(implicit protected val settings: RawSettings)
         throw new LocalInferrerException("unexpected token after object in JSON")
       }
       val result = uniquifyTemporalFormats(tipe)
-      JsonInputFormatDescriptor(
+      JsonFormatDescriptor(
         result.cleanedType,
         !eof,
         result.timeFormat,

@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class RD5785Test extends Rql2TruffleCompilerTestContext {
+class RD5785Test extends Rql2TestContext {
 
   // The only way of this returning true is if all values in the list are the same.
   // Almost impossible with 5 random values.

@@ -18,17 +18,18 @@ import scala.util.matching.Regex
 
 object SqlIntervals {
 
-  val postgresIntervalRegex: Regex =
+  private val POSTGRES_INTERVAL_REGEX: Regex =
     """(?:(\d+)\s+years?)?(?:\s*(\d+) mons?)?(?:\s*(\d+) days?)?(?:\s*(\d+):(\d+):(\d+)(?:\.(\d+))?)?""".r
 
-  def padRight(s: String, n: Int): String = {
-    val padding = n - s.length
-    if (padding <= 0) s
-    else s + "0" * padding
-  }
-  def parseInterval(in: String): RawInterval = {
+  /**
+   * Converts a string representation of an interval to a RawInterval
+   *
+   * @param in the string representation of the interval
+   * @return the RawInterval
+   */
+  def stringToInterval(in: String): RawInterval = {
     in match {
-      case postgresIntervalRegex(years, months, days, hours, minutes, seconds, fraction) =>
+      case POSTGRES_INTERVAL_REGEX(years, months, days, hours, minutes, seconds, fraction) =>
         val yearsInt = Option(years).map(_.toInt).getOrElse(0)
         val monthsInt = Option(months).map(_.toInt).getOrElse(0)
         val daysInt = Option(days).map(_.toInt).getOrElse(0)
@@ -40,12 +41,17 @@ object SqlIntervals {
         val fractionInt = Option(fraction).map(x => padRight(x, 3).take(3).toInt).getOrElse(0)
         val weeks = 0
         RawInterval(yearsInt, monthsInt, weeks, daysInt, hoursInt, minutesInt, secondsInt, fractionInt)
-      case _ => throw new IllegalArgumentException(s"Invalid interval format: $in")
+      case _ => throw new AssertionError(s"Invalid interval format: $in")
     }
   }
 
+  /**
+   * Converts a RawInterval to a string representation
+   *
+   * @param in the RawInterval
+   * @return the string representation of the interval
+   */
   def intervalToString(in: RawInterval): String = {
-
     val time = new StringBuilder()
     val result = new StringBuilder("P")
 
@@ -73,4 +79,11 @@ object SqlIntervals {
 
     result.toString()
   }
+
+  private def padRight(s: String, n: Int): String = {
+    val padding = n - s.length
+    if (padding <= 0) s
+    else s + "0" * padding
+  }
+
 }

@@ -15,11 +15,11 @@ package com.rawlabs.snapi.frontend.rql2
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.Entity
-import com.rawlabs.snapi.frontend.base.{ExpectedType, MultipleEntity, TreeDescription, UnknownEntity}
+import com.rawlabs.snapi.frontend.base.{MultipleEntity, TreeDescription, UnknownEntity}
 import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.base.source._
 import com.rawlabs.snapi.frontend.base.errors._
-import com.rawlabs.snapi.frontend.common.source._
+import com.rawlabs.snapi.frontend.rql2.source._
 
 import scala.collection.mutable
 
@@ -67,7 +67,6 @@ abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(
   }
 
   protected def defentity(i: IdnDef): Entity = i match {
-    case tree.parent(b: Bind) => new BindEntity(b)
     case tree.parent(p: SourceProgramParam) => new ProgramParamEntity(p)
     case _ => throw new AssertionError(s"Unhandled node in defentity: ${tree.parent(i).toString}")
   }
@@ -83,7 +82,6 @@ abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(
   }
 
   override protected def entityTypeDef(e: Entity): Type = e match {
-    case i: BindEntity => actualType(i.b.e)
     case p: ProgramParamEntity => p.p.t
     case UnknownEntity() | _: MultipleEntity => ErrorType()
   }
@@ -99,14 +97,13 @@ abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(
     case n: IdnUse => lookup(env(n), n.idn, UnknownEntity())
   }
 
-  override protected def expectedTypeDef(n: Exp): ExpectedType = n match {
-    case tree.parent.pair(e: Exp, parent: CommonNode) => expectedTypeCommon(e, parent)
-    case _ => super.expectedTypeDef(n)
-  }
-
-  private def expectedTypeCommon(e: Exp, parent: CommonNode): Type = (parent: @unchecked) match {
-    case Bind(_, _) => anything
-  }
+//  override protected def expectedTypeDef(n: Exp): ExpectedType = n match {
+//    case tree.parent.pair(e: Exp, parent: CommonNode) => expectedTypeCommon(e, parent)
+//    case _ => super.expectedTypeDef(n)
+//  }
+//
+//  private def expectedTypeCommon(e: Exp, parent: CommonNode): Type = (parent: @unchecked) match {
+//  }
 
   protected def envInOfNode(n: SourceNode): Environment = env.in(n)
 

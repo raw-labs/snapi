@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.inferrer.local
 import com.rawlabs.utils.core.{RawException, RawSettings}
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
-import com.rawlabs.snapi.frontend.rql2.api.LocationDescription
+import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription
 import com.rawlabs.snapi.frontend.inferrer.api._
 import com.rawlabs.snapi.frontend.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
 import com.rawlabs.snapi.frontend.inferrer.local.csv.{CsvInferrer, CsvMergeTypes}
@@ -65,16 +65,16 @@ class LocalInferrerService(implicit settings: RawSettings)
     }
   }
 
-  override def infer(properties: InferrerProperties): InputFormatDescriptor = {
+  override def infer(properties: InferrerInput): InferrerOutput = {
     try {
       properties match {
-        case tbl: SqlTableInferrerProperties =>
+        case tbl: SqlTableInferrerInput =>
           val tipe = jdbcInferrer.getTableType(tbl.location)
-          SqlTableInputFormatDescriptor(tipe)
-        case query: SqlQueryInferrerProperties =>
+          SqlTableInferrerOutput(tipe)
+        case query: SqlQueryInferrerInput =>
           val tipe = jdbcInferrer.getQueryType(query.location, query.sql)
-          SqlQueryInputFormatDescriptor(tipe)
-        case csv: CsvInferrerProperties =>
+          SqlQueryInferrerOutput(tipe)
+        case csv: CsvInferrerInput =>
           val is = textInputStream(csv.location)
           try {
             csvInferrer.infer(
@@ -92,7 +92,7 @@ class LocalInferrerService(implicit settings: RawSettings)
           } finally {
             is.close()
           }
-        case csv: ManyCsvInferrerProperties =>
+        case csv: ManyCsvInferrerInput =>
           val files = csv.location.ls()
           readMany(
             files,
@@ -117,14 +117,14 @@ class LocalInferrerService(implicit settings: RawSettings)
               }
             }
           )
-        case hjson: HjsonInferrerProperties =>
+        case hjson: HjsonInferrerInput =>
           val is = textInputStream(hjson.location)
           try {
             hjsonInferrer.infer(is, hjson.maybeEncoding, hjson.maybeSampleSize)
           } finally {
             is.close()
           }
-        case hjson: ManyHjsonInferrerProperties =>
+        case hjson: ManyHjsonInferrerInput =>
           val files = hjson.location.ls()
           readMany(
             files,
@@ -138,14 +138,14 @@ class LocalInferrerService(implicit settings: RawSettings)
               }
             }
           )
-        case json: JsonInferrerProperties =>
+        case json: JsonInferrerInput =>
           val is = textInputStream(json.location)
           try {
             jsonInferrer.infer(is, json.maybeEncoding, json.maybeSampleSize)
           } finally {
             is.close()
           }
-        case json: ManyJsonInferrerProperties =>
+        case json: ManyJsonInferrerInput =>
           val files = json.location.ls()
           readMany(
             files,
@@ -159,14 +159,14 @@ class LocalInferrerService(implicit settings: RawSettings)
               }
             }
           )
-        case xml: XmlInferrerProperties =>
+        case xml: XmlInferrerInput =>
           val is = textInputStream(xml.location)
           try {
             xmlInferrer.infer(is, xml.maybeEncoding, xml.maybeSampleSize)
           } finally {
             is.close()
           }
-        case xml: ManyXmlInferrerProperties =>
+        case xml: ManyXmlInferrerInput =>
           val files = xml.location.ls()
           readMany(
             files,
@@ -180,14 +180,14 @@ class LocalInferrerService(implicit settings: RawSettings)
               }
             }
           )
-        case auto: AutoInferrerProperties => auto.location match {
+        case auto: AutoInferrerInput => auto.location match {
             case bs: ByteStreamLocation => autoInferrer.infer(bs, auto.maybeSampleSize)
             case tbl: JdbcTableLocation =>
               val tipe = jdbcInferrer.getTableType(tbl)
-              SqlTableInputFormatDescriptor(tipe)
+              SqlTableInferrerOutput(tipe)
             case _ => throw new LocalInferrerException("unsupported location for auto inference")
           }
-        case auto: ManyAutoInferrerProperties =>
+        case auto: ManyAutoInferrerInput =>
           val files = auto.location.ls()
           readMany(files, auto.maybeSampleFiles, file => autoInferrer.infer(file, auto.maybeSampleSize))
       }
@@ -212,8 +212,8 @@ class LocalInferrerService(implicit settings: RawSettings)
   private def readMany(
       locations: Iterator[ByteStreamLocation],
       maybeSampleFiles: Option[Int],
-      doInference: ByteStreamLocation => InputFormatDescriptor
-  ): InputFormatDescriptor = {
+      doInference: ByteStreamLocation => InferrerOutput
+  ): InferrerOutput = {
     if (!locations.hasNext) {
       throw new LocalInferrerException("location is empty")
     }
@@ -254,117 +254,116 @@ class LocalInferrerService(implicit settings: RawSettings)
   }
 
   private def mergeDescriptors(
-      l: Seq[InputFormatDescriptor]
-  ): InputFormatDescriptor = {
+      l: Seq[InferrerOutput]
+  ): InferrerOutput = {
     l.tail.foldLeft(l.head)((acc, desc) => mergeDescriptors(acc, desc))
   }
 
-  private def mergeDescriptors(x: InputFormatDescriptor, y: InputFormatDescriptor): InputFormatDescriptor =
-    (x, y) match {
-      case (
-            TextInputStreamFormatDescriptor(ec1, conf1, format1),
-            TextInputStreamFormatDescriptor(ec2, conf2, format2)
-          ) =>
-        val (encoding, confidence) =
-          if (conf1 > conf2) (ec1, conf1)
-          else (ec2, conf2)
+  private def mergeDescriptors(x: InferrerOutput, y: InferrerOutput): InferrerOutput = (x, y) match {
+    case (
+          TextInputStreamInferrerOutput(ec1, conf1, format1),
+          TextInputStreamInferrerOutput(ec2, conf2, format2)
+        ) =>
+      val (encoding, confidence) =
+        if (conf1 > conf2) (ec1, conf1)
+        else (ec2, conf2)
 
-        if (ec1 != ec2) {
-          logger.debug(
-            s"Detected different encodings: $ec1 (confidence: $conf1); $ec2 (confidence: $conf2). Choosing $encoding."
-          )
-        }
+      if (ec1 != ec2) {
+        logger.debug(
+          s"Detected different encodings: $ec1 (confidence: $conf1); $ec2 (confidence: $conf2). Choosing $encoding."
+        )
+      }
 
-        val merge = (format1, format2) match {
-          case (
-                JsonInputFormatDescriptor(t1, sp1, tf1, df1, tsf1),
-                JsonInputFormatDescriptor(t2, sp2, tf2, df2, tsf2)
-              ) =>
-            if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
-              throw new LocalInferrerException("incompatible json files found")
+      val merge = (format1, format2) match {
+        case (
+              JsonFormatDescriptor(t1, sp1, tf1, df1, tsf1),
+              JsonFormatDescriptor(t2, sp2, tf2, df2, tsf2)
+            ) =>
+          if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
+            throw new LocalInferrerException("incompatible json files found")
 
-            JsonInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sp1 || sp2, tf1, df1, tsf1)
-          case (
-                XmlInputFormatDescriptor(t1, sampled1, tf1, df1, tsf1),
-                XmlInputFormatDescriptor(t2, sampled2, tf2, df2, tsf2)
-              ) =>
-            if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
-              throw new LocalInferrerException("incompatible json files found")
-            XmlInputFormatDescriptor(XmlMergeTypes.maxOf(t1, t2), sampled1 || sampled2, tf1, df1, tsf1)
-          case (
-                HjsonInputFormatDescriptor(t1, sp1, tf1, df1, tsf1),
-                HjsonInputFormatDescriptor(t2, sp2, tf2, df2, tsf2)
-              ) =>
-            if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
-              throw new LocalInferrerException("incompatible hjson files found")
+          JsonFormatDescriptor(MergeTypes.maxOf(t1, t2), sp1 || sp2, tf1, df1, tsf1)
+        case (
+              XmlFormatDescriptor(t1, sampled1, tf1, df1, tsf1),
+              XmlFormatDescriptor(t2, sampled2, tf2, df2, tsf2)
+            ) =>
+          if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
+            throw new LocalInferrerException("incompatible json files found")
+          XmlFormatDescriptor(XmlMergeTypes.maxOf(t1, t2), sampled1 || sampled2, tf1, df1, tsf1)
+        case (
+              HjsonFormatDescriptor(t1, sp1, tf1, df1, tsf1),
+              HjsonFormatDescriptor(t2, sp2, tf2, df2, tsf2)
+            ) =>
+          if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
+            throw new LocalInferrerException("incompatible hjson files found")
 
-            HjsonInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sp1 || sp2, tf1, df1, tsf1)
-          case (LinesInputFormatDescriptor(t1, r1, sp1), LinesInputFormatDescriptor(t2, r2, sp2)) =>
-            // if the regexes are not the same then it defaults to simple text without a regex
-            if (r1 == r2) LinesInputFormatDescriptor(MergeTypes.maxOf(t1, t2), r1, sp1 || sp2)
-            else LinesInputFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, sp1 || sp2)
-          case (
-                CsvInputFormatDescriptor(
-                  t1,
-                  hasHeader1,
-                  sep1,
-                  nulls1,
-                  multiline1,
-                  nans1,
-                  skip1,
-                  escape1,
-                  quote1,
-                  sampled1,
-                  tf1,
-                  df1,
-                  tsf1
-                ),
-                CsvInputFormatDescriptor(
-                  t2,
-                  hasHeader2,
-                  sep2,
-                  nulls2,
-                  multiline2,
-                  nans2,
-                  skip2,
-                  escape2,
-                  quote2,
-                  sampled2,
-                  tf2,
-                  df2,
-                  tsf2
-                )
-              ) =>
-            if (
-              sep1 != sep2 || nulls1 != nulls2 || nans1 != nans2 || hasHeader1 != hasHeader2 || skip1 != skip2 || escape1 != escape2 || quote1 != quote2
-            ) {
-              throw new LocalInferrerException("incompatible CSV files found")
-            }
-            val t = CsvMergeTypes.maxOf(t1, t2)
-            t match {
-              case SourceCollectionType(SourceRecordType(_, _), _) => CsvInputFormatDescriptor(
-                  t,
-                  hasHeader1,
-                  sep1,
-                  nulls1,
-                  multiline1 || multiline2,
-                  nans1,
-                  skip1,
-                  escape1,
-                  quote1,
-                  sampled1 || sampled2,
-                  if (tf1 == tf2) tf1 else None,
-                  if (df1 == df2) df1 else None,
-                  if (tsf1 == tsf2) tsf1 else None
-                )
-              case _ => throw new LocalInferrerException("incompatible CSV files found")
-            }
+          HjsonFormatDescriptor(MergeTypes.maxOf(t1, t2), sp1 || sp2, tf1, df1, tsf1)
+        case (LinesFormatDescriptor(t1, r1, sp1), LinesFormatDescriptor(t2, r2, sp2)) =>
+          // if the regexes are not the same then it defaults to simple text without a regex
+          if (r1 == r2) LinesFormatDescriptor(MergeTypes.maxOf(t1, t2), r1, sp1 || sp2)
+          else LinesFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, sp1 || sp2)
+        case (
+              CsvFormatDescriptor(
+                t1,
+                hasHeader1,
+                sep1,
+                nulls1,
+                multiline1,
+                nans1,
+                skip1,
+                escape1,
+                quote1,
+                sampled1,
+                tf1,
+                df1,
+                tsf1
+              ),
+              CsvFormatDescriptor(
+                t2,
+                hasHeader2,
+                sep2,
+                nulls2,
+                multiline2,
+                nans2,
+                skip2,
+                escape2,
+                quote2,
+                sampled2,
+                tf2,
+                df2,
+                tsf2
+              )
+            ) =>
+          if (
+            sep1 != sep2 || nulls1 != nulls2 || nans1 != nans2 || hasHeader1 != hasHeader2 || skip1 != skip2 || escape1 != escape2 || quote1 != quote2
+          ) {
+            throw new LocalInferrerException("incompatible CSV files found")
+          }
+          val t = CsvMergeTypes.maxOf(t1, t2)
+          t match {
+            case SourceCollectionType(SourceRecordType(_, _), _) => CsvFormatDescriptor(
+                t,
+                hasHeader1,
+                sep1,
+                nulls1,
+                multiline1 || multiline2,
+                nans1,
+                skip1,
+                escape1,
+                quote1,
+                sampled1 || sampled2,
+                if (tf1 == tf2) tf1 else None,
+                if (df1 == df2) df1 else None,
+                if (tsf1 == tsf2) tsf1 else None
+              )
+            case _ => throw new LocalInferrerException("incompatible CSV files found")
+          }
 
-          // Defaults to lines of text if nothing else
-          case _ => LinesInputFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, false)
-        }
-        TextInputStreamFormatDescriptor(encoding, confidence, merge)
-      case _ => throw new LocalInferrerException(s"incompatible formats found")
-    }
+        // Defaults to lines of text if nothing else
+        case _ => LinesFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, false)
+      }
+      TextInputStreamInferrerOutput(encoding, confidence, merge)
+    case _ => throw new LocalInferrerException(s"incompatible formats found")
+  }
 
 }

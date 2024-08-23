@@ -22,8 +22,10 @@ import com.typesafe.scalalogging.StrictLogging
  * the result of the task, either by calling Future.get or by adding an error handling stage when using completable
  * futures.
  *
- * Inspired by
- * https://github.com/jcabi/jcabi-log/blob/master/src/main/java/com/jcabi/log/VerboseRunnable.java
+ * Inspired by:
+ *   https://github.com/jcabi/jcabi-log/blob/master/src/main/java/com/jcabi/log/VerboseRunnable.java
+ *
+ * @param delegate The runnable to wrap.
  * @param propagate Whether to rethrow the exception.
  */
 class RawVerboseRunnable(delegate: Runnable, propagate: Boolean = false) extends Runnable with StrictLogging {

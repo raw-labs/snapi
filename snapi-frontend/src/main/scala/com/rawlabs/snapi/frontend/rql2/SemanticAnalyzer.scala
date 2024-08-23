@@ -19,22 +19,18 @@ import org.bitbucket.inkytonik.kiama.util.Entity
 import com.rawlabs.snapi.frontend.base._
 import com.rawlabs.snapi.frontend.base.errors._
 import com.rawlabs.snapi.frontend.base.source._
-import com.rawlabs.snapi.frontend.common.source._
-import com.rawlabs.snapi.frontend.rql2.api.{
+import com.rawlabs.snapi.frontend.rql2.source._
+import com.rawlabs.snapi.frontend.rql2.extensions.{
   Arg,
   EntryExtension,
   ExpArg,
   ExpParam,
   PackageExtensionProvider,
-  Rql2OptionValue,
-  Rql2TryValue,
-  Rql2Value,
   TypeArg,
   TypeParam,
   ValueArg,
   ValueParam
 }
-import com.rawlabs.snapi.frontend.rql2.builtin.TypePackageBuilder
 import com.rawlabs.snapi.frontend.rql2.errors.{
   CannotDetermineTypeOfParameter,
   ExpectedTypeButGotExpression,
@@ -52,6 +48,7 @@ import com.rawlabs.snapi.frontend.rql2.errors.{
   UnexpectedArguments,
   UnexpectedOptionalArgument
 }
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TypePackageBuilder
 import com.rawlabs.snapi.frontend.rql2.source._
 
 import scala.collection.mutable

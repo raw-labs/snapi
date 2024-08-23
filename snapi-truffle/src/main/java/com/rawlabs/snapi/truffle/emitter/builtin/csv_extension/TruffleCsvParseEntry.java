@@ -13,17 +13,17 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.csv_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.CsvParseEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.CsvParseEntry;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
 import java.util.List;
 
 public class TruffleCsvParseEntry extends CsvParseEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     CsvParser makeParser = new CsvParser(args);
     ExpressionNode url =
         args.stream().filter(a -> a.identifier() == null).findFirst().orElseThrow().exprNode();

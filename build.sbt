@@ -36,8 +36,8 @@ writeVersionToFile := {
 
 lazy val root = (project in file("."))
   .aggregate(
-    protocolCompiler,
     protocolRaw,
+    protocolCompiler,
     utilsCore,
     utilsSources,
     compiler,
@@ -115,12 +115,16 @@ lazy val protocolRaw = (project in file("protocol-raw"))
   )
 
 lazy val protocolCompiler = (project in file("protocol-compiler"))
+  .dependsOn(
+    protocolRaw % "compile->compile;test->test;protobuf->protobuf"
+  )
   .enablePlugins(ProtobufPlugin)
   .settings(
     commonSettings,
     commonCompileSettings,
     testSettings,
     ProtobufConfig / version := "3.25.4",
+    ProtobufConfig / protobufIncludePaths += (protocolRaw / ProtobufConfig / sourceDirectory).value,
     // Include the protobuf files in the JAR
     Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
   )
@@ -142,20 +146,16 @@ lazy val snapiParser = (project in file("snapi-parser"))
   .settings(
     commonSettings,
     commonCompileSettings,
-    javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
       (
-        s"${javaSrcBasePath.value}/com/rawlabs/snapi/parser/generated",
+        s"${(Compile / sourceManaged).value}/java/com/rawlabs/snapi/parser/generated",
         "com.rawlabs.snapi.parser.generated",
-        s"${javaSrcBasePath.value}/com/rawlabs/snapi/parser/grammar",
+        s"${(Compile / sourceDirectory).value}/java/com/rawlabs/snapi/parser/grammar",
         "Snapi"
       )
     ),
     Compile / doc := { file("/dev/null") },
-    compileOrder := CompileOrder.JavaThenScala,
-    libraryDependencies ++= Seq(
-      antlr4Runtime
-    )
+    libraryDependencies += antlr4Runtime
   )
 
 lazy val snapiFrontend = (project in file("snapi-frontend"))
@@ -274,20 +274,16 @@ lazy val sqlParser = (project in file("sql-parser"))
   .settings(
     commonSettings,
     commonCompileSettings,
-    javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
       (
-        s"${javaSrcBasePath.value}/com/rawlabs/sql/parser/generated",
+        s"${(Compile / sourceManaged).value}/java/com/rawlabs/sql/parser/generated",
         "com.rawlabs.sql.parser.generated",
-        s"${javaSrcBasePath.value}/com/rawlabs/sql/parser/grammar",
+        s"${(Compile / sourceDirectory).value}/java/com/rawlabs/sql/parser/grammar",
         "Psql"
       )
     ),
     Compile / doc := { file("/dev/null") },
-    compileOrder := CompileOrder.JavaThenScala,
-    libraryDependencies ++= Seq(
-      antlr4Runtime
-    )
+    libraryDependencies += antlr4Runtime
   )
 
 lazy val sqlCompiler = (project in file("sql-compiler"))

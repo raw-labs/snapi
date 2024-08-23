@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.hints
 
-import com.rawlabs.snapi.compiler.truffle.Rql2TruffleCompilerTestContext
+import com.rawlabs.snapi.compiler.tests.Rql2TestContext
 
-class SemanticAnalyzerHintsTest extends Rql2TruffleCompilerTestContext {
+class SemanticAnalyzerHintsTest extends Rql2TestContext {
 
   test("""Rekord.Build(a=1)""")(it => it should typeErrorAs("did you mean Record.Build?"))
 

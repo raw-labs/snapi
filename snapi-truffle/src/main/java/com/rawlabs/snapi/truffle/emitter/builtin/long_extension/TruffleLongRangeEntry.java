@@ -13,18 +13,18 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.long_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.builtin.LongRangeEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.LongRangeEntry;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.numeric.long_package.LongRangeNodeGen;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.LongNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.numeric.long_package.LongRangeNodeGen;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.LongNode;
 import java.util.List;
 
 public class TruffleLongRangeEntry extends LongRangeEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode start = args.get(0).exprNode();
     ExpressionNode end = args.get(1).exprNode();
     ExpressionNode step =

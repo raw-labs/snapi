@@ -16,8 +16,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.List;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.api.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.builtin.ParseXmlEntry;
+import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ParseXmlEntry;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2IterableType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2ListType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
@@ -25,13 +25,13 @@ import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.list.ListFromNode;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.list.ListFromUnsafe;
-import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.StringNode;
-import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.TryableTopLevelWrapper;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.XmlParseCollectionNode;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.XmlParseValueNode;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListFromNode;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListFromUnsafe;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.StringNode;
+import com.rawlabs.snapi.truffle.ast.io.json.reader.TryableTopLevelWrapper;
+import com.rawlabs.snapi.truffle.ast.io.xml.parser.XmlParseCollectionNode;
+import com.rawlabs.snapi.truffle.ast.io.xml.parser.XmlParseValueNode;
 
 public class TruffleParseXmlEntry extends ParseXmlEntry implements TruffleEntryExtension {
 

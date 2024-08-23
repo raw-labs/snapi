@@ -44,8 +44,8 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
       val l1 = new LocalPath(f.toPath)
       val inferrer = new LocalInferrerService
       try {
-        val TextInputStreamFormatDescriptor(detectedEncoding, _, LinesInputFormatDescriptor(_, _, _)) =
-          inferrer.infer(AutoInferrerProperties(l1, None))
+        val TextInputStreamInferrerOutput(detectedEncoding, _, LinesFormatDescriptor(_, _, _)) =
+          inferrer.infer(AutoInferrerInput(l1, None))
         assert(detectedEncoding == encoding)
       } finally {
         RawUtils.withSuppressNonFatalException(inferrer.stop())
@@ -71,7 +71,7 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
         ex.submit(new Runnable {
           override def run(): Unit = {
             val file = files(Random.nextInt(3))
-            inferrer.infer(AutoInferrerProperties(file, None))
+            inferrer.infer(AutoInferrerInput(file, None))
           }
         })
       }
@@ -81,130 +81,4 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
     }
   }
 
-  test("test pretty printer") { _ =>
-    val tipe = SourceRecordType(
-      Vector(
-        SourceAttrType("nhits", SourceIntType(false)),
-        SourceAttrType(
-          "parameters",
-          SourceRecordType(
-            Vector(
-              SourceAttrType("dataset", SourceCollectionType(SourceStringType(false), false)),
-              SourceAttrType("rows", SourceIntType(false)),
-              SourceAttrType("start", SourceIntType(false)),
-              SourceAttrType("format", SourceStringType(false)),
-              SourceAttrType("timezone", SourceStringType(false))
-            ),
-            false
-          )
-        ),
-        SourceAttrType(
-          "records",
-          SourceCollectionType(
-            SourceRecordType(
-              Vector(
-                SourceAttrType("datasetid", SourceStringType(false)),
-                SourceAttrType("recordid", SourceStringType(false)),
-                SourceAttrType(
-                  "fields",
-                  SourceRecordType(
-                    Vector(
-                      SourceAttrType("fiche_identite", SourceStringType(false)),
-                      SourceAttrType("statut", SourceStringType(false)),
-                      SourceAttrType("code_ape", SourceStringType(false)),
-                      SourceAttrType("siren", SourceStringType(false)),
-                      SourceAttrType("date_immatriculation", SourceStringType(false)),
-                      SourceAttrType("geolocalisation", SourceCollectionType(SourceDoubleType(false), true)),
-                      SourceAttrType("ville", SourceStringType(false)),
-                      SourceAttrType("adresse", SourceStringType(false)),
-                      SourceAttrType("code_postal", SourceStringType(false)),
-                      SourceAttrType("departement", SourceStringType(false)),
-                      SourceAttrType("denomination", SourceStringType(false)),
-                      SourceAttrType("devise", SourceStringType(false)),
-                      SourceAttrType("nic", SourceStringType(false)),
-                      SourceAttrType("forme_juridique", SourceStringType(false)),
-                      SourceAttrType("secteur_d_activite", SourceStringType(false)),
-                      SourceAttrType("sigle", SourceStringType(true)),
-                      SourceAttrType("region", SourceStringType(false)),
-                      SourceAttrType("date_de_publication", SourceStringType(false)),
-                      SourceAttrType("num_dept", SourceStringType(false)),
-                      SourceAttrType("etat", SourceStringType(false)),
-                      SourceAttrType("greffe", SourceStringType(false)),
-                      SourceAttrType("code_greffe", SourceStringType(false)),
-                      SourceAttrType("etat_pub", SourceStringType(false)),
-                      SourceAttrType("date_immatriculation_origine", SourceStringType(true))
-                    ),
-                    false
-                  )
-                ),
-                SourceAttrType(
-                  "geometry",
-                  SourceRecordType(
-                    Vector(
-                      SourceAttrType("type", SourceStringType(false)),
-                      SourceAttrType("coordinates", SourceCollectionType(SourceDoubleType(false), false))
-                    ),
-                    true
-                  )
-                ),
-                SourceAttrType("record_timestamp", SourceStringType(false))
-              ),
-              false
-            ),
-            false
-          )
-        )
-      ),
-      false
-    )
-    val inferrer = new LocalInferrerService
-    try {
-      val result = inferrer.prettyPrint(tipe)
-      assert(
-        result ===
-          """record(
-            |  `nhits`: int,
-            |  `parameters`: record(
-            |    `dataset`: collection(string),
-            |    `rows`: int,
-            |    `start`: int,
-            |    `format`: string,
-            |    `timezone`: string),
-            |  `records`: collection(record(
-            |      `datasetid`: string,
-            |      `recordid`: string,
-            |      `fields`: record(
-            |        `fiche_identite`: string,
-            |        `statut`: string,
-            |        `code_ape`: string,
-            |        `siren`: string,
-            |        `date_immatriculation`: string,
-            |        `geolocalisation`: collection(double) nullable,
-            |        `ville`: string,
-            |        `adresse`: string,
-            |        `code_postal`: string,
-            |        `departement`: string,
-            |        `denomination`: string,
-            |        `devise`: string,
-            |        `nic`: string,
-            |        `forme_juridique`: string,
-            |        `secteur_d_activite`: string,
-            |        `sigle`: string nullable,
-            |        `region`: string,
-            |        `date_de_publication`: string,
-            |        `num_dept`: string,
-            |        `etat`: string,
-            |        `greffe`: string,
-            |        `code_greffe`: string,
-            |        `etat_pub`: string,
-            |        `date_immatriculation_origine`: string nullable),
-            |      `geometry`: record(
-            |        `type`: string,
-            |        `coordinates`: collection(double)) nullable,
-            |      `record_timestamp`: string)))""".stripMargin
-      )
-    } finally {
-      RawUtils.withSuppressNonFatalException(inferrer.stop())
-    }
-  }
 }
