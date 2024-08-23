@@ -30,7 +30,7 @@ class RD10260Test extends RawTestSuite with SettingsTestContext with StrictLoggi
       |]""".stripMargin
     val inferrer = new JsonInferrer
     val reader = new StringReader(json)
-    val JsonInputFormatDescriptor(tipe, _, _, _, _) = inferrer.infer(reader, None)
+    val JsonFormatDescriptor(tipe, _, _, _, _) = inferrer.infer(reader, None)
     val expected = SourceCollectionType(
       SourceRecordType(
         Vector(

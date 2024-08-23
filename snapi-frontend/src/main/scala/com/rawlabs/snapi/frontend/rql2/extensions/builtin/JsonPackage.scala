@@ -25,13 +25,11 @@ import com.rawlabs.snapi.frontend.rql2.extensions.{
   ExpParam,
   PackageExtension,
   Param,
-  Rql2LocationValue,
   SugarEntryExtension,
   TypeParam,
   ValueArg,
   ValueParam
 }
-import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.inferrer.api._
 import com.rawlabs.utils.sources.bytestream.inmemory.InMemoryByteStreamLocation
 
@@ -128,17 +126,17 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
-    val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InputFormatDescriptor] =
+    val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InferrerOutput] =
       getJsonInferrerProperties(mandatoryArgs, optionalArgs)
         .flatMap(programContext.infer)
         .left
         .map(error => Seq(InvalidSemantic(node, error)))
     for (
       descriptor <- inferenceDiagnostic;
-      TextInputStreamFormatDescriptor(
+      TextInputStreamInferrerOutput(
         _,
         _,
-        JsonInputFormatDescriptor(inferredType, sampled, _, _, _)
+        JsonFormatDescriptor(inferredType, sampled, _, _, _)
       ) = descriptor;
       rql2Type = inferTypeToRql2Type(inferredType, makeNullable = preferNulls && sampled, makeTryable = sampled);
       okType <- validateInferredJsonType(rql2Type, node)
@@ -162,10 +160,10 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
       inputFormatDescriptor
     }
 
-    val TextInputStreamFormatDescriptor(
+    val TextInputStreamInferrerOutput(
       encoding,
       _,
-      JsonInputFormatDescriptor(
+      JsonFormatDescriptor(
         _,
         _,
         timeFormat,
@@ -364,7 +362,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val codeData = getStringValue(mandatoryArgs.head)
     val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
-    val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InputFormatDescriptor] = getJsonInferrerProperties(
+    val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InferrerOutput] = getJsonInferrerProperties(
       Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
       optionalArgs
     )
@@ -373,10 +371,10 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       .map(error => Seq(InvalidSemantic(node, error)))
     for (
       descriptor <- inferenceDiagnostic;
-      TextInputStreamFormatDescriptor(
+      TextInputStreamInferrerOutput(
         _,
         _,
-        JsonInputFormatDescriptor(inferredType, sampled, _, _, _)
+        JsonFormatDescriptor(inferredType, sampled, _, _, _)
       ) = descriptor;
       rql2Type = inferTypeToRql2Type(inferredType, makeNullable = preferNulls && sampled, makeTryable = sampled);
       okType <- validateInferredJsonType(rql2Type, node)
@@ -405,10 +403,10 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       inputFormatDescriptor
     }
 
-    val TextInputStreamFormatDescriptor(
+    val TextInputStreamInferrerOutput(
       _,
       _,
-      JsonInputFormatDescriptor(
+      JsonFormatDescriptor(
         _,
         _,
         timeFormat,
@@ -576,9 +574,9 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
   protected def getJsonInferrerProperties(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
-  ): Either[String, JsonInferrerProperties] = {
+  ): Either[String, JsonInferrerInput] = {
     getByteStreamLocation(mandatoryArgs.head).right.map { location =>
-      JsonInferrerProperties(
+      JsonInferrerInput(
         location,
         optionalArgs.collectFirst { case a if a._1 == "sampleSize" => a._2 }.map(getIntValue),
         optionalArgs

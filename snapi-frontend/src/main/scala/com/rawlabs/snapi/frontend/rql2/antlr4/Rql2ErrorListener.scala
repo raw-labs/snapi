@@ -15,9 +15,11 @@ package com.rawlabs.snapi.frontend.rql2.antlr4
 import com.rawlabs.compiler.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
 
-class RawErrorListener() extends BaseErrorListener {
+import scala.collection.mutable
 
-  private var errors = List[Message]()
+class Rql2ErrorListener extends BaseErrorListener {
+
+  private val errors = new mutable.ListBuffer[Message]
 
   private def improveErrorMessage(msg: String): String = {
     val extraneousPattern = "extraneous input '(.+)' expecting \\{(.*?)}".r
@@ -75,9 +77,10 @@ class RawErrorListener() extends BaseErrorListener {
           ErrorPosition(line, getCharPositionInLinePlusOne + 1)
         )
       }
-    errors = errors :+ ErrorMessage(improveErrorMessage(msg), List(positions), ParserErrors.ParserErrorCode)
+    errors.append(ErrorMessage(improveErrorMessage(msg), List(positions), ParserErrors.ParserErrorCode))
   }
 
-  def getErrors: List[Message] = errors
+  def getErrors: List[Message] = errors.to
+
   def hasErrors: Boolean = errors.nonEmpty
 }

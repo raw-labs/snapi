@@ -14,11 +14,7 @@ package com.rawlabs.snapi.frontend.inferrer.local
 
 import com.rawlabs.utils.core.{RawTestSuite, RawUtils, SettingsTestContext}
 import com.typesafe.scalalogging.StrictLogging
-import com.rawlabs.snapi.frontend.inferrer.api.{
-  AutoInferrerProperties,
-  CsvInputFormatDescriptor,
-  TextInputStreamFormatDescriptor
-}
+import com.rawlabs.snapi.frontend.inferrer.api.{AutoInferrerInput, CsvFormatDescriptor, TextInputStreamInferrerOutput}
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalPath
 
@@ -33,8 +29,8 @@ class RD3852Test extends RawTestSuite with SettingsTestContext with StrictLoggin
     val l1 = new LocalPath(p)
     try {
 
-      val TextInputStreamFormatDescriptor(_, _, format) = inferrer.infer(AutoInferrerProperties(l1, None))
-      assert(format.isInstanceOf[CsvInputFormatDescriptor])
+      val TextInputStreamInferrerOutput(_, _, format) = inferrer.infer(AutoInferrerInput(l1, None))
+      assert(format.isInstanceOf[CsvFormatDescriptor])
 
     } finally {
       RawUtils.withSuppressNonFatalException(inferrer.stop())

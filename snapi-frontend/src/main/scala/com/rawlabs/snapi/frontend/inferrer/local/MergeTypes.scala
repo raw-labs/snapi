@@ -59,8 +59,8 @@ private[inferrer] trait MergeTypes extends StrictLogging {
   // TODO: The following doesn't handle temporal types since this hasn't been needed so far...
   protected def l4TypesMaxOf(t1: SourceNullableType, t2: SourceNullableType): SourceType = {
     (t1, t2) match {
-      case (_: SourceNullType, _) => SourceNullableType.cloneAsNullable(t2)
-      case (_, _: SourceNullType) => SourceNullableType.cloneAsNullable(t1)
+      case (_: SourceNullType, _) => SourceNullableType.setNullableShallowClone(t2)
+      case (_, _: SourceNullType) => SourceNullableType.setNullableShallowClone(t1)
       case (r1: SourceRecordType, r2: SourceRecordType) => maxOfRecord(r1, r2)
       case (_: SourceRecordType, _) | (_, _: SourceRecordType) => SourceOrType(Set(t1, t2))
       case (SourceCollectionType(i1, n1), SourceCollectionType(i2, n2)) => SourceCollectionType(maxOf(i1, i2), n1 || n2)

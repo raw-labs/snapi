@@ -15,10 +15,15 @@ package com.rawlabs.snapi.frontend.rql2.phases
 import com.rawlabs.snapi.frontend.base.Phase
 import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, Rql2Value, ValueArg}
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{NullablePackageBuilder, NullableTryablePackageBuilder, SuccessPackageBuilder, TryPackageBuilder, TypePackageBuilder}
-import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.{FunAppPackageEntryArguments, PipelinedPhase, Rql2TypeUtils, Tree}
+import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, ValueArg}
+import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{
+  NullablePackageBuilder,
+  NullableTryablePackageBuilder,
+  SuccessPackageBuilder,
+  TryPackageBuilder,
+  TypePackageBuilder
+}
+import com.rawlabs.snapi.frontend.rql2.{FunAppPackageEntryArguments, PipelinedPhase, Rql2TypeUtils, Rql2Value, Tree}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 
@@ -37,15 +42,6 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
   private def propagate(program: SourceProgram): SourceProgram = {
     val tree = new Tree(program)
     lazy val analyzer = tree.analyzer
-
-    case class TypeAndValue(t: Type, value: Option[Rql2Value])
-    case class ExpProps(
-        ne: Exp,
-        t: Type,
-        castNeeded: Boolean,
-        props: Set[Rql2TypeProperty],
-        value: Option[Rql2Value] = None
-    )
 
     // Returns the type of argument at index `idx`. If the index points to a ValueArg,
     // add the computed value
@@ -339,3 +335,13 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
   }
 
 }
+
+private case class TypeAndValue(t: Type, value: Option[Rql2Value])
+
+private case class ExpProps(
+    ne: Exp,
+    t: Type,
+    castNeeded: Boolean,
+    props: Set[Rql2TypeProperty],
+    value: Option[Rql2Value] = None
+)

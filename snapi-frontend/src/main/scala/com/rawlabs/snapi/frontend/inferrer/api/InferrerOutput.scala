@@ -14,27 +14,27 @@ package com.rawlabs.snapi.frontend.inferrer.api
 
 import com.rawlabs.utils.sources.api.Encoding
 
-sealed trait InputFormatDescriptor {
+sealed trait InferrerOutput {
   def tipe: SourceType
 }
 
-final case class SqlTableInputFormatDescriptor(tipe: SourceType) extends InputFormatDescriptor
+final case class SqlTableInferrerOutput(tipe: SourceType) extends InferrerOutput
 
-final case class SqlQueryInputFormatDescriptor(tipe: SourceType) extends InputFormatDescriptor
+final case class SqlQueryInferrerOutput(tipe: SourceType) extends InferrerOutput
 
-sealed trait InputStreamFormatDescriptor extends InputFormatDescriptor
+sealed trait InputStreamInferrerOutput extends InferrerOutput
 
-final case class TextInputStreamFormatDescriptor(encoding: Encoding, confidence: Int, format: TextInputFormatDescriptor)
-    extends InputStreamFormatDescriptor {
+final case class TextInputStreamInferrerOutput(encoding: Encoding, confidence: Int, format: TextFormatDescriptor)
+    extends InputStreamInferrerOutput {
   def tipe: SourceType = format.tipe
 }
 
-sealed trait TextInputFormatDescriptor {
+sealed trait TextFormatDescriptor {
   def tipe: SourceType
   def sampled: Boolean
 }
 
-final case class CsvInputFormatDescriptor(
+final case class CsvFormatDescriptor(
     tipe: SourceType,
     hasHeader: Boolean,
     delimiter: Char,
@@ -48,31 +48,31 @@ final case class CsvInputFormatDescriptor(
     timeFormat: Option[String],
     dateFormat: Option[String],
     timestampFormat: Option[String]
-) extends TextInputFormatDescriptor
+) extends TextFormatDescriptor
 
-final case class JsonInputFormatDescriptor(
+final case class JsonFormatDescriptor(
     tipe: SourceType,
     sampled: Boolean,
     timeFormat: Option[String],
     dateFormat: Option[String],
     timestampFormat: Option[String]
-) extends TextInputFormatDescriptor
+) extends TextFormatDescriptor
 
-final case class HjsonInputFormatDescriptor(
+final case class HjsonFormatDescriptor(
     tipe: SourceType,
     sampled: Boolean,
     timeFormat: Option[String],
     dateFormat: Option[String],
     timestampFormat: Option[String]
-) extends TextInputFormatDescriptor
+) extends TextFormatDescriptor
 
-final case class XmlInputFormatDescriptor(
+final case class XmlFormatDescriptor(
     tipe: SourceType,
     sampled: Boolean,
     timeFormat: Option[String],
     dateFormat: Option[String],
     timestampFormat: Option[String]
-) extends TextInputFormatDescriptor
+) extends TextFormatDescriptor
 
-final case class LinesInputFormatDescriptor(tipe: SourceType, regex: Option[String], sampled: Boolean)
-    extends TextInputFormatDescriptor
+final case class LinesFormatDescriptor(tipe: SourceType, regex: Option[String], sampled: Boolean)
+    extends TextFormatDescriptor

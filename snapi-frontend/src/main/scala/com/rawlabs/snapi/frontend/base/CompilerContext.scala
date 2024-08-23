@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend.base
 
 import com.rawlabs.utils.core.{RawSettings, RawUid}
 import com.typesafe.scalalogging.StrictLogging
-import com.rawlabs.snapi.frontend.inferrer.api.{InferrerProperties, InferrerService, InputFormatDescriptor}
+import com.rawlabs.snapi.frontend.inferrer.api.{InferrerInput, InferrerOutput, InferrerService}
 import com.rawlabs.utils.core._
 
 /**
@@ -28,7 +28,7 @@ class CompilerContext(
     implicit val settings: RawSettings
 ) extends StrictLogging {
 
-  def infer(properties: InferrerProperties): Either[String, InputFormatDescriptor] = {
+  def infer(properties: InferrerInput): Either[String, InferrerOutput] = {
     inferrer.inferWithExpiry(properties)
   }
 

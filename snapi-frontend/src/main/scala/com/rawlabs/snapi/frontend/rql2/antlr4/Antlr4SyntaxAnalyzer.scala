@@ -33,7 +33,7 @@ final case class ParseTypeResult(errors: List[Message], tipe: Type) extends Pars
 class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extends Parsers(positions) {
 
   def parse(s: String): ParseProgramResult[SourceProgram] = {
-    val rawErrorListener = new RawErrorListener()
+    val rawErrorListener = new Rql2ErrorListener()
     val stream = getTokenStream(s, rawErrorListener)
     parse(stream, StringSource(s), rawErrorListener)
   }
@@ -41,22 +41,22 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
   protected def parse(
       stream: TokenStream,
       source: Source,
-      errorListener: RawErrorListener
+      errorListener: Rql2ErrorListener
   ): ParseProgramResult[SourceProgram] = {
     val parser = new SnapiParser(stream)
     parser.removeErrorListeners()
     parser.addErrorListener(errorListener)
 
     val tree: ParseTree = parser.prog
-    val visitorParseErrors = RawVisitorParseErrors()
-    val visitor = new RawSnapiVisitor(positions, source, isFrontend, visitorParseErrors)
+    val visitorParseErrors = new Rql2VisitorParseErrors
+    val visitor = new Rql2SnapiVisitor(positions, source, isFrontend, visitorParseErrors)
     val result = visitor.visit(tree).asInstanceOf[Rql2Program]
 
     val totalErrors = errorListener.getErrors ++ visitorParseErrors.getErrors
     ParseProgramResult(totalErrors, result)
   }
 
-  protected def getTokenStream(s: String, errorListener: RawErrorListener): CommonTokenStream = {
+  protected def getTokenStream(s: String, errorListener: Rql2ErrorListener): CommonTokenStream = {
     val lexer = new SnapiLexer(CharStreams.fromString(s))
     lexer.removeErrorListeners()
     lexer.addErrorListener(errorListener)
@@ -66,15 +66,15 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
 
   def parseType(s: String): ParseTypeResult = {
     val source = StringSource(s)
-    val rawErrorListener = new RawErrorListener()
+    val rawErrorListener = new Rql2ErrorListener()
 
     val parser = new SnapiParser(getTokenStream(s, rawErrorListener))
     parser.removeErrorListeners()
     parser.addErrorListener(rawErrorListener)
 
     val tree: ParseTree = parser.tipe
-    val visitorParseErrors = RawVisitorParseErrors()
-    val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, source, isFrontend, visitorParseErrors)
+    val visitorParseErrors = new Rql2VisitorParseErrors
+    val visitor: Rql2SnapiVisitor = new Rql2SnapiVisitor(positions, source, isFrontend, visitorParseErrors)
     val result: Type = visitor.visit(tree).asInstanceOf[Type]
 
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors

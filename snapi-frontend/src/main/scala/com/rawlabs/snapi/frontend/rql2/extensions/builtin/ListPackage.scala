@@ -24,7 +24,6 @@ import com.rawlabs.snapi.frontend.rql2.extensions.{
   ExpParam,
   PackageExtension,
   Param,
-  Rql2StringValue,
   SugarEntryExtension,
   TypeArg,
   TypeParam,

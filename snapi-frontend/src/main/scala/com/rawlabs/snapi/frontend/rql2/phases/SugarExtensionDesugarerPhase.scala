@@ -12,13 +12,11 @@
 
 package com.rawlabs.snapi.frontend.rql2.phases
 
-import com.rawlabs.compiler.CompilerException
 import com.rawlabs.snapi.frontend.base.Phase
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
 import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.extensions.SugarEntryExtension
-import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.{FunAppPackageEntryArguments, PipelinedPhase, Tree}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
@@ -61,7 +59,7 @@ class SugarExtensionDesugarerPhase(protected val parent: Phase[SourceProgram], p
                   // The code call to this package extension isn't typing (wrong parameters?)
                   // Report the error. That can happen when developing of a sugar package extension.
                   // Wrong desugaring isn't caught otherwise.
-                  throw new CompilerException(s"SugarExtensionDesugarer failed while desugaring $pkgName.$i: $error")
+                  throw new AssertionError(s"SugarExtensionDesugarer failed while desugaring $pkgName.$i: $error")
               }
 
             ent.desugar(analyzer.tipe(f), nargs, mandatoryArgs, optionalArgs, varArgs)

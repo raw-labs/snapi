@@ -38,25 +38,6 @@ import com.rawlabs.compiler.{
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.extensions.{
-  Rql2BoolValue,
-  Rql2ByteValue,
-  Rql2DateValue,
-  Rql2DoubleValue,
-  Rql2FloatValue,
-  Rql2IntValue,
-  Rql2IntervalValue,
-  Rql2ListValue,
-  Rql2LongValue,
-  Rql2OptionValue,
-  Rql2RecordAttr,
-  Rql2RecordValue,
-  Rql2ShortValue,
-  Rql2StringValue,
-  Rql2TimeValue,
-  Rql2TimestampValue,
-  Rql2Value
-}
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.IntervalPackageBuilder
 import com.rawlabs.snapi.frontend.inferrer.api._
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{

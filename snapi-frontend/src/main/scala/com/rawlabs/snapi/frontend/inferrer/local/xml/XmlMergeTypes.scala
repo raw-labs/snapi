@@ -93,7 +93,7 @@ private[inferrer] trait XmlMergeTypes extends MergeTypes {
     // When a field is found only in one record we consider it was null, which makes the field nullable.
     // If that field is known to be a collection, we consider the absence of the field is only an empty list.
     case n: SourceCollectionType => n
-    case n: SourceNullableType => SourceNullableType.cloneAsNullable(n)
+    case n: SourceNullableType => SourceNullableType.setNullableShallowClone(n)
     case t => t
   }
 

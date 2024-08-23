@@ -14,7 +14,15 @@ package com.rawlabs.snapi.frontend.rql2.extensions.builtin
 
 import com.rawlabs.compiler.{EntryDoc, PackageDoc}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
-import com.rawlabs.snapi.frontend.rql2.source.{Exp, FunApp, FunAppArg, PackageIdnExp, Proj, Rql2IsTryableTypeProperty, Rql2TypeWithProperties}
+import com.rawlabs.snapi.frontend.rql2.source.{
+  Exp,
+  FunApp,
+  FunAppArg,
+  PackageIdnExp,
+  Proj,
+  Rql2IsTryableTypeProperty,
+  Rql2TypeWithProperties
+}
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 

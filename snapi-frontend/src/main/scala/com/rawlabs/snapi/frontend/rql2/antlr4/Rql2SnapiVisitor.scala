@@ -26,14 +26,14 @@ import com.rawlabs.snapi.frontend.rql2.source._
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class RawSnapiVisitor(
+class Rql2SnapiVisitor(
     positions: Positions,
     private val source: Source,
     isFrontend: Boolean,
-    private val errors: RawVisitorParseErrors
+    private val errors: Rql2VisitorParseErrors
 ) extends SnapiParserBaseVisitor[SourceNode] {
 
-  private val positionsWrapper = new RawPositions(positions, source)
+  private val positionsWrapper = new Rql2Positions(positions, source)
 
   private val assertionMessage = "This is a helper (better grammar readability)  node, should never visit it"
 

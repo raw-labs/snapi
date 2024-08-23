@@ -24,13 +24,11 @@ import com.rawlabs.snapi.frontend.rql2.extensions.{
   ExpParam,
   PackageExtension,
   Param,
-  Rql2LocationValue,
   SugarEntryExtension,
   TypeParam,
   ValueArg,
   ValueParam
 }
-import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.inferrer.api._
 import com.rawlabs.utils.sources.bytestream.inmemory.InMemoryByteStreamLocation
 
@@ -219,10 +217,10 @@ class CsvInferAndReadEntry extends SugarEntryExtension with CsvEntryExtensionHel
     for (
       inferrerProperties <- getCsvInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      TextInputStreamFormatDescriptor(
+      TextInputStreamInferrerOutput(
         _,
         _,
-        CsvInputFormatDescriptor(
+        CsvFormatDescriptor(
           SourceCollectionType(SourceRecordType(atts, _), _),
           _,
           _,
@@ -266,10 +264,10 @@ class CsvInferAndReadEntry extends SugarEntryExtension with CsvEntryExtensionHel
       inputFormatDescriptor
     }
 
-    val TextInputStreamFormatDescriptor(
+    val TextInputStreamInferrerOutput(
       encoding,
       _,
-      CsvInputFormatDescriptor(
+      CsvFormatDescriptor(
         _,
         _,
         sep,
@@ -593,10 +591,10 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
         optionalArgs
       );
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      TextInputStreamFormatDescriptor(
+      TextInputStreamInferrerOutput(
         _,
         _,
-        CsvInputFormatDescriptor(
+        CsvFormatDescriptor(
           SourceCollectionType(SourceRecordType(atts, _), _),
           _,
           _,
@@ -644,10 +642,10 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
       inputFormatDescriptor
     }
 
-    val TextInputStreamFormatDescriptor(
+    val TextInputStreamInferrerOutput(
       _,
       _,
-      CsvInputFormatDescriptor(
+      CsvFormatDescriptor(
         _,
         _,
         sep,
@@ -836,9 +834,9 @@ trait CsvEntryExtensionHelper extends EntryExtensionHelper {
   protected def getCsvInferrerProperties(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
-  ): Either[String, CsvInferrerProperties] = {
+  ): Either[String, CsvInferrerInput] = {
     getByteStreamLocation(mandatoryArgs.head).right.map { location =>
-      CsvInferrerProperties(
+      CsvInferrerInput(
         location,
         optionalArgs.collectFirst { case a if a._1 == "sampleSize" => a._2 }.map(getIntValue),
         optionalArgs

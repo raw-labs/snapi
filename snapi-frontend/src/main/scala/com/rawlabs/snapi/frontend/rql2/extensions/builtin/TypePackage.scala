@@ -16,7 +16,15 @@ import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnD
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, EntryExtension, ExpParam, PackageExtension, Param, TypeArg, TypeParam}
+import com.rawlabs.snapi.frontend.rql2.extensions.{
+  Arg,
+  EntryExtension,
+  ExpParam,
+  PackageExtension,
+  Param,
+  TypeArg,
+  TypeParam
+}
 import com.rawlabs.snapi.frontend.rql2.source._
 
 object TypePackageBuilder {

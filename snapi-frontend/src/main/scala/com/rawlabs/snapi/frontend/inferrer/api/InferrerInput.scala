@@ -17,20 +17,19 @@ import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation
 import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation
 import com.rawlabs.utils.sources.jdbc.api.{JdbcServerLocation, JdbcTableLocation}
 
-sealed trait InferrerProperties {
+sealed trait InferrerInput {
   def maybeSampleSize: Option[Int]
 }
 
-final case class SqlTableInferrerProperties(location: JdbcTableLocation, maybeSampleSize: Option[Int])
-    extends InferrerProperties
+final case class SqlTableInferrerInput(location: JdbcTableLocation, maybeSampleSize: Option[Int]) extends InferrerInput
 
-final case class SqlQueryInferrerProperties(
+final case class SqlQueryInferrerInput(
     location: JdbcServerLocation,
     sql: String,
     maybeSampleSize: Option[Int]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class CsvInferrerProperties(
+final case class CsvInferrerInput(
     location: ByteStreamLocation,
     maybeSampleSize: Option[Int],
     maybeEncoding: Option[Encoding],
@@ -41,9 +40,9 @@ final case class CsvInferrerProperties(
     maybeSkip: Option[Int],
     maybeEscapeChar: Option[Char],
     maybeQuoteChars: Option[Seq[Option[Char]]]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class ManyCsvInferrerProperties(
+final case class ManyCsvInferrerInput(
     location: FileSystemLocation,
     maybeSampleSize: Option[Int],
     maybeSampleFiles: Option[Int],
@@ -55,54 +54,54 @@ final case class ManyCsvInferrerProperties(
     maybeSkip: Option[Int],
     maybeEscapeChar: Option[Char],
     maybeQuoteChars: Option[Seq[Option[Char]]]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class HjsonInferrerProperties(
+final case class HjsonInferrerInput(
     location: ByteStreamLocation,
     maybeSampleSize: Option[Int],
     maybeEncoding: Option[Encoding]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class ManyHjsonInferrerProperties(
+final case class ManyHjsonInferrerInput(
     location: FileSystemLocation,
     maybeSampleSize: Option[Int],
     maybeSampleFiles: Option[Int],
     maybeEncoding: Option[Encoding]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class JsonInferrerProperties(
+final case class JsonInferrerInput(
     location: ByteStreamLocation,
     maybeSampleSize: Option[Int],
     maybeEncoding: Option[Encoding]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class ManyJsonInferrerProperties(
+final case class ManyJsonInferrerInput(
     location: FileSystemLocation,
     maybeSampleSize: Option[Int],
     maybeSampleFiles: Option[Int],
     maybeEncoding: Option[Encoding]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class XmlInferrerProperties(
+final case class XmlInferrerInput(
     location: ByteStreamLocation,
     maybeSampleSize: Option[Int],
     maybeEncoding: Option[Encoding]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class ManyXmlInferrerProperties(
+final case class ManyXmlInferrerInput(
     location: FileSystemLocation,
     maybeSampleSize: Option[Int],
     maybeSampleFiles: Option[Int],
     maybeEncoding: Option[Encoding]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class AutoInferrerProperties(
+final case class AutoInferrerInput(
     location: Location,
     maybeSampleSize: Option[Int]
-) extends InferrerProperties
+) extends InferrerInput
 
-final case class ManyAutoInferrerProperties(
+final case class ManyAutoInferrerInput(
     location: FileSystemLocation,
     maybeSampleSize: Option[Int],
     maybeSampleFiles: Option[Int]
-) extends InferrerProperties
+) extends InferrerInput

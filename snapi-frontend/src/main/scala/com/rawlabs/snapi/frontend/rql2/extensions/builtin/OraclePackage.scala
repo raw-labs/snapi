@@ -23,20 +23,18 @@ import com.rawlabs.snapi.frontend.rql2.extensions.{
   ExpParam,
   PackageExtension,
   Param,
-  Rql2StringValue,
   SugarEntryExtension,
   TypeArg,
   TypeParam,
   ValueArg,
   ValueParam
 }
-import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.ProgramContext
+import com.rawlabs.snapi.frontend.rql2.{ProgramContext, Rql2StringValue}
 import com.rawlabs.snapi.frontend.inferrer.api.{
-  SqlQueryInferrerProperties,
-  SqlQueryInputFormatDescriptor,
-  SqlTableInferrerProperties,
-  SqlTableInputFormatDescriptor
+  SqlQueryInferrerInput,
+  SqlQueryInferrerOutput,
+  SqlTableInferrerInput,
+  SqlTableInferrerOutput
 }
 import com.rawlabs.utils.sources.jdbc.oracle.{OracleServerLocation, OracleTableLocation}
 
@@ -147,7 +145,7 @@ class OracleInferAndReadEntry extends SugarEntryExtension {
   private def getTableInferrerProperties(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
-  )(implicit programContext: ProgramContext): Either[String, SqlTableInferrerProperties] = {
+  )(implicit programContext: ProgramContext): Either[String, SqlTableInferrerInput] = {
     val db = getStringValue(mandatoryArgs(0))
     val schema = getStringValue(mandatoryArgs(1))
     val table = getStringValue(mandatoryArgs(2))
@@ -175,7 +173,7 @@ class OracleInferAndReadEntry extends SugarEntryExtension {
           case None => return Left(s"unknown credential: $db")
         }
       }
-    Right(SqlTableInferrerProperties(location, None))
+    Right(SqlTableInferrerInput(location, None))
   }
 
   override def returnType(
@@ -186,7 +184,7 @@ class OracleInferAndReadEntry extends SugarEntryExtension {
     for (
       inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlTableInputFormatDescriptor(tipe) = inputFormatDescriptor
+      SqlTableInferrerOutput(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, false, false)
     }
@@ -402,7 +400,7 @@ class OracleInferAndQueryEntry extends SugarEntryExtension {
   private def getQueryInferrerProperties(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
-  )(implicit programContext: ProgramContext): Either[String, SqlQueryInferrerProperties] = {
+  )(implicit programContext: ProgramContext): Either[String, SqlQueryInferrerInput] = {
     val db = getStringValue(mandatoryArgs(0))
     val query = getStringValue(mandatoryArgs(1))
     val location =
@@ -429,7 +427,7 @@ class OracleInferAndQueryEntry extends SugarEntryExtension {
           case None => return Left(s"unknown credential: $db")
         }
       }
-    Right(SqlQueryInferrerProperties(location, query, None))
+    Right(SqlQueryInferrerInput(location, query, None))
   }
 
   override def returnType(
@@ -440,7 +438,7 @@ class OracleInferAndQueryEntry extends SugarEntryExtension {
     for (
       inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs);
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
-      SqlQueryInputFormatDescriptor(tipe) = inputFormatDescriptor
+      SqlQueryInferrerOutput(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToRql2Type(tipe, false, false)
     }

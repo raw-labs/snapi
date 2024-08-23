@@ -114,10 +114,10 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
 
     for (
       descriptor <- inferenceDiagnostic;
-      TextInputStreamFormatDescriptor(
+      TextInputStreamInferrerOutput(
         _,
         _,
-        XmlInputFormatDescriptor(dataType, sampled, _, _, _)
+        XmlFormatDescriptor(dataType, sampled, _, _, _)
       ) = descriptor;
       rql2Type = inferTypeToRql2Type(dataType, makeNullable = preferNulls && sampled, makeTryable = sampled);
       okType <- validateXmlType(rql2Type)
@@ -143,10 +143,10 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
       inputFormatDescriptor
     }
 
-    val TextInputStreamFormatDescriptor(
+    val TextInputStreamInferrerOutput(
       encoding,
       _,
-      XmlInputFormatDescriptor(
+      XmlFormatDescriptor(
         _,
         _,
         timeFormat,
@@ -176,9 +176,9 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
   protected def getXmlInferrerProperties(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
-  ): Either[String, XmlInferrerProperties] = {
+  ): Either[String, XmlInferrerInput] = {
     getByteStreamLocation(mandatoryArgs.head).right.map { location =>
-      XmlInferrerProperties(
+      XmlInferrerInput(
         location,
         optionalArgs.collectFirst { case a if a._1 == "sampleSize" => a._2 }.map(getIntValue),
         optionalArgs

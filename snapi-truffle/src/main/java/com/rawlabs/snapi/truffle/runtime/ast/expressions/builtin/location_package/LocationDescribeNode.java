@@ -51,9 +51,9 @@ public abstract class LocationDescribeNode extends ExpressionNode {
     InferrerService inferrer = RawContext.get(this).getInferrer();
     try {
       // In scala implementation interpreter there is a sample size argument
-      InputFormatDescriptor descriptor =
+      InferrerOutput descriptor =
           inferrer.infer(
-              AutoInferrerProperties.apply(
+              AutoInferrerInput.apply(
                   locationObject.getLocation(),
                   sampleSize == Integer.MAX_VALUE ? Some.empty() : Some.apply(sampleSize)));
 
@@ -63,27 +63,25 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       Map<String, String> properties = new HashMap<>();
       boolean sampled = false;
 
-      if (descriptor instanceof SqlTableInputFormatDescriptor) {
-        SqlTableInputFormatDescriptor sqlTableDescriptor =
-            (SqlTableInputFormatDescriptor) descriptor;
+      if (descriptor instanceof SqlTableInferrerOutput) {
+        SqlTableInferrerOutput sqlTableDescriptor = (SqlTableInferrerOutput) descriptor;
         format = "relational table";
         tipe = sqlTableDescriptor.tipe();
-      } else if (descriptor instanceof SqlQueryInputFormatDescriptor) {
-        SqlQueryInputFormatDescriptor sqlQueryDescriptor =
-            (SqlQueryInputFormatDescriptor) descriptor;
+      } else if (descriptor instanceof SqlQueryInferrerOutput) {
+        SqlQueryInferrerOutput sqlQueryDescriptor = (SqlQueryInferrerOutput) descriptor;
         format = "relational query";
         tipe = sqlQueryDescriptor.tipe();
-      } else if (descriptor instanceof TextInputStreamFormatDescriptor) {
-        TextInputStreamFormatDescriptor textInputQueryDescriptor =
-            (TextInputStreamFormatDescriptor) descriptor;
+      } else if (descriptor instanceof TextInputStreamInferrerOutput) {
+        TextInputStreamInferrerOutput textInputQueryDescriptor =
+            (TextInputStreamInferrerOutput) descriptor;
         comment =
             String.format(
                     "encoding %s (confidence: %s",
                     textInputQueryDescriptor.encoding(), textInputQueryDescriptor.confidence())
                 + "%)";
-        if (textInputQueryDescriptor.format() instanceof CsvInputFormatDescriptor) {
-          CsvInputFormatDescriptor csvDescriptor =
-              (CsvInputFormatDescriptor) textInputQueryDescriptor.format();
+        if (textInputQueryDescriptor.format() instanceof CsvFormatDescriptor) {
+          CsvFormatDescriptor csvDescriptor =
+              (CsvFormatDescriptor) textInputQueryDescriptor.format();
           properties.put("has_header", String.valueOf(csvDescriptor.hasHeader()));
           properties.put("delimiter", String.valueOf(csvDescriptor.delimiter()));
           ArrayList<String> nls = new ArrayList<>();
@@ -108,27 +106,27 @@ public abstract class LocationDescribeNode extends ExpressionNode {
           format = "csv";
           tipe = csvDescriptor.tipe();
           sampled = csvDescriptor.sampled();
-        } else if (textInputQueryDescriptor.format() instanceof JsonInputFormatDescriptor) {
-          JsonInputFormatDescriptor jsonDescriptor =
-              (JsonInputFormatDescriptor) textInputQueryDescriptor.format();
+        } else if (textInputQueryDescriptor.format() instanceof JsonFormatDescriptor) {
+          JsonFormatDescriptor jsonDescriptor =
+              (JsonFormatDescriptor) textInputQueryDescriptor.format();
           format = "json";
           tipe = jsonDescriptor.tipe();
           sampled = jsonDescriptor.sampled();
-        } else if (textInputQueryDescriptor.format() instanceof HjsonInputFormatDescriptor) {
-          HjsonInputFormatDescriptor hjsonDescriptor =
-              (HjsonInputFormatDescriptor) textInputQueryDescriptor.format();
+        } else if (textInputQueryDescriptor.format() instanceof HjsonFormatDescriptor) {
+          HjsonFormatDescriptor hjsonDescriptor =
+              (HjsonFormatDescriptor) textInputQueryDescriptor.format();
           format = "hjson";
           tipe = hjsonDescriptor.tipe();
           sampled = hjsonDescriptor.sampled();
-        } else if (textInputQueryDescriptor.format() instanceof XmlInputFormatDescriptor) {
-          XmlInputFormatDescriptor xmlDescriptor =
-              (XmlInputFormatDescriptor) textInputQueryDescriptor.format();
+        } else if (textInputQueryDescriptor.format() instanceof XmlFormatDescriptor) {
+          XmlFormatDescriptor xmlDescriptor =
+              (XmlFormatDescriptor) textInputQueryDescriptor.format();
           format = "xml";
           tipe = xmlDescriptor.tipe();
           sampled = xmlDescriptor.sampled();
-        } else if (textInputQueryDescriptor.format() instanceof LinesInputFormatDescriptor) {
-          LinesInputFormatDescriptor linesDescriptor =
-              (LinesInputFormatDescriptor) textInputQueryDescriptor.format();
+        } else if (textInputQueryDescriptor.format() instanceof LinesFormatDescriptor) {
+          LinesFormatDescriptor linesDescriptor =
+              (LinesFormatDescriptor) textInputQueryDescriptor.format();
           format = "lines";
           tipe = linesDescriptor.tipe();
           sampled = linesDescriptor.sampled();

@@ -55,7 +55,7 @@ class CsvInferrer(implicit protected val settings: RawSettings)
       skip: Option[Int],
       maybeEscapeChar: Option[Char],
       maybeQuoteChars: Option[Seq[Option[Char]]]
-  ): TextInputStreamFormatDescriptor = {
+  ): TextInputStreamInferrerOutput = {
     val r = getTextBuffer(is, maybeEncoding)
     try {
       val format = infer(
@@ -69,7 +69,7 @@ class CsvInferrer(implicit protected val settings: RawSettings)
         maybeEscapeChar,
         maybeQuoteChars
       )
-      TextInputStreamFormatDescriptor(r.encoding, r.confidence, format)
+      TextInputStreamInferrerOutput(r.encoding, r.confidence, format)
     } catch {
       case ex: RawException => throw ex
       case NonFatal(e) => throw new RawException(s"csv inference failed unexpectedly", e)
@@ -88,7 +88,7 @@ class CsvInferrer(implicit protected val settings: RawSettings)
       skip: Option[Int],
       maybeEscapeChar: Option[Char],
       maybeQuoteChars: Option[Seq[Option[Char]]]
-  ): TextInputFormatDescriptor = {
+  ): TextFormatDescriptor = {
     val delimiters = maybeDelimiters.getOrElse(defaultDelimiters)
 
     val nulls = maybeNulls.getOrElse(Seq(""))
@@ -137,7 +137,7 @@ class CsvInferrer(implicit protected val settings: RawSettings)
       val (result, hasHeader) = sniffer.infer(maybeHasHeader)
       val linesToSkip = (if (hasHeader) 1 else 0) + skip.getOrElse(0)
 
-      CsvInputFormatDescriptor(
+      CsvFormatDescriptor(
         result.cleanedType,
         hasHeader = hasHeader,
         delimiter = sniffer.delimiter,

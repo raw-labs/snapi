@@ -17,7 +17,14 @@ import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, EntryExtension, ExpParam, PackageExtension, Param, ShortEntryExtension}
+import com.rawlabs.snapi.frontend.rql2.extensions.{
+  Arg,
+  EntryExtension,
+  ExpParam,
+  PackageExtension,
+  Param,
+  ShortEntryExtension
+}
 
 import java.time.LocalDateTime
 import scala.collection.immutable.ListMap
