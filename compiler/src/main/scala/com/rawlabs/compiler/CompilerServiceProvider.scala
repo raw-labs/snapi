@@ -54,11 +54,11 @@ object CompilerServiceProvider {
   private def build(language: String)(implicit settings: RawSettings): CompilerService = {
     val services = ServiceLoader.load(classOf[CompilerServiceBuilder]).asScala.toArray
     if (services.isEmpty) {
-      throw new CompilerException("no compiler service available")
+      throw new AssertionError("no compiler service available")
     } else {
       services.find(p => p.language.contains(language)) match {
         case Some(builder) => builder.build
-        case None => throw new CompilerException(s"cannot find compiler service: $language")
+        case None => throw new AssertionError(s"cannot find compiler service: $language")
       }
     }
   }

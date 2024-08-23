@@ -20,7 +20,10 @@ package com.rawlabs.protocol.compiler;
 message Message {
   string message = 1;
   repeated Range positions = 2;
-  optional string code = 3;
+  string code = 3;
+  repeated int32 tags = 4;
+  Severity severity = 5;
+
   enum Severity {
     HINT = 0;
     INFO = 10;
