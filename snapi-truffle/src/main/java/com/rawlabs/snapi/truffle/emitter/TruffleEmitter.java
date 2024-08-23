@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.emitter;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.rawlabs.snapi.frontend.rql2.source.Exp;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Method;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.expressions.function.ClosureNode;
 

@@ -19,11 +19,11 @@ import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TransformListEntry;
 import com.rawlabs.snapi.frontend.rql2.source.FunType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListTransformNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListTransformNode;
 import java.util.List;
 
 public class TruffleTransformListEntry extends TransformListEntry implements TruffleEntryExtension {

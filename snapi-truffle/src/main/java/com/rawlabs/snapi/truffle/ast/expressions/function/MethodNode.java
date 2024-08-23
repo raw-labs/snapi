@@ -14,8 +14,8 @@ package com.rawlabs.snapi.truffle.ast.expressions.function;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.function.Closure;
 import com.rawlabs.snapi.truffle.runtime.function.Function;
 import com.rawlabs.snapi.truffle.runtime.function.FunctionRegistry;

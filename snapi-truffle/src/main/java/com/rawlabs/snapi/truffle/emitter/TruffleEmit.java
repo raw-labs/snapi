@@ -20,10 +20,10 @@ import com.rawlabs.snapi.frontend.rql2.Tree;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.frontend.rql2.source.Exp;
 import com.rawlabs.snapi.frontend.rql2.source.SourceProgram;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.Rql2Language;
-import com.rawlabs.snapi.truffle.ast.StatementNode;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
+import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.controlflow.ExpBlockNode;
 import scala.collection.JavaConverters;
 

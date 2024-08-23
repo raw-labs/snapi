@@ -14,12 +14,12 @@ package com.rawlabs.snapi.truffle.emitter.builtin.http_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.HttpCallEntry;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package.LocationFromHttpNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.emitter.builtin.WithArgs;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.Rql2Language;
-import com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package.LocationFromHttpNode;
 import java.util.List;
 
 public abstract class TruffleHttpCallEntry extends HttpCallEntry

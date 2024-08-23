@@ -16,11 +16,11 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.tryable_nullable.Nullable;
+import com.rawlabs.snapi.truffle.ast.tryable_nullable.Tryable;
 import com.rawlabs.snapi.truffle.runtime.function.FunctionExecuteNodes;
 import com.rawlabs.snapi.truffle.runtime.primitives.ErrorObject;
 import com.rawlabs.snapi.truffle.runtime.primitives.NullObject;
-import com.rawlabs.snapi.truffle.ast.tryable_nullable.Nullable;
-import com.rawlabs.snapi.truffle.ast.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "TryableNullable.FlatMap")
 @NodeChild("tryable")

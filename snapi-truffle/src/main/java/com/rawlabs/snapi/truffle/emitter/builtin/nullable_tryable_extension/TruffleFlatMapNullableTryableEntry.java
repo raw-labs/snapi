@@ -19,8 +19,6 @@ import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.FlatMapNullableTryableEntry;
 import com.rawlabs.snapi.frontend.rql2.source.FunType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
-import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
-import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.option.OptionFlatMapNodeGen;
 import com.rawlabs.snapi.truffle.ast.expressions.option.OptionGetOrElseNodeGen;
@@ -29,6 +27,8 @@ import com.rawlabs.snapi.truffle.ast.expressions.option.OptionNoneNode;
 import com.rawlabs.snapi.truffle.ast.expressions.tryable.TryableFlatMapNodeGen;
 import com.rawlabs.snapi.truffle.ast.expressions.tryable.TryableNullableFlatMapNodeGen;
 import com.rawlabs.snapi.truffle.ast.expressions.tryable.TryableSuccessNodeGen;
+import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
+import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import java.util.List;
 

@@ -31,7 +31,6 @@ import com.rawlabs.snapi.truffle.ast.osr.bodies.OSRToArrayBodyNode;
 import com.rawlabs.snapi.truffle.ast.osr.conditions.OSRIsLessThanSizeConditionNode;
 import com.rawlabs.snapi.truffle.ast.osr.conditions.OSRListParseJsonConditionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
-
 import java.util.ArrayList;
 
 @NodeInfo(shortName = "IterableParseJson")

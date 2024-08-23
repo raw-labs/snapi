@@ -53,5 +53,6 @@ module raw.snapi.truffle {
   requires com.google.common;
   requires jul.to.slf4j;
 
-  provides com.oracle.truffle.api.provider.TruffleLanguageProvider with Rql2LanguageProvider;
+  provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
+      Rql2LanguageProvider;
 }

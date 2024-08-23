@@ -20,8 +20,8 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
-import com.rawlabs.snapi.truffle.ast.PropertyType;
 import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.PropertyType;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 
 // (az) Whenever using any of these nodes, create one per property

@@ -14,8 +14,8 @@ package com.rawlabs.snapi.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.aggregation.*;
 import com.rawlabs.snapi.truffle.runtime.primitives.DecimalObject;
 import com.rawlabs.snapi.truffle.runtime.record.RecordNodes;

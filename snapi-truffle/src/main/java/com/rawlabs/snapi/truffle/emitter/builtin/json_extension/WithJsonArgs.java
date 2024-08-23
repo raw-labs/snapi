@@ -12,10 +12,10 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.json_extension;
 
-import com.rawlabs.snapi.truffle.emitter.TruffleArg;
-import com.rawlabs.snapi.truffle.emitter.builtin.WithArgs;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.literals.StringNode;
+import com.rawlabs.snapi.truffle.emitter.TruffleArg;
+import com.rawlabs.snapi.truffle.emitter.builtin.WithArgs;
 import java.util.List;
 
 public interface WithJsonArgs extends WithArgs {

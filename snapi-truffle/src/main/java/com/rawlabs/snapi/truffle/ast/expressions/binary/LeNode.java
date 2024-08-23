@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.ast.expressions.binary;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.BinaryNode;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.operators.OperatorNodes;
 import com.rawlabs.snapi.truffle.runtime.operators.OperatorNodesFactory;
 

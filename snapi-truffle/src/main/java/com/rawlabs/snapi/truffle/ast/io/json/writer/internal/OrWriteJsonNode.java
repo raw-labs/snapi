@@ -17,8 +17,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;
+import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.or.OrObject;
 
 @NodeInfo(shortName = "OrWriteJson")

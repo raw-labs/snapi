@@ -34,6 +34,7 @@ import com.rawlabs.snapi.truffle.ast.osr.bodies.*;
 import com.rawlabs.snapi.truffle.ast.osr.conditions.OSRCollectionFilterConditionNode;
 import com.rawlabs.snapi.truffle.ast.osr.conditions.OSRFromBodyConditionNode;
 import com.rawlabs.snapi.truffle.ast.osr.conditions.OSRHasNextConditionNode;
+import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.runtime.exceptions.BreakException;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.exceptions.csv.CsvParserTruffleException;
@@ -51,7 +52,6 @@ import com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generator
 import com.rawlabs.snapi.truffle.runtime.iterable.IterableNodes;
 import com.rawlabs.snapi.truffle.runtime.iterable.sources.EmptyCollection;
 import com.rawlabs.snapi.truffle.runtime.record.RecordNodes;
-import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.runtime.utils.IOUtils;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharInputStream;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleInputStream;

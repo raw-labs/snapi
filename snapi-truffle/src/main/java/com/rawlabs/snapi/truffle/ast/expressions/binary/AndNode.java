@@ -14,9 +14,9 @@ package com.rawlabs.snapi.truffle.ast.expressions.binary;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.primitives.NullObject;
 import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
+import com.rawlabs.snapi.truffle.runtime.primitives.NullObject;
 
 public final class AndNode extends ExpressionNode {
 

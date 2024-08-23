@@ -18,12 +18,12 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
+import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
+import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.exceptions.csv.CsvParserTruffleException;
 import com.rawlabs.snapi.truffle.runtime.iterable.sources.CsvCollection;
 import com.rawlabs.snapi.truffle.runtime.list.StringList;
 import com.rawlabs.snapi.truffle.runtime.primitives.LocationObject;
-import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
-import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 
 @NodeInfo(shortName = "IterableParseCsvFile")
 public class IterableParseCsvFile extends ExpressionNode {

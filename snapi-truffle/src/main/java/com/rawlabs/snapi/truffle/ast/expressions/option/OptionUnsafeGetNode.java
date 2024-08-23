@@ -17,9 +17,9 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.tryable_nullable.Nullable;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleUnexpectedNullException;
 import com.rawlabs.snapi.truffle.runtime.primitives.NullObject;
-import com.rawlabs.snapi.truffle.ast.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.UnsafeGet")
 @NodeChild("option")

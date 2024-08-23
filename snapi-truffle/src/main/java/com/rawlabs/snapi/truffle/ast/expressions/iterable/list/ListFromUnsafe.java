@@ -29,7 +29,6 @@ import com.rawlabs.snapi.truffle.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.iterable.IterableNodes;
 import com.rawlabs.snapi.truffle.runtime.iterable.IterableNodesFactory;
-
 import java.util.ArrayList;
 
 @NodeInfo(shortName = "List.FromUnsafe")

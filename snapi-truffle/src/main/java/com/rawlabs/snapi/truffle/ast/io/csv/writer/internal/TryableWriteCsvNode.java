@@ -17,11 +17,11 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;
-import com.rawlabs.snapi.truffle.runtime.exceptions.csv.CsvWriterTruffleException;
+import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
+import com.rawlabs.snapi.truffle.runtime.exceptions.csv.CsvWriterTruffleException;
 import java.io.IOException;
 
 @NodeInfo(shortName = "TryableWriteCsv")

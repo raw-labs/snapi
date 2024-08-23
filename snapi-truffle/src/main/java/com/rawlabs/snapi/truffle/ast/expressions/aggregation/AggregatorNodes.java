@@ -15,9 +15,9 @@ package com.rawlabs.snapi.truffle.ast.expressions.aggregation;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.runtime.operators.OperatorNodes;
 import com.rawlabs.snapi.truffle.runtime.primitives.NullObject;
-import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
 
 public class AggregatorNodes {
   @NodeInfo(shortName = "Aggregator.Zero")

@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.iterable.operations.ZipCollection;
 
 @NodeInfo(shortName = "Collection.Zip")

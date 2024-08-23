@@ -15,10 +15,10 @@ package com.rawlabs.snapi.truffle.ast.io.binary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.Rql2Context;
-import com.rawlabs.snapi.truffle.ast.StatementNode;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;
+import com.rawlabs.snapi.truffle.ast.StatementNode;
 import java.io.OutputStream;
 
 @NodeInfo(shortName = "Binary.Write")

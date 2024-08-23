@@ -14,11 +14,11 @@ package com.rawlabs.snapi.truffle.emitter.builtin.int_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.IntFromEntry;
+import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.numeric.int_package.IntFromNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
-import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.Rql2Language;
-import com.rawlabs.snapi.truffle.ast.expressions.builtin.numeric.int_package.IntFromNodeGen;
 import java.util.List;
 
 public class TruffleIntFromEntry extends IntFromEntry implements TruffleEntryExtension {

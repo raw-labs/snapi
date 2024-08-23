@@ -15,11 +15,11 @@ package com.rawlabs.snapi.truffle.ast.io.binary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;
-import com.rawlabs.snapi.truffle.runtime.exceptions.binary.BinaryWriterTruffleException;
+import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
+import com.rawlabs.snapi.truffle.runtime.exceptions.binary.BinaryWriterTruffleException;
 import java.io.OutputStream;
 
 @NodeInfo(shortName = "Binary.TryableWrite")
