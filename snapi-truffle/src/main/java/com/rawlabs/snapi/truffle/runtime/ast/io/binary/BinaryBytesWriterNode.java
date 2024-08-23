@@ -16,7 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.BinaryObject;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,7 +36,7 @@ public class BinaryBytesWriterNode extends StatementNode {
     try {
       output.write(binaryData);
     } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage(), e, this);
+      throw new TruffleRuntimeException(e.getMessage(), e, this);
     }
   }
 

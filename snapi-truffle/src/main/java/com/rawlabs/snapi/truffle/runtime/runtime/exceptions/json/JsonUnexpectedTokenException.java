@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 
-public class JsonUnexpectedTokenException extends JsonParserRawTruffleException {
+public class JsonUnexpectedTokenException extends JsonParserTruffleException {
   @TruffleBoundary
   public JsonUnexpectedTokenException(
       String expected, String actual, Throwable cause, Node location) {

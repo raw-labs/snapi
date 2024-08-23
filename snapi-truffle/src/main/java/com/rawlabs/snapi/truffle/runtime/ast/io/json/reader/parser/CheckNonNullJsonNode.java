@@ -20,7 +20,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonParserRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonParserTruffleException;
 
 @NodeInfo(shortName = "CheckNonNullJson")
 public class CheckNonNullJsonNode extends ExpressionNode {
@@ -40,7 +40,7 @@ public class CheckNonNullJsonNode extends ExpressionNode {
   @TruffleBoundary
   private void doCheck(JsonParser parser) {
     if (parser.currentToken() == JsonToken.VALUE_NULL) {
-      throw new JsonParserRawTruffleException("null value found", this);
+      throw new JsonParserTruffleException("null value found", this);
     }
   }
 }

@@ -14,11 +14,11 @@ package com.rawlabs.snapi.truffle.emitter.output;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramStatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.writer.internal.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
 import static com.rawlabs.snapi.truffle.emitter.output.CompilerScalaConsts.nullable;
@@ -26,11 +26,11 @@ import static com.rawlabs.snapi.truffle.emitter.output.CompilerScalaConsts.tryab
 
 public class JsonWriter {
 
-  public static ProgramStatementNode recurse(Rql2TypeWithProperties tipe, RawLanguage lang) {
+  public static ProgramStatementNode recurse(Rql2TypeWithProperties tipe, Rql2Language lang) {
     return recurse(tipe, false, lang);
   }
 
-  private static ProgramStatementNode recurse(Rql2TypeWithProperties tipe, boolean isSafe, RawLanguage lang) {
+  private static ProgramStatementNode recurse(Rql2TypeWithProperties tipe, boolean isSafe, Rql2Language lang) {
     return program(switch (tipe){
       case Rql2TypeWithProperties nt when nt.props().contains(tryable) -> {
         Rql2TypeWithProperties nextType = (Rql2TypeWithProperties) nt.cloneAndRemoveProp(tryable);
@@ -80,11 +80,11 @@ public class JsonWriter {
         yield new OrWriteJsonNode(children);
       }
       case Rql2UndefinedType ignored -> new UndefinedWriteJsonNode();
-      default -> throw new RawTruffleInternalErrorException();
+      default -> throw new TruffleInternalErrorException();
     }, lang);
   }
 
-  private static ProgramStatementNode program(StatementNode e, RawLanguage lang) {
+  private static ProgramStatementNode program(StatementNode e, Rql2Language lang) {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new ProgramStatementNode(lang, frameDescriptor, e);
   }

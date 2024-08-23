@@ -20,8 +20,8 @@ import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodes;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodesFactory;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonParserRawTruffleException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonReaderRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonParserTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonReaderTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "TryableParseJson")
@@ -42,10 +42,10 @@ public class TryableParseJsonNode extends ExpressionNode {
     JsonParser parser = (JsonParser) args[0];
     try {
       return childDirectCall.call(parser);
-    } catch (JsonParserRawTruffleException ex) {
+    } catch (JsonParserTruffleException ex) {
       try {
         skipNext.execute(this, parser);
-      } catch (JsonReaderRawTruffleException e) {
+      } catch (JsonReaderTruffleException e) {
         return new ErrorObject(ex.getMessage());
       }
       return new ErrorObject(ex.getMessage());

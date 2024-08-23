@@ -14,17 +14,17 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.binary;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
-public class BinaryWriterRawTruffleException extends RawTruffleRuntimeException {
+public class BinaryWriterTruffleException extends TruffleRuntimeException {
 
   @CompilerDirectives.TruffleBoundary
-  public BinaryWriterRawTruffleException(String message, Node location) {
+  public BinaryWriterTruffleException(String message, Node location) {
     super(message, location);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public BinaryWriterRawTruffleException(String message, Throwable cause, Node location) {
+  public BinaryWriterTruffleException(String message, Throwable cause, Node location) {
     super(message, cause, location);
   }
 }

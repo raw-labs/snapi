@@ -29,7 +29,7 @@ import com.rawlabs.snapi.truffle.runtime.ast.expressions.option.OptionNoneNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.tryable.TryableFlatMapNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.tryable.TryableNullableFlatMapNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.tryable.TryableSuccessNodeGen;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import java.util.List;
 
 public class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry
@@ -74,7 +74,7 @@ public class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEn
       return OptionFlatMapNodeGen.create(
           emitter.recurseExp(args.get(0).e()), emitter.recurseExp(args.get(1).e()));
     } else {
-      throw new RawTruffleInternalErrorException();
+      throw new TruffleInternalErrorException();
     }
   }
 }

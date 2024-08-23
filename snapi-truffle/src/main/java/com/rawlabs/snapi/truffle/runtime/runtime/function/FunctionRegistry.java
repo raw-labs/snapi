@@ -14,11 +14,11 @@ package com.rawlabs.snapi.truffle.runtime.runtime.function;
 
 import com.oracle.truffle.api.interop.TruffleObject;
 
-public final class RawFunctionRegistry {
+public final class FunctionRegistry {
 
   private final FunctionRegistryObject registry;
 
-  public RawFunctionRegistry() {
+  public FunctionRegistry() {
     registry = new FunctionRegistryObject();
   }
 

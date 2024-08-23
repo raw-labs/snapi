@@ -17,24 +17,24 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TimestampTimeBucketEnt
 import com.rawlabs.snapi.frontend.rql2.source.Rql2IntervalType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2StringType;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.timestamp_package.TimestampTimeBucketIntervalNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.timestamp_package.TimestampTimeBucketStringNodeGen;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 
 import java.util.List;
 
 public class TruffleTimestampTimeBucketEntry extends TimestampTimeBucketEntry implements TruffleEntryExtension {
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
 
     return switch (args.get(0).type()) {
       case Rql2StringType ignored ->
           TimestampTimeBucketStringNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
       case Rql2IntervalType ignored ->
           TimestampTimeBucketIntervalNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
-      default -> throw new RawTruffleInternalErrorException();
+      default -> throw new TruffleInternalErrorException();
     };
   }
 }

@@ -19,8 +19,8 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodes.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonReaderRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonReaderTruffleException;
 
 @NodeInfo(shortName = "ParseJson")
 @NodeChild(value = "str")
@@ -42,8 +42,8 @@ public abstract class JsonParseNode extends ExpressionNode {
       parser = initParserNode.execute(this, str);
       nextTokenNode.execute(this, parser);
       return childDirectCall.call(parser);
-    } catch (RawTruffleRuntimeException e) {
-      throw new JsonReaderRawTruffleException(e.getMessage(), parser, null, e, this);
+    } catch (TruffleRuntimeException e) {
+      throw new JsonReaderTruffleException(e.getMessage(), parser, null, e, this);
     } finally {
       if (parser != null) {
         closeParserNode.execute(this, parser);

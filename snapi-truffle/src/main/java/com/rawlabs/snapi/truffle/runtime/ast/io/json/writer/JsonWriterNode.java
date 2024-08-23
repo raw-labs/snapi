@@ -24,7 +24,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.StaticInitializers;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,7 +47,7 @@ public abstract class JsonWriterNode extends StatementNode {
     try (JsonGenerator gen = initGeneratorNode.execute(this, outputStream)) {
       childDirectCall.call(value, gen);
     } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
+      throw new TruffleRuntimeException(e.getMessage(), e, thisNode);
     }
   }
 }

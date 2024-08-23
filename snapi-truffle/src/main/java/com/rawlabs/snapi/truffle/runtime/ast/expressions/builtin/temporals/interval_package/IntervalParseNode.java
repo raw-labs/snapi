@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.interval_package;
 
-import static com.rawlabs.snapi.truffle.runtime.boundary.RawTruffleBoundaries.parseInt;
+import static com.rawlabs.snapi.truffle.runtime.boundary.TruffleBoundaries.parseInt;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.ImportStatic;
@@ -20,7 +20,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.boundary.RawTruffleBoundaries;
+import com.rawlabs.snapi.truffle.runtime.boundary.TruffleBoundaries;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.IntervalObject;
 import java.text.ParseException;
@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 @NodeInfo(shortName = "Interval.Parse")
 @NodeChild("format")
-@ImportStatic(RawTruffleBoundaries.class)
+@ImportStatic(TruffleBoundaries.class)
 public abstract class IntervalParseNode extends ExpressionNode {
 
   private int intOrDefault(String toParse) {

@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 
-public class JsonRecordFieldNotFoundException extends JsonParserRawTruffleException {
+public class JsonRecordFieldNotFoundException extends JsonParserTruffleException {
 
   @TruffleBoundary
   public JsonRecordFieldNotFoundException(String fieldName, Node location) {

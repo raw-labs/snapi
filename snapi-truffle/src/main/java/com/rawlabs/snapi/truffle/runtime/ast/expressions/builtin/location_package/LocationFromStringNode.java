@@ -17,8 +17,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription$;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.utils.sources.api.Location;
 import scala.util.Either;
@@ -36,19 +36,19 @@ public class LocationFromStringNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     String url = (String) this.url.executeGeneric(frame);
 
-    RawContext context = RawContext.get(this);
+    Rql2Context context = Rql2Context.get(this);
 
     Location location = getLocationFromUrl(url, context);
     return new LocationObject(location, url);
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Location getLocationFromUrl(String url, RawContext context) {
+  private Location getLocationFromUrl(String url, Rql2Context context) {
     Either<String, Location> maybeLocation =
         LocationDescription$.MODULE$.urlToLocation(
             url, context.getProgramEnvironment(), context.getSettings());
     if (maybeLocation.isLeft()) {
-      throw new RawTruffleRuntimeException(maybeLocation.left().get());
+      throw new TruffleRuntimeException(maybeLocation.left().get());
     }
     return maybeLocation.right().get();
   }

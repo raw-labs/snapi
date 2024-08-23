@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.utils;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.Reader;
 
-public class TruffleCharInputStream extends RawTruffleCharStream {
+public class TruffleCharInputStream extends TruffleCharStream {
   TruffleInputStream stream;
 
   String encoding;

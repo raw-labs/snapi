@@ -78,7 +78,7 @@ public class ListNodes {
     }
 
     @Specialization
-    static boolean isElementReadable(Node node, RawArrayList list, int index) {
+    static boolean isElementReadable(Node node, TruffleArrayList list, int index) {
       return list.isElementReadable(index);
     }
   }
@@ -136,7 +136,7 @@ public class ListNodes {
     }
 
     @Specialization
-    static Object get(Node node, RawArrayList list, long index) {
+    static Object get(Node node, TruffleArrayList list, long index) {
       return list.get(index);
     }
   }
@@ -194,7 +194,7 @@ public class ListNodes {
     }
 
     @Specialization
-    static long size(Node node, RawArrayList list) {
+    static long size(Node node, TruffleArrayList list) {
       return list.size();
     }
   }
@@ -252,7 +252,7 @@ public class ListNodes {
     }
 
     @Specialization
-    static ListIterable toIterable(Node node, RawArrayList list) {
+    static ListIterable toIterable(Node node, TruffleArrayList list) {
       return list.toIterable();
     }
   }
@@ -316,14 +316,14 @@ public class ListNodes {
     }
 
     @Specialization
-    static RawArrayList sort(
+    static TruffleArrayList sort(
         Node node,
-        RawArrayList list,
+        TruffleArrayList list,
         @Cached(inline = false) @Cached.Shared("compareUninlined")
             OperatorNodes.CompareUninlinedNode compare) {
       ArrayList<Object> aList = new ArrayList<>(list.getInnerList());
       aList.sort(compare::execute);
-      return new RawArrayList(aList);
+      return new TruffleArrayList(aList);
     }
   }
 
@@ -380,7 +380,7 @@ public class ListNodes {
     }
 
     @Specialization
-    static RawArrayList take(Node node, RawArrayList list, int num) {
+    static TruffleArrayList take(Node node, TruffleArrayList list, int num) {
       return list.take(num);
     }
   }

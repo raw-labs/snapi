@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParserSettings;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParserSettings;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources.XmlReadComputeNext;
@@ -30,14 +30,14 @@ import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
 public class XmlReadCollection implements TruffleObject {
   private final LocationObject locationObject;
   private final RootCallTarget parseNextRootCallTarget;
-  private RawTruffleXmlParserSettings settings;
+  private TruffleXmlParserSettings settings;
   private final String encoding;
 
   public XmlReadCollection(
       LocationObject locationObject,
       String encoding,
       RootCallTarget parseNextRootCallTarget,
-      RawTruffleXmlParserSettings settings) {
+      TruffleXmlParserSettings settings) {
     this.locationObject = locationObject;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
     this.settings = settings;

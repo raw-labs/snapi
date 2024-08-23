@@ -31,7 +31,7 @@ import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.emitter.builtin.location_extension.TruffleLocationFromStringEntry;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.controlflow.ExpBlockNode;
@@ -51,14 +51,14 @@ import com.rawlabs.snapi.truffle.runtime.ast.local.*;
 import com.rawlabs.snapi.truffle.runtime.ast.local.ReadClosureVariableNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.local.ReadLocalVariableNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.local.WriteLocalVariableNodeGen;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.runtime.function.Function;
 import scala.collection.JavaConverters;
 
 public class SnapiTruffleEmitter extends TruffleEmitter {
 
     private final Tree tree;
-    private final RawLanguage rawLanguage;
+    private final Rql2Language rawLanguage;
     private final ProgramContext programContext;
     private final SemanticAnalyzer analyzer;
     private final String uniqueId = UUID.randomUUID().toString().replace("-", "").replace("_", "");
@@ -315,10 +315,10 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 return (TruffleEntryExtension) entry;
             }
         }
-        throw new RawTruffleInternalErrorException("Could not find entry for " + pkgName + "." + entName);
+        throw new TruffleInternalErrorException("Could not find entry for " + pkgName + "." + entName);
     }
 
-    public SnapiTruffleEmitter(Tree tree, RawLanguage rawLanguage, ProgramContext programContext) {
+    public SnapiTruffleEmitter(Tree tree, Rql2Language rawLanguage, ProgramContext programContext) {
         this.tree = tree;
         this.analyzer = tree.analyzer();
         this.rawLanguage = rawLanguage;
@@ -329,7 +329,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return analyzer.tipe(e);
     }
 
-    public RawLanguage getLanguage() {
+    public Rql2Language getLanguage() {
         return this.rawLanguage;
     }
 
@@ -453,7 +453,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                     case PackageEntryType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    default -> throw new RawTruffleInternalErrorException();
+                    default -> throw new TruffleInternalErrorException();
                 };
                 addSlot(entity, Integer.toString(slot));
                 yield WriteLocalVariableNodeGen.create(recurseExp(lb.e()), slot, rql2Type);
@@ -490,7 +490,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 RecClosureNode functionLiteralNode = new RecClosureNode(f, defaultArgs);
                 yield WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
             }
-            default -> throw new RawTruffleInternalErrorException();
+            default -> throw new TruffleInternalErrorException();
         };
     }
 
@@ -558,14 +558,14 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 case Neq ignored -> NotNodeGen.create(new EqNode(recurseExp(be.left()), recurseExp(be.right())));
                 case Lt ignored -> new LtNode(recurseExp(be.left()), recurseExp(be.right()));
                 case Le ignored -> new LeNode(recurseExp(be.left()), recurseExp(be.right()));
-                default -> throw new RawTruffleInternalErrorException();
+                default -> throw new TruffleInternalErrorException();
             };
             case BinaryConst bc -> new BinaryConstNode(bc.bytes());
             case LocationConst lc -> new LocationConstNode(lc.bytes(), lc.publicDescription());
             case UnaryExp ue -> switch (ue.unaryOp()) {
                 case Neg ignored -> NegNodeGen.create(recurseExp(ue.exp()));
                 case Not ignored -> NotNodeGen.create(recurseExp(ue.exp()));
-                default -> throw new RawTruffleInternalErrorException();
+                default -> throw new TruffleInternalErrorException();
             };
             case IdnExp ie -> {
                 Entity entity = analyzer.entity().apply(ie.idn());
@@ -614,7 +614,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                             yield new ReadParamClosureNode(depth, idx);
                         }
                     }
-                    default -> throw new RawTruffleInternalErrorException("Unknown entity type");
+                    default -> throw new TruffleInternalErrorException("Unknown entity type");
                 };
             }
             case IfThenElse ite -> new IfThenElseNode(recurseExp(ite.e1()), recurseExp(ite.e2()), recurseExp(ite.e3()));
@@ -653,7 +653,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 ExpressionNode[] exps = JavaConverters.asJavaCollection(fa.args()).stream().map(a -> recurseExp(a.e())).toArray(ExpressionNode[]::new);
                 yield new InvokeNode(recurseExp(fa.f()), argNames, exps);
             }
-            default -> throw new RawTruffleInternalErrorException("Unknown expression type");
+            default -> throw new TruffleInternalErrorException("Unknown expression type");
         };
     }
 }

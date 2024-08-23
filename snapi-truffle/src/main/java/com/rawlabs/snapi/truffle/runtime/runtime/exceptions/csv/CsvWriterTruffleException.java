@@ -14,11 +14,11 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
-public class CsvWriterRawTruffleException extends RawTruffleRuntimeException {
+public class CsvWriterTruffleException extends TruffleRuntimeException {
   @CompilerDirectives.TruffleBoundary
-  public CsvWriterRawTruffleException(String message, Throwable cause, Node location) {
+  public CsvWriterTruffleException(String message, Throwable cause, Node location) {
     super("failed to write CSV: " + message, cause, location);
   }
 }

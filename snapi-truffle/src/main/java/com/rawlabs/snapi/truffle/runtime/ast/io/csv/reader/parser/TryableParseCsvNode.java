@@ -17,7 +17,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvParserRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvParserTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "TryableParseCsv")
@@ -31,10 +31,10 @@ public class TryableParseCsvNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    TruffleCsvParser parser = (TruffleCsvParser) args[0];
     try {
       return innerParse.call(parser);
-    } catch (CsvParserRawTruffleException ex) {
+    } catch (CsvParserTruffleException ex) {
       return new ErrorObject(ex.getMessage());
     }
   }

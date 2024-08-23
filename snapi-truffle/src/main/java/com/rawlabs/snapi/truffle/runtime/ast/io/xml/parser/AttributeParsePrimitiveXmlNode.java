@@ -29,7 +29,7 @@ public class AttributeParsePrimitiveXmlNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    TruffleXmlParser parser = (TruffleXmlParser) args[0];
     int index = (int) args[1];
     String text = parser.getStringAttribute(index);
     return childDirectCall.call(parser, text);

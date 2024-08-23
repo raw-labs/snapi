@@ -12,20 +12,20 @@
 
 package com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.numeric.int_package;
 
-import static com.rawlabs.snapi.truffle.runtime.boundary.RawTruffleBoundaries.parseInt;
+import static com.rawlabs.snapi.truffle.runtime.boundary.TruffleBoundaries.parseInt;
 
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.boundary.RawTruffleBoundaries;
+import com.rawlabs.snapi.truffle.runtime.boundary.TruffleBoundaries;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.DecimalObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Int.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
-@ImportStatic(RawTruffleBoundaries.class)
+@ImportStatic(TruffleBoundaries.class)
 public abstract class IntFromNode extends ExpressionNode {
 
   @Specialization

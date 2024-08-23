@@ -17,7 +17,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterTruffleException;
 import java.io.IOException;
 
 @NodeInfo(shortName = "BoolWriteCsv")
@@ -36,7 +36,7 @@ public class BoolWriteCsvNode extends StatementNode {
     try {
       gen.writeBoolean(value);
     } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+      throw new CsvWriterTruffleException(e.getMessage(), e, this);
     }
   }
 }

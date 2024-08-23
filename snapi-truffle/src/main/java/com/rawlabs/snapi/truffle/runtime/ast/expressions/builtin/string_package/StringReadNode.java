@@ -16,7 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.StaticInitializers;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
@@ -43,7 +43,7 @@ public abstract class StringReadNode extends ExpressionNode {
       } finally {
         IOUtils.closeQuietly(reader);
       }
-    } catch (RawTruffleRuntimeException ex) {
+    } catch (TruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     }
   }

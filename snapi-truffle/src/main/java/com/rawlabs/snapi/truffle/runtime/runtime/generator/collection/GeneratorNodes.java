@@ -21,7 +21,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.runtime.data_structures.treemap.TreeMapNode;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.BreakException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.ComputeNextNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.off_heap_generator.input_buffer.GroupByInputBuffer;
@@ -66,7 +66,7 @@ public class GeneratorNodes {
         } catch (BreakException e) { // case end of data
           generator.setTerminated(true);
           throw e;
-        } catch (RawTruffleRuntimeException e) { // case runtime exception
+        } catch (TruffleRuntimeException e) { // case runtime exception
           generator.setException(e);
         }
       } else if (generator.hasException()) { // if hasNext returned a runtime error
@@ -307,7 +307,7 @@ public class GeneratorNodes {
         } catch (BreakException e) {
           generator.setTerminated(true);
           return false;
-        } catch (RawTruffleRuntimeException e) { // store the runtime error
+        } catch (TruffleRuntimeException e) { // store the runtime error
           generator.setException(e);
         }
       }
@@ -479,7 +479,7 @@ public class GeneratorNodes {
                       new GroupByInputBuffer(generator.getOffHeapGroupByKey(), kryoBuffer);
                   generator.addInputBuffer(buffer);
                 } catch (FileNotFoundException e) {
-                  throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
+                  throw new TruffleRuntimeException(e.getMessage(), e, thisNode);
                 }
               });
     }
@@ -506,7 +506,7 @@ public class GeneratorNodes {
                       new OrderByInputBuffer(generator.getOffHeapGroupByKeys(), kryoBuffer);
                   generator.addInputBuffer(buffer);
                 } catch (FileNotFoundException e) {
-                  throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
+                  throw new TruffleRuntimeException(e.getMessage(), e, thisNode);
                 }
               });
     }
@@ -534,7 +534,7 @@ public class GeneratorNodes {
                               generator.getOffHeapDistinct().getKryoInputBufferSize()));
                   generator.getHeadKeys().add(null);
                 } catch (FileNotFoundException e) {
-                  throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
+                  throw new TruffleRuntimeException(e.getMessage(), e, thisNode);
                 }
               });
     }

@@ -22,7 +22,7 @@ public class TimeParseCsvNode extends ExpressionNode {
 
   public TimeObject executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    TruffleCsvParser parser = (TruffleCsvParser) args[0];
     return parser.getTime(this);
   }
 }

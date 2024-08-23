@@ -12,13 +12,13 @@
 
 package com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser;
 
-public class RawTruffleXmlParserSettings {
+public class TruffleXmlParserSettings {
 
   protected final String dateFormat;
   protected final String timeFormat;
   protected final String timestampFormat;
 
-  public RawTruffleXmlParserSettings(String dateFormat, String timeFormat, String timestampFormat) {
+  public TruffleXmlParserSettings(String dateFormat, String timeFormat, String timestampFormat) {
     this.dateFormat = dateFormat;
     this.timeFormat = timeFormat;
     this.timestampFormat = timestampFormat;

@@ -13,12 +13,12 @@
 package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv;
 
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.RawTruffleCsvParser;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleCharStream;
+import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.TruffleCsvParser;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharStream;
 
-public class CsvExpectedNothingException extends CsvParserRawTruffleException {
+public class CsvExpectedNothingException extends CsvParserTruffleException {
   public CsvExpectedNothingException(
-      String token, RawTruffleCsvParser p, RawTruffleCharStream stream, Node location) {
+      String token, TruffleCsvParser p, TruffleCharStream stream, Node location) {
     super(String.format("unexpected value found, token '%s'", token), p, stream, location);
   }
 }

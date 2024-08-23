@@ -13,30 +13,30 @@
 package com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.oracle.truffle.api.RootCallTarget;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParser;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParserSettings;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleStringCharStream;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParser;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParserSettings;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleStringCharStream;
 
 public class XmlParseComputeNext {
   private final String text;
   protected final RootCallTarget parseNextRootCallTarget;
-  private final RawTruffleXmlParserSettings settings;
-  private RawTruffleXmlParser parser;
+  private final TruffleXmlParserSettings settings;
+  private TruffleXmlParser parser;
 
-  private RawTruffleStringCharStream stream;
+  private TruffleStringCharStream stream;
 
   public XmlParseComputeNext(
-      String text, RootCallTarget parseNextRootCallTarget, RawTruffleXmlParserSettings settings) {
+      String text, RootCallTarget parseNextRootCallTarget, TruffleXmlParserSettings settings) {
     this.text = text;
     this.settings = settings;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
   }
 
-  public void setParser(RawTruffleXmlParser parser) {
+  public void setParser(TruffleXmlParser parser) {
     this.parser = parser;
   }
 
-  public void setStream(RawTruffleStringCharStream stream) {
+  public void setStream(TruffleStringCharStream stream) {
     this.stream = stream;
   }
 
@@ -44,11 +44,11 @@ public class XmlParseComputeNext {
     return parseNextRootCallTarget;
   }
 
-  public RawTruffleXmlParser getParser() {
+  public TruffleXmlParser getParser() {
     return parser;
   }
 
-  public RawTruffleStringCharStream getStream() {
+  public TruffleStringCharStream getStream() {
     return stream;
   }
 
@@ -56,7 +56,7 @@ public class XmlParseComputeNext {
     return text;
   }
 
-  public RawTruffleXmlParserSettings getSettings() {
+  public TruffleXmlParserSettings getSettings() {
     return settings;
   }
 }

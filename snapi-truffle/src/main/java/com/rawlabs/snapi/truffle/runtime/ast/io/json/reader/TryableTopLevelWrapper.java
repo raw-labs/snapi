@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.ast.io.json.reader;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 
 // This node is a top level wrapper node that catches the Initialization of a child parser failures
@@ -31,7 +31,7 @@ public class TryableTopLevelWrapper extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     try {
       return reader.executeGeneric(frame);
-    } catch (RawTruffleRuntimeException ex) {
+    } catch (TruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     }
   }

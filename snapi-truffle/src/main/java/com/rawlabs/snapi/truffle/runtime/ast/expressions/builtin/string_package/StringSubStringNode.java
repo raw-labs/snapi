@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
 @NodeInfo(shortName = "String.SubString")
 @NodeChild(value = "string")
@@ -29,7 +29,7 @@ public abstract class StringSubStringNode extends ExpressionNode {
   @TruffleBoundary
   protected String stringSubstring(String string, int begin, int length) {
     if (begin <= 0) {
-      throw new RawTruffleRuntimeException("invalid index: indexes start at 1", this);
+      throw new TruffleRuntimeException("invalid index: indexes start at 1", this);
     }
 
     int end;

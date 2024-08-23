@@ -14,22 +14,21 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms;
 
 import com.oracle.truffle.api.nodes.Node;
 import com.rawlabs.snapi.truffle.runtime.ast.io.jdbc.JdbcQuery;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import java.sql.SQLException;
 
 public class JdbcExceptionHandler {
 
-  public RawTruffleRuntimeException rewrite(SQLException e, JdbcQuery rs, Node location) {
-    return new JdbcReaderRawTruffleException(e.getMessage(), rs, e, location);
+  public TruffleRuntimeException rewrite(SQLException e, JdbcQuery rs, Node location) {
+    return new JdbcReaderTruffleException(e.getMessage(), rs, e, location);
   }
 
-  public RawTruffleRuntimeException columnParseError(
-      SQLException e, String colName, Node location) {
-    return new JdbcParserRawTruffleException(
+  public TruffleRuntimeException columnParseError(SQLException e, String colName, Node location) {
+    return new JdbcParserTruffleException(
         String.format("column '%s': %s", colName, e.getMessage()), e, location);
   }
 
-  public RawTruffleRuntimeException rewrite(SQLException e, JdbcQuery rs) {
-    return new JdbcReaderRawTruffleException(e.getMessage(), rs, e, null);
+  public TruffleRuntimeException rewrite(SQLException e, JdbcQuery rs) {
+    return new JdbcReaderTruffleException(e.getMessage(), rs, e, null);
   }
 }

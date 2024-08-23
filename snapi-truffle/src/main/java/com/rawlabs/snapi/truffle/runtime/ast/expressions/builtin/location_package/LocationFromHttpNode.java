@@ -21,8 +21,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.protocol.compiler.HttpHeadersConfig;
 import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ListNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ListNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.*;
@@ -164,7 +164,7 @@ public class LocationFromHttpNode extends ExpressionNode {
                                 .encodeToString((username + ":" + password).getBytes())));
       }
 
-      RawContext context = RawContext.get(this);
+      Rql2Context context = Rql2Context.get(this);
 
       // Append any additional headers related to the authentication (if credential name is defined)
       if (this.authCredentialName != null) {
@@ -179,7 +179,7 @@ public class LocationFromHttpNode extends ExpressionNode {
                     headersBuilder.$plus$eq(Tuple2.apply(entry.getKey(), entry.getValue()));
           }
         } else {
-          throw new RawTruffleInternalErrorException("credential is not an HTTP headers");
+          throw new TruffleInternalErrorException("credential is not an HTTP headers");
         }
       }
 
@@ -215,7 +215,7 @@ public class LocationFromHttpNode extends ExpressionNode {
     } catch (UnsupportedMessageException
         | InvalidArrayIndexException
         | UnknownIdentifierException e) {
-      throw new RawTruffleInternalErrorException(e, this);
+      throw new TruffleInternalErrorException(e, this);
     }
   }
 }

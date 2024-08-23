@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.utils;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.utils.core.RawException;
 import com.rawlabs.utils.sources.api.Encoding;
@@ -39,7 +39,7 @@ public class TruffleInputStream {
     try {
       return locationObject.getByteStreamLocation();
     } catch (RawException ex) {
-      throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
+      throw new TruffleRuntimeException(ex.getMessage(), ex, null);
     }
   }
 
@@ -58,7 +58,7 @@ public class TruffleInputStream {
     try {
       return getLocation().getInputStream();
     } catch (RawException ex) {
-      throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
+      throw new TruffleRuntimeException(ex.getMessage(), ex, null);
     }
   }
 
@@ -67,7 +67,7 @@ public class TruffleInputStream {
     try {
       return getLocation().getReader(toEncoding(encoding));
     } catch (RawException ex) {
-      throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
+      throw new TruffleRuntimeException(ex.getMessage(), ex, null);
     }
   }
 
@@ -77,7 +77,7 @@ public class TruffleInputStream {
     if (r.isRight()) {
       return r.right().get();
     } else {
-      throw new RawTruffleRuntimeException(r.left().get());
+      throw new TruffleRuntimeException(r.left().get());
     }
   }
 
@@ -86,7 +86,7 @@ public class TruffleInputStream {
     try {
       return getLocation().getReader(encoding);
     } catch (RawException ex) {
-      throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
+      throw new TruffleRuntimeException(ex.getMessage(), ex, null);
     }
   }
 }

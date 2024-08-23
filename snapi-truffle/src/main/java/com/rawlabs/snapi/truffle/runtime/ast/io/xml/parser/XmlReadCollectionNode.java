@@ -52,8 +52,8 @@ public class XmlReadCollectionNode extends ExpressionNode {
     String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
     String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
     String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
-    RawTruffleXmlParserSettings settings =
-        new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
+    TruffleXmlParserSettings settings =
+        new TruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
     return new XmlReadCollection(locationObject, encoding, parseRootCallTarget, settings);
   }
 }

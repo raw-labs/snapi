@@ -16,7 +16,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
 @ExportLibrary(InteropLibrary.class)
 public class ErrorObject implements TruffleObject {
@@ -37,6 +37,6 @@ public class ErrorObject implements TruffleObject {
 
   @ExportMessage
   public RuntimeException throwException() {
-    return new RawTruffleRuntimeException(message);
+    return new TruffleRuntimeException(message);
   }
 }

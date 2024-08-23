@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.parser;
 
-import static com.rawlabs.snapi.truffle.runtime.boundary.RawTruffleBoundaries.*;
+import static com.rawlabs.snapi.truffle.runtime.boundary.TruffleBoundaries.*;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -25,11 +25,11 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2IsNullableTypeProperty;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodes;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodesFactory;
-import com.rawlabs.snapi.truffle.runtime.boundary.RawTruffleBoundaries;
+import com.rawlabs.snapi.truffle.runtime.boundary.TruffleBoundaries;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonUnexpectedTokenException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.NullObject;
@@ -39,7 +39,7 @@ import java.util.BitSet;
 import java.util.LinkedHashMap;
 
 @NodeInfo(shortName = "RecordParseJson")
-@ImportStatic(RawTruffleBoundaries.class)
+@ImportStatic(TruffleBoundaries.class)
 public class RecordParseJsonNode extends ExpressionNode {
 
   @Children private final DirectCallNode[] childDirectCalls;
@@ -67,7 +67,7 @@ public class RecordParseJsonNode extends ExpressionNode {
   private final int fieldsSize;
   private final Rql2TypeWithProperties[] fieldTypes;
 
-  private final RawLanguage language = RawLanguage.get(this);
+  private final Rql2Language language = Rql2Language.get(this);
 
   private final boolean hasDuplicateKeys;
 

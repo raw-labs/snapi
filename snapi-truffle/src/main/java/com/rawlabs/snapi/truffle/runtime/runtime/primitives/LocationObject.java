@@ -21,7 +21,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription;
 import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription$;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.utils.sources.api.Location;
 import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation;
 import com.rawlabs.utils.sources.bytestream.http.HttpByteStreamLocation;
@@ -63,7 +63,7 @@ public final class LocationObject implements TruffleObject {
     if (location instanceof ByteStreamLocation) {
       return (ByteStreamLocation) location;
     } else {
-      throw new RawTruffleRuntimeException("not a byte stream location");
+      throw new TruffleRuntimeException("not a byte stream location");
     }
   }
 
@@ -71,7 +71,7 @@ public final class LocationObject implements TruffleObject {
     if (location instanceof FileSystemLocation) {
       return (FileSystemLocation) location;
     } else {
-      throw new RawTruffleRuntimeException("not a file system location");
+      throw new TruffleRuntimeException("not a file system location");
     }
   }
 
@@ -79,7 +79,7 @@ public final class LocationObject implements TruffleObject {
     if (location instanceof JdbcServerLocation) {
       return (JdbcServerLocation) location;
     } else {
-      throw new RawTruffleRuntimeException("not a database location");
+      throw new TruffleRuntimeException("not a database location");
     }
   }
 
@@ -87,7 +87,7 @@ public final class LocationObject implements TruffleObject {
     if (location instanceof HttpByteStreamLocation) {
       return (HttpByteStreamLocation) location;
     } else {
-      throw new RawTruffleRuntimeException("not an HTTP location");
+      throw new TruffleRuntimeException("not an HTTP location");
     }
   }
 

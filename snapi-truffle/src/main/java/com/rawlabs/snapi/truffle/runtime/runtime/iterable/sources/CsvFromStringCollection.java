@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
+import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.TruffleCsvParserSettings;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources.CsvReadFromStringComputeNext;
@@ -30,10 +30,10 @@ public class CsvFromStringCollection implements TruffleObject {
   private final String str;
   private final RootCallTarget rowParserCallTarget;
 
-  private final RawTruffleCsvParserSettings settings;
+  private final TruffleCsvParserSettings settings;
 
   public CsvFromStringCollection(
-      String str, RootCallTarget rowParserCallTarget, RawTruffleCsvParserSettings settings) {
+      String str, RootCallTarget rowParserCallTarget, TruffleCsvParserSettings settings) {
     this.str = str;
     this.rowParserCallTarget = rowParserCallTarget;
     this.settings = settings;

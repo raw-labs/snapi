@@ -20,7 +20,7 @@ import com.rawlabs.snapi.frontend.rql2.source.Rql2RecordType;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.binary.PlusNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.aws_package.AwsV4SignedRequestNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.list.ListBuildNode;
@@ -33,7 +33,7 @@ import scala.collection.immutable.Vector;
 public class TruffleAwsV4SignedRequestEntry extends AwsV4SignedRequest
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode key = args.get(0).exprNode();
     ExpressionNode secretKey = args.get(1).exprNode();
     ExpressionNode service = args.get(2).exprNode();

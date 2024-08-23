@@ -17,7 +17,7 @@ import com.rawlabs.snapi.frontend.rql2.source.Exp;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Method;
 import com.rawlabs.snapi.truffle.emitter.compiler.TruffleBuildBody;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.function.ClosureNode;
 
@@ -32,7 +32,7 @@ public abstract class TruffleEmitter {
 
   public abstract FrameDescriptor.Builder getFrameDescriptorBuilder();
 
-  public abstract RawLanguage getLanguage();
+  public abstract Rql2Language getLanguage();
 
   protected abstract StatementNode emitMethod(Rql2Method m);
 }

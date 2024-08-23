@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.runtime.utils;
 
 import java.io.Reader;
 
-public abstract class RawTruffleCharStream {
+public abstract class TruffleCharStream {
   public abstract Reader getReader();
 
   public abstract String positionDescription();

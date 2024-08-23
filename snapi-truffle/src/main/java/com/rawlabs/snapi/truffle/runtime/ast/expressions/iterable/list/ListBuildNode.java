@@ -19,7 +19,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.*;
 
 @NodeInfo(shortName = "List.Build")
@@ -114,7 +114,7 @@ public class ListBuildNode extends ExpressionNode {
         }
       }
     } catch (UnexpectedResultException ex) {
-      throw new RawTruffleInternalErrorException(ex, this);
+      throw new TruffleInternalErrorException(ex, this);
     }
   }
 }

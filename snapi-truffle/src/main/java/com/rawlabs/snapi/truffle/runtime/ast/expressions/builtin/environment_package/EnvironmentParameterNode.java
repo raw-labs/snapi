@@ -23,7 +23,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
 import com.rawlabs.snapi.truffle.runtime.ast.TypeGuards;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.StaticInitializers;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.*;
@@ -41,7 +41,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected byte getByte(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -56,7 +56,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected short getShort(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -71,7 +71,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected int getInt(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -86,7 +86,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected long getLong(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -101,7 +101,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected float getFloat(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -116,7 +116,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected Double getDouble(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -131,7 +131,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected DecimalObject getDecimal(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -146,7 +146,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected boolean getBool(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -161,7 +161,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected String getString(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -176,7 +176,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected DateObject getDate(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -191,7 +191,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected TimeObject getTime(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -206,7 +206,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected TimestampObject getTimestamp(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
@@ -222,7 +222,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   protected IntervalObject getInterval(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context,
       @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
     TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);

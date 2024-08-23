@@ -17,7 +17,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 
 public class OSRGeneratorNode extends Node implements RepeatingNode {
 
@@ -38,7 +38,7 @@ public class OSRGeneratorNode extends Node implements RepeatingNode {
       }
       return false;
     } catch (UnexpectedResultException e) {
-      throw new RawTruffleInternalErrorException(e);
+      throw new TruffleInternalErrorException(e);
     }
   }
 

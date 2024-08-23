@@ -22,7 +22,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 
 @ExportLibrary(InteropLibrary.class)
 public class PureRecord extends DynamicObject implements TruffleObject {
@@ -37,7 +37,7 @@ public class PureRecord extends DynamicObject implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return RawLanguage.class;
+    return Rql2Language.class;
   }
 
   @ExportMessage

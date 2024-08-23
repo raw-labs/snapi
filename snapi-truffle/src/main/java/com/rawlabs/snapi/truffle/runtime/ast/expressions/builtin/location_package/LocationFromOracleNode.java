@@ -16,7 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.*;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
@@ -54,7 +54,7 @@ public class LocationFromOracleNode extends ExpressionNode {
 
     JdbcServerLocation location =
         getJdbcServerLocation(
-            host, port, db, username, password, RawContext.get(this).getSettings());
+            host, port, db, username, password, Rql2Context.get(this).getSettings());
 
     return new LocationObject(location, "oracle:" + db);
   }

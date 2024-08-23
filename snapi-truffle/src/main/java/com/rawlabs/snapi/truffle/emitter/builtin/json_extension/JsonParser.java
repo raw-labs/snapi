@@ -16,7 +16,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.parser.*;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.parser.BinaryParseJsonNodeGen;
@@ -33,7 +33,7 @@ import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.parser.ShortParseJso
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.parser.StringParseJsonNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.parser.TimeParseJsonNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.parser.TimestampParseJsonNodeGen;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
 import java.util.LinkedHashMap;
@@ -53,11 +53,11 @@ public class JsonParser {
     this.timestampFormat = timestampFormat;
   }
 
-  public ProgramExpressionNode recurse(Rql2TypeWithProperties tipe, RawLanguage lang) {
+  public ProgramExpressionNode recurse(Rql2TypeWithProperties tipe, Rql2Language lang) {
     return recurse(tipe, true, lang);
   }
 
-  private ProgramExpressionNode recurse(Rql2TypeWithProperties tipe, boolean appendNullCheck, RawLanguage lang) {
+  private ProgramExpressionNode recurse(Rql2TypeWithProperties tipe, boolean appendNullCheck, Rql2Language lang) {
     FrameDescriptor.Builder builder = FrameDescriptor.newBuilder();
     int parserSlot =
             builder.addSlot(
@@ -144,19 +144,19 @@ public class JsonParser {
             yield new OrParseJsonNode(children);
           }
           case Rql2UndefinedType ignored -> new UndefinedParseJsonNode();
-          default -> throw new RawTruffleInternalErrorException();
+          default -> throw new TruffleInternalErrorException();
         };
         if (appendNullCheck) {
           yield new CheckNonNullJsonNode(program(result, builder.build(), lang));
         }
         else yield result;
       }
-      default -> throw new RawTruffleInternalErrorException();
+      default -> throw new TruffleInternalErrorException();
     };
     return program(e, builder.build(), lang);
   }
 
-  private ProgramExpressionNode program(ExpressionNode e, FrameDescriptor frameDescriptor, RawLanguage lang){
+  private ProgramExpressionNode program(ExpressionNode e, FrameDescriptor frameDescriptor, Rql2Language lang){
     return new ProgramExpressionNode(lang, frameDescriptor, e);
   }
 }

@@ -22,7 +22,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.writer.JsonWriteNodes;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -44,7 +44,7 @@ public abstract class JsonPrintNode extends ExpressionNode {
       gen.flush();
       return stream.toString();
     } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage(), e, this);
+      throw new TruffleRuntimeException(e.getMessage(), e, this);
     }
   }
 }

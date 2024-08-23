@@ -14,22 +14,22 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
-public class JsonParserRawTruffleException extends RawTruffleRuntimeException {
+public class JsonParserTruffleException extends TruffleRuntimeException {
 
   @TruffleBoundary
-  public JsonParserRawTruffleException(String message) {
+  public JsonParserTruffleException(String message) {
     super(message);
   }
 
   @TruffleBoundary
-  public JsonParserRawTruffleException(String message, Throwable cause, Node location) {
+  public JsonParserTruffleException(String message, Throwable cause, Node location) {
     super(message, cause, location);
   }
 
   @TruffleBoundary
-  public JsonParserRawTruffleException(String message, Node location) {
+  public JsonParserTruffleException(String message, Node location) {
     super(message, location);
   }
 }

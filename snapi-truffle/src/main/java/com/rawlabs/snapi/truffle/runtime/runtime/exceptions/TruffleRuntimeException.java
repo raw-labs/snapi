@@ -21,30 +21,30 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 
 @ExportLibrary(InteropLibrary.class)
-public class RawTruffleRuntimeException extends AbstractTruffleException {
+public class TruffleRuntimeException extends AbstractTruffleException {
 
   @TruffleBoundary
-  public RawTruffleRuntimeException(String message) {
+  public TruffleRuntimeException(String message) {
     super(message);
   }
 
   @TruffleBoundary
-  public RawTruffleRuntimeException(String message, Throwable cause, Node location) {
+  public TruffleRuntimeException(String message, Throwable cause, Node location) {
     super(message, cause, UNLIMITED_STACK_TRACE, location);
   }
 
   @TruffleBoundary
-  public RawTruffleRuntimeException(String message, Node location) {
+  public TruffleRuntimeException(String message, Node location) {
     super(message, location);
   }
 
   @TruffleBoundary
-  public RawTruffleRuntimeException(String message, Throwable cause) {
+  public TruffleRuntimeException(String message, Throwable cause) {
     super(message, cause, UNLIMITED_STACK_TRACE, null);
   }
 
   @TruffleBoundary
-  public RawTruffleRuntimeException(Throwable cause, Node location) {
+  public TruffleRuntimeException(Throwable cause, Node location) {
     super(cause.toString(), cause, UNLIMITED_STACK_TRACE, location);
   }
 

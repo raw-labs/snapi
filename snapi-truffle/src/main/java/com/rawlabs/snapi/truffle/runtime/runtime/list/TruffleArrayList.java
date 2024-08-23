@@ -21,10 +21,10 @@ import com.rawlabs.snapi.truffle.runtime.runtime.iterable.list.ListIterable;
 import java.util.ArrayList;
 
 @ExportLibrary(InteropLibrary.class)
-public class RawArrayList implements TruffleObject {
+public class TruffleArrayList implements TruffleObject {
   private final ArrayList<Object> list;
 
-  public RawArrayList(ArrayList<Object> list) {
+  public TruffleArrayList(ArrayList<Object> list) {
     this.list = list;
   }
 
@@ -54,13 +54,13 @@ public class RawArrayList implements TruffleObject {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public RawArrayList take(int num) {
+  public TruffleArrayList take(int num) {
     if (num >= this.list.size()) {
       return this;
     } else if (num <= 0) {
-      return new RawArrayList(new ArrayList<>());
+      return new TruffleArrayList(new ArrayList<>());
     } else {
-      return new RawArrayList(new ArrayList<>(list.subList(0, num)));
+      return new TruffleArrayList(new ArrayList<>(list.subList(0, num)));
     }
   }
 

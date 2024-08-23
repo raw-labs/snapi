@@ -17,7 +17,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "TryableParseXml")
@@ -31,14 +31,14 @@ public class TryableParseXmlNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    TruffleXmlParser parser = (TruffleXmlParser) args[0];
     try {
       return childDirectCall.call(args);
-    } catch (XmlParserRawTruffleException ex) {
+    } catch (XmlParserTruffleException ex) {
       Object failure = new ErrorObject(ex.getMessage());
       try {
         parser.finishConsuming();
-      } catch (XmlParserRawTruffleException e) {
+      } catch (XmlParserTruffleException e) {
         return failure;
       }
       return failure;

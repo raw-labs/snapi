@@ -15,28 +15,28 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharInputStream;
 
-public class JsonReaderRawTruffleException extends RawTruffleRuntimeException {
+public class JsonReaderTruffleException extends TruffleRuntimeException {
   @TruffleBoundary
-  public JsonReaderRawTruffleException(String message, Throwable cause, Node location) {
+  public JsonReaderTruffleException(String message, Throwable cause, Node location) {
     super(message, cause, location);
   }
 
   @TruffleBoundary
-  public JsonReaderRawTruffleException(Throwable cause, Node location) {
+  public JsonReaderTruffleException(Throwable cause, Node location) {
     super("failed to read JSON", cause, location);
   }
 
   @TruffleBoundary
-  public JsonReaderRawTruffleException(
+  public JsonReaderTruffleException(
       JsonParser parser, TruffleCharInputStream stream, Throwable cause, Node location) {
     super(createMessage(cause.getCause().getMessage(), parser, stream), cause, location);
   }
 
   @TruffleBoundary
-  public JsonReaderRawTruffleException(
+  public JsonReaderTruffleException(
       String message,
       JsonParser parser,
       TruffleCharInputStream stream,

@@ -21,7 +21,7 @@ public class OptionShortParseCsvNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    TruffleCsvParser parser = (TruffleCsvParser) args[0];
     return parser.getOptionShort(this);
   }
 }

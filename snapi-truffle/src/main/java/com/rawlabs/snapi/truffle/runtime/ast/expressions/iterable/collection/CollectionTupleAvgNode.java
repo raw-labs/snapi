@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.aggregation.*;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.DecimalObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodes;
@@ -42,7 +42,7 @@ public class CollectionTupleAvgNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
 
     Object[] results = (Object[]) aggregate.executeGeneric(virtualFrame);
-    Object record = RawLanguage.get(this).createPureRecord();
+    Object record = Rql2Language.get(this).createPureRecord();
     if ((long) results[1] == (long) zeroNode.execute(this, Aggregations.COUNT)) {
       addPropNode.execute(this, record, "sum", zeroNode.execute(this, Aggregations.SUM), false);
     } else {

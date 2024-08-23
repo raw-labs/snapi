@@ -17,13 +17,13 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.LastListEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.list.ListLastNodeGen;
 import java.util.List;
 
 public class TruffleLastListEntry extends LastListEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     return ListLastNodeGen.create(args.get(0).exprNode());
   }
 }

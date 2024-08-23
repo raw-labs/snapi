@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.boundary;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.util.BitSet;
 
-public class RawTruffleBoundaries {
+public class TruffleBoundaries {
   @CompilerDirectives.TruffleBoundary
   public static int parseInt(String str) {
     return Integer.parseInt(str);

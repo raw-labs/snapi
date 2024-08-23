@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.operations.OrderByCollection;
 
 @NodeInfo(shortName = "Collection.OrderBy")
@@ -61,9 +61,9 @@ public class CollectionOrderByNode extends ExpressionNode {
         String order = orderings[i].executeString(frame);
         if (order.equalsIgnoreCase("ASC")) orders[i] = 1;
         else if (order.equalsIgnoreCase("DESC")) orders[i] = -1;
-        else throw new RawTruffleRuntimeException("Invalid ordering: " + order);
+        else throw new TruffleRuntimeException("Invalid ordering: " + order);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleRuntimeException(e.getMessage(), e, this);
+        throw new TruffleRuntimeException(e.getMessage(), e, this);
       }
     }
     Object[] keyFunctions = new Object[this.keyFuns.length];

@@ -14,47 +14,47 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.RawTruffleCsvParser;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleCharStream;
+import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.TruffleCsvParser;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharStream;
 
-public class CsvReaderRawTruffleException extends RawTruffleRuntimeException {
+public class CsvReaderTruffleException extends TruffleRuntimeException {
 
   @CompilerDirectives.TruffleBoundary
-  public CsvReaderRawTruffleException(
+  public CsvReaderTruffleException(
       String message,
-      RawTruffleCsvParser parser,
-      RawTruffleCharStream stream,
+      TruffleCsvParser parser,
+      TruffleCharStream stream,
       Throwable cause,
       Node location) {
     super(createMessage(message, parser, stream), cause, location);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public CsvReaderRawTruffleException(
-      String message, RawTruffleCsvParser parser, RawTruffleCharStream stream) {
+  public CsvReaderTruffleException(
+      String message, TruffleCsvParser parser, TruffleCharStream stream) {
     super(createMessage(message, parser, stream));
   }
 
   @CompilerDirectives.TruffleBoundary
-  public CsvReaderRawTruffleException(
-      String message, RawTruffleCharStream stream, Throwable cause, Node location) {
+  public CsvReaderTruffleException(
+      String message, TruffleCharStream stream, Throwable cause, Node location) {
     super(message, cause, location);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public CsvReaderRawTruffleException(RawTruffleCharStream stream, Throwable cause) {
+  public CsvReaderTruffleException(TruffleCharStream stream, Throwable cause) {
     super(createMessage(cause.getMessage(), null, stream), cause, null);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public CsvReaderRawTruffleException(RawTruffleCharStream stream, Throwable cause, Node location) {
+  public CsvReaderTruffleException(TruffleCharStream stream, Throwable cause, Node location) {
     super(createMessage(cause.getMessage(), null, stream), cause, location);
   }
 
   @CompilerDirectives.TruffleBoundary
   private static String createMessage(
-      String message, RawTruffleCsvParser parser, RawTruffleCharStream stream) {
+      String message, TruffleCsvParser parser, TruffleCharStream stream) {
     StringBuilder sb = new StringBuilder();
     sb.append("failed to read CSV");
     if (parser != null) {

@@ -18,7 +18,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.StringList;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +65,7 @@ public final class FunctionRegistryObject implements TruffleObject {
 
   @ExportMessage
   final Class<? extends TruffleLanguage<?>> getLanguage() {
-    return RawLanguage.class;
+    return Rql2Language.class;
   }
 
   @ExportMessage

@@ -21,8 +21,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.rawlabs.snapi.truffle.runtime.PropertyType;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 
 // (az) Whenever using any of these nodes, create one per property
 public class PureRecordNodes {
@@ -139,7 +139,7 @@ public class PureRecordNodes {
         @Cached AddPropNode addPropNode,
         @Cached GetKeysNode getKeysNode,
         @Cached GetValueNode getValueNode) {
-      RawLanguage lang = RawLanguage.get(thisNode);
+      Rql2Language lang = Rql2Language.get(thisNode);
       PureRecord newRecord = lang.createPureRecord();
       Object[] keys = getKeysNode.execute(thisNode, pureRecord);
       for (Object k : keys) {
@@ -203,7 +203,7 @@ public class PureRecordNodes {
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       Object[] keys = valuesLibrary.getKeyArray(pureRecord);
       if (index < 0 || index >= keys.length) {
-        throw new RawTruffleInternalErrorException("Index out of bounds in record");
+        throw new TruffleInternalErrorException("Index out of bounds in record");
       }
       return valuesLibrary.getOrDefault(pureRecord, keys[index], null);
     }
@@ -228,7 +228,7 @@ public class PureRecordNodes {
       try {
         return (byte) valuesLibrary.getIntOrDefault(pureRecord, key, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -243,7 +243,7 @@ public class PureRecordNodes {
       try {
         return (short) valuesLibrary.getIntOrDefault(pureRecord, key, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -258,7 +258,7 @@ public class PureRecordNodes {
       try {
         return valuesLibrary.getIntOrDefault(pureRecord, key, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -273,7 +273,7 @@ public class PureRecordNodes {
       try {
         return valuesLibrary.getLongOrDefault(pureRecord, key, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -288,7 +288,7 @@ public class PureRecordNodes {
       try {
         return valuesLibrary.getDoubleOrDefault(pureRecord, key, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 

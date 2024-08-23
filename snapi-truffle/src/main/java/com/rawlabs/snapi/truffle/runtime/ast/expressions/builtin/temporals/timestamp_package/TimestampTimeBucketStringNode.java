@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.TimestampObject;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -121,7 +121,7 @@ public abstract class TimestampTimeBucketStringNode extends ExpressionNode {
         result = LocalDateTime.of(yearMil, 1, 1, 0, 0);
         break;
       default:
-        throw new RawTruffleRuntimeException(
+        throw new TruffleRuntimeException(
             "intervals in time_bucket cannot have years or months mixed with other fields.", this);
     }
 

@@ -17,14 +17,14 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.BuildCollectionEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.collection.CollectionBuildNode;
 import java.util.List;
 
 public class TruffleBuildCollectionEntry extends BuildCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     return new CollectionBuildNode(
         args.stream().map(TruffleArg::exprNode).toArray(ExpressionNode[]::new));
   }

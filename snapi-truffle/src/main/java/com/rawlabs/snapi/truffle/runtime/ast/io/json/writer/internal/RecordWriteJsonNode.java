@@ -20,7 +20,7 @@ import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramStatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.writer.JsonWriteNodes;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.writer.JsonWriteNodesFactory;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
 
@@ -71,7 +71,7 @@ public class RecordWriteJsonNode extends StatementNode {
       writeEndObjectNode.execute(this, gen);
 
     } catch (RuntimeException e) {
-      throw new RawTruffleInternalErrorException(e, this);
+      throw new TruffleInternalErrorException(e, this);
     }
   }
 }

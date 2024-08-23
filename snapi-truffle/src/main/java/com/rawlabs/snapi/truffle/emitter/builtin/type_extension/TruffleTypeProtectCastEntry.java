@@ -18,10 +18,10 @@ import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.type_package.TypeProtectCastOptionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.type_package.TypeProtectCastTryableNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
 import java.util.HashSet;
@@ -30,7 +30,7 @@ import java.util.Set;
 
 public class TruffleTypeProtectCastEntry extends TypeProtectCastEntry
     implements TruffleEntryExtension {
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpType expSourceType = (ExpType) args.get(0).type();
     ExpType expTargetType = (ExpType) args.get(1).type();
     Type sourceType = expSourceType.t();
@@ -93,7 +93,7 @@ public class TruffleTypeProtectCastEntry extends TypeProtectCastEntry
         finalProps.removeAll(targetProps);
         yield finalProps;
       }
-      default -> throw new RawTruffleInternalErrorException();
+      default -> throw new TruffleInternalErrorException();
     };
   }
 

@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions;
 import com.oracle.truffle.api.nodes.Node;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharInputStream;
 
-public class ReadLinesRawTruffleException extends RawTruffleRuntimeException {
-  public ReadLinesRawTruffleException(
+public class ReadLinesTruffleException extends TruffleRuntimeException {
+  public ReadLinesTruffleException(
       String message, TruffleCharInputStream stream, Throwable cause, Node location) {
     super(createMessage(message, stream), cause, location);
   }

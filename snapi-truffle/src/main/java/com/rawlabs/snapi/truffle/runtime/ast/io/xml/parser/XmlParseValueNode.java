@@ -17,7 +17,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleStringCharStream;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleStringCharStream;
 
 @NodeInfo(shortName = "XmlParseValue")
 public class XmlParseValueNode extends ExpressionNode {
@@ -29,7 +29,7 @@ public class XmlParseValueNode extends ExpressionNode {
   @Child private ExpressionNode timeFormatExp;
   @Child private ExpressionNode datetimeFormatExp;
 
-  private RawTruffleXmlParser parser;
+  private TruffleXmlParser parser;
 
   public XmlParseValueNode(
       ExpressionNode stringExp,
@@ -48,15 +48,15 @@ public class XmlParseValueNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     try {
       String string = (String) stringExp.executeGeneric(virtualFrame);
-      RawTruffleStringCharStream stream = new RawTruffleStringCharStream(string);
+      TruffleStringCharStream stream = new TruffleStringCharStream(string);
 
       String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
       String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
       String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
-      RawTruffleXmlParserSettings settings =
-          new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
+      TruffleXmlParserSettings settings =
+          new TruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
 
-      parser = RawTruffleXmlParser.create(stream, settings);
+      parser = TruffleXmlParser.create(stream, settings);
       parser.nextToken(); // consume START_OBJECT
       parser.assertCurrentTokenIsStartTag(); // because it's the top level object
       return this.childDirectCall.call(parser); // ... and we start to parse it.

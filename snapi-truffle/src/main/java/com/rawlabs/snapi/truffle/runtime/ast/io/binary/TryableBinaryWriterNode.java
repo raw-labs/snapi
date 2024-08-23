@@ -17,7 +17,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramStatementNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.binary.BinaryWriterRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.binary.BinaryWriterTruffleException;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.TryableNullableNodesFactory;
 import java.io.OutputStream;
@@ -49,7 +49,7 @@ public class TryableBinaryWriterNode extends StatementNode {
       innerWriter.call(tryable, output);
     } else {
       // else throw.
-      throw new BinaryWriterRawTruffleException(getFailureNode.execute(this, tryable), this);
+      throw new BinaryWriterTruffleException(getFailureNode.execute(this, tryable), this);
     }
   }
 }

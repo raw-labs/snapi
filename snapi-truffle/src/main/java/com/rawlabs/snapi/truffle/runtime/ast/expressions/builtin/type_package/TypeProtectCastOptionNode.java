@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.type_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleUnexpectedNullException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleUnexpectedNullException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.NullObject;
 
 public final class TypeProtectCastOptionNode extends ExpressionNode {
@@ -28,7 +28,7 @@ public final class TypeProtectCastOptionNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     try {
       return child.executeGeneric(virtualFrame);
-    } catch (RawTruffleUnexpectedNullException e) {
+    } catch (TruffleUnexpectedNullException e) {
       return NullObject.INSTANCE;
     }
   }

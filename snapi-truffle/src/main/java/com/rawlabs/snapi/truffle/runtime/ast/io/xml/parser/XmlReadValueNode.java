@@ -17,8 +17,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserRawTruffleException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlReaderRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlReaderTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharInputStream;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleInputStream;
@@ -52,7 +52,7 @@ public class XmlReadValueNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    RawTruffleXmlParser parser = null;
+    TruffleXmlParser parser = null;
     try {
       LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
       String encoding = (String) encodingExp.executeGeneric(virtualFrame);
@@ -61,16 +61,16 @@ public class XmlReadValueNode extends ExpressionNode {
       String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
       String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
       String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
-      RawTruffleXmlParserSettings settings =
-          new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
+      TruffleXmlParserSettings settings =
+          new TruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
 
       try {
-        parser = RawTruffleXmlParser.create(stream, settings);
+        parser = TruffleXmlParser.create(stream, settings);
         parser.nextToken(); // consume START_OBJECT
         parser.assertCurrentTokenIsStartTag(); // because it's the top level object
         return this.childDirectCall.call(parser); // ... and we start to parse it.
-      } catch (XmlParserRawTruffleException e) {
-        throw new XmlReaderRawTruffleException(e, stream, this);
+      } catch (XmlParserTruffleException e) {
+        throw new XmlReaderTruffleException(e, stream, this);
       }
     } finally {
       if (parser != null) parser.close();

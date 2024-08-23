@@ -18,7 +18,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.BreakException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.function.FunctionExecuteNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.function.FunctionExecuteNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
@@ -71,7 +71,7 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
     try {
       return new Input(new FileInputStream(file));
     } catch (FileNotFoundException e) {
-      throw new RawTruffleRuntimeException(e.getMessage(), e, node);
+      throw new TruffleRuntimeException(e.getMessage(), e, node);
     }
   }
 

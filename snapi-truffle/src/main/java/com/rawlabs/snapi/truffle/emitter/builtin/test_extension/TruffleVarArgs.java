@@ -16,14 +16,14 @@ import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.binary.PlusNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.IntNode;
 import java.util.List;
 
 public interface TruffleVarArgs extends TruffleEntryExtension {
   @Override
-  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode result = new IntNode("0");
     for (TruffleArg arg : args) {
       result = new PlusNode(result, arg.exprNode());

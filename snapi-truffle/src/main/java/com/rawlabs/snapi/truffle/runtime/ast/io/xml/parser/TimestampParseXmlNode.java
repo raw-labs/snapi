@@ -24,7 +24,7 @@ public abstract class TimestampParseXmlNode extends ExpressionNode {
   @Specialization
   public TimestampObject parse(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    TruffleXmlParser parser = (TruffleXmlParser) args[0];
     String value = (String) args[1];
     return parser.timestampFrom(value);
   }

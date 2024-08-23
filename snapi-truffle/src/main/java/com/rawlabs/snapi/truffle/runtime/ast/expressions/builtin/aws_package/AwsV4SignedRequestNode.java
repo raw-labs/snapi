@@ -18,9 +18,9 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ListNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ObjectList;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
@@ -69,7 +69,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       mac.init(new SecretKeySpec(key, algorithm));
       return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
     } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-      throw new RawTruffleInternalErrorException(e);
+      throw new TruffleInternalErrorException(e);
     }
   }
 
@@ -110,7 +110,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     try {
       return MessageDigest.getInstance("SHA-256");
     } catch (NoSuchAlgorithmException e) {
-      throw new RawTruffleInternalErrorException(e);
+      throw new TruffleInternalErrorException(e);
     }
   }
 
@@ -197,16 +197,16 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       allHeaders[i] = getNode.execute(this, headers, i);
     }
 
-    allHeaders[headersSize] = RawLanguage.get(this).createPureRecord();
+    allHeaders[headersSize] = Rql2Language.get(this).createPureRecord();
     addPropNode.execute(this, allHeaders[headersSize], "_1", "host", false);
     addPropNode.execute(this, allHeaders[headersSize], "_2", host, false);
 
-    allHeaders[headersSize + 1] = RawLanguage.get(this).createPureRecord();
+    allHeaders[headersSize + 1] = Rql2Language.get(this).createPureRecord();
     addPropNode.execute(this, allHeaders[headersSize + 1], "_1", "x-amz-date", false);
     addPropNode.execute(this, allHeaders[headersSize + 1], "_2", amzdate, false);
 
     if (!sessionToken.isEmpty()) {
-      allHeaders[headersSize + 2] = RawLanguage.get(this).createPureRecord();
+      allHeaders[headersSize + 2] = Rql2Language.get(this).createPureRecord();
       addPropNode.execute(this, allHeaders[headersSize + 2], "_1", "x-amz-security-token", false);
       addPropNode.execute(this, allHeaders[headersSize + 2], "_2", sessionToken, false);
     }
@@ -325,7 +325,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       HttpURLConnection.HTTP_PARTIAL
     };
 
-    RawSettings rawSettings = RawContext.get(this).getSettings();
+    RawSettings rawSettings = Rql2Context.get(this).getSettings();
 
     HttpByteStreamLocation location =
         new HttpByteStreamLocation(

@@ -14,13 +14,13 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions;
 
 import com.oracle.truffle.api.nodes.Node;
 
-public class RawTruffleUnexpectedNullException extends RawTruffleRuntimeException {
+public class TruffleUnexpectedNullException extends TruffleRuntimeException {
 
-  public RawTruffleUnexpectedNullException(Node location) {
+  public TruffleUnexpectedNullException(Node location) {
     super("unexpected null value found", location);
   }
 
-  public RawTruffleUnexpectedNullException(Throwable cause, Node location) {
+  public TruffleUnexpectedNullException(Throwable cause, Node location) {
     super("unexpected null value found", cause, location);
   }
 }

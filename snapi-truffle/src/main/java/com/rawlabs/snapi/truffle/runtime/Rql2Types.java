@@ -36,4 +36,4 @@ import com.rawlabs.snapi.truffle.runtime.runtime.record.PureRecord;
   PureRecord.class,
   DuplicateKeyRecord.class
 })
-public abstract class RawTypes {}
+public abstract class Rql2Types {}

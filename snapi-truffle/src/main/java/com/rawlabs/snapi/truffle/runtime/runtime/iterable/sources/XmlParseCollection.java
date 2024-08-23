@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParserSettings;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParserSettings;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources.XmlParseComputeNext;
@@ -29,10 +29,10 @@ import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_g
 public class XmlParseCollection implements TruffleObject {
   private final String text;
   private final RootCallTarget parseNextRootCallTarget;
-  private final RawTruffleXmlParserSettings settings;
+  private final TruffleXmlParserSettings settings;
 
   public XmlParseCollection(
-      String text, RootCallTarget parseNextRootCallTarget, RawTruffleXmlParserSettings settings) {
+      String text, RootCallTarget parseNextRootCallTarget, TruffleXmlParserSettings settings) {
     this.text = text;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
     this.settings = settings;

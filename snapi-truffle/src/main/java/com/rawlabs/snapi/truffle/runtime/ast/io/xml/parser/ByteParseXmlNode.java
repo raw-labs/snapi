@@ -23,7 +23,7 @@ public abstract class ByteParseXmlNode extends ExpressionNode {
   @Specialization
   public byte parse(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    TruffleXmlParser parser = (TruffleXmlParser) args[0];
     String value = (String) args[1];
     return parser.byteFrom(value);
   }

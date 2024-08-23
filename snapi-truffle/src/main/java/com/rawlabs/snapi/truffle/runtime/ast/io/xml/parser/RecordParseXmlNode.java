@@ -21,9 +21,9 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ObjectList;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.NullObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodes;
@@ -49,7 +49,7 @@ public class RecordParseXmlNode extends ExpressionNode {
   private final BitSet bitSet;
   private final boolean hasDuplicateKeys;
 
-  private final RawLanguage language = RawLanguage.get(this);
+  private final Rql2Language language = Rql2Language.get(this);
 
   public RecordParseXmlNode(
       ProgramExpressionNode[] childProgramExpressionNode,
@@ -86,12 +86,12 @@ public class RecordParseXmlNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    TruffleXmlParser parser = (TruffleXmlParser) args[0];
     return doExecute(parser);
   }
 
   @TruffleBoundary
-  private Object doExecute(RawTruffleXmlParser parser) {
+  private Object doExecute(TruffleXmlParser parser) {
     for (String fieldName : collectionsIndex.keySet()) {
       // set collections/lists to empty ones
       collectionValues.put(fieldName, new ArrayList<>());
@@ -182,7 +182,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     // if there are missing fields, throw an exception with all the missing fields
     if (missingFields.length() != 0) {
       String missingFieldsStr = missingFields.substring(2);
-      throw new XmlParserRawTruffleException("fields not found: " + missingFieldsStr, parser, this);
+      throw new XmlParserTruffleException("fields not found: " + missingFieldsStr, parser, this);
     }
     // Skipping the END_OBJECT token here after checking if everything is ok.
     // Because if there is an exception TryableParseXmlNode will skip the current object
@@ -195,7 +195,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     return collectionValues.keySet().toArray(new String[0]);
   }
 
-  private void parseTagContent(RawTruffleXmlParser parser, String fieldName, Object record) {
+  private void parseTagContent(TruffleXmlParser parser, String fieldName, Object record) {
     Integer index = fieldsIndex.get(fieldName);
     if (index != null) {
       applyParser(parser, index, fieldName, record);
@@ -205,7 +205,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     }
   }
 
-  private void applyParser(RawTruffleXmlParser parser, int index, String fieldName, Object record) {
+  private void applyParser(TruffleXmlParser parser, int index, String fieldName, Object record) {
     Object value = childDirectCalls[index].call(parser);
     storeFieldValue(fieldName, index, value, record);
   }

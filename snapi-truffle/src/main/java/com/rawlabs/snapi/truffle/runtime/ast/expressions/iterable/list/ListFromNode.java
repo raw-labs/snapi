@@ -26,12 +26,11 @@ import com.rawlabs.snapi.truffle.runtime.ast.osr.bodies.OSRListFromBodyNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.bodies.OSRToArrayBodyNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.conditions.OSRHasNextConditionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.conditions.OSRIsLessThanSizeConditionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodesFactory;
-import com.rawlabs.snapi.truffle.runtime.runtime.list.*;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 import java.util.ArrayList;
 
@@ -117,7 +116,7 @@ public class ListFromNode extends ExpressionNode {
       frame.setObject(listSlot, llist);
       toArrayLoopNode.execute(frame);
       return arrayBuildListNode.execute(this, frame.getObject(resultSlot));
-    } catch (RawTruffleRuntimeException ex) {
+    } catch (TruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
       generatorCloseNode.execute(this, generator);

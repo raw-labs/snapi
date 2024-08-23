@@ -21,8 +21,8 @@ import com.rawlabs.snapi.frontend.inferrer.api.*;
 import com.rawlabs.snapi.frontend.rql2.Rql2TypeUtils$;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ObjectList;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
@@ -48,7 +48,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       LocationObject locationObject,
       int sampleSize,
       @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
-    InferrerService inferrer = RawContext.get(this).getInferrer();
+    InferrerService inferrer = Rql2Context.get(this).getInferrer();
     try {
       // In scala implementation interpreter there is a sample size argument
       InferrerOutput descriptor =
@@ -153,7 +153,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
 
       String formattedType = SourcePrettyPrinter$.MODULE$.format(rql2Type);
 
-      Object record = RawLanguage.get(this).createPureRecord();
+      Object record = Rql2Language.get(this).createPureRecord();
 
       addPropNode.execute(this, record, "format", format, false);
       addPropNode.execute(this, record, "comment", comment, false);
@@ -163,7 +163,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       // properties
       List<String> keyList = new ArrayList<>(properties.keySet());
       for (int i = 0; i < keyList.size(); i++) {
-        Object rec = RawLanguage.get(this).createPureRecord();
+        Object rec = Rql2Language.get(this).createPureRecord();
         addPropNode.execute(this, rec, "name", keyList.get(i), false);
         if (properties.containsKey(keyList.get(i))) {
           addPropNode.execute(this, rec, "value", properties.get(keyList.get(i)), false);
@@ -188,7 +188,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
               (Rql2TypeWithProperties) rql2RecordType.atts().apply(i).tipe();
           typeStr = SourcePrettyPrinter$.MODULE$.format(fieldType);
           isNullable = fieldType.props().contains(Rql2IsNullableTypeProperty.apply());
-          Object column = RawLanguage.get(this).createPureRecord();
+          Object column = Rql2Language.get(this).createPureRecord();
 
           addPropNode.execute(
               this, column, "col_name", rql2RecordType.atts().apply(i).idn(), false);
@@ -210,7 +210,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
         } else {
           typeStr = SourcePrettyPrinter$.MODULE$.format(flatten);
         }
-        Object column = RawLanguage.get(this).createPureRecord();
+        Object column = Rql2Language.get(this).createPureRecord();
         addPropNode.execute(this, column, "col_name", NullObject.INSTANCE, false);
         addPropNode.execute(this, column, "col_type", typeStr, false);
         addPropNode.execute(this, column, "nullable", isNullable, false);

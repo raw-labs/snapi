@@ -17,7 +17,7 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.LocationDescribeEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.location_package.LocationDescribeNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.IntNode;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.List;
 public class TruffleLocationDescribeEntry extends LocationDescribeEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode sampleSize =
         args.stream()
             .filter(a -> a.identifier() != null && a.identifier().contains("sampleSize"))

@@ -16,8 +16,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.runtime.boundary.RawTruffleBoundaries;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.boundary.TruffleBoundaries;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.IntervalObject;
 import java.time.Duration;
 import java.util.regex.Matcher;
@@ -101,22 +101,22 @@ public class IntervalNodes {
 
       if (matcher.matches()) {
         String matchYears = matcher.group(1);
-        years = matchYears == null ? 0 : RawTruffleBoundaries.parseInt(matchYears);
+        years = matchYears == null ? 0 : TruffleBoundaries.parseInt(matchYears);
 
         String matchMonths = matcher.group(2);
-        months = matchMonths == null ? 0 : RawTruffleBoundaries.parseInt(matchMonths);
+        months = matchMonths == null ? 0 : TruffleBoundaries.parseInt(matchMonths);
 
         String matchWeeks = matcher.group(3);
-        weeks = matchWeeks == null ? 0 : RawTruffleBoundaries.parseInt(matchWeeks);
+        weeks = matchWeeks == null ? 0 : TruffleBoundaries.parseInt(matchWeeks);
 
         String matchDays = matcher.group(4);
-        days = matchDays == null ? 0 : RawTruffleBoundaries.parseInt(matchDays);
+        days = matchDays == null ? 0 : TruffleBoundaries.parseInt(matchDays);
 
         String matchHours = matcher.group(5);
-        hours = matchHours == null ? 0 : RawTruffleBoundaries.parseInt(matchHours);
+        hours = matchHours == null ? 0 : TruffleBoundaries.parseInt(matchHours);
 
         String matchMinutes = matcher.group(6);
-        minutes = matchMinutes == null ? 0 : RawTruffleBoundaries.parseInt(matchMinutes);
+        minutes = matchMinutes == null ? 0 : TruffleBoundaries.parseInt(matchMinutes);
 
         String s1 = matcher.group(7);
         String s2 = matcher.group(8);
@@ -126,22 +126,22 @@ public class IntervalNodes {
           seconds = 0;
           millis = 0;
         } else if (s1 != null) {
-          seconds = RawTruffleBoundaries.parseInt(s1);
+          seconds = TruffleBoundaries.parseInt(s1);
           millis = 0;
         } else {
-          millis = RawTruffleBoundaries.parseInt(millisStr);
+          millis = TruffleBoundaries.parseInt(millisStr);
           // milliseconds will have the same sign as the seconds
           if (millisStr.length() < 3) {
             int multiplier = 1;
             for (int i = 1; i < (3 - millisStr.length() + 1); i++) {
               multiplier = multiplier * 10;
-              millis = RawTruffleBoundaries.parseInt(millisStr) * multiplier;
+              millis = TruffleBoundaries.parseInt(millisStr) * multiplier;
             }
           } else {
-            millis = RawTruffleBoundaries.parseInt(millisStr.substring(0, 3));
+            millis = TruffleBoundaries.parseInt(millisStr.substring(0, 3));
           }
 
-          seconds = RawTruffleBoundaries.parseInt(s2);
+          seconds = TruffleBoundaries.parseInt(s2);
           if (seconds < 0) {
             millis = -millis;
           }
@@ -149,7 +149,7 @@ public class IntervalNodes {
 
         return new IntervalObject(years, months, weeks, days, hours, minutes, seconds, millis);
       } else {
-        throw new RawTruffleRuntimeException(
+        throw new TruffleRuntimeException(
             String.format("could not parse interval from string '%s'", interval));
       }
     }

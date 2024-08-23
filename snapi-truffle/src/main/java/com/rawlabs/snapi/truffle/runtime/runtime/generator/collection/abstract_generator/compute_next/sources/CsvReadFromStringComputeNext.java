@@ -13,29 +13,29 @@
 package com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.oracle.truffle.api.RootCallTarget;
-import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.RawTruffleCsvParser;
-import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleCharStream;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleStringCharStream;
+import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.TruffleCsvParser;
+import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.TruffleCsvParserSettings;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharStream;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleStringCharStream;
 
 public class CsvReadFromStringComputeNext {
-  private final RawTruffleCharStream stream;
+  private final TruffleCharStream stream;
   private final RootCallTarget rowParserCallTarget;
-  private final RawTruffleCsvParserSettings settings;
-  private RawTruffleCsvParser parser;
+  private final TruffleCsvParserSettings settings;
+  private TruffleCsvParser parser;
 
   public CsvReadFromStringComputeNext(
-      String str, RootCallTarget rowParserCallTarget, RawTruffleCsvParserSettings settings) {
+      String str, RootCallTarget rowParserCallTarget, TruffleCsvParserSettings settings) {
     this.rowParserCallTarget = rowParserCallTarget;
     this.settings = settings;
-    this.stream = new RawTruffleStringCharStream(str);
+    this.stream = new TruffleStringCharStream(str);
   }
 
-  public void setParser(RawTruffleCsvParser parser) {
+  public void setParser(TruffleCsvParser parser) {
     this.parser = parser;
   }
 
-  public RawTruffleCharStream getStream() {
+  public TruffleCharStream getStream() {
     return stream;
   }
 
@@ -43,11 +43,11 @@ public class CsvReadFromStringComputeNext {
     return rowParserCallTarget;
   }
 
-  public RawTruffleCsvParserSettings getSettings() {
+  public TruffleCsvParserSettings getSettings() {
     return settings;
   }
 
-  public RawTruffleCsvParser getParser() {
+  public TruffleCsvParser getParser() {
     return parser;
   }
 }

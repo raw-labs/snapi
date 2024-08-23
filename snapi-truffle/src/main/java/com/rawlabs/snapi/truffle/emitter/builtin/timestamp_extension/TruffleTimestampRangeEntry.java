@@ -17,7 +17,7 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TimestampRangeEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.interval_package.IntervalBuildNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.timestamp_package.TimestampRangeNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.IntNode;
@@ -37,7 +37,7 @@ public class TruffleTimestampRangeEntry extends TimestampRangeEntry
           new IntNode("0"),
           new IntNode("0"));
 
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode start = args.get(0).exprNode();
     ExpressionNode end = args.get(1).exprNode();
     ExpressionNode step =

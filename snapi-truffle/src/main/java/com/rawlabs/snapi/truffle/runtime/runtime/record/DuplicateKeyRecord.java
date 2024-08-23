@@ -25,7 +25,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
 import com.rawlabs.compiler.utils.RecordFieldsNaming;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -95,7 +95,7 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return RawLanguage.class;
+    return Rql2Language.class;
   }
 
   @ExportMessage

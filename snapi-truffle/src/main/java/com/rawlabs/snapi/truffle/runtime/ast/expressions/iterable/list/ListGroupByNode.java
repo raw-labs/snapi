@@ -34,7 +34,7 @@ import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ListNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ListNodesFactory;
-import com.rawlabs.snapi.truffle.runtime.runtime.list.RawArrayList;
+import com.rawlabs.snapi.truffle.runtime.runtime.list.TruffleArrayList;
 import java.util.ArrayList;
 
 @NodeInfo(shortName = "List.GroupBy")
@@ -147,7 +147,7 @@ public class ListGroupByNode extends ExpressionNode {
       listFromLoopNode.execute(frame);
       @SuppressWarnings("unchecked")
       ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(listSlot);
-      return new RawArrayList(llist);
+      return new TruffleArrayList(llist);
     } finally {
       generatorCloseNode.execute(this, mapGenerator);
     }

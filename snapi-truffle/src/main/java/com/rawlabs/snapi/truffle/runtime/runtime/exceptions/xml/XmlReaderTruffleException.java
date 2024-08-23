@@ -14,41 +14,41 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParser;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleCharStream;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParser;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharStream;
 
-public class XmlReaderRawTruffleException extends RawTruffleRuntimeException {
+public class XmlReaderTruffleException extends TruffleRuntimeException {
 
   @CompilerDirectives.TruffleBoundary
-  public XmlReaderRawTruffleException(String message, Throwable cause, Node location) {
+  public XmlReaderTruffleException(String message, Throwable cause, Node location) {
     super(message, cause, location);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlReaderRawTruffleException(
-      String message, RawTruffleCharStream stream, Throwable cause, Node location) {
+  public XmlReaderTruffleException(
+      String message, TruffleCharStream stream, Throwable cause, Node location) {
     super(createMessage(message, stream, null), cause, location);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlReaderRawTruffleException(String message, RawTruffleCharStream stream, Node location) {
+  public XmlReaderTruffleException(String message, TruffleCharStream stream, Node location) {
     super(createMessage(message, stream, null), location);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlReaderRawTruffleException(Throwable cause, RawTruffleCharStream stream, Node location) {
+  public XmlReaderTruffleException(Throwable cause, TruffleCharStream stream, Node location) {
     super(createMessage(cause.getMessage(), stream, null), cause, location);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlReaderRawTruffleException(
-      Throwable cause, RawTruffleXmlParser parser, RawTruffleCharStream stream, Node location) {
+  public XmlReaderTruffleException(
+      Throwable cause, TruffleXmlParser parser, TruffleCharStream stream, Node location) {
     super(createMessage(cause.getMessage(), stream, parser), cause, location);
   }
 
   private static String createMessage(
-      String customMessage, RawTruffleCharStream stream, RawTruffleXmlParser parser) {
+      String customMessage, TruffleCharStream stream, TruffleXmlParser parser) {
     StringBuilder builder = new StringBuilder("failed to read XML");
     if (parser != null) {
       builder.append(

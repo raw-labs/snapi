@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvParserRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvParserTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.sources.CsvFromStringCollection;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.StringList;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
@@ -97,8 +97,8 @@ public class IterableParseCsvString extends ExpressionNode {
       String dateFormat = dateFormatExp.executeString(frame);
       String timeFormat = timeFormatExp.executeString(frame);
       String datetimeFormat = datetimeFormatExp.executeString(frame);
-      RawTruffleCsvParserSettings settings =
-          new RawTruffleCsvParserSettings(
+      TruffleCsvParserSettings settings =
+          new TruffleCsvParserSettings(
               delimiterValue.charAt(0),
               useQuote,
               quoteChar,
@@ -111,7 +111,7 @@ public class IterableParseCsvString extends ExpressionNode {
               datetimeFormat);
       return new CsvFromStringCollection(str, parserRootCallTarget, settings);
     } catch (UnexpectedResultException ex) {
-      throw new CsvParserRawTruffleException(ex.getMessage(), 0, 0, ex, this);
+      throw new CsvParserTruffleException(ex.getMessage(), 0, 0, ex, this);
     }
   }
 }

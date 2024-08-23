@@ -18,7 +18,7 @@ import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.environment_package.EnvironmentParameterNodeGen;
 import java.util.List;
 import scala.collection.immutable.HashSet;
@@ -26,7 +26,7 @@ import scala.collection.immutable.HashSet;
 public class TruffleEnvironmentParameterEntry extends EnvironmentParameterEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode paramIndex = args.get(1).exprNode();
     return EnvironmentParameterNodeGen.create(
         paramIndex, (Rql2Type) resetProps(type, new HashSet<>()));

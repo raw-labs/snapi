@@ -20,7 +20,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
 import com.rawlabs.snapi.truffle.runtime.ast.TypeGuards;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.*;
 import java.util.ArrayList;
 
@@ -134,13 +134,13 @@ public class ArrayOperationNodes {
     }
 
     @Specialization
-    static RawArrayList buildObject(Node node, Object array) {
+    static TruffleArrayList buildObject(Node node, Object array) {
       try {
         @SuppressWarnings("unchecked")
         ArrayList<Object> arrayList = (ArrayList<Object>) array;
-        return new RawArrayList(arrayList);
+        return new TruffleArrayList(arrayList);
       } catch (ClassCastException e) {
-        throw new RawTruffleInternalErrorException(e.getMessage(), e);
+        throw new TruffleInternalErrorException(e.getMessage(), e);
       }
     }
   }

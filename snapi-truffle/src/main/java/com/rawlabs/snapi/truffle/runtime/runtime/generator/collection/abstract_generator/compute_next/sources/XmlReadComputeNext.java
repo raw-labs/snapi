@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.oracle.truffle.api.RootCallTarget;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParser;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParserSettings;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParser;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParserSettings;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharInputStream;
 
@@ -22,8 +22,8 @@ public class XmlReadComputeNext {
   private final LocationObject locationObject;
   protected final RootCallTarget parseNextRootCallTarget;
   private final String encoding;
-  private RawTruffleXmlParser parser;
-  private final RawTruffleXmlParserSettings settings;
+  private TruffleXmlParser parser;
+  private final TruffleXmlParserSettings settings;
 
   private TruffleCharInputStream stream;
 
@@ -31,14 +31,14 @@ public class XmlReadComputeNext {
       LocationObject locationObject,
       String encoding,
       RootCallTarget parseNextRootCallTarget,
-      RawTruffleXmlParserSettings settings) {
+      TruffleXmlParserSettings settings) {
     this.encoding = encoding;
     this.settings = settings;
     this.locationObject = locationObject;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
   }
 
-  public void setParser(RawTruffleXmlParser parser) {
+  public void setParser(TruffleXmlParser parser) {
     this.parser = parser;
   }
 
@@ -58,11 +58,11 @@ public class XmlReadComputeNext {
     return encoding;
   }
 
-  public RawTruffleXmlParser getParser() {
+  public TruffleXmlParser getParser() {
     return parser;
   }
 
-  public RawTruffleXmlParserSettings getSettings() {
+  public TruffleXmlParserSettings getSettings() {
     return settings;
   }
 

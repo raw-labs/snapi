@@ -15,11 +15,11 @@ package com.rawlabs.snapi.truffle.runtime.utils;
 import java.io.Reader;
 import java.io.StringReader;
 
-public class RawTruffleStringCharStream extends RawTruffleCharStream {
+public class TruffleStringCharStream extends TruffleCharStream {
 
   private final String string;
 
-  public RawTruffleStringCharStream(String content) {
+  public TruffleStringCharStream(String content) {
     this.string = content;
   }
 

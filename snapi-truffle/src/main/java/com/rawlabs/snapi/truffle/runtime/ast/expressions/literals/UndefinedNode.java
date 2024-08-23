@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.runtime.ast.expressions.literals;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
 public class UndefinedNode extends ExpressionNode {
 
@@ -22,6 +22,6 @@ public class UndefinedNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    throw new RawTruffleRuntimeException("Should never execute undefined node", this);
+    throw new TruffleRuntimeException("Should never execute undefined node", this);
   }
 }

@@ -19,7 +19,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.IntervalObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.TimestampObject;
 import java.time.Instant;
@@ -44,7 +44,7 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
     long millis = toMillisNode.execute(this, intervalObj);
 
     if (millis == 0)
-      throw new RawTruffleRuntimeException("interval cannot be empty in time_bucket", this);
+      throw new TruffleRuntimeException("interval cannot be empty in time_bucket", this);
 
     if (intervalObj.getWeeks() == 0
         && intervalObj.getDays() == 0
@@ -71,7 +71,7 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
 
       result = LocalDateTime.ofInstant(Instant.ofEpochMilli(truncated), ZoneId.of("UTC"));
     } else {
-      throw new RawTruffleRuntimeException(
+      throw new TruffleRuntimeException(
           "intervals in time_bucket cannot have years or months mixed with other fields.", this);
     }
 

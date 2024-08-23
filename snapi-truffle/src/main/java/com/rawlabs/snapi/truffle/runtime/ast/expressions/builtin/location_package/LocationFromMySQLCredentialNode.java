@@ -18,8 +18,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.protocol.compiler.MySqlConfig;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.*;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.sources.jdbc.api.JdbcServerLocation;
@@ -36,7 +36,7 @@ public class LocationFromMySQLCredentialNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    RawContext context = RawContext.get(this);
+    Rql2Context context = Rql2Context.get(this);
 
     String credentialName = (String) this.credentialName.executeGeneric(frame);
     LocationConfig l = context.getLocationConfig(credentialName);
@@ -57,7 +57,7 @@ public class LocationFromMySQLCredentialNode extends ExpressionNode {
           mysql.getPassword(),
           rawSettings);
     } else {
-      throw new RawTruffleRuntimeException("credential is not a MySQL server");
+      throw new TruffleRuntimeException("credential is not a MySQL server");
     }
   }
 }

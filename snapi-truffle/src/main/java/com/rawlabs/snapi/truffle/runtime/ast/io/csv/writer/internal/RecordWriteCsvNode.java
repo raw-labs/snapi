@@ -23,8 +23,8 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramStatementNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class RecordWriteCsvNode extends StatementNode {
       }
       doEndRow(generator);
     } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
+      throw new TruffleInternalErrorException(e, this);
     }
   }
 
@@ -70,7 +70,7 @@ public class RecordWriteCsvNode extends StatementNode {
     try {
       gen.writeStartArray();
     } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+      throw new CsvWriterTruffleException(e.getMessage(), e, this);
     }
   }
 
@@ -79,7 +79,7 @@ public class RecordWriteCsvNode extends StatementNode {
     try {
       gen.writeEndArray();
     } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+      throw new CsvWriterTruffleException(e.getMessage(), e, this);
     }
   }
 }

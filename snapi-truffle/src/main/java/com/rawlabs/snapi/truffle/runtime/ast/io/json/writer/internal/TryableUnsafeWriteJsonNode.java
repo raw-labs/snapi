@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramStatementNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonWriterRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonWriterTruffleException;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.TryableNullableNodesFactory;
 
@@ -47,7 +47,7 @@ public class TryableUnsafeWriteJsonNode extends StatementNode {
     if (!isErrorNode.execute(this, tryable)) {
       childDirectCall.call(tryable, gen);
     } else {
-      throw new JsonWriterRawTruffleException(getFailureNode.execute(this, tryable), this);
+      throw new JsonWriterTruffleException(getFailureNode.execute(this, tryable), this);
     }
   }
 }

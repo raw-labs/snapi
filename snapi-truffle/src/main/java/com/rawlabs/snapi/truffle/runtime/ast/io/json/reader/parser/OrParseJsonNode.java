@@ -23,9 +23,9 @@ import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodes;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodesFactory;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonOrTypeException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonParserRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonParserTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.or.OrObject;
 import java.io.IOException;
 
@@ -78,7 +78,7 @@ public class OrParseJsonNode extends ExpressionNode {
           // token.
           nextTokenNode.execute(this, parser);
           return new OrObject(i, value);
-        } catch (RawTruffleRuntimeException ex) {
+        } catch (TruffleRuntimeException ex) {
           messages[i] = ex.getMessage();
         } finally {
           closeParserNode.execute(this, localParser);
@@ -87,7 +87,7 @@ public class OrParseJsonNode extends ExpressionNode {
       }
       throw new JsonOrTypeException(messages, this);
     } catch (IOException e) {
-      throw new JsonParserRawTruffleException(e.getMessage(), e, this);
+      throw new JsonParserTruffleException(e.getMessage(), e, this);
     } finally {
       closeParserNode.execute(this, localParser);
     }

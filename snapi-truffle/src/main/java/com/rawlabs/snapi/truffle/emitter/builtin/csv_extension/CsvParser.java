@@ -17,14 +17,14 @@ import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.iterable.list.ListBuildNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.IntNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.literals.StringNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.option.OptionSomeNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashSet;
 import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.nullable;
@@ -87,7 +87,7 @@ public class CsvParser {
   }
 
   private RecordParseCsvNode getRecordParser(
-      Rql2TypeWithProperties t, RawLanguage lang) {
+      Rql2TypeWithProperties t, Rql2Language lang) {
     Rql2IterableType rql2IterableType = (Rql2IterableType) t;
     Rql2RecordType rql2RecordType = (Rql2RecordType) rql2IterableType.innerType();
     assert rql2RecordType.props().isEmpty();
@@ -105,7 +105,7 @@ public class CsvParser {
   }
 
   public ExpressionNode stringParser(
-      ExpressionNode str, Rql2TypeWithProperties t, RawLanguage lang) {
+      ExpressionNode str, Rql2TypeWithProperties t, Rql2Language lang) {
     return new IterableParseCsvString(
         str,
         skip,
@@ -120,7 +120,7 @@ public class CsvParser {
         timestampFormat);
   }
 
-  public ExpressionNode fileParser(ExpressionNode url, Rql2TypeWithProperties t, RawLanguage lang) {
+  public ExpressionNode fileParser(ExpressionNode url, Rql2TypeWithProperties t, Rql2Language lang) {
     return new IterableParseCsvFile(
         url,
         encoding,
@@ -136,7 +136,7 @@ public class CsvParser {
         timestampFormat);
   }
 
-  private ExpressionNode columnParser(Type t, RawLanguage lang) {
+  private ExpressionNode columnParser(Type t, Rql2Language lang) {
     return switch (t) {
       case Rql2TypeWithProperties r when r.props().contains(tryable) -> {
         ExpressionNode inner = columnParser(r.cloneAndRemoveProp(tryable), lang);
@@ -156,7 +156,7 @@ public class CsvParser {
         case Rql2TimeType ignored -> new OptionTimeParseCsvNode();
         case Rql2TimestampType ignored -> new OptionTimestampParseCsvNode();
         case Rql2UndefinedType ignored -> new OptionUndefinedParseCsvNode();
-        default -> throw new RawTruffleInternalErrorException();
+        default -> throw new TruffleInternalErrorException();
       };
       case Rql2TypeWithProperties r -> {
         assert r.props().isEmpty();
@@ -173,14 +173,14 @@ public class CsvParser {
           case Rql2TimeType ignored -> new TimeParseCsvNode();
           case Rql2TimestampType ignored -> new TimestampParseCsvNode();
           case Rql2UndefinedType ignored -> new UndefinedParseCsvNode();
-          default -> throw new RawTruffleInternalErrorException();
+          default -> throw new TruffleInternalErrorException();
         };
       }
-      default -> throw new RawTruffleInternalErrorException();
+      default -> throw new TruffleInternalErrorException();
     };
   }
 
-  private ProgramExpressionNode program(ExpressionNode e, RawLanguage lang){
+  private ProgramExpressionNode program(ExpressionNode e, Rql2Language lang){
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new ProgramExpressionNode(lang, frameDescriptor, e);
   }

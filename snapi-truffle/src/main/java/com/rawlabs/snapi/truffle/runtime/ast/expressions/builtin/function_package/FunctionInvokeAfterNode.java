@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.runtime.function.FunctionExecuteNodes;
 
 @NodeInfo(shortName = "Function.InvokeAfter")
@@ -36,7 +36,7 @@ public abstract class FunctionInvokeAfterNode extends ExpressionNode {
       Thread.sleep(sleepTime);
       return functionExecuteZero.execute(this, function);
     } catch (InterruptedException e) {
-      throw new RawTruffleInternalErrorException(e);
+      throw new TruffleInternalErrorException(e);
     }
   }
 }

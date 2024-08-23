@@ -16,8 +16,8 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.StaticInitializers;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 
@@ -30,10 +30,10 @@ public abstract class EnvironmentSecretNode extends ExpressionNode {
   protected static Object doSecret(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context) {
+      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context) {
     try {
       return context.getSecret(key);
-    } catch (RawTruffleRuntimeException e) {
+    } catch (TruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     }
   }

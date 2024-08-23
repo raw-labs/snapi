@@ -22,9 +22,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.TypeGuards;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
 @ImportStatic(TypeGuards.class)
 @NodeField(name = "depth", type = Integer.class)
@@ -33,7 +33,7 @@ import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeExc
 public abstract class ReadClosureVariableNode extends ExpressionNode {
 
   private static final TruffleLogger LOG =
-      TruffleLogger.getLogger(RawLanguage.ID, RawTruffleRuntimeException.class);
+      TruffleLogger.getLogger(Rql2Language.ID, TruffleRuntimeException.class);
 
   @Idempotent
   protected abstract Integer getDepth();

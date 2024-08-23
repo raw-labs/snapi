@@ -23,9 +23,9 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ListNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ListNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.ObjectList;
@@ -55,7 +55,7 @@ public class CsvListWriterNode extends StatementNode {
     itemWriter = DirectCallNode.create(writeRootCallTarget);
     this.columnNames = columnNames;
     this.lineSeparator = lineSeparator;
-    this.os = RawContext.get(this).getOutput();
+    this.os = Rql2Context.get(this).getOutput();
   }
 
   @Override
@@ -68,7 +68,7 @@ public class CsvListWriterNode extends StatementNode {
         itemWriter.call(item, gen);
       }
     } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+      throw new CsvWriterTruffleException(e.getMessage(), e, this);
     }
   }
 
@@ -90,7 +90,7 @@ public class CsvListWriterNode extends StatementNode {
       generator.enable(STRICT_CHECK_FOR_QUOTING);
       return generator;
     } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+      throw new CsvWriterTruffleException(e.getMessage(), e, this);
     }
   }
 }

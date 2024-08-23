@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.*;
@@ -401,9 +401,9 @@ public class OperatorNodes {
         @Bind("$node") Node thisNode,
         @Cached TryableNullableNodes.GetErrorNode getErrorNode) {
       if (Tryable.isError(left)) {
-        throw new RawTruffleRuntimeException(getErrorNode.execute(thisNode, left));
+        throw new TruffleRuntimeException(getErrorNode.execute(thisNode, left));
       } else {
-        throw new RawTruffleRuntimeException(getErrorNode.execute(thisNode, right));
+        throw new TruffleRuntimeException(getErrorNode.execute(thisNode, right));
       }
     }
   }

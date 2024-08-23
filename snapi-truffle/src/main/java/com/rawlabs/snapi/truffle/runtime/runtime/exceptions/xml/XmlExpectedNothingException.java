@@ -14,18 +14,18 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParser;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParser;
 
-public class XmlExpectedNothingException extends XmlParserRawTruffleException {
+public class XmlExpectedNothingException extends XmlParserTruffleException {
 
   @CompilerDirectives.TruffleBoundary
   public XmlExpectedNothingException(
-      String content, RawTruffleXmlParser parser, Throwable cause, Node location) {
+      String content, TruffleXmlParser parser, Throwable cause, Node location) {
     super(String.format("unexpected value found: '%s'", content), parser, cause, location);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlExpectedNothingException(String content, RawTruffleXmlParser parser, Node location) {
+  public XmlExpectedNothingException(String content, TruffleXmlParser parser, Node location) {
     super(String.format("unexpected value found: '%s'", content), parser, location);
   }
 }

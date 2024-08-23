@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 
-public class JsonOrTypeException extends JsonParserRawTruffleException {
+public class JsonOrTypeException extends JsonParserTruffleException {
   @TruffleBoundary
   public JsonOrTypeException(String[] messages, Throwable cause, Node location) {
     super(createMessage(messages), cause, location);

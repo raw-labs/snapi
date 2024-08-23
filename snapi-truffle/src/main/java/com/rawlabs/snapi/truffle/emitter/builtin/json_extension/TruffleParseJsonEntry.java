@@ -20,7 +20,7 @@ import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParseNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParseNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.TryableTopLevelWrapper;
@@ -29,7 +29,7 @@ import java.util.List;
 public class TruffleParseJsonEntry extends ParseJsonEntry
     implements TruffleEntryExtension, WithJsonArgs {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     ExpressionNode timeFormat = timeFormat(args);
     ExpressionNode dateFormat = dateFormat(args);
     ExpressionNode timestampFormat = timestampFormat(args);

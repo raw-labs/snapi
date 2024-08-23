@@ -18,10 +18,10 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import javax.xml.stream.XMLInputFactory;
 import org.codehaus.stax2.XMLInputFactory2;
 
-public class RawTruffleXmlParserFactory extends WstxInputFactory {
+public class TruffleXmlParserFactory extends WstxInputFactory {
 
   @TruffleBoundary
-  public RawTruffleXmlParserFactory() {
+  public TruffleXmlParserFactory() {
     super();
     setProperty(
         WstxInputProperties.P_INPUT_PARSING_MODE, WstxInputProperties.PARSING_MODE_DOCUMENTS);
@@ -29,11 +29,11 @@ public class RawTruffleXmlParserFactory extends WstxInputFactory {
     setProperty(XMLInputFactory.SUPPORT_DTD, false);
   }
 
-  private static RawTruffleXmlParserFactory singleton = null;
+  private static TruffleXmlParserFactory singleton = null;
 
-  public static RawTruffleXmlParserFactory singleton() {
+  public static TruffleXmlParserFactory singleton() {
     if (singleton == null) {
-      singleton = new RawTruffleXmlParserFactory();
+      singleton = new TruffleXmlParserFactory();
     }
     return singleton;
   }

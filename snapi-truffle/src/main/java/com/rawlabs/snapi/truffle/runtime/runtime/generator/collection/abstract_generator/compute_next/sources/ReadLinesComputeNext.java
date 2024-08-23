@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.BreakException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.ReadLinesRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.ReadLinesTruffleException;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class ReadLinesComputeNext {
     try {
       return this.reader.readLine();
     } catch (IOException e) {
-      throw new ReadLinesRawTruffleException(e.getMessage(), stream, e, null);
+      throw new ReadLinesTruffleException(e.getMessage(), stream, e, null);
     }
   }
 }

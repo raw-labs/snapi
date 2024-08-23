@@ -14,20 +14,20 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParser;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParser;
 import java.util.List;
 
-public class XmlOrTypeParserException extends XmlParserRawTruffleException {
+public class XmlOrTypeParserException extends XmlParserTruffleException {
 
   @CompilerDirectives.TruffleBoundary
   public XmlOrTypeParserException(
-      List<String> parseErrors, RawTruffleXmlParser parser, Throwable cause, Node location) {
+      List<String> parseErrors, TruffleXmlParser parser, Throwable cause, Node location) {
     super(createMessage(parseErrors), parser, cause, location);
   }
 
   @CompilerDirectives.TruffleBoundary
   public XmlOrTypeParserException(
-      List<String> parseErrors, RawTruffleXmlParser parser, Node location) {
+      List<String> parseErrors, TruffleXmlParser parser, Node location) {
     super(createMessage(parseErrors), parser, location);
   }
 

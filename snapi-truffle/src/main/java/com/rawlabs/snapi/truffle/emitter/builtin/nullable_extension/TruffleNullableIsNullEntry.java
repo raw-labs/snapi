@@ -17,14 +17,14 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.NullableIsNullEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.option.OptionIsDefinedNodeGen;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.unary.NotNodeGen;
 import java.util.List;
 
 public class TruffleNullableIsNullEntry extends NullableIsNullEntry
     implements TruffleEntryExtension {
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     return NotNodeGen.create(OptionIsDefinedNodeGen.create(args.get(0).exprNode()));
   }
 }

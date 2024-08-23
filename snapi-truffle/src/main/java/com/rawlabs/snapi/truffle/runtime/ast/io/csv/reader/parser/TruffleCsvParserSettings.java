@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser;
 
-public class RawTruffleCsvParserSettings {
+public class TruffleCsvParserSettings {
 
   public final char delimiter;
   public final boolean useQuote;
@@ -25,7 +25,7 @@ public class RawTruffleCsvParserSettings {
   public final String timeFormat;
   public final String timestampFormat;
 
-  public RawTruffleCsvParserSettings(
+  public TruffleCsvParserSettings(
       char delimiter,
       boolean useQuote,
       char quoteChar,

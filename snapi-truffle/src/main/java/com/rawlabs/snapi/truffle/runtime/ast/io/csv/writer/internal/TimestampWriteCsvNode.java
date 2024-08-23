@@ -17,7 +17,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvWriterTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.TimestampObject;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -52,7 +52,7 @@ public class TimestampWriteCsvNode extends StatementNode {
         gen.writeString(fmtWithoutMS.format(ts));
       }
     } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+      throw new CsvWriterTruffleException(e.getMessage(), e, this);
     }
   }
 }

@@ -40,7 +40,7 @@ import com.rawlabs.snapi.frontend.rql2.source.InternalSourcePrettyPrinter;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2Program;
 import com.rawlabs.snapi.frontend.rql2.source.SourceProgram;
 import com.rawlabs.snapi.truffle.emitter.compiler.TruffleEmit;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleValidationException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleValidationException;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.DuplicateKeyRecord;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.PureRecord;
 import com.rawlabs.utils.core.RawSettings;
@@ -52,11 +52,11 @@ import org.graalvm.options.OptionDescriptors;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(
-    id = RawLanguage.ID,
+    id = Rql2Language.ID,
     name = "RQL",
-    version = RawLanguage.VERSION,
-    defaultMimeType = RawLanguage.MIME_TYPE,
-    characterMimeTypes = RawLanguage.MIME_TYPE)
+    version = Rql2Language.VERSION,
+    defaultMimeType = Rql2Language.MIME_TYPE,
+    characterMimeTypes = Rql2Language.MIME_TYPE)
 @ProvidedTags({
   StandardTags.CallTag.class,
   StandardTags.StatementTag.class,
@@ -66,13 +66,13 @@ import scala.collection.JavaConverters;
   StandardTags.ReadVariableTag.class,
   StandardTags.WriteVariableTag.class
 })
-public final class RawLanguage extends TruffleLanguage<RawContext> {
+public final class Rql2Language extends TruffleLanguage<Rql2Context> {
 
   public static final String ID = "rql";
   public static final String VERSION = "0.10";
   public static final String MIME_TYPE = "application/x-rql";
 
-  private static final RawLanguageCache languageCache = new RawLanguageCache();
+  private static final Rql2LanguageCache languageCache = new Rql2LanguageCache();
 
   private static final RawSettings defaultRawSettings =
       new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
@@ -92,23 +92,23 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   }
 
   @Override
-  protected final RawContext createContext(Env env) {
-    RawContext context = new RawContext(this, env);
+  protected final Rql2Context createContext(Env env) {
+    Rql2Context context = new Rql2Context(this, env);
     // The language cache keeps track of active contexts, so that it knows when to shutdown itself.
     languageCache.incrementContext(context);
     return context;
   }
 
   @Override
-  protected void finalizeContext(RawContext context) {
+  protected void finalizeContext(Rql2Context context) {
     // The language cache keeps track of active contexts, so that it knows when to shutdown itself.
     languageCache.releaseContext(context);
   }
 
-  private static final LanguageReference<RawLanguage> REFERENCE =
-      LanguageReference.create(RawLanguage.class);
+  private static final LanguageReference<Rql2Language> REFERENCE =
+      LanguageReference.create(Rql2Language.class);
 
-  public static RawLanguage get(Node node) {
+  public static Rql2Language get(Node node) {
     return REFERENCE.get(node);
   }
 
@@ -116,12 +116,12 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   @Override
   protected OptionDescriptors getOptionDescriptors() {
-    return RawOptions.OPTION_DESCRIPTORS;
+    return Rql2Options.OPTION_DESCRIPTORS;
   }
 
   @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
-    RawContext context = RawContext.get(null);
+    Rql2Context context = Rql2Context.get(null);
 
     ProgramContext programContext =
         new ProgramContext(
@@ -136,7 +136,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     if (context
         .getEnv()
         .getOptions()
-        .get(RawOptions.STAGED_COMPILER_KEY)
+        .get(Rql2Options.STAGED_COMPILER_KEY)
         .equalsIgnoreCase("true")) {
       frontend = false;
     }
@@ -170,7 +170,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
       }
       return rootNode.getCallTarget();
     } else {
-      throw new RawTruffleValidationException(JavaConverters.seqAsJavaList(tree.errors()));
+      throw new TruffleValidationException(JavaConverters.seqAsJavaList(tree.errors()));
     }
   }
 
@@ -237,7 +237,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   // We return the function registry as a polyglot 'hasMembers' object (members
   // are the function names, that resolve to the function objects).
   @Override
-  protected Object getScope(RawContext context) {
+  protected Object getScope(Rql2Context context) {
     return context.getFunctionRegistry().asPolyglot();
   }
 

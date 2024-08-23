@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.tryable_nullable;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.NullObject;
 
@@ -73,7 +73,7 @@ public class TryableNullableNodes {
 
     @Specialization(guards = "!isError(value)")
     static String exec(Node node, Object value) {
-      throw new RawTruffleRuntimeException("not a failure");
+      throw new TruffleRuntimeException("not a failure");
     }
   }
 

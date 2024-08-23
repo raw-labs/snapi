@@ -21,7 +21,7 @@ import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.frontend.rql2.source.Exp;
 import com.rawlabs.snapi.frontend.rql2.source.SourceProgram;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.controlflow.ExpBlockNode;
@@ -30,7 +30,7 @@ import scala.collection.JavaConverters;
 public class TruffleEmit {
   public static Entrypoint doEmit(
       SourceProgram program,
-      RawLanguage language,
+      Rql2Language language,
       com.rawlabs.snapi.frontend.base.ProgramContext programContext) {
     ProgramContext ctx = (com.rawlabs.snapi.frontend.rql2.ProgramContext) programContext;
     Tree tree = new Tree(program, true, ctx);

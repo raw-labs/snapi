@@ -20,7 +20,7 @@ import com.rawlabs.snapi.frontend.rql2.source.Rql2OrType;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.type_package.TypeMatchNode;
 import java.util.Comparator;
 import java.util.List;
@@ -31,7 +31,7 @@ public class TruffleTypeMatchEntry extends TypeMatchEntry implements TruffleEntr
 
   private record Handler(int idx, TruffleArg arg) {}
 
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     Rql2OrType orType = (Rql2OrType) args.get(0).type();
     ExpressionNode[] handlers =
         args.stream()

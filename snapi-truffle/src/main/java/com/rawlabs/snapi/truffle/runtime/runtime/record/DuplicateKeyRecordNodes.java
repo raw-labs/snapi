@@ -21,7 +21,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.rawlabs.snapi.truffle.runtime.PropertyType;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 
 // (az) Whenever using any of these nodes, create one per property
 public class DuplicateKeyRecordNodes {
@@ -186,7 +186,7 @@ public class DuplicateKeyRecordNodes {
         int idx = duplicateKeyRecord.getKeyIndex(key);
         return (byte) valuesLibrary.getIntOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -202,7 +202,7 @@ public class DuplicateKeyRecordNodes {
         int idx = duplicateKeyRecord.getKeyIndex(key);
         return (short) valuesLibrary.getIntOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -218,7 +218,7 @@ public class DuplicateKeyRecordNodes {
         int idx = duplicateKeyRecord.getKeyIndex(key);
         return valuesLibrary.getIntOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -234,7 +234,7 @@ public class DuplicateKeyRecordNodes {
         int idx = duplicateKeyRecord.getKeyIndex(key);
         return valuesLibrary.getLongOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -250,7 +250,7 @@ public class DuplicateKeyRecordNodes {
         int idx = duplicateKeyRecord.getKeyIndex(key);
         return valuesLibrary.getDoubleOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
+        throw new TruffleInternalErrorException("Unexpected result", e);
       }
     }
 
@@ -281,7 +281,7 @@ public class DuplicateKeyRecordNodes {
         @CachedLibrary("record") DynamicObjectLibrary valuesLibrary) {
       Object[] keys = valuesLibrary.getKeyArray(record);
       if (index < 0 || index >= keys.length) {
-        throw new RawTruffleInternalErrorException("Index out of bounds in record");
+        throw new TruffleInternalErrorException("Index out of bounds in record");
       }
       return valuesLibrary.getOrDefault(record, index, null);
     }

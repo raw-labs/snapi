@@ -16,7 +16,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.sources.LongRangeCollection;
 
 @NodeInfo(shortName = "Int.Range")
@@ -27,7 +27,7 @@ public abstract class LongRangeNode extends ExpressionNode {
   @Specialization
   protected Object doRange(long start, long end, long step) {
     if (step <= 0)
-      throw new RawTruffleRuntimeException("range step has to be strictly positive", this);
+      throw new TruffleRuntimeException("range step has to be strictly positive", this);
     return new LongRangeCollection(start, end, step);
   }
 }

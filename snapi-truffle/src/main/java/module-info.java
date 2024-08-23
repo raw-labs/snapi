@@ -12,6 +12,7 @@
 
 import com.rawlabs.compiler.CompilerServiceBuilder;
 import com.rawlabs.snapi.truffle.emitter.builtin.location_extension.TruffleLocationFromStringEntry;
+import com.rawlabs.snapi.truffle.runtime.Rql2LanguageProvider;
 
 module raw.snapi.truffle {
   // Direct dependencies
@@ -59,7 +60,7 @@ module raw.snapi.truffle {
   uses CompilerServiceBuilder;
 
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
-      com.rawlabs.snapi.truffle.runtime.RawLanguageProvider;
+      Rql2LanguageProvider;
   provides com.rawlabs.snapi.frontend.rql2.extensions.EntryExtension with
       com.rawlabs.snapi.truffle.emitter.builtin.aws_extension.TruffleAwsV4SignedRequestEntry,
       com.rawlabs.snapi.truffle.emitter.builtin.byte_extension.TruffleByteFromEntry,

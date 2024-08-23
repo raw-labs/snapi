@@ -18,12 +18,11 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.jdbc.JdbcQueryNode;
-import com.rawlabs.snapi.truffle.runtime.ast.io.csv.writer.internal.*;
 import com.rawlabs.snapi.truffle.runtime.ast.io.jdbc.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import scala.collection.JavaConverters;
 
@@ -33,7 +32,7 @@ public class Jdbc {
       ExpressionNode query,
       Type t,
       JdbcExceptionHandler exceptionHandler,
-      RawLanguage lang) {
+      Rql2Language lang) {
     Rql2IterableType iterableType = (Rql2IterableType) t;
     Rql2RecordType recordType = (Rql2RecordType) iterableType.innerType();
     assert iterableType.props().isEmpty();
@@ -56,7 +55,7 @@ public class Jdbc {
         exceptionHandler);
   }
 
-  static private ProgramExpressionNode columnReader(String colName, Type t, RawLanguage lang) {
+  static private ProgramExpressionNode columnReader(String colName, Type t, Rql2Language lang) {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     ExpressionNode node = switch (t){
       case Rql2TypeWithProperties r when r.props().contains(tryable) -> {
@@ -80,7 +79,7 @@ public class Jdbc {
       case Rql2TimestampType ignored ->  new TimestampReadJdbcQuery(colName);
       case Rql2BoolType ignored ->  new BoolReadJdbcQuery(colName);
       case Rql2BinaryType ignored ->  new BinaryReadJdbcQuery(colName);
-      default -> throw new RawTruffleInternalErrorException();
+      default -> throw new TruffleInternalErrorException();
     };
     return new ProgramExpressionNode(lang, frameDescriptor, node);
   }

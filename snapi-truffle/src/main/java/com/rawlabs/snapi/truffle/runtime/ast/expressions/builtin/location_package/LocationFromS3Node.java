@@ -17,8 +17,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.protocol.compiler.S3Config;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.*;
 import com.rawlabs.utils.sources.filesystem.s3.S3Path;
 import scala.None$;
@@ -50,7 +50,7 @@ public class LocationFromS3Node extends ExpressionNode {
 
     // Parse S3 URL to obtain S3 bucket and path
     if (!url.startsWith("s3://")) {
-      throw new RawTruffleRuntimeException("invalid S3 URL format: " + url);
+      throw new TruffleRuntimeException("invalid S3 URL format: " + url);
     }
 
     // Remove the "s3://" prefix
@@ -69,7 +69,7 @@ public class LocationFromS3Node extends ExpressionNode {
     // "If the S3 bucket is not registered in the credentials storage, then the region, accessKey
     // and secretKey must be provided as arguments."
     // However, if the access key/secret key are passed, they should be used.
-    RawContext context = RawContext.get(this);
+    Rql2Context context = Rql2Context.get(this);
     S3Path location;
     if (this.accessKey == null
         && this.secretKey == null

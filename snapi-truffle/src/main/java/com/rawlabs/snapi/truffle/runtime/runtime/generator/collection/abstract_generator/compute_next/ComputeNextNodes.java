@@ -24,23 +24,23 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.CsvParserNodes;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodes;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParser;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParser;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.OSRGeneratorNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.bodies.*;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.conditions.OSRCollectionFilterConditionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.conditions.OSRFromBodyConditionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.conditions.OSRHasNextConditionNode;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.BreakException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvParserRawTruffleException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvReaderRawTruffleException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonReaderRawTruffleException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserRawTruffleException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlReaderRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvParserTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.csv.CsvReaderTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonReaderTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlReaderTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.function.FunctionExecuteNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.StaticInitializers;
@@ -53,9 +53,9 @@ import com.rawlabs.snapi.truffle.runtime.runtime.iterable.sources.EmptyCollectio
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.runtime.utils.IOUtils;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleStringCharStream;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharInputStream;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleInputStream;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleStringCharStream;
 import com.rawlabs.utils.core.RawSettings;
 import java.io.File;
 import java.io.FileInputStream;
@@ -91,10 +91,9 @@ public class ComputeNextNodes {
       }
       try {
         return rowParser.call(computeNext.getParser());
-      } catch (CsvParserRawTruffleException e) {
+      } catch (CsvParserTruffleException e) {
         // wrap any error with the stream location
-        throw new CsvReaderRawTruffleException(
-            e.getMessage(), computeNext.getStream(), e, thisNode);
+        throw new CsvReaderTruffleException(e.getMessage(), computeNext.getStream(), e, thisNode);
       }
     }
 
@@ -112,10 +111,9 @@ public class ComputeNextNodes {
       }
       try {
         return rowParser.call(computeNext.getParser());
-      } catch (CsvParserRawTruffleException e) {
+      } catch (CsvParserTruffleException e) {
         // wrap any error with the stream location
-        throw new CsvReaderRawTruffleException(
-            e.getMessage(), computeNext.getStream(), e, thisNode);
+        throw new CsvReaderTruffleException(e.getMessage(), computeNext.getStream(), e, thisNode);
       }
     }
 
@@ -157,8 +155,8 @@ public class ComputeNextNodes {
         } else {
           throw new BreakException();
         }
-      } catch (JsonReaderRawTruffleException e) {
-        throw new JsonReaderRawTruffleException(
+      } catch (JsonReaderTruffleException e) {
+        throw new JsonReaderTruffleException(
             computeNext.getParser(), computeNext.getStream(), e, thisNode);
       }
     }
@@ -240,8 +238,8 @@ public class ComputeNextNodes {
       } else {
         try {
           return parseNextCallNode.call(computeNext.getParser());
-        } catch (XmlParserRawTruffleException e) {
-          throw new XmlReaderRawTruffleException(e, computeNext.getStream(), null);
+        } catch (XmlParserTruffleException e) {
+          throw new XmlReaderTruffleException(e, computeNext.getStream(), null);
         }
       }
     }
@@ -359,8 +357,8 @@ public class ComputeNextNodes {
       return next;
     }
 
-    public static RawLanguage getRawLanguage(Node node) {
-      return RawLanguage.get(node);
+    public static Rql2Language getRql2Language(Node node) {
+      return Rql2Language.get(node);
     }
 
     @Specialization
@@ -368,7 +366,7 @@ public class ComputeNextNodes {
         Node node,
         ZipComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
+        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) Rql2Language language,
         @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode1,
         @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode2,
         @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode1,
@@ -454,7 +452,7 @@ public class ComputeNextNodes {
       try {
         return new Input(new FileInputStream(file));
       } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e.getMessage(), e, node);
+        throw new TruffleRuntimeException(e.getMessage(), e, node);
       }
     }
 
@@ -514,7 +512,7 @@ public class ComputeNextNodes {
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
             initParser.execute(thisNode, computeNext.getStream(), computeNext.getSettings()));
-      } catch (RawTruffleRuntimeException ex) {
+      } catch (TruffleRuntimeException ex) {
         closeParser.execute(thisNode, computeNext.getParser());
         throw ex;
       }
@@ -531,13 +529,13 @@ public class ComputeNextNodes {
       try {
         computeNext.setParser(
             initParser.execute(thisNode, computeNext.getStream(), computeNext.getSettings()));
-      } catch (CsvReaderRawTruffleException ex) {
-        CsvReaderRawTruffleException newEx =
-            new CsvReaderRawTruffleException(
+      } catch (CsvReaderTruffleException ex) {
+        CsvReaderTruffleException newEx =
+            new CsvReaderTruffleException(
                 ex.getMessage(), computeNext.getStream(), ex.getCause(), thisNode);
         closeParser.execute(thisNode, computeNext.getParser());
         throw newEx;
-      } catch (RawTruffleRuntimeException ex) {
+      } catch (TruffleRuntimeException ex) {
         closeParser.execute(thisNode, computeNext.getParser());
         throw ex;
       }
@@ -570,13 +568,13 @@ public class ComputeNextNodes {
         nextToken.execute(thisNode, computeNext.getParser());
         // the first token is START_ARRAY so skip it
         nextToken.execute(thisNode, computeNext.getParser());
-      } catch (JsonReaderRawTruffleException ex) {
-        JsonReaderRawTruffleException newEx =
-            new JsonReaderRawTruffleException(
+      } catch (JsonReaderTruffleException ex) {
+        JsonReaderTruffleException newEx =
+            new JsonReaderTruffleException(
                 ex.getMessage(), computeNext.getParser(), computeNext.getStream(), ex, thisNode);
         closeParser.execute(thisNode, computeNext.getParser());
         throw newEx;
-      } catch (RawTruffleRuntimeException ex) {
+      } catch (TruffleRuntimeException ex) {
         closeParser.execute(thisNode, computeNext.getParser());
         throw ex;
       }
@@ -599,13 +597,13 @@ public class ComputeNextNodes {
     @Specialization
     static void init(Node node, XmlParseComputeNext computeNext) {
       try {
-        computeNext.setStream(new RawTruffleStringCharStream(computeNext.getText()));
+        computeNext.setStream(new TruffleStringCharStream(computeNext.getText()));
         computeNext.setParser(
-            RawTruffleXmlParser.create(computeNext.getStream(), computeNext.getSettings()));
+            TruffleXmlParser.create(computeNext.getStream(), computeNext.getSettings()));
         // move from null to the first token
         int token = computeNext.getParser().nextToken(); // consume START_OBJECT
         computeNext.getParser().assertCurrentTokenIsStartTag(); // because it's the top level object
-      } catch (RawTruffleRuntimeException ex) {
+      } catch (TruffleRuntimeException ex) {
         if (computeNext.getParser() != null) computeNext.getParser().close();
         throw ex;
       }
@@ -619,11 +617,11 @@ public class ComputeNextNodes {
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
-            RawTruffleXmlParser.create(computeNext.getStream(), computeNext.getSettings()));
+            TruffleXmlParser.create(computeNext.getStream(), computeNext.getSettings()));
         // move from null to the first token
         int token = computeNext.getParser().nextToken(); // consume START_OBJECT
         computeNext.getParser().assertCurrentTokenIsStartTag(); // because it's the top level object
-      } catch (RawTruffleRuntimeException ex) {
+      } catch (TruffleRuntimeException ex) {
         if (computeNext.getParser() != null) computeNext.getParser().close();
         throw ex;
       }
@@ -775,7 +773,7 @@ public class ComputeNextNodes {
             new FileOutputStream(computeNext.getDiskRight()),
             computeNext.getKryoOutputBufferSize());
       } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e.getMessage(), e, node);
+        throw new TruffleRuntimeException(e.getMessage(), e, node);
       }
     }
 
@@ -805,7 +803,7 @@ public class ComputeNextNodes {
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode) {
 
-      RawSettings settings = RawContext.get(thisNode).getSettings();
+      RawSettings settings = Rql2Context.get(thisNode).getSettings();
       computeNext.setDiskRight(IOUtils.getScratchFile("cartesian.", ".kryo", settings).toFile());
 
       // save right to disk

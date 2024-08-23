@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.ast.io.jdbc;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms.JdbcExceptionHandler;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms.JdbcReaderRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms.JdbcReaderTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.*;
 import com.rawlabs.utils.core.RawException;
 import com.rawlabs.utils.core.RawSettings;
@@ -54,7 +54,7 @@ public class JdbcQuery {
     } catch (RawException e) {
       // Exceptions due to location errors (e.g. connection failures) are turned into runtime
       // exceptions.
-      throw new JdbcReaderRawTruffleException(e.getMessage(), this, e, null);
+      throw new JdbcReaderTruffleException(e.getMessage(), this, e, null);
     }
   }
 

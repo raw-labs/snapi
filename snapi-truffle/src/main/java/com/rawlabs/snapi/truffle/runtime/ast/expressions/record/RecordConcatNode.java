@@ -17,7 +17,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodes;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public abstract class RecordConcatNode extends ExpressionNode {
       Object rec1,
       Object rec2,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getCachedLanguage(thisNode)", neverDefault = true) RawLanguage lang,
+      @Cached(value = "getCachedLanguage(thisNode)", neverDefault = true) Rql2Language lang,
       @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode1,
       @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode2,
       @Cached(value = "getKeysNode1.execute(thisNode, rec1)", neverDefault = true, dimensions = 1)

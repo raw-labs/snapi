@@ -17,8 +17,7 @@ import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.time.*;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
@@ -46,7 +45,7 @@ public final class OrObject implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return RawLanguage.class;
+    return Rql2Language.class;
   }
 
   @ExportMessage

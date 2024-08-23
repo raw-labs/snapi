@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.BreakException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
 public class ExpressionComputeNext {
   private final Object[] values;
@@ -42,8 +42,8 @@ public class ExpressionComputeNext {
     }
     try {
       return this.getCurrent();
-    } catch (RawTruffleRuntimeException e) {
-      return new RawTruffleRuntimeException(e.getMessage(), e, null);
+    } catch (TruffleRuntimeException e) {
+      return new TruffleRuntimeException(e.getMessage(), e, null);
     } finally {
       this.incrementPosition();
     }

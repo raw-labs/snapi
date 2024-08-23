@@ -21,7 +21,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.list.StringList;
 import java.util.Objects;
@@ -35,7 +35,7 @@ public class AbstractGenerator implements TruffleObject {
 
   private boolean isTerminated = false;
 
-  private RawTruffleRuntimeException exception = null;
+  private TruffleRuntimeException exception = null;
 
   public AbstractGenerator(Object computeNext) {
     this.nextGenerator = computeNext;
@@ -61,11 +61,11 @@ public class AbstractGenerator implements TruffleObject {
     this.next = next;
   }
 
-  public RawTruffleRuntimeException getException() {
+  public TruffleRuntimeException getException() {
     return exception;
   }
 
-  public void setException(RawTruffleRuntimeException exception) {
+  public void setException(TruffleRuntimeException exception) {
     this.exception = exception;
   }
 

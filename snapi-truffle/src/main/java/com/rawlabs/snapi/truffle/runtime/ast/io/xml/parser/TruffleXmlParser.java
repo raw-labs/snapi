@@ -14,15 +14,15 @@ package com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.builtin.temporals.DateTimeFormatCache;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserRawTruffleException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlReaderRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlReaderTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.DateObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.DecimalObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.TimeObject;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.TimestampObject;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleCharStream;
-import com.rawlabs.snapi.truffle.runtime.utils.RawTruffleStringCharStream;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharStream;
+import com.rawlabs.snapi.truffle.runtime.utils.TruffleStringCharStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,17 +36,17 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.text.StringEscapeUtils;
 
-public class RawTruffleXmlParser {
+public class TruffleXmlParser {
 
   private int currentLine;
   private int currentColumn;
   private final XMLStreamReader xmlStreamReader;
-  private final RawTruffleCharStream stream;
+  private final TruffleCharStream stream;
   private int currentToken;
   private String currentTag;
   private boolean currentTokenValid = false;
   private final DateTimeFormatter dateFormatter, timeFormatter, timestampFormatter;
-  private final RawTruffleXmlParserSettings settings;
+  private final TruffleXmlParserSettings settings;
 
   @TruffleBoundary
   public int currentLine() {
@@ -59,7 +59,7 @@ public class RawTruffleXmlParser {
   }
 
   @TruffleBoundary
-  public RawTruffleXmlParser(RawTruffleCharStream stream, RawTruffleXmlParserSettings settings) {
+  public TruffleXmlParser(TruffleCharStream stream, TruffleXmlParserSettings settings) {
     this.stream = stream;
     this.dateFormatter = DateTimeFormatCache.get(settings.dateFormat);
     this.timeFormatter = DateTimeFormatCache.get(settings.timeFormat);
@@ -67,23 +67,23 @@ public class RawTruffleXmlParser {
     this.settings = settings;
     try {
       xmlStreamReader =
-          RawTruffleXmlParserFactory.singleton().createXMLStreamReader(stream.getReader());
+          TruffleXmlParserFactory.singleton().createXMLStreamReader(stream.getReader());
     } catch (XMLStreamException e) {
       // TODO !!!!!!!!!!!!!!!!!!!!! Like in CSV/Json
-      throw new XmlReaderRawTruffleException("Error creating XMLStreamReader", e, null);
+      throw new XmlReaderTruffleException("Error creating XMLStreamReader", e, null);
     }
   }
 
   private final StringBuilder stringBuilder = new StringBuilder();
 
-  public static RawTruffleXmlParser create(
-      RawTruffleCharStream stream, RawTruffleXmlParserSettings settings) {
-    return new RawTruffleXmlParser(stream, settings);
+  public static TruffleXmlParser create(
+      TruffleCharStream stream, TruffleXmlParserSettings settings) {
+    return new TruffleXmlParser(stream, settings);
   }
 
-  public RawTruffleXmlParser duplicateFor(String text) {
-    RawTruffleCharStream subStream = new RawTruffleStringCharStream(text);
-    return new RawTruffleXmlParser(subStream, settings);
+  public TruffleXmlParser duplicateFor(String text) {
+    TruffleCharStream subStream = new TruffleStringCharStream(text);
+    return new TruffleXmlParser(subStream, settings);
   }
 
   @TruffleBoundary
@@ -96,7 +96,7 @@ public class RawTruffleXmlParser {
     int currentToken = xmlStreamReader.getEventType();
     if (currentToken != XMLStreamReader.END_ELEMENT) {
       recordPosition();
-      throw new XmlParserRawTruffleException(
+      throw new XmlParserTruffleException(
           "expected "
               + eventToStr(XMLStreamReader.END_ELEMENT, tag)
               + " but got "
@@ -130,7 +130,7 @@ public class RawTruffleXmlParser {
         return "attribute";
       default:
         // TODO log something
-        throw new RawTruffleInternalErrorException();
+        throw new TruffleInternalErrorException();
     }
   }
 
@@ -140,7 +140,7 @@ public class RawTruffleXmlParser {
       assert (currentTokenValid || !xmlStreamReader.hasNext());
       return currentToken == XMLStreamReader.END_ELEMENT;
     } catch (IllegalStateException | XMLStreamException ex) {
-      throw new XmlReaderRawTruffleException(ex, stream, null);
+      throw new XmlReaderTruffleException(ex, stream, null);
     }
   }
 
@@ -168,7 +168,7 @@ public class RawTruffleXmlParser {
         if (depth == 0) break;
       }
     } catch (XMLStreamException ex) {
-      throw new XmlParserRawTruffleException(ex, this);
+      throw new XmlParserTruffleException(ex, this);
     }
   }
 
@@ -184,7 +184,7 @@ public class RawTruffleXmlParser {
         if (depth == 0) break;
       }
     } catch (XMLStreamException ex) {
-      throw new XmlReaderRawTruffleException(ex, stream, null);
+      throw new XmlReaderTruffleException(ex, stream, null);
     }
   }
 
@@ -198,7 +198,7 @@ public class RawTruffleXmlParser {
       }
       return names;
     } catch (IllegalStateException ex) {
-      throw new XmlReaderRawTruffleException(ex, stream, null);
+      throw new XmlReaderTruffleException(ex, stream, null);
     }
   }
 
@@ -227,7 +227,7 @@ public class RawTruffleXmlParser {
     } catch (XMLStreamException e) {
       // TODO more details?
       recordPosition();
-      throw new XmlReaderRawTruffleException(e, this, stream, null);
+      throw new XmlReaderTruffleException(e, this, stream, null);
     }
     return currentToken;
   }
@@ -237,7 +237,7 @@ public class RawTruffleXmlParser {
     if (currentToken != expectedToken) {
       // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!
       recordPosition();
-      throw new XmlReaderRawTruffleException(
+      throw new XmlReaderTruffleException(
           "Expected token " + expectedToken + " but found " + currentToken, stream, null);
     }
   }
@@ -284,8 +284,7 @@ public class RawTruffleXmlParser {
     try {
       return Byte.parseByte(content.strip());
     } catch (NumberFormatException e) {
-      throw new XmlParserRawTruffleException(
-          "cannot cast '" + content + "' to byte", this, e, null);
+      throw new XmlParserTruffleException("cannot cast '" + content + "' to byte", this, e, null);
     }
   }
 
@@ -294,8 +293,7 @@ public class RawTruffleXmlParser {
     try {
       return Short.parseShort(content.strip());
     } catch (NumberFormatException e) {
-      throw new XmlParserRawTruffleException(
-          "cannot cast '" + content + "' to short", this, e, null);
+      throw new XmlParserTruffleException("cannot cast '" + content + "' to short", this, e, null);
     }
   }
 
@@ -304,7 +302,7 @@ public class RawTruffleXmlParser {
     try {
       return Integer.parseInt(content.strip());
     } catch (NumberFormatException e) {
-      throw new XmlParserRawTruffleException("cannot cast '" + content + "' to int", this, e, null);
+      throw new XmlParserTruffleException("cannot cast '" + content + "' to int", this, e, null);
     }
   }
 
@@ -313,8 +311,7 @@ public class RawTruffleXmlParser {
     try {
       return Long.parseLong(content.strip());
     } catch (NumberFormatException e) {
-      throw new XmlParserRawTruffleException(
-          "cannot cast '" + content + "' to long", this, e, null);
+      throw new XmlParserTruffleException("cannot cast '" + content + "' to long", this, e, null);
     }
   }
 
@@ -323,8 +320,7 @@ public class RawTruffleXmlParser {
     try {
       return Float.parseFloat(content.strip());
     } catch (NumberFormatException e) {
-      throw new XmlParserRawTruffleException(
-          "cannot cast '" + content + "' to float", this, e, null);
+      throw new XmlParserTruffleException("cannot cast '" + content + "' to float", this, e, null);
     }
   }
 
@@ -333,8 +329,7 @@ public class RawTruffleXmlParser {
     try {
       return Double.parseDouble(content.strip());
     } catch (NumberFormatException e) {
-      throw new XmlParserRawTruffleException(
-          "cannot cast '" + content + "' to double", this, e, null);
+      throw new XmlParserTruffleException("cannot cast '" + content + "' to double", this, e, null);
     }
   }
 
@@ -343,7 +338,7 @@ public class RawTruffleXmlParser {
     try {
       return new DecimalObject(new BigDecimal(content.strip()));
     } catch (NumberFormatException e) {
-      throw new XmlParserRawTruffleException(
+      throw new XmlParserTruffleException(
           "cannot cast '" + content + "' to decimal", this, e, null);
     }
   }
@@ -356,8 +351,7 @@ public class RawTruffleXmlParser {
     } else if (Objects.equals(normalized, "false")) {
       return false;
     } else {
-      throw new XmlParserRawTruffleException(
-          "cannot cast '" + content + "' to boolean", this, null);
+      throw new XmlParserTruffleException("cannot cast '" + content + "' to boolean", this, null);
     }
   }
 
@@ -366,7 +360,7 @@ public class RawTruffleXmlParser {
     try {
       return new DateObject(LocalDate.parse(content.strip(), dateFormatter));
     } catch (DateTimeParseException ex) {
-      throw new XmlParserRawTruffleException(
+      throw new XmlParserTruffleException(
           String.format(
               "string '%s' does not match date template '%s'", content, settings.dateFormat),
           this,
@@ -380,7 +374,7 @@ public class RawTruffleXmlParser {
     try {
       return new TimeObject(LocalTime.parse(content.strip(), timeFormatter));
     } catch (DateTimeParseException ex) {
-      throw new XmlParserRawTruffleException(
+      throw new XmlParserTruffleException(
           String.format(
               "string '%s' does not match time template '%s'", content, settings.timeFormat),
           this,
@@ -394,7 +388,7 @@ public class RawTruffleXmlParser {
     try {
       return new TimestampObject(LocalDateTime.parse(content.strip(), timestampFormatter));
     } catch (DateTimeParseException ex) {
-      throw new XmlParserRawTruffleException(
+      throw new XmlParserTruffleException(
           String.format(
               "string '%s' does not match timestamp template '%s'",
               content, settings.timestampFormat),
@@ -410,7 +404,7 @@ public class RawTruffleXmlParser {
       xmlStreamReader.close();
     } catch (XMLStreamException e) {
       // TODO !!!!!!!!!!!!!!!!!!!!! Like in CSV/Json
-      throw new XmlReaderRawTruffleException("Error closing XMLStreamReader", e, null);
+      throw new XmlReaderTruffleException("Error closing XMLStreamReader", e, null);
     }
   }
 
@@ -465,7 +459,7 @@ public class RawTruffleXmlParser {
         }
       }
     } catch (XMLStreamException e) {
-      throw new XmlParserRawTruffleException(e, this);
+      throw new XmlParserTruffleException(e, this);
     }
     return s.toString();
   }

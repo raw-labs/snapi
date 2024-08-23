@@ -17,12 +17,12 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TryFlatMapEntry;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.expressions.tryable.TryableMapNodeGen;
 import java.util.List;
 
 public class TruffleTryFlatMapEntry extends TryFlatMapEntry implements TruffleEntryExtension {
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
     return TryableMapNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

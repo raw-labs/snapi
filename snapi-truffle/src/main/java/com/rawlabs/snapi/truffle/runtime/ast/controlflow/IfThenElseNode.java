@@ -16,7 +16,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.CountingConditionProfile;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
 public final class IfThenElseNode extends ExpressionNode {
 
@@ -62,7 +62,7 @@ public final class IfThenElseNode extends ExpressionNode {
        * The condition evaluated to a non-boolean result. This is a type error in the SL
        * program.
        */
-      throw new RawTruffleRuntimeException(ex, this);
+      throw new TruffleRuntimeException(ex, this);
     }
   }
 }

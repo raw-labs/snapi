@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleUnexpectedNullException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleUnexpectedNullException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.NullObject;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.Nullable;
 
@@ -28,7 +28,7 @@ public abstract class OptionUnsafeGetNode extends ExpressionNode {
 
   @Specialization(guards = "isNull(option)")
   protected Object doObject(NullObject option) {
-    throw new RawTruffleUnexpectedNullException(this);
+    throw new TruffleUnexpectedNullException(this);
   }
 
   @Specialization(guards = "!isNull(option)")

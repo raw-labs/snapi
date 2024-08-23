@@ -19,7 +19,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodes;
 
@@ -28,7 +28,7 @@ public class ZipCollection implements TruffleObject {
   final Object parentIterable1;
   final Object parentIterable2;
 
-  public ZipCollection(Object iterable1, Object iterable2, RawLanguage language) {
+  public ZipCollection(Object iterable1, Object iterable2, Rql2Language language) {
     this.parentIterable1 = iterable1;
     this.parentIterable2 = iterable2;
   }

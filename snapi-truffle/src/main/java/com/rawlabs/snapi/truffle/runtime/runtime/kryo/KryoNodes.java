@@ -16,12 +16,11 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.TypeGuards;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodes;
@@ -147,8 +146,8 @@ public class KryoNodes {
       return list.size() != list.stream().distinct().count();
     }
 
-    public static RawLanguage getRawLanguage(Node node) {
-      return RawLanguage.get(node);
+    public static Rql2Language getRql2Language(Node node) {
+      return Rql2Language.get(node);
     }
 
     @Specialization(guards = {"isRecordKind(t)"})
@@ -159,7 +158,7 @@ public class KryoNodes {
         Rql2RecordType t,
         @Bind("$node") Node thisNode,
         @Cached(value = "hasDuplicateKeys(t)", allowUncached = true) boolean hasDuplicateKeys,
-        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
+        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) Rql2Language language,
         @Cached(value = "createAddProps(t.atts().size())", allowUncached = true)
             RecordNodes.AddPropNode[] addPropNode,
         @Cached(value = "addPropNode.length", allowUncached = true) int size,

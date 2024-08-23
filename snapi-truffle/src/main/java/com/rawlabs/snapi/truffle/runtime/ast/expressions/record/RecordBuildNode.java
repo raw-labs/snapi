@@ -17,7 +17,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
 import java.util.List;
@@ -33,7 +33,7 @@ public class RecordBuildNode extends ExpressionNode {
 
   private final boolean hasDuplicateKeys;
 
-  private final RawLanguage language = RawLanguage.get(this);
+  private final Rql2Language language = Rql2Language.get(this);
 
   public RecordBuildNode(ExpressionNode[] elementsNodes, String[] keys) {
     CompilerAsserts.compilationConstant(elementsNodes.length);

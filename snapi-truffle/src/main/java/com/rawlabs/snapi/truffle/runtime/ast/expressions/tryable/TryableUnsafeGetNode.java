@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.Tryable;
 import com.rawlabs.snapi.truffle.runtime.tryable_nullable.TryableNullableNodes;
@@ -31,7 +31,7 @@ public abstract class TryableUnsafeGetNode extends ExpressionNode {
   protected Object exec(
       ErrorObject tryable,
       @Cached(inline = true) TryableNullableNodes.GetErrorNode getFailureNode) {
-    throw new RawTruffleRuntimeException(getFailureNode.execute(this, tryable), this);
+    throw new TruffleRuntimeException(getFailureNode.execute(this, tryable), this);
   }
 
   @Specialization(guards = "!isError(tryable)")

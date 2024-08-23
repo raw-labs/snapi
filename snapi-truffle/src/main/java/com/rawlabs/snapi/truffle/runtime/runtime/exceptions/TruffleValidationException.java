@@ -24,12 +24,12 @@ import com.rawlabs.snapi.truffle.runtime.runtime.list.StringList;
 import java.util.List;
 
 @ExportLibrary(InteropLibrary.class)
-public class RawTruffleValidationException extends AbstractTruffleException {
+public class TruffleValidationException extends AbstractTruffleException {
 
   private final ValidationErrorObject errors;
 
   @TruffleBoundary
-  public RawTruffleValidationException(List<Message> errors) {
+  public TruffleValidationException(List<Message> errors) {
     super("validation failure");
     this.errors = new ValidationErrorObject(errors);
   }

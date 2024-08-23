@@ -21,30 +21,30 @@ import com.rawlabs.compiler.ProgramEnvironment;
 import com.rawlabs.compiler.ProgramEnvironment$;
 import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.snapi.frontend.inferrer.api.InferrerService;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
-import com.rawlabs.snapi.truffle.runtime.runtime.function.RawFunctionRegistry;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.function.FunctionRegistry;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.core.RawUid;
 import java.io.OutputStream;
 import java.util.Set;
 import scala.collection.JavaConverters;
 
-public final class RawContext {
+public final class Rql2Context {
 
-  private final RawLanguage language;
+  private final Rql2Language language;
   private final Env env;
   private final RawSettings rawSettings;
   private final OutputStream output;
   private final ProgramEnvironment programEnvironment;
-  private final RawFunctionRegistry functionRegistry;
+  private final FunctionRegistry functionRegistry;
 
   @CompilerDirectives.TruffleBoundary
-  public RawContext(RawLanguage language, Env env) {
+  public Rql2Context(Rql2Language language, Env env) {
     this.language = language;
     this.env = env;
     this.output = env.out();
 
-    String rawSettingsConfigString = env.getOptions().get(RawOptions.RAW_SETTINGS_KEY);
+    String rawSettingsConfigString = env.getOptions().get(Rql2Options.RAW_SETTINGS_KEY);
     // If settings were passed as Engine options, used those as our settings.
     // Otherwise, default to the settings from the language, which are obtained from the system.
     if (rawSettingsConfigString.isEmpty()) {
@@ -63,14 +63,14 @@ public final class RawContext {
     // The function registry holds snapi methods (top level functions). It is the data
     // structure that is used to extract a ref to a function from a piece of execute snapi.
     // Functions appear as polyglot bindings after the execution of the source code.
-    this.functionRegistry = new RawFunctionRegistry();
+    this.functionRegistry = new FunctionRegistry();
   }
 
-  public RawFunctionRegistry getFunctionRegistry() {
+  public FunctionRegistry getFunctionRegistry() {
     return functionRegistry;
   }
 
-  public RawLanguage getLanguage() {
+  public Rql2Language getLanguage() {
     return language;
   }
 
@@ -107,7 +107,7 @@ public final class RawContext {
   public String getSecret(String key) {
     scala.Option<String> maybeSecret = programEnvironment.secrets().get(key);
     if (maybeSecret.isEmpty()) {
-      throw new RawTruffleRuntimeException("unknown secret: " + key);
+      throw new TruffleRuntimeException("unknown secret: " + key);
     }
     return maybeSecret.get();
   }
@@ -122,11 +122,11 @@ public final class RawContext {
     scala.Option<LocationConfig> maybeLocationConfig =
         programEnvironment.locationConfigs().get(name);
     if (maybeLocationConfig.isEmpty()) {
-      throw new RawTruffleRuntimeException("unknown credential: " + name);
+      throw new TruffleRuntimeException("unknown credential: " + name);
     }
     LocationConfig locationConfig = maybeLocationConfig.get();
     if (locationConfig.hasError()) {
-      throw new RawTruffleRuntimeException(locationConfig.getError().getMessage());
+      throw new TruffleRuntimeException(locationConfig.getError().getMessage());
     }
     return locationConfig;
   }
@@ -142,10 +142,10 @@ public final class RawContext {
     return javaScopes.toArray(new String[0]);
   }
 
-  private static final TruffleLanguage.ContextReference<RawContext> REFERENCE =
-      TruffleLanguage.ContextReference.create(RawLanguage.class);
+  private static final TruffleLanguage.ContextReference<Rql2Context> REFERENCE =
+      TruffleLanguage.ContextReference.create(Rql2Language.class);
 
-  public static RawContext get(Node node) {
+  public static Rql2Context get(Node node) {
     return REFERENCE.get(node);
   }
 

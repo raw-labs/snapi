@@ -17,7 +17,7 @@ import com.rawlabs.snapi.frontend.rql2.source.Rql2BinaryType;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2IsNullableTypeProperty;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2IsTryableTypeProperty;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2StringType;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramStatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.binary.BinaryBytesWriterNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.binary.NullableBinaryWriterNode;
@@ -26,7 +26,7 @@ import com.rawlabs.snapi.truffle.runtime.ast.io.binary.TryableBinaryWriterNode;
 public class TruffleBinaryWriter {
 
   public static ProgramStatementNode getBinaryWriterNode(
-      Rql2BinaryType type, RawLanguage lang, FrameDescriptor frameDescriptor) {
+      Rql2BinaryType type, Rql2Language lang, FrameDescriptor frameDescriptor) {
     if (type.props().isEmpty()) {
       return new ProgramStatementNode(lang, frameDescriptor, new BinaryBytesWriterNode());
     } else if (type.props().contains(Rql2IsTryableTypeProperty.apply())) {
@@ -47,7 +47,7 @@ public class TruffleBinaryWriter {
   }
 
   public static ProgramStatementNode getBinaryWriterNode(
-      Rql2StringType type, RawLanguage lang, FrameDescriptor frameDescriptor) {
+      Rql2StringType type, Rql2Language lang, FrameDescriptor frameDescriptor) {
     if (type.props().isEmpty()) {
       return new ProgramStatementNode(lang, frameDescriptor, new BinaryBytesWriterNode());
     } else if (type.props().contains(Rql2IsTryableTypeProperty.apply())) {

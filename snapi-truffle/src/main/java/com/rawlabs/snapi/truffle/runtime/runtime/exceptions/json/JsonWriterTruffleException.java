@@ -10,16 +10,21 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms;
+package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
-public class JdbcParserRawTruffleException extends RawTruffleRuntimeException {
+public class JsonWriterTruffleException extends TruffleRuntimeException {
 
   @CompilerDirectives.TruffleBoundary
-  public JdbcParserRawTruffleException(String message, Throwable e, Node location) {
-    super(String.format("failed to read value: %s", message), e, location);
+  public JsonWriterTruffleException(String message, Node location) {
+    super(message, location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public JsonWriterTruffleException(String message, Throwable cause, Node location) {
+    super(message, cause, location);
   }
 }

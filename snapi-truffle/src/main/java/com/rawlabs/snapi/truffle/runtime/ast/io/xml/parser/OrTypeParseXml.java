@@ -19,7 +19,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlOrTypeParserException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml.XmlParserTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.or.OrObject;
 import java.util.ArrayList;
 
@@ -38,12 +38,12 @@ public class OrTypeParseXml extends ExpressionNode {
   @ExplodeLoop
   public OrObject executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    TruffleXmlParser parser = (TruffleXmlParser) args[0];
     String text = parser.elementAsString();
     ArrayList<String> parseErrors = new ArrayList<>();
     for (int i = 0; i < options.length; i++) {
       DirectCallNode option = options[i];
-      RawTruffleXmlParser optionParser = parser.duplicateFor(text);
+      TruffleXmlParser optionParser = parser.duplicateFor(text);
       try {
         optionParser.nextToken();
         optionParser.assertCurrentTokenIsStartTag();
@@ -52,7 +52,7 @@ public class OrTypeParseXml extends ExpressionNode {
         parser.expectEndTag(null);
         parser.nextToken(); // skip end tag
         return new OrObject(i, value);
-      } catch (XmlParserRawTruffleException e) {
+      } catch (XmlParserTruffleException e) {
         String error = e.getMessage();
         parseErrors.add(error);
         optionParser.close();

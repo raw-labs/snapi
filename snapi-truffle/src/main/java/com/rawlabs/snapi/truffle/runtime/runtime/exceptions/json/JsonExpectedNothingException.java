@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 
-public class JsonExpectedNothingException extends JsonParserRawTruffleException {
+public class JsonExpectedNothingException extends JsonParserTruffleException {
 
   @CompilerDirectives.TruffleBoundary
   public JsonExpectedNothingException(String token) {

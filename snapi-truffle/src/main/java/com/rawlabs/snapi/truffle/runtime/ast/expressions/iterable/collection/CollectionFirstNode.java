@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.ErrorObject;
@@ -42,7 +42,7 @@ public abstract class CollectionFirstNode extends ExpressionNode {
         return NullObject.INSTANCE;
       }
       return next.execute(this, generator);
-    } catch (RawTruffleRuntimeException e) {
+    } catch (TruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     } finally {
       closeNode.execute(this, generator);

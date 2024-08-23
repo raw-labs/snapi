@@ -16,15 +16,15 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import java.util.Arrays;
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.StatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramStatementNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.csv.writer.internal.*;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleInternalErrorException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleInternalErrorException;
 
 public class CsvWriter {
 
-  public static ProgramStatementNode getCsvWriter(Type[] args, RawLanguage lang) {
+  public static ProgramStatementNode getCsvWriter(Type[] args, Rql2Language lang) {
     ProgramStatementNode[] columnWriters =
         Arrays.stream(args)
             .map(arg -> columnWriter(arg, lang))
@@ -34,7 +34,7 @@ public class CsvWriter {
     return new ProgramStatementNode(lang, new FrameDescriptor(), recordWriter);
   }
 
-  private static StatementNode columnWriter(Type t, RawLanguage lang) {
+  private static StatementNode columnWriter(Type t, Rql2Language lang) {
     return switch (t){
       case Rql2TypeWithProperties r when r.props().contains(CompilerScalaConsts.tryable) -> {
         StatementNode inner = columnWriter(r.cloneAndRemoveProp(CompilerScalaConsts.tryable), lang);
@@ -60,14 +60,14 @@ public class CsvWriter {
           case Rql2TimeType ignored -> new TimeWriteCsvNode();
           case Rql2TimestampType ignored -> new TimestampWriteCsvNode();
           case Rql2BinaryType ignored -> new BinaryWriteCsvNode();
-          default -> throw new RawTruffleInternalErrorException();
+          default -> throw new TruffleInternalErrorException();
         };
       }
-      default -> throw new RawTruffleInternalErrorException();
+      default -> throw new TruffleInternalErrorException();
     };
   }
 
-  private static ProgramStatementNode program(StatementNode e, RawLanguage lang) {
+  private static ProgramStatementNode program(StatementNode e, Rql2Language lang) {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new ProgramStatementNode(lang, frameDescriptor, e);
   }

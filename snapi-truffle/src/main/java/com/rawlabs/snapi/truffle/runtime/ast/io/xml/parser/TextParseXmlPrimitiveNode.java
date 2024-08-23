@@ -29,7 +29,7 @@ public class TextParseXmlPrimitiveNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    TruffleXmlParser parser = (TruffleXmlParser) args[0];
     String text = parser.getText();
     return childDirectCall.call(parser, text);
   }

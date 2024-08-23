@@ -21,7 +21,7 @@ import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodes;
 import com.rawlabs.snapi.truffle.runtime.ast.io.json.reader.JsonParserNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonExpectedNothingException;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonParserRawTruffleException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.json.JsonParserTruffleException;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.NullObject;
 
 public class NullableParseJsonNode extends ExpressionNode {
@@ -50,7 +50,7 @@ public class NullableParseJsonNode extends ExpressionNode {
       try {
         return childDirectCall.call(parser);
       } catch (JsonExpectedNothingException ex) {
-        throw new JsonParserRawTruffleException("expected null but got non-null", ex, this);
+        throw new JsonParserTruffleException("expected null but got non-null", ex, this);
       }
     }
   }

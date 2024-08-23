@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.abstract_generator.compute_next.sources;
 
 import com.oracle.truffle.api.RootCallTarget;
-import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.RawTruffleCsvParser;
-import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
+import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.TruffleCsvParser;
+import com.rawlabs.snapi.truffle.runtime.ast.io.csv.reader.parser.TruffleCsvParserSettings;
 import com.rawlabs.snapi.truffle.runtime.runtime.primitives.LocationObject;
 import com.rawlabs.snapi.truffle.runtime.utils.TruffleCharInputStream;
 
@@ -22,15 +22,15 @@ public class CsvReadComputeNext {
   private final LocationObject location;
   private final RootCallTarget rowParserCallTarget;
   private final String encoding;
-  private final RawTruffleCsvParserSettings settings;
+  private final TruffleCsvParserSettings settings;
   private TruffleCharInputStream stream;
-  private RawTruffleCsvParser parser;
+  private TruffleCsvParser parser;
 
   public CsvReadComputeNext(
       LocationObject location,
       RootCallTarget rowParserCallTarget,
       String encoding,
-      RawTruffleCsvParserSettings settings) {
+      TruffleCsvParserSettings settings) {
     this.location = location;
     this.rowParserCallTarget = rowParserCallTarget;
     this.encoding = encoding;
@@ -41,7 +41,7 @@ public class CsvReadComputeNext {
     this.stream = stream;
   }
 
-  public void setParser(RawTruffleCsvParser parser) {
+  public void setParser(TruffleCsvParser parser) {
     this.parser = parser;
   }
 
@@ -57,7 +57,7 @@ public class CsvReadComputeNext {
     return encoding;
   }
 
-  public RawTruffleCsvParserSettings getSettings() {
+  public TruffleCsvParserSettings getSettings() {
     return settings;
   }
 
@@ -65,7 +65,7 @@ public class CsvReadComputeNext {
     return stream;
   }
 
-  public RawTruffleCsvParser getParser() {
+  public TruffleCsvParser getParser() {
     return parser;
   }
 }

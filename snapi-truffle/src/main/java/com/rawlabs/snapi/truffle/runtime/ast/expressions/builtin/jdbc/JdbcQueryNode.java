@@ -16,7 +16,7 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawContext;
+import com.rawlabs.snapi.truffle.runtime.Rql2Context;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.sources.JdbcQueryCollection;
@@ -44,7 +44,7 @@ public class JdbcQueryNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    RawSettings rawSettings = RawContext.get(this).getSettings();
+    RawSettings rawSettings = Rql2Context.get(this).getSettings();
     LocationObject dbLocation = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String query = (String) this.queryExp.executeGeneric(virtualFrame);
     return new JdbcQueryCollection(

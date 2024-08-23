@@ -20,7 +20,7 @@ import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.OSRGeneratorNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.bodies.OSRExistsBodyNode;
 import com.rawlabs.snapi.truffle.runtime.ast.osr.conditions.OSRExistsConditionNode;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.generator.collection.GeneratorNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.runtime.iterable.IterableNodes;
@@ -81,7 +81,7 @@ public class CollectionExistsNode extends ExpressionNode {
       frame.setBoolean(predicateResultSlot, false);
       existsLoopNode.execute(frame);
       return frame.getBoolean(predicateResultSlot);
-    } catch (RawTruffleRuntimeException ex) {
+    } catch (TruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
       generatorCloseNode.execute(this, generator);

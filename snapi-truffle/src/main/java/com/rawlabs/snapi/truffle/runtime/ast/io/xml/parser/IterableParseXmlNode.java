@@ -34,7 +34,7 @@ public class IterableParseXmlNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    TruffleXmlParser parser = (TruffleXmlParser) args[0];
     Object list = this.childDirectCall.call(parser);
     return toIterableNode.execute(this, list);
   }

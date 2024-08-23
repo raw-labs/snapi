@@ -14,14 +14,14 @@ package com.rawlabs.snapi.truffle.runtime.runtime.exceptions.xml;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.RawTruffleXmlParser;
-import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.RawTruffleRuntimeException;
+import com.rawlabs.snapi.truffle.runtime.ast.io.xml.parser.TruffleXmlParser;
+import com.rawlabs.snapi.truffle.runtime.runtime.exceptions.TruffleRuntimeException;
 
-public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
+public class XmlParserTruffleException extends TruffleRuntimeException {
 
   @CompilerDirectives.TruffleBoundary
-  public XmlParserRawTruffleException(
-      String message, RawTruffleXmlParser parser, Throwable cause, Node location) {
+  public XmlParserTruffleException(
+      String message, TruffleXmlParser parser, Throwable cause, Node location) {
     super(
         String.format(
             "failed to parse XML (line %d column %d): %s",
@@ -31,7 +31,7 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlParserRawTruffleException(String message, RawTruffleXmlParser parser, Node location) {
+  public XmlParserTruffleException(String message, TruffleXmlParser parser, Node location) {
     super(
         String.format(
             "failed to parse XML (line %d column %d): %s",
@@ -40,13 +40,13 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlParserRawTruffleException(Throwable cause, RawTruffleXmlParser parser) {
+  public XmlParserTruffleException(Throwable cause, TruffleXmlParser parser) {
     // TODO
     super(cause.getMessage(), cause, null);
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlParserRawTruffleException(int line, int column, Throwable cause, Node location) {
+  public XmlParserTruffleException(int line, int column, Throwable cause, Node location) {
     super(
         String.format(
             "failed to parse XML (line %d column %d): %s", line, column, cause.getMessage()),
@@ -55,7 +55,7 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public XmlParserRawTruffleException(
+  public XmlParserTruffleException(
       String message, int line, int column, Throwable cause, Node location) {
     super(
         String.format("failed to parse XML (line %d column %d): %s", line, column, message),

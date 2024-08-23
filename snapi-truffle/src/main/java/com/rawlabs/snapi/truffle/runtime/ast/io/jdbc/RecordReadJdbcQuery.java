@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.rql2.source.Rql2AttrType;
 import com.rawlabs.snapi.truffle.runtime.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.RawLanguage;
+import com.rawlabs.snapi.truffle.runtime.Rql2Language;
 import com.rawlabs.snapi.truffle.runtime.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodes;
 import com.rawlabs.snapi.truffle.runtime.runtime.record.RecordNodesFactory;
@@ -34,7 +34,7 @@ public class RecordReadJdbcQuery extends ExpressionNode {
 
   private final Rql2AttrType[] columns;
 
-  private final RawLanguage language = RawLanguage.get(this);
+  private final Rql2Language language = Rql2Language.get(this);
 
   private final boolean hasDuplicateKeys;
 
