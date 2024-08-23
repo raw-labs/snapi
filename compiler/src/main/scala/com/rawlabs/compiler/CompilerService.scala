@@ -12,12 +12,10 @@
 
 package com.rawlabs.compiler
 
-import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import org.graalvm.polyglot.Engine
 
 import java.io.OutputStream
 import scala.collection.mutable
-import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.rawlabs.utils.core.{RawException, RawService, RawSettings}
 
 // Exception that wraps the underlying error so that it includes the extra debug info.
@@ -173,40 +171,13 @@ final case class ExecutionSuccess(complete: Boolean) extends ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-  Array(
-    new JsonType(value = classOf[FormatCodeResponse], name = "formatCode"),
-    new JsonType(value = classOf[AutoCompleteResponse], name = "autoComplete"),
-    new JsonType(value = classOf[HoverResponse], name = "hover"),
-    new JsonType(value = classOf[GoToDefinitionResponse], name = "definition"),
-    new JsonType(value = classOf[RenameResponse], name = "rename"),
-    new JsonType(value = classOf[ErrorResponse], name = "error"),
-    new JsonType(value = classOf[ValidateResponse], name = "validate")
-  )
-)
-sealed trait ClientLspResponse
-final case class FormatCodeResponse(code: Option[String]) extends ClientLspResponse
-final case class HoverResponse(completion: Option[Completion]) extends ClientLspResponse
-final case class RenameResponse(positions: Array[Pos]) extends ClientLspResponse
-final case class GoToDefinitionResponse(position: Option[Pos]) extends ClientLspResponse
-final case class ValidateResponse(messages: List[Message]) extends ClientLspResponse
-final case class ErrorResponse(errors: List[ErrorMessage]) extends ClientLspResponse
-final case class AutoCompleteResponse(completions: Array[Completion]) extends ClientLspResponse
+final case class FormatCodeResponse(code: Option[String])
+final case class HoverResponse(completion: Option[Completion])
+final case class RenameResponse(positions: Array[Pos])
+final case class GoToDefinitionResponse(position: Option[Pos])
+final case class ValidateResponse(messages: List[Message])
+final case class AutoCompleteResponse(completions: Array[Completion])
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-  Array(
-    new JsonType(value = classOf[TypeCompletion], name = "tipe"),
-    new JsonType(value = classOf[FieldCompletion], name = "field"),
-    new JsonType(value = classOf[LetBindCompletion], name = "bind"),
-    new JsonType(value = classOf[LetFunCompletion], name = "function"),
-    new JsonType(value = classOf[LetFunRecCompletion], name = "recursiveFunction"),
-    new JsonType(value = classOf[FunParamCompletion], name = "functionParameter"),
-    new JsonType(value = classOf[PackageCompletion], name = "package"),
-    new JsonType(value = classOf[PackageEntryCompletion], name = "packageEntry")
-  )
-)
 sealed trait Completion
 final case class TypeCompletion(name: String, tipe: String) extends Completion
 final case class FieldCompletion(name: String, tipe: String) extends Completion
