@@ -12,29 +12,15 @@
 
 package com.rawlabs.compiler
 
-import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
-import com.rawlabs.utils.core.RawException
-
 /**
  * Used for errors that are found during semantic analysis.
- * message The error message.
- * positions The positions where the error occurred.
- * severity The severity of the error. 1 = Hint, 2 = Info, 4 = Warning, 8 = Error (compliant with monaco editor).
- * - The below two should only be set by compiler errors
- * code An optional error code.
- * tags Indication for the error Unnecessary = 1, Deprecated = 2 (compliant with monaco editor).
+ *
+ * - message: The error message.
+ * - positions: The positions where the error occurred.
+ * - severity: The severity of the error. 1 = Hint, 2 = Info, 4 = Warning, 8 = Error (compliant with monaco editor).
+ * - code: An optional error code (should only be set by compiler errors)
+ * - tags: Indication for the error Unnecessary = 1, Deprecated = 2 (compliant with monaco editor).
  */
-
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-  Array(
-    new JsonType(value = classOf[HintMessage], name = "hint"),
-    new JsonType(value = classOf[InfoMessage], name = "info"),
-    new JsonType(value = classOf[WarningMessage], name = "warning"),
-    new JsonType(value = classOf[ErrorMessage], name = "hint")
-  )
-)
 sealed trait Message {
   val message: String
   val positions: List[ErrorRange]
@@ -77,18 +63,3 @@ final case class ErrorMessage(
 
 final case class ErrorRange(begin: ErrorPosition, end: ErrorPosition)
 final case class ErrorPosition(line: Int, column: Int)
-
-/**
- * Used for exceptions that are thrown by the compiler itself.
- * Must abort compilation.
- * Should NOT BE USED for:
- * - semantic analysis errors or other normal errors since there is no tracking of positions.
- * - errors during execution.
- * Should BE USED for:
- * - errors that are not found during type checking but which prevent the compiler from proceeding, e.g.
- *   missing implementations or the like.
- * Parsing may throw this exception if they encounter an error that they cannot recover from.
- *
- * The message can be safely shared with the user.
- */
-sealed class CompilerException(message: String, cause: Throwable = null) extends RawException(message, cause)

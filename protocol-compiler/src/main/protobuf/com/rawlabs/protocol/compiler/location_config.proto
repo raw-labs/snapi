@@ -118,11 +118,11 @@ message JiraConfig {
   string username = 2;
   string token = 3;
   JiraTokenType tokenType = 4;
-}
 
-enum JiraTokenType {
-  STANDARD_ACCESS_TOKEN = 0;
-  PERSONAL_ACCESS_TOKEN = 1;
+  enum JiraTokenType {
+    STANDARD_ACCESS_TOKEN = 0;
+    PERSONAL_ACCESS_TOKEN = 1;
+  }
 }
 
 message ConfluenceConfig {

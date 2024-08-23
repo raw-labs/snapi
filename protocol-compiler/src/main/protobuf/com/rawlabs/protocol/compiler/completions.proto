@@ -21,15 +21,15 @@ package com.rawlabs.protocol.compiler;
 
 message Completion {
   oneof completion {
-      TypeCompletion type = 1;
-      FieldCompletion field = 2;
-      LetBindCompletion letBind = 3;
-      LetFunCompletion letFun = 4;
-      LetFunRecCompletion letFunRec = 5;
-      FunParamCompletion funParam = 6;
-      PackageCompletion package = 7;
-      EntryCompletion entry = 8;
-    }
+    TypeCompletion type = 1;
+    FieldCompletion field = 2;
+    LetBindCompletion letBind = 3;
+    LetFunCompletion letFun = 4;
+    LetFunRecCompletion letFunRec = 5;
+    FunParamCompletion funParam = 6;
+    PackageCompletion package = 7;
+    EntryCompletion entry = 8;
+  }
 }
 
 message TypeCompletion {

@@ -17,6 +17,7 @@ option java_multiple_files = true;
 
 package com.rawlabs.protocol.compiler;
 
+import "com/rawlabs/protocol/raw/values.proto";
 import "com/rawlabs/protocol/compiler/location_config.proto";
 
 message ProgramEnvironment {
@@ -36,5 +37,5 @@ message Arguments {
 
 message Argument {
   string name = 1;
-  string value = 2;
+  com.rawlabs.protocol.raw.Value value = 2;
 }
