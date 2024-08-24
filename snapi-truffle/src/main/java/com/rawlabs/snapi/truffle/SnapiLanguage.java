@@ -53,7 +53,7 @@ import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(
     id = SnapiLanguage.ID,
-    name = "RQL",
+    name = "Snapi",
     version = SnapiLanguage.VERSION,
     defaultMimeType = SnapiLanguage.MIME_TYPE,
     characterMimeTypes = SnapiLanguage.MIME_TYPE)
@@ -68,9 +68,9 @@ import scala.collection.JavaConverters;
 })
 public final class SnapiLanguage extends TruffleLanguage<SnapiContext> {
 
-  public static final String ID = "rql";
+  public static final String ID = "snapi";
   public static final String VERSION = "0.10";
-  public static final String MIME_TYPE = "application/x-rql";
+  public static final String MIME_TYPE = "application/x-snapi";
 
   private static final SnapiLanguageCache languageCache = new SnapiLanguageCache();
 

@@ -233,19 +233,19 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       maxRows: Option[Long]
   ): ExecutionResponse = {
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
-    ctx.initialize("rql")
+    ctx.initialize("snapi")
     ctx.enter()
     try {
       val (v, tipe) = maybeDecl match {
         case Some(decl) =>
           // Eval the code and extract the function referred to by 'decl'
           val truffleSource = Source
-            .newBuilder("rql", source, "unnamed")
+            .newBuilder("snapi", source, "unnamed")
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           ctx.eval(truffleSource)
           // 'decl' is found in the context bindings (by its name)
-          val bindings = ctx.getBindings("rql")
+          val bindings = ctx.getBindings("snapi")
           val f = bindings.getMember(decl)
           // its type is found in the polyglot bindings as '@type:<name>'
           val funType = {
@@ -289,7 +289,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           (result, tipe)
         case None =>
           val truffleSource = Source
-            .newBuilder("rql", source, "unnamed")
+            .newBuilder("snapi", source, "unnamed")
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           val result = ctx.eval(truffleSource)
@@ -663,7 +663,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
         s"""let x: interval = Interval.Build(years=$years, months=$months, weeks=$weeks, days=$days, hours=$hours, minutes=$minutes, seconds=$seconds, millis=$millis) in x"""
       case _ => throw new CompilerServiceException("type not supported")
     }
-    val value = ctx.eval("rql", code)
+    val value = ctx.eval("snapi", code)
     ctx.asValue(value)
   }
 
@@ -673,15 +673,15 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   ): Context = {
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
-      .newBuilder("rql")
+      .newBuilder("snapi")
       .engine(engine)
       .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     environment.options.get("staged-compiler").foreach { stagedCompiler =>
-      ctxBuilder.option("rql.staged-compiler", stagedCompiler)
+      ctxBuilder.option("snapi.staged-compiler", stagedCompiler)
     }
-    ctxBuilder.option("rql.settings", settings.renderAsString)
+    ctxBuilder.option("snapi.settings", settings.renderAsString)
     // If the jars path is defined, create a custom class loader and set it as the host class loader.
     maybeTruffleClassLoader.map { classLoader =>
       // Set the module class loader as the Truffle runtime classloader.
@@ -699,7 +699,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       f: Context => T
   ): T = {
     val ctx = buildTruffleContext(environment)
-    ctx.initialize("rql")
+    ctx.initialize("snapi")
     ctx.enter()
     try {
       f(ctx)

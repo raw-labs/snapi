@@ -54,22 +54,22 @@ trait StagedCompiler {
 
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
-      .newBuilder("rql")
+      .newBuilder("snapi")
       .engine(engine)
       .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     environment.options.get("staged-compiler").foreach { stagedCompiler =>
-      ctxBuilder.option("rql.staged-compiler", stagedCompiler)
+      ctxBuilder.option("snapi.staged-compiler", stagedCompiler)
     }
-    ctxBuilder.option("rql.settings", settings.renderAsString)
+    ctxBuilder.option("snapi.settings", settings.renderAsString)
 
     val ctx = ctxBuilder.build()
-    ctx.initialize("rql")
+    ctx.initialize("snapi")
     ctx.enter()
     try {
       val truffleSource = Source
-        .newBuilder("rql", source, "unnamed")
+        .newBuilder("snapi", source, "unnamed")
         .cached(false) // Disable code caching because of the inferrer.
         .build()
       val polyglotValue = ctx.eval(truffleSource)

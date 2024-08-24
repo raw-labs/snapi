@@ -467,8 +467,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     ) && programContext.programEnvironment.options("staged-compiler") == "true") ||
     // Comes from truffle language
     (programContext.programEnvironment.options.contains(
-      "rql.staged-compiler"
-    ) && programContext.programEnvironment.options("rql.staged-compiler") == "true")
+      "snapi.staged-compiler"
+    ) && programContext.programEnvironment.options("snapi.staged-compiler") == "true")
   }
 
   ///////////////////////////////////////////////////////////////////////////

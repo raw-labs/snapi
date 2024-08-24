@@ -17,7 +17,7 @@ import java.nio.file.Path
 package object snapi {
 
   /**
-   * An interpolator for RQL code.
+   * An interpolator for Snapi code.
    */
   implicit class SnapiInterpolator(val sc: StringContext) extends AnyVal {
 

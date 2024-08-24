@@ -36,7 +36,7 @@ class StagedCompilerTest extends SnapiTestContext {
     |3, 30, 300
     |""".stripMargin)
 
-//  test(rql"""
+//  test(snapi"""
 //    |let f = "$data",
 //    |    data = Json.InferAndRead(f)
 //    |in

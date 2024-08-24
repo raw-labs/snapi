@@ -132,7 +132,7 @@ package com.rawlabs.snapi.frontend.snapi.extensions.builtin
 //          val code = new String(is.readAllBytes(), StandardCharsets.UTF_8)
 //          Right(code)
 //        } catch {
-//          case NonFatal(_) => Left("could not read remote package; is it RQL code?")
+//          case NonFatal(_) => Left("could not read remote package; is it Snapi code?")
 //        } finally {
 //          is.close()
 //        }
