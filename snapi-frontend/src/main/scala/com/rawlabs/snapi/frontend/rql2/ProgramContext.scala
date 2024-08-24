@@ -16,7 +16,7 @@ import com.rawlabs.compiler.ProgramEnvironment
 import com.rawlabs.snapi.frontend.base.CompilerContext
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
 import com.rawlabs.snapi.frontend.rql2.extensions.{PackageExtension, PackageExtensionProvider}
-import com.rawlabs.snapi.frontend.rql2.source.Rql2Program
+import com.rawlabs.snapi.frontend.rql2.source.SnapiProgram
 import com.rawlabs.snapi.frontend.inferrer.api.{InferrerInput, InferrerOutput}
 
 import scala.collection.mutable
@@ -30,7 +30,7 @@ class ProgramContext(
 
   private val dynamicPackageCache = new mutable.HashMap[String, PackageExtension]
 
-  private val stageCompilerCache = new mutable.HashMap[Rql2Program, Either[ErrorCompilerMessage, Rql2Value]]
+  private val stageCompilerCache = new mutable.HashMap[SnapiProgram, Either[ErrorCompilerMessage, SnapiValue]]
 
   def infer(
       inferrerProperties: InferrerInput
@@ -50,9 +50,9 @@ class ProgramContext(
   }
 
   def getOrAddStagedCompilation(
-      program: Rql2Program,
-      f: => Either[ErrorCompilerMessage, Rql2Value]
-  ): Either[ErrorCompilerMessage, Rql2Value] = {
+                                 program: SnapiProgram,
+                                 f: => Either[ErrorCompilerMessage, SnapiValue]
+  ): Either[ErrorCompilerMessage, SnapiValue] = {
     stageCompilerCache.getOrElseUpdate(program, f)
   }
 

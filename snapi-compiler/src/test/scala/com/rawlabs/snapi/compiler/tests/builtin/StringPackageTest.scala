@@ -15,11 +15,11 @@ package com.rawlabs.snapi.compiler.tests.builtin
 import java.util.Base64
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.compiler.tests.FailAfterNServer
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 import java.nio.file.Path
 
-class StringPackageTest extends Rql2TestContext with FailAfterNServer {
+class StringPackageTest extends SnapiTestContext with FailAfterNServer {
 
   // Each line has 11 bytes so it will fail at line 10 more or less.
   override def failServices: Seq[FailAfter] = Seq(

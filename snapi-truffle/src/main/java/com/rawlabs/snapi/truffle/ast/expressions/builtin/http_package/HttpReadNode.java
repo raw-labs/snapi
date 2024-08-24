@@ -16,7 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.StaticInitializers;
@@ -54,7 +54,7 @@ public abstract class HttpReadNode extends ExpressionNode {
     try {
       HttpByteStreamLocation location = locationObject.getHttpByteStreamLocation();
       HttpResult result = location.getHttpResult();
-      Object record = Rql2Language.get(thisNode).createPureRecord();
+      Object record = SnapiLanguage.get(thisNode).createPureRecord();
 
       if (!isNullNode.execute(thisNode, statusListOption)) {
         int[] statuses = new int[(int) sizeNode.execute(thisNode, statusListOption)];
@@ -83,7 +83,7 @@ public abstract class HttpReadNode extends ExpressionNode {
       Object[] headers = new Object[result.headers().size()];
 
       for (int i = 0; i < result.headers().size(); i++) {
-        headers[i] = Rql2Language.get(thisNode).createPureRecord();
+        headers[i] = SnapiLanguage.get(thisNode).createPureRecord();
         addPropNode.execute(thisNode, headers[i], "_1", headerTuples.apply(i)._1(), false);
         addPropNode.execute(thisNode, headers[i], "_2", headerTuples.apply(i)._2(), false);
       }

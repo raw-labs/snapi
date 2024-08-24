@@ -51,8 +51,8 @@ class EnvironmentSecretEntry
     extends ShortEntryExtension(
       "Environment",
       "Secret",
-      Vector(Rql2StringType()),
-      Rql2StringType(Set(Rql2IsTryableTypeProperty())),
+      Vector(SnapiStringType()),
+      SnapiStringType(Set(SnapiIsTryableTypeProperty())),
       EntryDoc(
         summary = "Returns the value of a secret registered in the credentials service.",
         examples = List(ExampleDoc("""Environment.Secret("my-secret-credential")""", result = Some("secret value"))),
@@ -68,7 +68,7 @@ class EnvironmentScopesEntry
       "Environment",
       "Scopes",
       Vector(),
-      Rql2ListType(Rql2StringType()),
+      SnapiListType(SnapiStringType()),
       EntryDoc(
         summary = "Returns the scopes for the current user.",
         examples = List(ExampleDoc("""Environment.Scopes()""", result = Some("""["sales", "marketing"]"""))),

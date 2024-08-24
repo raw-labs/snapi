@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generato
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.runtime.list.ObjectList;
 import com.rawlabs.snapi.truffle.runtime.record.RecordNodes;
 
@@ -27,8 +27,8 @@ public class RecordShaperNodes {
 
     public abstract Object execute(Node node, Object shaper, Object key, Object[] values);
 
-    public static Rql2Language getRql2Language(Node node) {
-      return Rql2Language.get(node);
+    public static SnapiLanguage getRql2Language(Node node) {
+      return SnapiLanguage.get(node);
     }
 
     @Specialization(guards = {"shaper != null", "!shaper.forList()"})
@@ -38,7 +38,7 @@ public class RecordShaperNodes {
         Object key,
         Object[] values,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) Rql2Language language,
+        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) SnapiLanguage language,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
       Object record = language.createPureRecord();
@@ -55,7 +55,7 @@ public class RecordShaperNodes {
         Object key,
         Object[] values,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) Rql2Language language,
+        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) SnapiLanguage language,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
       Object record = language.createPureRecord();

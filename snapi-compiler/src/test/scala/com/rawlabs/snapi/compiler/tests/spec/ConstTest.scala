@@ -14,20 +14,20 @@ package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
-import com.rawlabs.snapi.frontend.rql2.source.{Rql2BoolType, Rql2IntType, Rql2StringType}
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.frontend.rql2.source.{SnapiBoolType, SnapiIntType, SnapiStringType}
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class ConstTest extends Rql2TestContext with TableDrivenPropertyChecks {
+class ConstTest extends SnapiTestContext with TableDrivenPropertyChecks {
 
   test("1") { it =>
     it should typeAs("int")
-    it should astTypeAs(Rql2IntType())
+    it should astTypeAs(SnapiIntType())
     it should evaluateTo("1")
   }
 
   test(""" "Hello" """) { it =>
     it should typeAs("string")
-    it should astTypeAs(Rql2StringType())
+    it should astTypeAs(SnapiStringType())
     it should evaluateTo(""""Hello"""")
   }
 
@@ -36,7 +36,7 @@ class ConstTest extends Rql2TestContext with TableDrivenPropertyChecks {
     // was in the source code.
     it should parse
     it should typeAs("string")
-    it should astTypeAs(Rql2StringType())
+    it should astTypeAs(SnapiStringType())
     it should run
     it should evaluateTo(""""x\u2192x+1"""")
   }
@@ -45,7 +45,7 @@ class ConstTest extends Rql2TestContext with TableDrivenPropertyChecks {
     // The source code contains the unicode character. It should parse and run.
     it should parse
     it should typeAs("string")
-    it should astTypeAs(Rql2StringType())
+    it should astTypeAs(SnapiStringType())
     it should run
     it should evaluateTo(""""x\u2192x+1"""")
   }
@@ -54,14 +54,14 @@ class ConstTest extends Rql2TestContext with TableDrivenPropertyChecks {
     // The source code is using triple quoted string, it can contain the unicode character
     it should parse
     it should typeAs("string")
-    it should astTypeAs(Rql2StringType())
+    it should astTypeAs(SnapiStringType())
     it should run
     it should evaluateTo(""""x\u2192x+1"""")
   }
 
   test("""  true """) { it =>
     it should typeAs("bool")
-    it should astTypeAs(Rql2BoolType())
+    it should astTypeAs(SnapiBoolType())
     it should evaluateTo("""true""")
   }
 

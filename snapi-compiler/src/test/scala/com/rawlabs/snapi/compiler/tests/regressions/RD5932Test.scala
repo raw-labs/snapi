@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5932Test extends Rql2TestContext {
+class RD5932Test extends SnapiTestContext {
 
   val data = tempFile("""[
     |    {"id": 1, "network_interface": "eni-08b85cc07294f82bf"},

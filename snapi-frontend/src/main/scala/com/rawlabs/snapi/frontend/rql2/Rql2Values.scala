@@ -14,21 +14,21 @@ package com.rawlabs.snapi.frontend.rql2
 
 import com.rawlabs.utils.sources.api.Location
 
-sealed trait Rql2Value
-final case class Rql2StringValue(v: String) extends Rql2Value
-final case class Rql2BoolValue(v: Boolean) extends Rql2Value
-final case class Rql2BinaryValue(v: Array[Byte]) extends Rql2Value
-final case class Rql2ByteValue(v: Byte) extends Rql2Value
-final case class Rql2ShortValue(v: Short) extends Rql2Value
-final case class Rql2IntValue(v: Int) extends Rql2Value
-final case class Rql2LongValue(v: Long) extends Rql2Value
-final case class Rql2FloatValue(v: Float) extends Rql2Value
-final case class Rql2DoubleValue(v: Double) extends Rql2Value
-final case class Rql2DecimalValue(v: BigDecimal) extends Rql2Value
-final case class Rql2DateValue(v: java.time.LocalDate) extends Rql2Value
-final case class Rql2TimeValue(v: java.time.LocalTime) extends Rql2Value
-final case class Rql2TimestampValue(v: java.time.LocalDateTime) extends Rql2Value
-final case class Rql2IntervalValue(
+sealed trait SnapiValue
+final case class SnapiStringValue(v: String) extends SnapiValue
+final case class SnapiBoolValue(v: Boolean) extends SnapiValue
+final case class SnapiBinaryValue(v: Array[Byte]) extends SnapiValue
+final case class SnapiByteValue(v: Byte) extends SnapiValue
+final case class SnapiShortValue(v: Short) extends SnapiValue
+final case class SnapiIntValue(v: Int) extends SnapiValue
+final case class SnapiLongValue(v: Long) extends SnapiValue
+final case class SnapiFloatValue(v: Float) extends SnapiValue
+final case class SnapiDoubleValue(v: Double) extends SnapiValue
+final case class SnapiDecimalValue(v: BigDecimal) extends SnapiValue
+final case class SnapiDateValue(v: java.time.LocalDate) extends SnapiValue
+final case class SnapiTimeValue(v: java.time.LocalTime) extends SnapiValue
+final case class SnapiTimestampValue(v: java.time.LocalDateTime) extends SnapiValue
+final case class SnapiIntervalValue(
     years: Int,
     months: Int,
     weeks: Int,
@@ -37,11 +37,11 @@ final case class Rql2IntervalValue(
     minutes: Int,
     seconds: Int,
     millis: Int
-) extends Rql2Value
-final case class Rql2LocationValue(l: Location, publicDescription: String) extends Rql2Value
-final case class Rql2RecordValue(v: Seq[Rql2RecordAttr]) extends Rql2Value
-final case class Rql2RecordAttr(name: String, value: Rql2Value)
-final case class Rql2TryValue(v: Either[String, Rql2Value]) extends Rql2Value
-final case class Rql2OptionValue(v: Option[Rql2Value]) extends Rql2Value
-final case class Rql2ListValue(v: Seq[Rql2Value]) extends Rql2Value
-final case class Rql2IterableValue(v: Seq[Rql2Value]) extends Rql2Value // Data has been ready is now materialized.
+) extends SnapiValue
+final case class SnapiLocationValue(l: Location, publicDescription: String) extends SnapiValue
+final case class SnapiRecordValue(v: Seq[SnapiRecordAttr]) extends SnapiValue
+final case class SnapiRecordAttr(name: String, value: SnapiValue)
+final case class SnapiTryValue(v: Either[String, SnapiValue]) extends SnapiValue
+final case class SnapiOptionValue(v: Option[SnapiValue]) extends SnapiValue
+final case class SnapiListValue(v: Seq[SnapiValue]) extends SnapiValue
+final case class SnapiIterableValue(v: Seq[SnapiValue]) extends SnapiValue // Data has been ready is now materialized.

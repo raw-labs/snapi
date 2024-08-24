@@ -82,11 +82,11 @@ class LongFromEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     // Type as Try when passed a string in case the content doesn't parse.
-    val props: Set[Rql2TypeProperty] = mandatoryArgs(0).t match {
-      case _: Rql2StringType => Set(Rql2IsTryableTypeProperty())
-      case _ => Set.empty[Rql2TypeProperty]
+    val props: Set[SnapiTypeProperty] = mandatoryArgs(0).t match {
+      case _: SnapiStringType => Set(SnapiIsTryableTypeProperty())
+      case _ => Set.empty[SnapiTypeProperty]
     }
-    Right(Rql2LongType(props))
+    Right(SnapiLongType(props))
   }
 
 }
@@ -118,12 +118,12 @@ class LongRangeEntry extends EntryExtension {
   override def optionalParams: Option[Set[String]] = Some(Set("step"))
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2LongType()))
+    Right(ExpParam(SnapiLongType()))
   }
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     assert(idn == "step")
-    Right(ExpParam(Rql2LongType()))
+    Right(ExpParam(SnapiLongType()))
   }
 
   override def returnType(
@@ -131,7 +131,7 @@ class LongRangeEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2IterableType(Rql2LongType()))
+    Right(SnapiIterableType(SnapiLongType()))
   }
 
 }

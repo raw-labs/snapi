@@ -87,16 +87,16 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ValueParam(Rql2LocationType()))
+    Right(ValueParam(SnapiLocationType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("sampleSize", "encoding", "preferNulls"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "sampleSize" => Right(ValueParam(Rql2IntType()))
-      case "encoding" => Right(ValueParam(Rql2StringType()))
-      case "preferNulls" => Right(ValueParam(Rql2BoolType()))
+      case "sampleSize" => Right(ValueParam(SnapiIntType()))
+      case "encoding" => Right(ValueParam(SnapiStringType()))
+      case "preferNulls" => Right(ValueParam(SnapiBoolType()))
     }
   }
 
@@ -122,8 +122,8 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
       rql2Type = inferTypeToRql2Type(dataType, makeNullable = preferNulls && sampled, makeTryable = sampled);
       okType <- validateXmlType(rql2Type)
     ) yield okType match {
-      case Rql2IterableType(inner, _) => Rql2IterableType(inner)
-      case t => addProp(t, Rql2IsTryableTypeProperty())
+      case SnapiIterableType(inner, _) => SnapiIterableType(inner)
+      case t => addProp(t, SnapiIsTryableTypeProperty())
     }
 
   }
@@ -189,16 +189,16 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
   }
 
   protected def validateAttributeType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
-    case _: Rql2PrimitiveType => Right(t)
-    case Rql2ListType(primitive: Rql2PrimitiveType, _) => Right(Rql2ListType(primitive)) // strip the tryable/nullable
-    case Rql2IterableType(primitive: Rql2PrimitiveType, _) =>
-      Right(Rql2IterableType(primitive)) // strip the tryable/nullable
+    case _: SnapiPrimitiveType => Right(t)
+    case SnapiListType(primitive: SnapiPrimitiveType, _) => Right(SnapiListType(primitive)) // strip the tryable/nullable
+    case SnapiIterableType(primitive: SnapiPrimitiveType, _) =>
+      Right(SnapiIterableType(primitive)) // strip the tryable/nullable
     case _ => Left(Seq(UnsupportedType(t, t, None)))
   }
 
   protected def validateXmlType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
-    case _: Rql2LocationType => Left(Seq(UnsupportedType(t, t, None)))
-    case t: Rql2RecordType =>
+    case _: SnapiLocationType => Left(Seq(UnsupportedType(t, t, None)))
+    case t: SnapiRecordType =>
       val duplicates = t.atts.groupBy(_.idn).mapValues(_.size).collect {
         case (field, n) if n > 1 => field
       }
@@ -215,12 +215,12 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
           }
         val errors = atts.collect { case (_, Left(error)) => error }
         if (errors.nonEmpty) Left(errors.flatten)
-        else Right(Rql2RecordType(atts.map(x => Rql2AttrType(x._1, x._2.right.get)), t.props))
+        else Right(SnapiRecordType(atts.map(x => SnapiAttrType(x._1, x._2.right.get)), t.props))
       }
     // on list and iterables we are removing the nullability/tryability
-    case t: Rql2IterableType => validateXmlType(t.innerType).right.map(inner => Rql2IterableType(inner))
-    case t: Rql2ListType => validateXmlType(t.innerType).right.map(inner => Rql2ListType(inner))
-    case Rql2OrType(options, props) =>
+    case t: SnapiIterableType => validateXmlType(t.innerType).right.map(inner => SnapiIterableType(inner))
+    case t: SnapiListType => validateXmlType(t.innerType).right.map(inner => SnapiListType(inner))
+    case SnapiOrType(options, props) =>
       // inner types may have 'tryable' or 'nullable' flags:
       // * tryable is removed because a tryable-whatever option would always successfully parse
       //   as a failed whatever, and other parsers would never be tested.
@@ -234,12 +234,12 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
       else {
         val validOptions = validation.collect { case Right(t) => t }
         val nullable =
-          options.exists { case t: Rql2TypeWithProperties => t.props.contains(Rql2IsNullableTypeProperty()) }
-        val finalProps = if (nullable) props + Rql2IsNullableTypeProperty() else props
-        Right(Rql2OrType(validOptions, finalProps))
+          options.exists { case t: SnapiTypeWithProperties => t.props.contains(SnapiIsNullableTypeProperty()) }
+        val finalProps = if (nullable) props + SnapiIsNullableTypeProperty() else props
+        Right(SnapiOrType(validOptions, finalProps))
       }
-    case t: Rql2PrimitiveType => Right(t)
-    case t: Rql2UndefinedType => Right(t)
+    case t: SnapiPrimitiveType => Right(t)
+    case t: SnapiUndefinedType => Right(t)
     case t => Left(Seq(UnsupportedType(t, t, None)))
   }
 
@@ -302,7 +302,7 @@ class ReadXmlEntry extends EntryExtension with XmlEntryExtensionHelper {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2LocationType()))
+      case 0 => Right(ExpParam(SnapiLocationType()))
       case 1 =>
         // We check valid types in return type instead, since it's easier to express there, as we do not
         // have a specific constraint.
@@ -321,10 +321,10 @@ class ReadXmlEntry extends EntryExtension with XmlEntryExtensionHelper {
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "encoding" => Right(ExpParam(Rql2StringType()))
-      case "timeFormat" => Right(ExpParam(Rql2StringType()))
-      case "dateFormat" => Right(ExpParam(Rql2StringType()))
-      case "timestampFormat" => Right(ExpParam(Rql2StringType()))
+      case "encoding" => Right(ExpParam(SnapiStringType()))
+      case "timeFormat" => Right(ExpParam(SnapiStringType()))
+      case "dateFormat" => Right(ExpParam(SnapiStringType()))
+      case "timestampFormat" => Right(ExpParam(SnapiStringType()))
     }
   }
 
@@ -335,8 +335,8 @@ class ReadXmlEntry extends EntryExtension with XmlEntryExtensionHelper {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     validateXmlType(mandatoryArgs(1).t).right.map {
-      case Rql2IterableType(inner, _) => Rql2IterableType(inner)
-      case t => addProp(t, Rql2IsTryableTypeProperty())
+      case SnapiIterableType(inner, _) => SnapiIterableType(inner)
+      case t => addProp(t, SnapiIsTryableTypeProperty())
     }
   }
 
@@ -415,7 +415,7 @@ class ParseXmlEntry extends EntryExtension with XmlEntryExtensionHelper {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2StringType()))
+      case 0 => Right(ExpParam(SnapiStringType()))
       case 1 =>
         // We check valid types in return type instead, since it's easier to express there, as we do not
         // have a specific constraint.
@@ -433,9 +433,9 @@ class ParseXmlEntry extends EntryExtension with XmlEntryExtensionHelper {
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "timeFormat" => Right(ExpParam(Rql2StringType()))
-      case "dateFormat" => Right(ExpParam(Rql2StringType()))
-      case "timestampFormat" => Right(ExpParam(Rql2StringType()))
+      case "timeFormat" => Right(ExpParam(SnapiStringType()))
+      case "dateFormat" => Right(ExpParam(SnapiStringType()))
+      case "timestampFormat" => Right(ExpParam(SnapiStringType()))
     }
   }
 
@@ -446,8 +446,8 @@ class ParseXmlEntry extends EntryExtension with XmlEntryExtensionHelper {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     validateXmlType(mandatoryArgs(1).t).right.map {
-      case Rql2IterableType(inner, _) => Rql2IterableType(inner)
-      case t => addProp(t, Rql2IsTryableTypeProperty())
+      case SnapiIterableType(inner, _) => SnapiIterableType(inner)
+      case t => addProp(t, SnapiIsTryableTypeProperty())
     }
   }
 

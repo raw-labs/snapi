@@ -28,7 +28,7 @@ import scala.collection.JavaConverters._
 import scala.math.BigDecimal.RoundingMode
 import scala.util.control.NonFatal
 
-trait Rql2OutputTestContext {
+trait SnapiOutputTestContext {
   this: RawTestSuite with SettingsTestContext =>
 
   def outputParser(
@@ -56,15 +56,15 @@ trait Rql2OutputTestContext {
 
     def recurse(n: JsonNode, t: Type): Any = {
       t match {
-        case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
-          if (n.isTextual && !t.isInstanceOf[Rql2DecimalType] /* */ ) n.asText()
-          else recurse(n, t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()))
-        case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) && n.isNull => null
-        case _: Rql2BoolType if n.isBoolean => n.asBoolean
-        case _: Rql2StringType if n.isTextual => n.asText
-        case _: Rql2ByteType | _: Rql2ShortType | _: Rql2IntType if n.canConvertToInt => n.asInt
-        case _: Rql2LongType if n.canConvertToLong => n.asLong
-        case _: Rql2FloatType | _: Rql2DoubleType =>
+        case t: SnapiTypeWithProperties if t.props.contains(SnapiIsTryableTypeProperty()) =>
+          if (n.isTextual && !t.isInstanceOf[SnapiDecimalType] /* */ ) n.asText()
+          else recurse(n, t.cloneAndRemoveProp(SnapiIsTryableTypeProperty()))
+        case t: SnapiTypeWithProperties if t.props.contains(SnapiIsNullableTypeProperty()) && n.isNull => null
+        case _: SnapiBoolType if n.isBoolean => n.asBoolean
+        case _: SnapiStringType if n.isTextual => n.asText
+        case _: SnapiByteType | _: SnapiShortType | _: SnapiIntType if n.canConvertToInt => n.asInt
+        case _: SnapiLongType if n.canConvertToLong => n.asLong
+        case _: SnapiFloatType | _: SnapiDoubleType =>
           // TODO (msb): Validate it's the actual type complying with our format
           val v = {
             val double = n.asDouble
@@ -78,7 +78,7 @@ trait Rql2OutputTestContext {
           }
           if (floatingPointAsString) v.toString
           else v
-        case _: Rql2DecimalType =>
+        case _: SnapiDecimalType =>
           try {
             val decimal = BigDecimal(n.asText())
             precision match {
@@ -88,19 +88,19 @@ trait Rql2OutputTestContext {
           } catch {
             case NonFatal(_) => n.asText() // in case it was tryable
           }
-        case _: Rql2DateType if n.isTextual =>
+        case _: SnapiDateType if n.isTextual =>
           // TODO (msb): Validate it's the actual type complying with our format
           n.asText
-        case _: Rql2TimeType if n.isTextual =>
+        case _: SnapiTimeType if n.isTextual =>
           // TODO (msb): Validate it's the actual type complying with our format
           n.asText
-        case _: Rql2TimestampType if n.isTextual =>
+        case _: SnapiTimestampType if n.isTextual =>
           // TODO (msb): Validate it's the actual type complying with our format
           n.asText
-        case _: Rql2IntervalType if n.isTextual =>
+        case _: SnapiIntervalType if n.isTextual =>
           // TODO (msb): Validate it's the actual type complying with our format
           n.asText
-        case _: Rql2BinaryType if n.isTextual =>
+        case _: SnapiBinaryType if n.isTextual =>
           // TODO (msb): Validate it's the actual type complying with our format
           n.asText
         //        case OrType(tipes) =>
@@ -113,15 +113,15 @@ trait Rql2OutputTestContext {
         //            }
         //          }
         //          throw new AssertionError("couldn't parse OrType with any parser")
-        case Rql2RecordType(atts, _) if n.isObject =>
+        case SnapiRecordType(atts, _) if n.isObject =>
           val fields = n.fields().asScala.toVector
           val tipes = atts.map(_.tipe)
           assert(fields.length == tipes.length)
           fields.zip(tipes).map { case (p, t) => p.getKey -> recurse(p.getValue, t) }
-        case _: Rql2ListType | _: Rql2IterableType if n.isArray =>
+        case _: SnapiListType | _: SnapiIterableType if n.isArray =>
           val inner = t match {
-            case Rql2ListType(inner, _) => inner
-            case Rql2IterableType(inner, _) => inner
+            case SnapiListType(inner, _) => inner
+            case SnapiIterableType(inner, _) => inner
           }
 
           if (!ordered) {
@@ -131,7 +131,7 @@ trait Rql2OutputTestContext {
           } else {
             n.iterator().asScala.map(n1 => recurse(n1, inner)).toList
           }
-        case Rql2OrType(tipes, _) => tipes.foreach { t =>
+        case SnapiOrType(tipes, _) => tipes.foreach { t =>
             tipes.foreach { t =>
               try {
                 return recurse(n, t)

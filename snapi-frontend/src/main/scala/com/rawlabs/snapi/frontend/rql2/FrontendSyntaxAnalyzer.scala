@@ -102,9 +102,9 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   // Program vs Package
   ///////////////////////////////////////////////////////////////////////////
 
-  override lazy val program: Parser[BaseProgram] = rep(rql2Method) ~ opt(exp) ^^ { case ms ~ me => Rql2Program(ms, me) }
+  override lazy val program: Parser[BaseProgram] = rep(rql2Method) ~ opt(exp) ^^ { case ms ~ me => SnapiProgram(ms, me) }
 
-  final protected lazy val rql2Method: Parser[Rql2Method] = idnDef ~ funProto ^^ { case i ~ p => Rql2Method(p, i) }
+  final protected lazy val rql2Method: Parser[SnapiMethod] = idnDef ~ funProto ^^ { case i ~ p => SnapiMethod(p, i) }
 
   ///////////////////////////////////////////////////////////////////////////
   // Types
@@ -117,7 +117,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   } | tipe2
 
   protected lazy val tipe2: PackratParser[Type] = tipe2 ~ (tokOr ~> baseType) ^^ {
-    case t1 ~ t2 => Rql2OrType(t1, t2, defaultProps)
+    case t1 ~ t2 => SnapiOrType(t1, t2, defaultProps)
   } | baseType
 
   protected def baseType: Parser[Type] = baseTypeAttr
@@ -134,54 +134,54 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     typeAliasType |
     "(" ~> tipe <~ ")"
 
-  final protected lazy val primitiveType: Parser[Rql2PrimitiveType] =
+  final protected lazy val primitiveType: Parser[SnapiPrimitiveType] =
     boolType | stringType | locationType | binaryType | numberType | temporalType
 
-  final protected lazy val boolType: Parser[Rql2BoolType] = tokBool ^^^ Rql2BoolType(defaultProps)
+  final protected lazy val boolType: Parser[SnapiBoolType] = tokBool ^^^ SnapiBoolType(defaultProps)
 
-  final protected lazy val stringType: Parser[Rql2StringType] = tokString ^^^ Rql2StringType(defaultProps)
+  final protected lazy val stringType: Parser[SnapiStringType] = tokString ^^^ SnapiStringType(defaultProps)
 
-  final protected lazy val locationType: Parser[Rql2LocationType] = tokLocation ^^^ Rql2LocationType(defaultProps)
+  final protected lazy val locationType: Parser[SnapiLocationType] = tokLocation ^^^ SnapiLocationType(defaultProps)
 
-  final protected lazy val binaryType: Parser[Rql2BinaryType] = tokBinary ^^^ Rql2BinaryType(defaultProps)
+  final protected lazy val binaryType: Parser[SnapiBinaryType] = tokBinary ^^^ SnapiBinaryType(defaultProps)
 
-  final protected lazy val numberType: Parser[Rql2NumberType] =
+  final protected lazy val numberType: Parser[SnapiNumberType] =
     byteType | shortType | intType | longType | floatType | doubleType | decimalType
 
-  final protected lazy val byteType: Parser[Rql2ByteType] = tokByte ^^^ Rql2ByteType(defaultProps)
+  final protected lazy val byteType: Parser[SnapiByteType] = tokByte ^^^ SnapiByteType(defaultProps)
 
-  final protected lazy val shortType: Parser[Rql2ShortType] = tokShort ^^^ Rql2ShortType(defaultProps)
+  final protected lazy val shortType: Parser[SnapiShortType] = tokShort ^^^ SnapiShortType(defaultProps)
 
-  final protected lazy val intType: Parser[Rql2IntType] = tokInt ^^^ Rql2IntType(defaultProps)
+  final protected lazy val intType: Parser[SnapiIntType] = tokInt ^^^ SnapiIntType(defaultProps)
 
-  final protected lazy val longType: Parser[Rql2LongType] = tokLong ^^^ Rql2LongType(defaultProps)
+  final protected lazy val longType: Parser[SnapiLongType] = tokLong ^^^ SnapiLongType(defaultProps)
 
-  final protected lazy val floatType: Parser[Rql2FloatType] = tokFloat ^^^ Rql2FloatType(defaultProps)
+  final protected lazy val floatType: Parser[SnapiFloatType] = tokFloat ^^^ SnapiFloatType(defaultProps)
 
-  final protected lazy val doubleType: Parser[Rql2DoubleType] = tokDouble ^^^ Rql2DoubleType(defaultProps)
+  final protected lazy val doubleType: Parser[SnapiDoubleType] = tokDouble ^^^ SnapiDoubleType(defaultProps)
 
-  final protected lazy val decimalType: Parser[Rql2DecimalType] = tokDecimal ^^^ Rql2DecimalType(defaultProps)
+  final protected lazy val decimalType: Parser[SnapiDecimalType] = tokDecimal ^^^ SnapiDecimalType(defaultProps)
 
-  final protected lazy val temporalType: Parser[Rql2TemporalType] = dateType | timeType | intervalType | timestampType
+  final protected lazy val temporalType: Parser[SnapiTemporalType] = dateType | timeType | intervalType | timestampType
 
-  final protected lazy val dateType: Parser[Rql2DateType] = tokDate ^^^ Rql2DateType(defaultProps)
+  final protected lazy val dateType: Parser[SnapiDateType] = tokDate ^^^ SnapiDateType(defaultProps)
 
-  final protected lazy val timeType: Parser[Rql2TimeType] = tokTime ^^^ Rql2TimeType(defaultProps)
+  final protected lazy val timeType: Parser[SnapiTimeType] = tokTime ^^^ SnapiTimeType(defaultProps)
 
-  final protected lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ^^^ Rql2IntervalType(defaultProps)
+  final protected lazy val intervalType: Parser[SnapiIntervalType] = tokInterval ^^^ SnapiIntervalType(defaultProps)
 
-  final protected lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ^^^ Rql2TimestampType(defaultProps)
+  final protected lazy val timestampType: Parser[SnapiTimestampType] = tokTimestamp ^^^ SnapiTimestampType(defaultProps)
 
-  final protected lazy val recordType: Parser[Rql2RecordType] =
-    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ^^ (atts => Rql2RecordType(atts, defaultProps))
+  final protected lazy val recordType: Parser[SnapiRecordType] =
+    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ^^ (atts => SnapiRecordType(atts, defaultProps))
 
-  final protected lazy val attrType: Parser[Rql2AttrType] = (ident <~ ":") ~ tipe ^^ Rql2AttrType
+  final protected lazy val attrType: Parser[SnapiAttrType] = (ident <~ ":") ~ tipe ^^ SnapiAttrType
 
-  final protected lazy val iterableType: Parser[Rql2IterableType] =
-    tokCollection ~> ("(" ~> tipe <~ ")") ^^ (t => Rql2IterableType(t, defaultProps))
+  final protected lazy val iterableType: Parser[SnapiIterableType] =
+    tokCollection ~> ("(" ~> tipe <~ ")") ^^ (t => SnapiIterableType(t, defaultProps))
 
-  final protected lazy val listType: Parser[Rql2ListType] = tokList ~> ("(" ~> tipe <~ ")") ^^ {
-    case t => Rql2ListType(t, defaultProps)
+  final protected lazy val listType: Parser[SnapiListType] = tokList ~> ("(" ~> tipe <~ ")") ^^ {
+    case t => SnapiListType(t, defaultProps)
   }
 
   final protected lazy val funType: PackratParser[FunType] = {
@@ -205,7 +205,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final protected lazy val expType: Parser[ExpType] = tokType ~> tipe ^^ ExpType
 
-  final protected lazy val undefinedType: Parser[Rql2UndefinedType] = tokUndefined ^^^ Rql2UndefinedType(defaultProps)
+  final protected lazy val undefinedType: Parser[SnapiUndefinedType] = tokUndefined ^^^ SnapiUndefinedType(defaultProps)
 
   final protected lazy val typeAliasType: Parser[TypeAliasType] = typeIdnUse ^^ TypeAliasType
 
@@ -215,7 +215,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     if (isReservedType(idn)) failure("reserved type keyword") else success(idn)
   }
 
-  private val defaultProps: Set[Rql2TypeProperty] = Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+  private val defaultProps: Set[SnapiTypeProperty] = Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())
 
   ///////////////////////////////////////////////////////////////////////////
   // Expressions

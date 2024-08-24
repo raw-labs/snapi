@@ -19,7 +19,7 @@ import com.rawlabs.utils.core.RawTestSuite
 
 class Antlr4TypeTests extends RawTestSuite {
 
-  def props: Set[Rql2TypeProperty] = Set[Rql2TypeProperty](Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
+  def props: Set[SnapiTypeProperty] = Set[SnapiTypeProperty](SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty())
 
   def parseType(s: String): Type = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
@@ -28,48 +28,48 @@ class Antlr4TypeTests extends RawTestSuite {
   }
 
   // Single types
-  test("""int type""")(_ => assert(parseType("int") == Rql2IntType(props)))
+  test("""int type""")(_ => assert(parseType("int") == SnapiIntType(props)))
 
   test("""Record""") { _ =>
     assert(
       parseType(
         "record(a: byte, b: short, c: int, e: long, f: float, g: double, h: decimal, i: bool, j: string, k: undefined)"
-      ) == Rql2RecordType(
+      ) == SnapiRecordType(
         Vector(
-          Rql2AttrType("a", Rql2ByteType(props)),
-          Rql2AttrType("b", Rql2ShortType(props)),
-          Rql2AttrType("c", Rql2IntType(props)),
-          Rql2AttrType("e", Rql2LongType(props)),
-          Rql2AttrType("f", Rql2FloatType(props)),
-          Rql2AttrType("g", Rql2DoubleType(props)),
-          Rql2AttrType("h", Rql2DecimalType(props)),
-          Rql2AttrType("i", Rql2BoolType(props)),
-          Rql2AttrType("j", Rql2StringType(props)),
-          Rql2AttrType("k", Rql2UndefinedType(props))
+          SnapiAttrType("a", SnapiByteType(props)),
+          SnapiAttrType("b", SnapiShortType(props)),
+          SnapiAttrType("c", SnapiIntType(props)),
+          SnapiAttrType("e", SnapiLongType(props)),
+          SnapiAttrType("f", SnapiFloatType(props)),
+          SnapiAttrType("g", SnapiDoubleType(props)),
+          SnapiAttrType("h", SnapiDecimalType(props)),
+          SnapiAttrType("i", SnapiBoolType(props)),
+          SnapiAttrType("j", SnapiStringType(props)),
+          SnapiAttrType("k", SnapiUndefinedType(props))
         ),
         props
       )
     )
-    assert(parseType("record()") == Rql2RecordType(Vector.empty, props))
+    assert(parseType("record()") == SnapiRecordType(Vector.empty, props))
   }
 
   test("""Collection of records""") { _ =>
     assert(
       parseType(
         "collection(record(a: byte, b: short, c: int, e: long, f: float, g: double, h: decimal, i: bool, j: string, k: undefined))"
-      ) == Rql2IterableType(
-        Rql2RecordType(
+      ) == SnapiIterableType(
+        SnapiRecordType(
           Vector(
-            Rql2AttrType("a", Rql2ByteType(props)),
-            Rql2AttrType("b", Rql2ShortType(props)),
-            Rql2AttrType("c", Rql2IntType(props)),
-            Rql2AttrType("e", Rql2LongType(props)),
-            Rql2AttrType("f", Rql2FloatType(props)),
-            Rql2AttrType("g", Rql2DoubleType(props)),
-            Rql2AttrType("h", Rql2DecimalType(props)),
-            Rql2AttrType("i", Rql2BoolType(props)),
-            Rql2AttrType("j", Rql2StringType(props)),
-            Rql2AttrType("k", Rql2UndefinedType(props))
+            SnapiAttrType("a", SnapiByteType(props)),
+            SnapiAttrType("b", SnapiShortType(props)),
+            SnapiAttrType("c", SnapiIntType(props)),
+            SnapiAttrType("e", SnapiLongType(props)),
+            SnapiAttrType("f", SnapiFloatType(props)),
+            SnapiAttrType("g", SnapiDoubleType(props)),
+            SnapiAttrType("h", SnapiDecimalType(props)),
+            SnapiAttrType("i", SnapiBoolType(props)),
+            SnapiAttrType("j", SnapiStringType(props)),
+            SnapiAttrType("k", SnapiUndefinedType(props))
           ),
           props
         ),
@@ -82,19 +82,19 @@ class Antlr4TypeTests extends RawTestSuite {
     assert(
       parseType(
         "list(record(a: byte, b: short, c: int, e: long, f: float, g: double, h: decimal, i: bool, j: string, k: undefined))"
-      ) == Rql2ListType(
-        Rql2RecordType(
+      ) == SnapiListType(
+        SnapiRecordType(
           Vector(
-            Rql2AttrType("a", Rql2ByteType(props)),
-            Rql2AttrType("b", Rql2ShortType(props)),
-            Rql2AttrType("c", Rql2IntType(props)),
-            Rql2AttrType("e", Rql2LongType(props)),
-            Rql2AttrType("f", Rql2FloatType(props)),
-            Rql2AttrType("g", Rql2DoubleType(props)),
-            Rql2AttrType("h", Rql2DecimalType(props)),
-            Rql2AttrType("i", Rql2BoolType(props)),
-            Rql2AttrType("j", Rql2StringType(props)),
-            Rql2AttrType("k", Rql2UndefinedType(props))
+            SnapiAttrType("a", SnapiByteType(props)),
+            SnapiAttrType("b", SnapiShortType(props)),
+            SnapiAttrType("c", SnapiIntType(props)),
+            SnapiAttrType("e", SnapiLongType(props)),
+            SnapiAttrType("f", SnapiFloatType(props)),
+            SnapiAttrType("g", SnapiDoubleType(props)),
+            SnapiAttrType("h", SnapiDecimalType(props)),
+            SnapiAttrType("i", SnapiBoolType(props)),
+            SnapiAttrType("j", SnapiStringType(props)),
+            SnapiAttrType("k", SnapiUndefinedType(props))
           ),
           props
         ),
@@ -105,13 +105,13 @@ class Antlr4TypeTests extends RawTestSuite {
 
   // Or type tests
   test("""2 types or""") { _ =>
-    assert(parseType("int or string") == Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props))
+    assert(parseType("int or string") == SnapiOrType(Vector(SnapiIntType(props), SnapiStringType(props)), props))
   }
 
   test("""Not nested 3 types or""") { _ =>
     assert(
-      parseType("int or string or float") == Rql2OrType(
-        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
+      parseType("int or string or float") == SnapiOrType(
+        Vector(SnapiIntType(props), SnapiStringType(props), SnapiFloatType(props)),
         props
       )
     )
@@ -119,8 +119,8 @@ class Antlr4TypeTests extends RawTestSuite {
 
   test("""Left nested 3 type or""") { _ =>
     assert(
-      parseType("(int or string) or float") == Rql2OrType(
-        Vector(Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props), Rql2FloatType(props)),
+      parseType("(int or string) or float") == SnapiOrType(
+        Vector(SnapiOrType(Vector(SnapiIntType(props), SnapiStringType(props)), props), SnapiFloatType(props)),
         props
       )
     )
@@ -128,8 +128,8 @@ class Antlr4TypeTests extends RawTestSuite {
 
   test("""Right nested 3 type or""") { _ =>
     assert(
-      parseType("(int or string) or float") == Rql2OrType(
-        Vector(Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props), Rql2FloatType(props)),
+      parseType("(int or string) or float") == SnapiOrType(
+        Vector(SnapiOrType(Vector(SnapiIntType(props), SnapiStringType(props)), props), SnapiFloatType(props)),
         props
       )
     )
@@ -137,7 +137,7 @@ class Antlr4TypeTests extends RawTestSuite {
 
   test("""Function type test""") { _ =>
     assert(
-      parseType("int -> string") == FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+      parseType("int -> string") == FunType(Vector(SnapiIntType(props)), Vector.empty, SnapiStringType(props), props)
     )
   }
 
@@ -146,13 +146,13 @@ class Antlr4TypeTests extends RawTestSuite {
       parseType("int or string -> float") ==
         FunType(
           Vector(
-            Rql2OrType(
-              Vector(Rql2IntType(props), Rql2StringType(props)),
+            SnapiOrType(
+              Vector(SnapiIntType(props), SnapiStringType(props)),
               props
             )
           ),
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
@@ -160,8 +160,8 @@ class Antlr4TypeTests extends RawTestSuite {
 
   test("""Or type with function alternative test""") { _ =>
     assert(
-      parseType("int or (string -> float)") == Rql2OrType(
-        Vector(Rql2IntType(props), FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props)),
+      parseType("int or (string -> float)") == SnapiOrType(
+        Vector(SnapiIntType(props), FunType(Vector(SnapiStringType(props)), Vector.empty, SnapiFloatType(props), props)),
         props
       )
     )
@@ -172,13 +172,13 @@ class Antlr4TypeTests extends RawTestSuite {
       parseType("(int or string) -> float") ==
         FunType(
           Vector(
-            Rql2OrType(
-              Vector(Rql2IntType(props), Rql2StringType(props)),
+            SnapiOrType(
+              Vector(SnapiIntType(props), SnapiStringType(props)),
               props
             )
           ),
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
@@ -189,8 +189,8 @@ class Antlr4TypeTests extends RawTestSuite {
       parseType("(x: int) -> float") ==
         FunType(
           Vector.empty,
-          Vector(FunOptTypeParam("x", Rql2IntType(props))),
-          Rql2FloatType(props),
+          Vector(FunOptTypeParam("x", SnapiIntType(props))),
+          SnapiFloatType(props),
           props
         )
     )
@@ -202,7 +202,7 @@ class Antlr4TypeTests extends RawTestSuite {
         FunType(
           Vector.empty,
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
@@ -212,9 +212,9 @@ class Antlr4TypeTests extends RawTestSuite {
     assert(
       parseType("(int, b: string) -> float") ==
         FunType(
-          Vector(Rql2IntType(props)),
-          Vector(FunOptTypeParam("b", Rql2StringType(props))),
-          Rql2FloatType(props),
+          Vector(SnapiIntType(props)),
+          Vector(FunOptTypeParam("b", SnapiStringType(props))),
+          SnapiFloatType(props),
           props
         )
     )
@@ -225,13 +225,13 @@ class Antlr4TypeTests extends RawTestSuite {
       parseType("(int or string, c: float or bool) -> float") ==
         FunType(
           Vector(
-            Rql2OrType(
-              Vector(Rql2IntType(props), Rql2StringType(props)),
+            SnapiOrType(
+              Vector(SnapiIntType(props), SnapiStringType(props)),
               props
             )
           ),
-          Vector(FunOptTypeParam("c", Rql2OrType(Vector(Rql2FloatType(props), Rql2BoolType(props)), props))),
-          Rql2FloatType(props),
+          Vector(FunOptTypeParam("c", SnapiOrType(Vector(SnapiFloatType(props), SnapiBoolType(props)), props))),
+          SnapiFloatType(props),
           props
         )
     )
@@ -242,10 +242,10 @@ class Antlr4TypeTests extends RawTestSuite {
       parseType("int -> string -> float") ==
         FunType(
           Vector(
-            FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+            FunType(Vector(SnapiIntType(props)), Vector.empty, SnapiStringType(props), props)
           ),
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
@@ -256,10 +256,10 @@ class Antlr4TypeTests extends RawTestSuite {
       parseType("(int -> string) -> float") ==
         FunType(
           Vector(
-            FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+            FunType(Vector(SnapiIntType(props)), Vector.empty, SnapiStringType(props), props)
           ),
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
@@ -269,9 +269,9 @@ class Antlr4TypeTests extends RawTestSuite {
     assert(
       parseType("int -> (string -> float)") ==
         FunType(
-          Vector(Rql2IntType(props)),
+          Vector(SnapiIntType(props)),
           Vector.empty,
-          FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props),
+          FunType(Vector(SnapiStringType(props)), Vector.empty, SnapiFloatType(props), props),
           props
         )
     )

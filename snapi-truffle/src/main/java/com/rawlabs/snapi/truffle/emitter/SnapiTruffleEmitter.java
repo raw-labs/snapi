@@ -25,11 +25,11 @@ import com.rawlabs.snapi.frontend.rql2.source.IdnExp;
 import com.rawlabs.snapi.frontend.rql2.source.SourceNode;
 import com.rawlabs.snapi.frontend.rql2.*;
 import com.rawlabs.snapi.frontend.rql2.extensions.EntryExtension;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.emitter.builtin.location_extension.TruffleLocationFromStringEntry;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.ast.controlflow.ExpBlockNode;
@@ -56,7 +56,7 @@ import scala.collection.JavaConverters;
 public class SnapiTruffleEmitter extends TruffleEmitter {
 
     private final Tree tree;
-    private final Rql2Language rawLanguage;
+    private final SnapiLanguage rawLanguage;
     private final ProgramContext programContext;
     private final SemanticAnalyzer analyzer;
     private final String uniqueId = UUID.randomUUID().toString().replace("-", "").replace("_", "");
@@ -316,7 +316,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         throw new TruffleInternalErrorException("Could not find entry for " + pkgName + "." + entName);
     }
 
-    public SnapiTruffleEmitter(Tree tree, Rql2Language rawLanguage, ProgramContext programContext) {
+    public SnapiTruffleEmitter(Tree tree, SnapiLanguage rawLanguage, ProgramContext programContext) {
         this.tree = tree;
         this.analyzer = tree.analyzer();
         this.rawLanguage = rawLanguage;
@@ -327,7 +327,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return analyzer.tipe(e);
     }
 
-    public Rql2Language getLanguage() {
+    public SnapiLanguage getLanguage() {
         return this.rawLanguage;
     }
 
@@ -366,7 +366,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         slotMapScope.get(0).put(entity, slot);
     }
 
-    protected StatementNode emitMethod(Rql2Method m) {
+    protected StatementNode emitMethod(SnapiMethod m) {
         Entity entity = analyzer.entity().apply(m.i());
         FunProto fp = m.p();
         Function f = recurseFunProto(fp);
@@ -403,49 +403,49 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return switch (ld) {
             case LetBind lb -> {
                 Entity entity = analyzer.entity().apply(lb.i());
-                Rql2Type rql2Type = (Rql2Type) tipe(lb.e());
-                int slot = switch (rql2Type) {
-                    case Rql2UndefinedType ignored ->
+                SnapiType snapiType = (SnapiType) tipe(lb.e());
+                int slot = switch (snapiType) {
+                    case SnapiUndefinedType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                     case ExpType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2ByteType ignored ->
+                    case SnapiByteType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Byte, getIdnName(entity), null);
-                    case Rql2ShortType ignored ->
+                    case SnapiShortType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Int, getIdnName(entity), null);
-                    case Rql2IntType ignored ->
+                    case SnapiIntType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Int, getIdnName(entity), null);
-                    case Rql2LongType ignored ->
+                    case SnapiLongType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Long, getIdnName(entity), null);
-                    case Rql2FloatType ignored ->
+                    case SnapiFloatType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Float, getIdnName(entity), null);
-                    case Rql2DoubleType ignored ->
+                    case SnapiDoubleType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Double, getIdnName(entity), null);
-                    case Rql2DecimalType ignored ->
+                    case SnapiDecimalType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2BoolType ignored ->
+                    case SnapiBoolType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Boolean, getIdnName(entity), null);
-                    case Rql2StringType ignored ->
+                    case SnapiStringType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2DateType ignored ->
+                    case SnapiDateType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2TimeType ignored ->
+                    case SnapiTimeType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2TimestampType ignored ->
+                    case SnapiTimestampType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2IntervalType ignored ->
+                    case SnapiIntervalType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2BinaryType ignored ->
+                    case SnapiBinaryType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2IterableType ignored ->
+                    case SnapiIterableType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2ListType ignored ->
+                    case SnapiListType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                     case FunType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2RecordType ignored ->
+                    case SnapiRecordType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
-                    case Rql2LocationType ignored ->
+                    case SnapiLocationType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                     case PackageType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
@@ -454,7 +454,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                     default -> throw new TruffleInternalErrorException();
                 };
                 addSlot(entity, Integer.toString(slot));
-                yield WriteLocalVariableNodeGen.create(recurseExp(lb.e()), slot, rql2Type);
+                yield WriteLocalVariableNodeGen.create(recurseExp(lb.e()), slot, snapiType);
             }
             case LetFun lf -> {
                 Entity entity = analyzer.entity().apply(lf.i());
@@ -529,8 +529,8 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
     public ExpressionNode recurseExp(Exp in) {
         return switch (in) {
             case Exp ignored when tipe(in) instanceof PackageType || tipe(in) instanceof PackageEntryType ->
-                    new ZeroedConstNode(Rql2ByteType.apply(new scala.collection.immutable.HashSet<Rql2TypeProperty>().seq()));
-            case TypeExp typeExp -> new ZeroedConstNode((Rql2Type) typeExp.t());
+                    new ZeroedConstNode(SnapiByteType.apply(new scala.collection.immutable.HashSet<SnapiTypeProperty>().seq()));
+            case TypeExp typeExp -> new ZeroedConstNode((SnapiType) typeExp.t());
             case NullConst ignored -> new OptionNoneNode();
             case BoolConst v -> new BoolNode(v.value());
             case ByteConst v -> new ByteNode(v.value());
@@ -575,18 +575,18 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                     }
                     case LetBindEntity b -> {
                         SlotLocation slotLocation = findSlot(b);
-                        yield slotLocation.depth() == 0 ? ReadLocalVariableNodeGen.create(slotLocation.slot(), (Rql2Type) tipe(b.b().e())) :
-                                ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), (Rql2Type) tipe(b.b().e()));
+                        yield slotLocation.depth() == 0 ? ReadLocalVariableNodeGen.create(slotLocation.slot(), (SnapiType) tipe(b.b().e())) :
+                                ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), (SnapiType) tipe(b.b().e()));
                     }
                     case LetFunEntity f -> {
                         SlotLocation slotLocation = findSlot(f);
                         yield slotLocation.depth() == 0 ? ReadLocalVariableNodeGen.create(slotLocation.slot(), null) :
-                                ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), (Rql2Type) analyzer.idnType(f.f().i()));
+                                ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), (SnapiType) analyzer.idnType(f.f().i()));
                     }
                     case LetFunRecEntity f -> {
                         SlotLocation slotLocation = findSlot(f);
                         yield slotLocation.depth() == 0 ? ReadLocalVariableNodeGen.create(slotLocation.slot(), null) :
-                                ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), (Rql2Type) analyzer.idnType(f.f().i()));
+                                ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), (SnapiType) analyzer.idnType(f.f().i()));
                     }
                     case FunParamEntity f -> {
                         int depth = getCurrentDepth() - getEntityDepth(f);
@@ -642,7 +642,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 TruffleEntryExtension e = getEntry(pet.pkgName(), pet.entName());
                 yield e.toTruffle(
                         t,
-                        JavaConverters.asJavaCollection(fa.args()).stream().map(a -> new Rql2Arg(a.e(), tipe(a.e()), a.idn())).toList(),
+                        JavaConverters.asJavaCollection(fa.args()).stream().map(a -> new SnapiArg(a.e(), tipe(a.e()), a.idn())).toList(),
                         this
                 );
             }

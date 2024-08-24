@@ -22,9 +22,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2IsNullableTypeProperty;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiIsNullableTypeProperty;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.ast.TruffleBoundaries;
@@ -65,17 +65,17 @@ public class RecordParseJsonNode extends ExpressionNode {
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
   private final int fieldsSize;
-  private final Rql2TypeWithProperties[] fieldTypes;
+  private final SnapiTypeWithProperties[] fieldTypes;
 
-  private final Rql2Language language = Rql2Language.get(this);
+  private final SnapiLanguage language = SnapiLanguage.get(this);
 
   private final boolean hasDuplicateKeys;
 
   public RecordParseJsonNode(
-      ProgramExpressionNode[] childProgramExpressionNode,
-      LinkedHashMap<String, Integer> fieldNamesMap,
-      Rql2TypeWithProperties[] fieldTypes,
-      boolean hasDuplicateKeys) {
+          ProgramExpressionNode[] childProgramExpressionNode,
+          LinkedHashMap<String, Integer> fieldNamesMap,
+          SnapiTypeWithProperties[] fieldTypes,
+          boolean hasDuplicateKeys) {
     this.fieldTypes = fieldTypes;
     this.fieldNamesMap = fieldNamesMap;
     this.fieldsSize = childProgramExpressionNode.length;
@@ -168,6 +168,6 @@ public class RecordParseJsonNode extends ExpressionNode {
 
   @CompilerDirectives.TruffleBoundary
   private boolean propsContainNullable(int index) {
-    return fieldTypes[index].props().contains(Rql2IsNullableTypeProperty.apply());
+    return fieldTypes[index].props().contains(SnapiIsNullableTypeProperty.apply());
   }
 }

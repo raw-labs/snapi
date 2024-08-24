@@ -15,11 +15,11 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.InternalEquiJoinCollectionEntry;
 import com.rawlabs.snapi.frontend.rql2.source.FunType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2IterableType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiIterableType;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionEquiJoinNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -30,7 +30,7 @@ import java.util.List;
 public class TruffleInternalEquiJoinCollectionEntry extends InternalEquiJoinCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+  public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
     List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
     int computeNextSlot =
@@ -53,17 +53,17 @@ public class TruffleInternalEquiJoinCollectionEntry extends InternalEquiJoinColl
     TruffleArg remap = truffleArgs.get(4);
 
     FunType funType = (FunType) leftK.type();
-    Rql2IterableType leftValue = (Rql2IterableType) left.type();
-    Rql2IterableType rightValue = (Rql2IterableType) right.type();
+    SnapiIterableType leftValue = (SnapiIterableType) left.type();
+    SnapiIterableType rightValue = (SnapiIterableType) right.type();
 
     return new CollectionEquiJoinNode(
         left.exprNode(),
         right.exprNode(),
         leftK.exprNode(),
         rightK.exprNode(),
-        (Rql2TypeWithProperties) funType.r(),
-        (Rql2TypeWithProperties) leftValue.innerType(),
-        (Rql2TypeWithProperties) rightValue.innerType(),
+        (SnapiTypeWithProperties) funType.r(),
+        (SnapiTypeWithProperties) leftValue.innerType(),
+        (SnapiTypeWithProperties) rightValue.innerType(),
         remap.exprNode(),
         computeNextSlot,
         shouldContinueSlot,

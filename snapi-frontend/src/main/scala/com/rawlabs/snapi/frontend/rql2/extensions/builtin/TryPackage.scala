@@ -62,9 +62,9 @@ class TryTransformEntry extends EntryExtension {
     case 0 => Right(ExpParam(IsTryable()))
     case 1 =>
       val ExpArg(_, t) = prevMandatoryArgs(0)
-      val innerType = removeProp(t, Rql2IsTryableTypeProperty())
+      val innerType = removeProp(t, SnapiIsTryableTypeProperty())
       Right(
-        ExpParam(FunType(Vector(innerType), Vector.empty, DoesNotHaveTypeProperties(Set(Rql2IsTryableTypeProperty()))))
+        ExpParam(FunType(Vector(innerType), Vector.empty, DoesNotHaveTypeProperties(Set(SnapiIsTryableTypeProperty()))))
       )
   }
 
@@ -74,7 +74,7 @@ class TryTransformEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val FunType(_, _, outType, _) = mandatoryArgs(1).t
-    val t = addProp(outType, Rql2IsTryableTypeProperty())
+    val t = addProp(outType, SnapiIsTryableTypeProperty())
     Right(t)
   }
 
@@ -109,8 +109,8 @@ class TryIsErrorEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = mandatoryArgs(0).t match {
-    case _: Rql2IterableType => Left("cannot be applied to a collection")
-    case _ => Right(Rql2BoolType())
+    case _: SnapiIterableType => Left("cannot be applied to a collection")
+    case _ => Right(SnapiBoolType())
   }
 
 }
@@ -144,8 +144,8 @@ class TryIsSuccessEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = mandatoryArgs(0).t match {
-    case _: Rql2IterableType => Left("cannot be applied to a collection")
-    case _ => Right(Rql2BoolType())
+    case _: SnapiIterableType => Left("cannot be applied to a collection")
+    case _ => Right(SnapiBoolType())
   }
 
 }
@@ -171,7 +171,7 @@ class TryFlatMapEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val FunType(_, _, outType, _) = mandatoryArgs(1).t
-    assert(getProps(outType).contains(Rql2IsTryableTypeProperty()))
+    assert(getProps(outType).contains(SnapiIsTryableTypeProperty()))
     Right(outType)
   }
 
@@ -198,7 +198,7 @@ class TryUnsafeGetEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(removeProp(mandatoryArgs(0).t, Rql2IsTryableTypeProperty()))
+    Right(removeProp(mandatoryArgs(0).t, SnapiIsTryableTypeProperty()))
   }
 
 }

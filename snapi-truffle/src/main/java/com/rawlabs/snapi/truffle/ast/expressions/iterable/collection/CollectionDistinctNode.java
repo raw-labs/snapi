@@ -15,19 +15,19 @@ package com.rawlabs.snapi.truffle.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.iterable.operations.DistinctCollection;
 
 @NodeInfo(shortName = "Collection.Distinct")
 @NodeChild("input")
-@NodeField(name = "valueType", type = Rql2TypeWithProperties.class)
+@NodeField(name = "valueType", type = SnapiTypeWithProperties.class)
 @NodeField(name = "generatorSlot", type = int.class)
 @NodeField(name = "offHeapDistinctSlot", type = int.class)
 public abstract class CollectionDistinctNode extends ExpressionNode {
 
   @Idempotent
-  protected abstract Rql2TypeWithProperties getValueType();
+  protected abstract SnapiTypeWithProperties getValueType();
 
   @Idempotent
   protected abstract int getGeneratorSlot();

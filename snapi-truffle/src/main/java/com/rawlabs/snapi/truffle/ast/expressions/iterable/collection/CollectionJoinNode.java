@@ -16,7 +16,7 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.StaticInitializers;
 import com.rawlabs.snapi.truffle.runtime.iterable.operations.JoinCollection;
@@ -26,7 +26,7 @@ import com.rawlabs.snapi.truffle.runtime.iterable.operations.JoinCollection;
 @NodeChild("right")
 @NodeChild("remap")
 @NodeChild("predicate")
-@NodeField(name = "rightType", type = Rql2TypeWithProperties.class)
+@NodeField(name = "rightType", type = SnapiTypeWithProperties.class)
 @NodeField(name = "reshapeBeforePredicate", type = Boolean.class)
 @NodeField(name = "computeNextSlot", type = int.class)
 @NodeField(name = "shouldContinueSlot", type = int.class)
@@ -37,7 +37,7 @@ import com.rawlabs.snapi.truffle.runtime.iterable.operations.JoinCollection;
 public abstract class CollectionJoinNode extends ExpressionNode {
 
   @Idempotent
-  protected abstract Rql2TypeWithProperties getRightType();
+  protected abstract SnapiTypeWithProperties getRightType();
 
   @Idempotent
   protected abstract Boolean getReshapeBeforePredicate();

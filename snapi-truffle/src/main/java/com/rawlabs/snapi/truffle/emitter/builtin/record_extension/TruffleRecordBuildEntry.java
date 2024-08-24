@@ -14,9 +14,9 @@ package com.rawlabs.snapi.truffle.emitter.builtin.record_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.RecordBuildEntry;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2AttrType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2RecordType;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiAttrType;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiRecordType;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.record.RecordBuildNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -26,13 +26,13 @@ import scala.collection.JavaConverters;
 
 public class TruffleRecordBuildEntry extends RecordBuildEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
-    Rql2RecordType recordType = (Rql2RecordType) type;
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
+    SnapiRecordType recordType = (SnapiRecordType) type;
 
     String[] fieldNames =
         JavaConverters.asJavaCollection(recordType.atts()).stream()
-            .map(a -> (Rql2AttrType) a)
-            .map(Rql2AttrType::idn)
+            .map(a -> (SnapiAttrType) a)
+            .map(SnapiAttrType::idn)
             .toList()
             .toArray(new String[0]);
 

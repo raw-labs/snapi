@@ -24,7 +24,7 @@ import scala.collection.mutable
 import scala.util.control.NonFatal
 
 sealed trait StagedCompilerResponse
-final case class StagedCompilerSuccess(v: Rql2Value) extends StagedCompilerResponse
+final case class StagedCompilerSuccess(v: SnapiValue) extends StagedCompilerResponse
 final case class StagedCompilerValidationFailure(errors: List[ErrorMessage]) extends StagedCompilerResponse
 final case class StagedCompilerRuntimeFailure(error: String) extends StagedCompilerResponse
 
@@ -120,69 +120,69 @@ trait StagedCompiler {
     }
   }
 
-  private def polyglotValueToRql2Value(v: Value, t: Type)(implicit settings: RawSettings): Rql2Value = {
+  private def polyglotValueToRql2Value(v: Value, t: Type)(implicit settings: RawSettings): SnapiValue = {
     t match {
-      case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
+      case t: SnapiTypeWithProperties if t.props.contains(SnapiIsTryableTypeProperty()) =>
         if (v.isException) {
           try {
             v.throwException()
             throw new AssertionError("should not happen")
           } catch {
-            case NonFatal(ex) => Rql2TryValue(Left(ex.getMessage))
+            case NonFatal(ex) => SnapiTryValue(Left(ex.getMessage))
           }
         } else {
-          Rql2TryValue(Right(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()))))
+          SnapiTryValue(Right(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(SnapiIsTryableTypeProperty()))))
         }
-      case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) =>
+      case t: SnapiTypeWithProperties if t.props.contains(SnapiIsNullableTypeProperty()) =>
         if (v.isNull) {
-          Rql2OptionValue(None)
+          SnapiOptionValue(None)
         } else {
-          Rql2OptionValue(Some(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(Rql2IsNullableTypeProperty()))))
+          SnapiOptionValue(Some(polyglotValueToRql2Value(v, t.cloneAndRemoveProp(SnapiIsNullableTypeProperty()))))
         }
-      case _: Rql2UndefinedType => throw new AssertionError("Rql2Undefined is not triable and is not nullable.")
-      case _: Rql2BoolType => Rql2BoolValue(v.asBoolean())
-      case _: Rql2StringType => Rql2StringValue(v.asString())
-      case _: Rql2ByteType => Rql2ByteValue(v.asByte())
-      case _: Rql2ShortType => Rql2ShortValue(v.asShort())
-      case _: Rql2IntType => Rql2IntValue(v.asInt())
-      case _: Rql2LongType => Rql2LongValue(v.asLong())
-      case _: Rql2FloatType => Rql2FloatValue(v.asFloat())
-      case _: Rql2DoubleType => Rql2DoubleValue(v.asDouble())
-      case _: Rql2DecimalType =>
+      case _: SnapiUndefinedType => throw new AssertionError("Rql2Undefined is not triable and is not nullable.")
+      case _: SnapiBoolType => SnapiBoolValue(v.asBoolean())
+      case _: SnapiStringType => SnapiStringValue(v.asString())
+      case _: SnapiByteType => SnapiByteValue(v.asByte())
+      case _: SnapiShortType => SnapiShortValue(v.asShort())
+      case _: SnapiIntType => SnapiIntValue(v.asInt())
+      case _: SnapiLongType => SnapiLongValue(v.asLong())
+      case _: SnapiFloatType => SnapiFloatValue(v.asFloat())
+      case _: SnapiDoubleType => SnapiDoubleValue(v.asDouble())
+      case _: SnapiDecimalType =>
         val bg = BigDecimal(v.asString())
-        Rql2DecimalValue(bg)
-      case _: Rql2DateType =>
+        SnapiDecimalValue(bg)
+      case _: SnapiDateType =>
         val date = v.asDate()
-        Rql2DateValue(date)
-      case _: Rql2TimeType =>
+        SnapiDateValue(date)
+      case _: SnapiTimeType =>
         val time = v.asTime()
-        Rql2TimeValue(time)
-      case _: Rql2TimestampType =>
+        SnapiTimeValue(time)
+      case _: SnapiTimestampType =>
         val localDate = v.asDate()
         val localTime = v.asTime()
-        Rql2TimestampValue(localDate.atTime(localTime))
-      case _: Rql2IntervalType =>
+        SnapiTimestampValue(localDate.atTime(localTime))
+      case _: SnapiIntervalType =>
         val d = v.asDuration()
-        Rql2IntervalValue(0, 0, 0, d.toDaysPart.toInt, d.toHoursPart, d.toMinutesPart, d.toSecondsPart, d.toMillisPart)
-      case _: Rql2BinaryType =>
+        SnapiIntervalValue(0, 0, 0, d.toDaysPart.toInt, d.toHoursPart, d.toMinutesPart, d.toSecondsPart, d.toMillisPart)
+      case _: SnapiBinaryType =>
         val bufferSize = v.getBufferSize.toInt
         val byteArray = new Array[Byte](bufferSize)
         for (i <- 0 until bufferSize) {
           byteArray(i) = v.readBufferByte(i)
         }
-        Rql2BinaryValue(byteArray)
-      case Rql2RecordType(atts, _) =>
-        val vs = atts.map(att => Rql2RecordAttr(att.idn, polyglotValueToRql2Value(v.getMember(att.idn), att.tipe)))
-        Rql2RecordValue(vs)
-      case Rql2ListType(innerType, _) =>
-        val seq = mutable.ArrayBuffer[Rql2Value]()
+        SnapiBinaryValue(byteArray)
+      case SnapiRecordType(atts, _) =>
+        val vs = atts.map(att => SnapiRecordAttr(att.idn, polyglotValueToRql2Value(v.getMember(att.idn), att.tipe)))
+        SnapiRecordValue(vs)
+      case SnapiListType(innerType, _) =>
+        val seq = mutable.ArrayBuffer[SnapiValue]()
         for (i <- 0L until v.getArraySize) {
           val v1 = v.getArrayElement(i)
           seq.append(polyglotValueToRql2Value(v1, innerType))
         }
-        Rql2ListValue(seq)
-      case Rql2IterableType(innerType, _) =>
-        val seq = mutable.ArrayBuffer[Rql2Value]()
+        SnapiListValue(seq)
+      case SnapiIterableType(innerType, _) =>
+        val seq = mutable.ArrayBuffer[SnapiValue]()
         val it = v.getIterator
         while (it.hasIteratorNextElement) {
           val v1 = it.getIteratorNextElement
@@ -192,13 +192,13 @@ trait StagedCompiler {
           val callable = it.getMember("close")
           callable.execute()
         }
-        Rql2IterableValue(seq)
-      case Rql2OrType(tipes, _) =>
+        SnapiIterableValue(seq)
+      case SnapiOrType(tipes, _) =>
         val idx = v.invokeMember("getIndex").asInt()
         val v1 = v.invokeMember("getValue")
         val tipe = tipes(idx)
         polyglotValueToRql2Value(v1, tipe)
-      case _: Rql2LocationType =>
+      case _: SnapiLocationType =>
         val bufferSize = v.getBufferSize.toInt
         val byteArray = new Array[Byte](bufferSize)
         for (i <- 0 until bufferSize) {
@@ -206,7 +206,7 @@ trait StagedCompiler {
         }
         val location = LocationDescription.toLocation(LocationDescription.deserialize(byteArray))
         val publicDescription = v.asString()
-        Rql2LocationValue(location, publicDescription)
+        SnapiLocationValue(location, publicDescription)
     }
   }
 

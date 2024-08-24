@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD9229Test extends Rql2TestContext {
+class RD9229Test extends SnapiTestContext {
 
   test(s"""[{a: "binary", b: [1,2,3,4]}]""") { it =>
     option("output-format", "binary")

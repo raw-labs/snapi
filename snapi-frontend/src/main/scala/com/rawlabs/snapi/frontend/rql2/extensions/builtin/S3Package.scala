@@ -14,7 +14,7 @@ package com.rawlabs.snapi.frontend.rql2.extensions.builtin
 
 import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import com.rawlabs.snapi.frontend.base.source.Type
-import com.rawlabs.snapi.frontend.rql2.source.{Rql2LocationType, Rql2StringType}
+import com.rawlabs.snapi.frontend.rql2.source.{SnapiLocationType, SnapiStringType}
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 
@@ -56,15 +56,15 @@ class S3BuildEntry extends EntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("region", "accessKey", "secretKey"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = idn match {
-    case "region" => Right(ExpParam(Rql2StringType()))
-    case "accessKey" => Right(ExpParam(Rql2StringType()))
-    case "secretKey" => Right(ExpParam(Rql2StringType()))
+    case "region" => Right(ExpParam(SnapiStringType()))
+    case "accessKey" => Right(ExpParam(SnapiStringType()))
+    case "secretKey" => Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -72,7 +72,7 @@ class S3BuildEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2LocationType())
+    Right(SnapiLocationType())
   }
 
 }

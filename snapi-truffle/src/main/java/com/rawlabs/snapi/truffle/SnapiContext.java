@@ -29,9 +29,9 @@ import java.io.OutputStream;
 import java.util.Set;
 import scala.collection.JavaConverters;
 
-public final class Rql2Context {
+public final class SnapiContext {
 
-  private final Rql2Language language;
+  private final SnapiLanguage language;
   private final Env env;
   private final RawSettings rawSettings;
   private final OutputStream output;
@@ -39,12 +39,12 @@ public final class Rql2Context {
   private final FunctionRegistry functionRegistry;
 
   @CompilerDirectives.TruffleBoundary
-  public Rql2Context(Rql2Language language, Env env) {
+  public SnapiContext(SnapiLanguage language, Env env) {
     this.language = language;
     this.env = env;
     this.output = env.out();
 
-    String rawSettingsConfigString = env.getOptions().get(Rql2Options.RAW_SETTINGS_KEY);
+    String rawSettingsConfigString = env.getOptions().get(SnapiOptions.RAW_SETTINGS_KEY);
     // If settings were passed as Engine options, used those as our settings.
     // Otherwise, default to the settings from the language, which are obtained from the system.
     if (rawSettingsConfigString.isEmpty()) {
@@ -70,7 +70,7 @@ public final class Rql2Context {
     return functionRegistry;
   }
 
-  public Rql2Language getLanguage() {
+  public SnapiLanguage getLanguage() {
     return language;
   }
 
@@ -142,10 +142,10 @@ public final class Rql2Context {
     return javaScopes.toArray(new String[0]);
   }
 
-  private static final TruffleLanguage.ContextReference<Rql2Context> REFERENCE =
-      TruffleLanguage.ContextReference.create(Rql2Language.class);
+  private static final TruffleLanguage.ContextReference<SnapiContext> REFERENCE =
+      TruffleLanguage.ContextReference.create(SnapiLanguage.class);
 
-  public static Rql2Context get(Node node) {
+  public static SnapiContext get(Node node) {
     return REFERENCE.get(node);
   }
 

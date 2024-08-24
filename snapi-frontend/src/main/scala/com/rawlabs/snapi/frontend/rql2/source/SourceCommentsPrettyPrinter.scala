@@ -110,15 +110,15 @@ class SourceCommentsPrettyPrinter(maybeIndent: Option[Int] = None, maybeWidth: O
     s
   }
 
-  override def rql2Node(n: Rql2Node): Doc = n match {
-    case Rql2Program(methods, me) =>
+  override def rql2Node(n: SnapiNode): Doc = n match {
+    case SnapiProgram(methods, me) =>
       // adding double line break between methods
-      val methodsDoc = methods.map { case m @ Rql2Method(p, idn) => withComments(m, idn <> funProto(p)) <> linebreak }
+      val methodsDoc = methods.map { case m @ SnapiMethod(p, idn) => withComments(m, idn <> funProto(p)) <> linebreak }
       ssep(methodsDoc ++ me.toSeq.map(toDoc), line)
     case _ => super.rql2Node(n)
   }
 
-  override def rql2TypeWithProperties(t: Rql2TypeWithProperties): Doc = t match {
+  override def rql2TypeWithProperties(t: SnapiTypeWithProperties): Doc = t match {
     case FunType(ms, os, r, props) =>
       val args = ms.map(x => (x, super.toDoc(x))) ++ os.map(o => (o, o.i <> ":" <+> super.toDoc(o.t)))
 
@@ -127,7 +127,7 @@ class SourceCommentsPrettyPrinter(maybeIndent: Option[Int] = None, maybeWidth: O
     case _ => super.rql2TypeWithProperties(t)
   }
 
-  override def rql2Exp(e: Rql2Exp): Doc = e match {
+  override def rql2Exp(e: SnapiExp): Doc = e match {
     case Let(stmts, e) =>
       val stmtDoc = lFoldWComment(stmts.map(x => (x, super.toDoc(x))), comma)
       "let" <> nest(line <> stmtDoc) <> line <> "in" <> nest(line <> e)

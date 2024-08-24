@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.literals;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription$;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.primitives.LocationObject;
 import com.rawlabs.utils.core.RawSettings;
@@ -33,7 +33,7 @@ public class LocationConstNode extends ExpressionNode {
 
   @Override
   public final Object executeGeneric(VirtualFrame virtualFrame) {
-    RawSettings rawSettings = Rql2Context.get(this).getSettings();
+    RawSettings rawSettings = SnapiContext.get(this).getSettings();
     Location location = getLocation(rawSettings);
     return new LocationObject(location, publicDescription);
   }

@@ -19,7 +19,7 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.list.ListNodes;
@@ -84,7 +84,7 @@ public class LocationFromSnowflakeNode extends ExpressionNode {
 
       JdbcServerLocation location =
           getJdbcServerLocation(
-              db, username, password, accountID, parameters, Rql2Context.get(this).getSettings());
+              db, username, password, accountID, parameters, SnapiContext.get(this).getSettings());
 
       return new LocationObject(location, "snowflake:" + db);
     } catch (UnsupportedMessageException

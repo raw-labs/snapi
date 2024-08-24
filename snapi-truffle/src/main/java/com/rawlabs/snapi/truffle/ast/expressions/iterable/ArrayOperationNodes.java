@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiType;
 import com.rawlabs.snapi.truffle.ast.TypeGuards;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.list.*;
@@ -32,50 +32,50 @@ public class ArrayOperationNodes {
   @ImportStatic(TypeGuards.class)
   public abstract static class ArrayBuildNode extends Node {
 
-    public abstract Object execute(Node node, Rql2Type resultType, int size);
+    public abstract Object execute(Node node, SnapiType resultType, int size);
 
     @Specialization(guards = "isByteKind(resultType)")
-    static byte[] buildByte(Node node, Rql2Type resultType, int size) {
+    static byte[] buildByte(Node node, SnapiType resultType, int size) {
       return new byte[size];
     }
 
     @Specialization(guards = "isShortKind(resultType)")
-    static short[] buildShort(Node node, Rql2Type resultType, int size) {
+    static short[] buildShort(Node node, SnapiType resultType, int size) {
       return new short[size];
     }
 
     @Specialization(guards = "isIntKind(resultType)")
-    static int[] buildInt(Node node, Rql2Type resultType, int size) {
+    static int[] buildInt(Node node, SnapiType resultType, int size) {
       return new int[size];
     }
 
     @Specialization(guards = "isLongKind(resultType)")
-    static long[] buildLong(Node node, Rql2Type resultType, int size) {
+    static long[] buildLong(Node node, SnapiType resultType, int size) {
       return new long[size];
     }
 
     @Specialization(guards = "isFloatKind(resultType)")
-    static float[] buildFloat(Node node, Rql2Type resultType, int size) {
+    static float[] buildFloat(Node node, SnapiType resultType, int size) {
       return new float[size];
     }
 
     @Specialization(guards = "isDoubleKind(resultType)")
-    static double[] buildDouble(Node node, Rql2Type resultType, int size) {
+    static double[] buildDouble(Node node, SnapiType resultType, int size) {
       return new double[size];
     }
 
     @Specialization(guards = "isBooleanKind(resultType)")
-    static boolean[] buildBoolean(Node node, Rql2Type resultType, int size) {
+    static boolean[] buildBoolean(Node node, SnapiType resultType, int size) {
       return new boolean[size];
     }
 
     @Specialization(guards = "isStringKind(resultType)")
-    static String[] buildString(Node node, Rql2Type resultType, int size) {
+    static String[] buildString(Node node, SnapiType resultType, int size) {
       return new String[size];
     }
 
     @Specialization
-    static Object[] buildObject(Node node, Rql2Type resultType, int size) {
+    static Object[] buildObject(Node node, SnapiType resultType, int size) {
       return new Object[size];
     }
   }

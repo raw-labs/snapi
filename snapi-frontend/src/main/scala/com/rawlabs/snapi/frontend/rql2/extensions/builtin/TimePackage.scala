@@ -69,8 +69,8 @@ class TimeBuildEntry
     extends ShortEntryExtension(
       "Time",
       "Build",
-      mandatoryParams = Vector(Rql2IntType(), Rql2IntType()),
-      returnType = Rql2TimeType(Set(Rql2IsTryableTypeProperty())),
+      mandatoryParams = Vector(SnapiIntType(), SnapiIntType()),
+      returnType = SnapiTimeType(Set(SnapiIsTryableTypeProperty())),
       docs = EntryDoc(
         "Builds a time value.",
         params = List(
@@ -92,8 +92,8 @@ class TimeBuildEntry
         ret = Some(ReturnDoc("The time built from the given components.", retType = Some(TypeDoc(List("time")))))
       ),
       optionalParamsMap = ListMap(
-        "seconds" -> ((Rql2IntType(), IntConst("0"))),
-        "millis" -> ((Rql2IntType(), IntConst("0")))
+        "seconds" -> ((SnapiIntType(), IntConst("0"))),
+        "millis" -> ((SnapiIntType(), IntConst("0")))
       )
     )
 
@@ -101,8 +101,8 @@ class TimeParseEntry
     extends ShortEntryExtension(
       "Time",
       "Parse",
-      mandatoryParams = Vector(Rql2StringType(), Rql2StringType()),
-      returnType = Rql2TimeType(Set(Rql2IsTryableTypeProperty())),
+      mandatoryParams = Vector(SnapiStringType(), SnapiStringType()),
+      returnType = SnapiTimeType(Set(SnapiIsTryableTypeProperty())),
       EntryDoc(
         summary = "Parses a time from a string.",
         description = Some(
@@ -125,7 +125,7 @@ class TimeNowEntry
       "Time",
       "Now",
       mandatoryParams = Vector(),
-      returnType = Rql2TimeType(),
+      returnType = SnapiTimeType(),
       EntryDoc(
         summary = "Returns the current time.",
         examples = List(ExampleDoc("""Time.Now()""")),
@@ -137,8 +137,8 @@ class TimeHourEntry
     extends ShortEntryExtension(
       "Time",
       "Hour",
-      mandatoryParams = Vector(Rql2TimeType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimeType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the hours component of a time.",
         params = List(
@@ -153,8 +153,8 @@ class TimeMinuteEntry
     extends ShortEntryExtension(
       "Time",
       "Minute",
-      mandatoryParams = Vector(Rql2TimeType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimeType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the minutes component of a time.",
         params = List(
@@ -169,8 +169,8 @@ class TimeSecondEntry
     extends ShortEntryExtension(
       "Time",
       "Second",
-      mandatoryParams = Vector(Rql2TimeType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimeType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the seconds component of a time.",
         params = List(
@@ -185,8 +185,8 @@ class TimeMillisEntry
     extends ShortEntryExtension(
       "Time",
       "Millis",
-      mandatoryParams = Vector(Rql2TimeType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimeType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the milliseconds component of a time.",
         params = List(
@@ -201,8 +201,8 @@ class TimeSubtractEntry
     extends ShortEntryExtension(
       "Time",
       "Subtract",
-      mandatoryParams = Vector(Rql2TimeType(), Rql2TimeType()),
-      returnType = Rql2IntervalType(),
+      mandatoryParams = Vector(SnapiTimeType(), SnapiTimeType()),
+      returnType = SnapiIntervalType(),
       EntryDoc(
         summary = "Subtracts two times.",
         params = List(
@@ -227,8 +227,8 @@ class TimeAddIntervalEntry
     extends ShortEntryExtension(
       "Time",
       "AddInterval",
-      mandatoryParams = Vector(Rql2TimeType(), Rql2IntervalType()),
-      returnType = Rql2TimeType(),
+      mandatoryParams = Vector(SnapiTimeType(), SnapiIntervalType()),
+      returnType = SnapiTimeType(),
       EntryDoc(
         summary = """Adds an interval to a time.""",
         warning = Some("Note that years, months, weeks and days of interval will be ignored."),
@@ -259,8 +259,8 @@ class TimeSubtractIntervalEntry
     extends ShortEntryExtension(
       "Time",
       "SubtractInterval",
-      mandatoryParams = Vector(Rql2TimeType(), Rql2IntervalType()),
-      returnType = Rql2TimeType(),
+      mandatoryParams = Vector(SnapiTimeType(), SnapiIntervalType()),
+      returnType = SnapiTimeType(),
       EntryDoc(
         summary = """Subtracts an interval to a time.""",
         warning = Some("""Note that years, months, weeks and days of interval will be ignored."""),

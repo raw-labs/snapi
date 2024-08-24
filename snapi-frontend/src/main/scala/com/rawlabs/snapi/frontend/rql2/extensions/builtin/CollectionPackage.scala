@@ -199,7 +199,7 @@ class EmptyCollectionEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val TypeArg(t) = mandatoryArgs(0)
-    Right(Rql2IterableType(t))
+    Right(SnapiIterableType(t))
   }
 
 }
@@ -240,11 +240,11 @@ class BuildCollectionEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     if (varArgs.isEmpty) {
-      Right(Rql2IterableType(Rql2UndefinedType()))
+      Right(SnapiIterableType(SnapiUndefinedType()))
     } else {
       val typesMerger = new TypesMerger
       val t = typesMerger.mergeType(varArgs.map(_.t): _*).get
-      Right(Rql2IterableType(t))
+      Right(SnapiIterableType(t))
     }
   }
 
@@ -260,7 +260,7 @@ trait CollectionToListHint { this: EntryExtension =>
   ): Option[String] = {
     idx match {
       case 0 => actual match {
-          case _: Rql2ListType => Some(s"did you mean List.$entryName?")
+          case _: SnapiListType => Some(s"did you mean List.$entryName?")
           case _ => None
         }
       case _ => None
@@ -302,9 +302,9 @@ class FilterCollectionEntry extends EntryExtension with PredicateNormalization w
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(flexiblePredicateOn(innerType)))
     }
@@ -318,7 +318,7 @@ class FilterCollectionEntry extends EntryExtension with PredicateNormalization w
   ): Option[String] = {
     idx match {
       case 0 => actual match {
-          case _: Rql2ListType => Some("did you mean List.Filter?")
+          case _: SnapiListType => Some("did you mean List.Filter?")
           case _ => None
         }
       case _ => None
@@ -364,14 +364,14 @@ class AvgCollectionEntry extends SugarEntryExtension with CollectionToListHint {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] =
-    Right(ExpParam(Rql2IterableType(AvgAggregation.innerTypeConstraint)))
+    Right(ExpParam(SnapiIterableType(AvgAggregation.innerTypeConstraint)))
 
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2DecimalType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())))
+    Right(SnapiDecimalType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())))
   }
 
   override def desugar(
@@ -415,16 +415,16 @@ class OrderByCollectionEntry extends EntryExtension with CollectionToListHint {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ExpParam(Rql2IterableType(AnythingType())))
+    Right(ExpParam(SnapiIterableType(AnythingType())))
   }
 
   override def hasVarArgs: Boolean = true
 
   override def getVarParam(prevMandatoryArgs: Seq[Arg], prevVarArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+    val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
     assert(props.isEmpty, "Should have been handled as per arg 0 definition")
     if (idx % 2 == 0) Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
-    else Right(ValueParam(Rql2StringType()))
+    else Right(ValueParam(SnapiStringType()))
   }
 
   override def returnTypeErrorList(
@@ -433,14 +433,14 @@ class OrderByCollectionEntry extends EntryExtension with CollectionToListHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
-    val (orders, keyFunctions) = varArgs.partition(_.t.isInstanceOf[Rql2StringType])
+    val (orders, keyFunctions) = varArgs.partition(_.t.isInstanceOf[SnapiStringType])
     if (orders.size != keyFunctions.size) return Left(Seq(OrderSpecMustFollowOrderingFunction(node)))
     val keyErrors = for (
       ExpArg(arg, FunType(_, _, keyType, _)) <- keyFunctions;
       if !isComparable(keyType)
     ) yield KeyNotComparable(arg)
     val orderErrors = for (
-      ValueArg(value @ Rql2StringValue(order), _) <- orders;
+      ValueArg(value @ SnapiStringValue(order), _) <- orders;
       if !Set("ASC", "DESC").contains(order.toUpperCase)
     ) yield InvalidOrderSpec(node, order)
     val errors = keyErrors ++ orderErrors
@@ -481,9 +481,9 @@ class TransformCollectionEntry extends EntryExtension with CollectionToListHint 
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = idx match {
-    case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+    case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
     case 1 =>
-      val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+      val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
       assert(props.isEmpty, "Should have been handled as per arg 0 definition")
       Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
   }
@@ -495,7 +495,7 @@ class TransformCollectionEntry extends EntryExtension with CollectionToListHint 
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val FunType(_, _, outType, props) = mandatoryArgs(1).t
     assert(props.isEmpty, "Should have been handled as per arg 1 definition")
-    Right(Rql2IterableType(outType))
+    Right(SnapiIterableType(outType))
   }
 
 }
@@ -529,7 +529,7 @@ class DistinctCollectionEntry extends EntryExtension with CollectionToListHint {
     super.getVarParam(prevMandatoryArgs, prevVarArgs, idx)
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2IterableType(AnythingType())))
+    Right(ExpParam(SnapiIterableType(AnythingType())))
   }
 
   override def returnTypeErrorList(
@@ -538,7 +538,7 @@ class DistinctCollectionEntry extends EntryExtension with CollectionToListHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
-    val ExpArg(list, Rql2IterableType(itemType, _)) = mandatoryArgs(0)
+    val ExpArg(list, SnapiIterableType(itemType, _)) = mandatoryArgs(0)
     if (isComparable(itemType)) Right(mandatoryArgs(0).t)
     else Left(Seq(ItemsNotComparable(list)))
   }
@@ -549,7 +549,7 @@ abstract class AggregationCollectionEntry(aggregation: Aggregation) extends Aggr
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ExpParam(Rql2IterableType(aggregation.innerTypeConstraint)))
+    Right(ExpParam(SnapiIterableType(aggregation.innerTypeConstraint)))
   }
 
   override def returnTypeErrorList(
@@ -570,8 +570,8 @@ abstract class AggregationCollectionEntry(aggregation: Aggregation) extends Aggr
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val Rql2IterableType(innerType, _) = mandatoryArgs.head.t
-    aggregation.aggregationType(innerType).right.map(t => addProp(t, Rql2IsTryableTypeProperty()))
+    val SnapiIterableType(innerType, _) = mandatoryArgs.head.t
+    aggregation.aggregationType(innerType).right.map(t => addProp(t, SnapiIsTryableTypeProperty()))
   }
 
 }
@@ -713,9 +713,9 @@ class FindFirstCollectionEntry extends SugarEntryExtension with PredicateNormali
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(flexiblePredicateOn(innerType)))
     }
@@ -726,8 +726,8 @@ class FindFirstCollectionEntry extends SugarEntryExtension with PredicateNormali
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2IterableType(itemType, _)) = mandatoryArgs(0)
-    Right(addProps(itemType, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())))
+    val ExpArg(_, SnapiIterableType(itemType, _)) = mandatoryArgs(0)
+    Right(addProps(itemType, Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty())))
   }
 
   override def desugar(
@@ -791,9 +791,9 @@ class FindLastCollectionEntry extends SugarEntryExtension with PredicateNormaliz
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(flexiblePredicateOn(innerType)))
     }
@@ -804,8 +804,8 @@ class FindLastCollectionEntry extends SugarEntryExtension with PredicateNormaliz
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2IterableType(itemType, _)) = mandatoryArgs(0)
-    Right(addProps(itemType, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())))
+    val ExpArg(_, SnapiIterableType(itemType, _)) = mandatoryArgs(0)
+    Right(addProps(itemType, Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty())))
   }
 
   override def desugar(
@@ -844,8 +844,8 @@ class TakeCollectionEntry extends EntryExtension with CollectionToListHint {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
-      case 1 => Right(ExpParam(Rql2LongType()))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
+      case 1 => Right(ExpParam(SnapiLongType()))
     }
   }
 
@@ -932,9 +932,9 @@ class ExplodeCollectionEntry extends SugarEntryExtension with RecordMerging with
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(
           ExpParam(
@@ -942,10 +942,10 @@ class ExplodeCollectionEntry extends SugarEntryExtension with RecordMerging with
               Vector(innerType),
               Vector.empty,
               OneOfType(
-                Rql2IterableType(AnythingType()),
-                Rql2IterableType(AnythingType(), Set(Rql2IsNullableTypeProperty())),
-                Rql2IterableType(AnythingType(), Set(Rql2IsTryableTypeProperty())),
-                Rql2IterableType(AnythingType(), Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
+                SnapiIterableType(AnythingType()),
+                SnapiIterableType(AnythingType(), Set(SnapiIsNullableTypeProperty())),
+                SnapiIterableType(AnythingType(), Set(SnapiIsTryableTypeProperty())),
+                SnapiIterableType(AnythingType(), Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
               )
             )
           )
@@ -958,10 +958,10 @@ class ExplodeCollectionEntry extends SugarEntryExtension with RecordMerging with
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2IterableType(leftRowType, props)) = mandatoryArgs(0)
-    val ExpArg(_, FunType(_, _, Rql2IterableType(rightRowType, _), _)) = mandatoryArgs(1)
+    val ExpArg(_, SnapiIterableType(leftRowType, props)) = mandatoryArgs(0)
+    val ExpArg(_, FunType(_, _, SnapiIterableType(rightRowType, _), _)) = mandatoryArgs(1)
     val outRowType = rql2JoinOutputRowType(leftRowType, rightRowType)
-    Right(Rql2IterableType(outRowType, props))
+    Right(SnapiIterableType(outRowType, props))
   }
 
   override def desugar(
@@ -971,8 +971,8 @@ class ExplodeCollectionEntry extends SugarEntryExtension with RecordMerging with
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val ExpArg(in, Rql2IterableType(leftRowType, _)) = mandatoryArgs(0)
-    val ExpArg(f, FunType(_, _, Rql2IterableType(rightRowType, _), _)) = mandatoryArgs(1)
+    val ExpArg(in, SnapiIterableType(leftRowType, _)) = mandatoryArgs(0)
+    val ExpArg(f, FunType(_, _, SnapiIterableType(rightRowType, _), _)) = mandatoryArgs(1)
     val leftIdn = IdnDef()
     val unnestedMerge = {
       val rightIdn = IdnDef()
@@ -1006,9 +1006,9 @@ class UnnestCollectionEntry extends EntryExtension with CollectionToListHint {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(
           ExpParam(
@@ -1016,10 +1016,10 @@ class UnnestCollectionEntry extends EntryExtension with CollectionToListHint {
               Vector(innerType),
               Vector.empty,
               OneOfType(
-                Rql2IterableType(AnythingType()),
-                Rql2IterableType(AnythingType(), Set(Rql2IsNullableTypeProperty())),
-                Rql2IterableType(AnythingType(), Set(Rql2IsTryableTypeProperty())),
-                Rql2IterableType(AnythingType(), Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
+                SnapiIterableType(AnythingType()),
+                SnapiIterableType(AnythingType(), Set(SnapiIsNullableTypeProperty())),
+                SnapiIterableType(AnythingType(), Set(SnapiIsTryableTypeProperty())),
+                SnapiIterableType(AnythingType(), Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
               )
             )
           )
@@ -1032,10 +1032,10 @@ class UnnestCollectionEntry extends EntryExtension with CollectionToListHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val Rql2IterableType(_, props) = mandatoryArgs(0).t
+    val SnapiIterableType(_, props) = mandatoryArgs(0).t
     assert(props.isEmpty, "Should have been handled as per arg 1 definition")
-    val FunType(_, _, Rql2IterableType(outputRowType, _), _) = mandatoryArgs(1).t
-    Right(Rql2IterableType(outputRowType))
+    val FunType(_, _, SnapiIterableType(outputRowType, _), _) = mandatoryArgs(1).t
+    Right(SnapiIterableType(outputRowType))
   }
 
 }
@@ -1058,7 +1058,7 @@ class FromCollectionEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2ListType(AnythingType())))
+    Right(ExpParam(SnapiListType(AnythingType())))
   }
 
   override def returnType(
@@ -1066,8 +1066,8 @@ class FromCollectionEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2ListType(itemType, _)) = mandatoryArgs(0)
-    Right(Rql2IterableType(itemType))
+    val ExpArg(_, SnapiListType(itemType, _)) = mandatoryArgs(0)
+    Right(SnapiIterableType(itemType))
   }
 
 }
@@ -1100,9 +1100,9 @@ class GroupCollectionEntry extends EntryExtension with CollectionToListHint {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
     }
@@ -1118,11 +1118,11 @@ class GroupCollectionEntry extends EntryExtension with CollectionToListHint {
     val ExpArg(keyFunction, FunType(_, _, keyType, props)) = mandatoryArgs(1)
     assert(props.isEmpty, "Should have been handled as per arg 1 definition")
     if (isComparable(keyType)) Right(
-      Rql2IterableType(
-        Rql2RecordType(
+      SnapiIterableType(
+        SnapiRecordType(
           Vector(
-            Rql2AttrType("key", keyType),
-            Rql2AttrType("group", listType)
+            SnapiAttrType("key", keyType),
+            SnapiAttrType("group", listType)
           )
         )
       )
@@ -1185,10 +1185,10 @@ class JoinCollectionEntry
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 | 1 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 | 1 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 2 =>
-        val ExpArg(_, Rql2IterableType(leftRowType, _)) = prevMandatoryArgs(0)
-        val ExpArg(_, Rql2IterableType(rightRowType, _)) = prevMandatoryArgs(1)
+        val ExpArg(_, SnapiIterableType(leftRowType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(rightRowType, _)) = prevMandatoryArgs(1)
         val outType = rql2JoinOutputRowType(leftRowType, rightRowType)
         Right(ExpParam(OneOfType(flexiblePredicateOn(outType), flexiblePredicateOn(Vector(leftRowType, rightRowType)))))
     }
@@ -1199,10 +1199,10 @@ class JoinCollectionEntry
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2IterableType(leftRowType, _)) = mandatoryArgs(0)
-    val ExpArg(_, Rql2IterableType(rightRowType, _)) = mandatoryArgs(1)
+    val ExpArg(_, SnapiIterableType(leftRowType, _)) = mandatoryArgs(0)
+    val ExpArg(_, SnapiIterableType(rightRowType, _)) = mandatoryArgs(1)
     val outType = rql2JoinOutputRowType(leftRowType, rightRowType)
-    Right(Rql2IterableType(outType))
+    Right(SnapiIterableType(outType))
   }
 
   override def desugar(
@@ -1213,8 +1213,8 @@ class JoinCollectionEntry
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
     val remapF = {
-      val Rql2IterableType(leftRowType, _) = mandatoryArgs(0).t
-      val Rql2IterableType(rightRowType, _) = mandatoryArgs(1).t
+      val SnapiIterableType(leftRowType, _) = mandatoryArgs(0).t
+      val SnapiIterableType(rightRowType, _) = mandatoryArgs(1).t
       val leftIdn = IdnDef()
       val rightIdn = IdnDef()
       val concatenation = rql2JoinRowsConcatenation(IdnExp(leftIdn), leftRowType, IdnExp(rightIdn), rightRowType)
@@ -1243,14 +1243,14 @@ class InternalJoinCollectionEntry extends EntryExtension with PredicateNormaliza
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 | 1 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 | 1 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 2 =>
-        val ExpArg(_, Rql2IterableType(leftRowType, _)) = prevMandatoryArgs(0)
-        val ExpArg(_, Rql2IterableType(rightRowType, _)) = prevMandatoryArgs(1)
+        val ExpArg(_, SnapiIterableType(leftRowType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(rightRowType, _)) = prevMandatoryArgs(1)
         Right(ExpParam(FunType(Vector(leftRowType, rightRowType), Vector.empty, AnythingType())))
       case 3 =>
-        val ExpArg(_, Rql2IterableType(leftRowType, _)) = prevMandatoryArgs(0)
-        val ExpArg(_, Rql2IterableType(rightRowType, _)) = prevMandatoryArgs(1)
+        val ExpArg(_, SnapiIterableType(leftRowType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(rightRowType, _)) = prevMandatoryArgs(1)
         val ExpArg(_, FunType(_, _, outType, _)) = prevMandatoryArgs(2)
         Right(ExpParam(OneOfType(flexiblePredicateOn(outType), flexiblePredicateOn(Vector(leftRowType, rightRowType)))))
     }
@@ -1262,7 +1262,7 @@ class InternalJoinCollectionEntry extends EntryExtension with PredicateNormaliza
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val ExpArg(_, FunType(_, _, outType, _)) = mandatoryArgs(2)
-    Right(Rql2IterableType(outType))
+    Right(SnapiIterableType(outType))
   }
 
 }
@@ -1309,12 +1309,12 @@ class EquiJoinCollectionEntry extends SugarEntryExtension with RecordMerging wit
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 | 1 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 | 1 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 2 =>
-        val ExpArg(_, Rql2IterableType(innerType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, _)) = prevMandatoryArgs(0)
         Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
       case 3 =>
-        val ExpArg(_, Rql2IterableType(innerType, _)) = prevMandatoryArgs(1)
+        val ExpArg(_, SnapiIterableType(innerType, _)) = prevMandatoryArgs(1)
         val ExpArg(_, FunType(_, _, kType, _)) = prevMandatoryArgs(2)
         Right(ExpParam(FunType(Vector(innerType), Vector.empty, MergeableType(kType))))
     }
@@ -1326,14 +1326,14 @@ class EquiJoinCollectionEntry extends SugarEntryExtension with RecordMerging wit
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
-    val ExpArg(_, Rql2IterableType(leftRowType, _)) = mandatoryArgs(0)
-    val ExpArg(_, Rql2IterableType(rightRowType, _)) = mandatoryArgs(1)
+    val ExpArg(_, SnapiIterableType(leftRowType, _)) = mandatoryArgs(0)
+    val ExpArg(_, SnapiIterableType(rightRowType, _)) = mandatoryArgs(1)
     val ExpArg(keyFunction1, FunType(_, _, keyType1, _)) = mandatoryArgs(2)
     val ExpArg(keyFunction2, FunType(_, _, keyType2, _)) = mandatoryArgs(3)
     if (isComparable(keyType1)) {
       if (isComparable(keyType2)) {
         val mergedRecordType = rql2JoinOutputRowType(leftRowType, rightRowType)
-        Right(Rql2IterableType(mergedRecordType))
+        Right(SnapiIterableType(mergedRecordType))
       } else Left(Seq(KeyNotComparable(keyFunction2)))
     } else Left(Seq(KeyNotComparable(keyFunction1)))
   }
@@ -1345,8 +1345,8 @@ class EquiJoinCollectionEntry extends SugarEntryExtension with RecordMerging wit
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val Rql2IterableType(leftRowType, _) = mandatoryArgs(0).t
-    val Rql2IterableType(rightRowType, _) = mandatoryArgs(1).t
+    val SnapiIterableType(leftRowType, _) = mandatoryArgs(0).t
+    val SnapiIterableType(rightRowType, _) = mandatoryArgs(1).t
     val remapF = {
       val leftIdn = IdnDef()
       val rightIdn = IdnDef()
@@ -1400,20 +1400,20 @@ class InternalEquiJoinCollectionEntry extends EntryExtension with RecordMerging 
     idx match {
       case 0 | 1 =>
         // input datasets
-        Right(ExpParam(Rql2IterableType(AnythingType())))
+        Right(ExpParam(SnapiIterableType(AnythingType())))
       case 2 =>
         // left key function
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
         Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
       case 3 =>
         // right key function (output type = left key function output type)
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(1)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(1)
         val ExpArg(_, FunType(_, _, kType, _)) = prevMandatoryArgs(2)
         Right(ExpParam(FunType(Vector(innerType), Vector.empty, kType)))
       case 4 =>
         // remap function (in general concatenation of the two rows)
-        val ExpArg(_, Rql2IterableType(leftRowType, _)) = prevMandatoryArgs(0)
-        val ExpArg(_, Rql2IterableType(rightRowType, _)) = prevMandatoryArgs(1)
+        val ExpArg(_, SnapiIterableType(leftRowType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(rightRowType, _)) = prevMandatoryArgs(1)
         Right(ExpParam(FunType(Vector(leftRowType, rightRowType), Vector.empty, AnythingType())))
 
     }
@@ -1425,7 +1425,7 @@ class InternalEquiJoinCollectionEntry extends EntryExtension with RecordMerging 
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val ExpArg(_, FunType(_, _, remapType, _)) = mandatoryArgs(4)
-    Right(Rql2IterableType(remapType))
+    Right(SnapiIterableType(remapType))
   }
 
 }
@@ -1453,10 +1453,10 @@ class UnionCollectionEntry extends EntryExtension with CollectionToListHint {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(rowType, _)) = prevMandatoryArgs(0)
-        Right(ExpParam(Rql2IterableType(MergeableType(rowType))))
+        val ExpArg(_, SnapiIterableType(rowType, _)) = prevMandatoryArgs(0)
+        Right(ExpParam(SnapiIterableType(MergeableType(rowType))))
     }
   }
 
@@ -1465,8 +1465,8 @@ class UnionCollectionEntry extends EntryExtension with CollectionToListHint {
       prevVarArgs: Seq[Arg],
       idx: Int
   ): Either[String, Param] = {
-    val ExpArg(_, Rql2IterableType(rowType, _)) = prevMandatoryArgs(0)
-    Right(ExpParam(Rql2IterableType(MergeableType(rowType))))
+    val ExpArg(_, SnapiIterableType(rowType, _)) = prevMandatoryArgs(0)
+    Right(ExpParam(SnapiIterableType(MergeableType(rowType))))
   }
 
   override def returnType(
@@ -1486,17 +1486,17 @@ trait RecordMerging {
 
   protected def rql2JoinRowsConcatenation(leftRow: Exp, leftRowType: Type, rightRow: Exp, rightRowType: Type): Exp = {
     def merge(leftRowType: Type, rightRowType: Type): Exp = (leftRowType, rightRowType) match {
-      case (_: Rql2RecordType, _: Rql2RecordType) =>
+      case (_: SnapiRecordType, _: SnapiRecordType) =>
         // Two records, concatenate the fields
         RecordPackageBuilder.Concat(leftRow, rightRow)
-      case (rec: Rql2RecordType, _) =>
+      case (rec: SnapiRecordType, _) =>
         // right isn't a record. Its value goes as rightmost field.
-        val Rql2RecordType(atts, _) = rql2JoinOutputRowType(leftRowType, rightRowType)
+        val SnapiRecordType(atts, _) = rql2JoinOutputRowType(leftRowType, rightRowType)
         val idn = atts.last.idn
         RecordPackageBuilder.AddField(leftRow, rightRow, idn)
-      case (_, rec: Rql2RecordType) =>
+      case (_, rec: SnapiRecordType) =>
         // left isn't a record. Its value goes are leftmost field.
-        val Rql2RecordType(atts, _) = rql2JoinOutputRowType(leftRowType, rightRowType)
+        val SnapiRecordType(atts, _) = rql2JoinOutputRowType(leftRowType, rightRowType)
         val idn = atts.head.idn
         RecordPackageBuilder.Concat(RecordPackageBuilder.Build(Vector((idn, leftRow))), rightRow)
       case _ =>
@@ -1505,21 +1505,21 @@ trait RecordMerging {
     }
     merge(leftRowType, rightRowType)
   }
-  protected def rql2JoinOutputRowType(leftRowType: Type, rightRowType: Type): Rql2RecordType =
+  protected def rql2JoinOutputRowType(leftRowType: Type, rightRowType: Type): SnapiRecordType =
     (leftRowType, rightRowType) match {
-      case (Rql2RecordType(leftAtts, leftProps), Rql2RecordType(rightAtts, rightProps)) =>
+      case (SnapiRecordType(leftAtts, leftProps), SnapiRecordType(rightAtts, rightProps)) =>
         // both are records, merge attributes and properties (how Record.Concat behaves)
-        Rql2RecordType(leftAtts ++ rightAtts, leftProps ++ rightProps)
-      case (Rql2RecordType(atts, props), _) =>
+        SnapiRecordType(leftAtts ++ rightAtts, leftProps ++ rightProps)
+      case (SnapiRecordType(atts, props), _) =>
         val others = atts.map(_.idn).toSet
         val idn = (1 to (others.size + 1)).map("_" + _).find(!others.contains(_)).head
-        Rql2RecordType(atts :+ Rql2AttrType(idn, rightRowType), props)
-      case (_, Rql2RecordType(atts, props)) =>
+        SnapiRecordType(atts :+ SnapiAttrType(idn, rightRowType), props)
+      case (_, SnapiRecordType(atts, props)) =>
         // left isn't a record. Add it as a front extra column
         val others = atts.map(_.idn).toSet
         val idn = (1 to (others.size + 1)).map("_" + _).find(!others.contains(_)).head
-        Rql2RecordType(Rql2AttrType(idn, leftRowType) +: atts, props)
-      case _ => Rql2RecordType(Vector(Rql2AttrType("_1", leftRowType), Rql2AttrType("_2", rightRowType)))
+        SnapiRecordType(SnapiAttrType(idn, leftRowType) +: atts, props)
+      case _ => SnapiRecordType(Vector(SnapiAttrType("_1", leftRowType), SnapiAttrType("_2", rightRowType)))
     }
 
 }
@@ -1530,10 +1530,10 @@ trait PredicateNormalization {
     outTypes,
     Vector.empty,
     OneOfType(
-      Rql2BoolType(),
-      Rql2BoolType(Set(Rql2IsNullableTypeProperty())),
-      Rql2BoolType(Set(Rql2IsTryableTypeProperty())),
-      Rql2BoolType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
+      SnapiBoolType(),
+      SnapiBoolType(Set(SnapiIsNullableTypeProperty())),
+      SnapiBoolType(Set(SnapiIsTryableTypeProperty())),
+      SnapiBoolType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
     )
   )
 
@@ -1578,9 +1578,9 @@ class ExistsCollectionEntry extends EntryExtension with PredicateNormalization w
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, props)) = prevMandatoryArgs(0)
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(
           ExpParam(
@@ -1588,10 +1588,10 @@ class ExistsCollectionEntry extends EntryExtension with PredicateNormalization w
               Vector(innerType),
               Vector.empty,
               OneOfType(
-                Rql2BoolType(),
-                Rql2BoolType(Set(Rql2IsNullableTypeProperty())),
-                Rql2BoolType(Set(Rql2IsTryableTypeProperty())),
-                Rql2BoolType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
+                SnapiBoolType(),
+                SnapiBoolType(Set(SnapiIsNullableTypeProperty())),
+                SnapiBoolType(Set(SnapiIsTryableTypeProperty())),
+                SnapiBoolType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
               )
             )
           )
@@ -1604,7 +1604,7 @@ class ExistsCollectionEntry extends EntryExtension with PredicateNormalization w
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2BoolType(Set(Rql2IsTryableTypeProperty())))
+    Right(SnapiBoolType(Set(SnapiIsTryableTypeProperty())))
   }
 
 }
@@ -1639,9 +1639,9 @@ class ContainsCollectionEntry extends SugarEntryExtension with CollectionToListH
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2IterableType(AnythingType())))
+      case 0 => Right(ExpParam(SnapiIterableType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2IterableType(innerType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, SnapiIterableType(innerType, _)) = prevMandatoryArgs(0)
         Right(ExpParam(innerType))
     }
   }
@@ -1652,8 +1652,8 @@ class ContainsCollectionEntry extends SugarEntryExtension with CollectionToListH
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
-    val ExpArg(items, Rql2IterableType(itemType, _)) = mandatoryArgs(0)
-    if (isComparable(itemType)) Right(Rql2BoolType(Set(Rql2IsTryableTypeProperty())))
+    val ExpArg(items, SnapiIterableType(itemType, _)) = mandatoryArgs(0)
+    if (isComparable(itemType)) Right(SnapiBoolType(Set(SnapiIsTryableTypeProperty())))
     else Left(Seq(ItemsNotComparable(items)))
   }
 
@@ -1706,7 +1706,7 @@ class ZipCollectionEntry extends EntryExtension with CollectionToListHint {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2IterableType(AnythingType())))
+    Right(ExpParam(SnapiIterableType(AnythingType())))
   }
 
   override def returnType(
@@ -1714,9 +1714,9 @@ class ZipCollectionEntry extends EntryExtension with CollectionToListHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val Rql2IterableType(itemType1, _) = mandatoryArgs(0).t
-    val Rql2IterableType(itemType2, _) = mandatoryArgs(1).t
-    Right(Rql2IterableType(Rql2RecordType(Vector(Rql2AttrType("_1", itemType1), Rql2AttrType("_2", itemType2)))))
+    val SnapiIterableType(itemType1, _) = mandatoryArgs(0).t
+    val SnapiIterableType(itemType2, _) = mandatoryArgs(1).t
+    Right(SnapiIterableType(SnapiRecordType(Vector(SnapiAttrType("_1", itemType1), SnapiAttrType("_2", itemType2)))))
   }
 
 }
@@ -1755,14 +1755,14 @@ class MkStringCollectionEntry extends EntryExtension with CollectionToListHint {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    if (idx == 0) Right(ExpParam(Rql2IterableType(Rql2StringType(Set(Rql2IsNullableTypeProperty())))))
-    else Right(ExpParam(Rql2StringType()))
+    if (idx == 0) Right(ExpParam(SnapiIterableType(SnapiStringType(Set(SnapiIsNullableTypeProperty())))))
+    else Right(ExpParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("start", "sep", "end"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -1770,7 +1770,7 @@ class MkStringCollectionEntry extends EntryExtension with CollectionToListHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2StringType(Set(Rql2IsTryableTypeProperty())))
+    Right(SnapiStringType(Set(SnapiIsTryableTypeProperty())))
   }
 
 }

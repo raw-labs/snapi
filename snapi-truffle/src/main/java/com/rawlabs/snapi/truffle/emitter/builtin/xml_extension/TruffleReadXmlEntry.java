@@ -16,12 +16,12 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.List;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ReadXmlEntry;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2IterableType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2ListType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiIterableType;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiListType;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiType;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
@@ -51,7 +51,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
   private static final ExpressionNode defaultTimeFormat = new StringNode("HH:mm[:ss[.SSS]]");
 
   @Override
-  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+  public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
     List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
 
@@ -66,7 +66,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
         getArg(namedArgs, "timestampFormat", defaultTimestampFormat);
 
     return switch (type) {
-      case Rql2IterableType iterableType -> {
+      case SnapiIterableType iterableType -> {
         ExpressionNode parseNode =
             new XmlReadCollectionNode(
                 unnamedArgs.get(0).exprNode(),
@@ -75,7 +75,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
                 timeFormatExp,
                 timestampFormatExp,
                 XmlRecurse.recurseXmlParser(
-                    (Rql2TypeWithProperties) iterableType.innerType(), emitter.getLanguage()));
+                    (SnapiTypeWithProperties) iterableType.innerType(), emitter.getLanguage()));
         if (XmlRecurse.isTryable(iterableType)) {
           // Probably will need to be either reused in json and xml or create a copy
           yield new TryableTopLevelWrapper(parseNode);
@@ -83,7 +83,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
           yield parseNode;
         }
       }
-      case Rql2ListType listType -> {
+      case SnapiListType listType -> {
         ExpressionNode parseNode =
             new XmlReadCollectionNode(
                 unnamedArgs.get(0).exprNode(),
@@ -92,7 +92,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
                 timeFormatExp,
                 timestampFormatExp,
                 XmlRecurse.recurseXmlParser(
-                    (Rql2TypeWithProperties) listType.innerType(), emitter.getLanguage()));
+                    (SnapiTypeWithProperties) listType.innerType(), emitter.getLanguage()));
 
         int generatorSlot =
             builder.addSlot(
@@ -114,7 +114,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
           // Probably will need to be either reused in json and xml or create a copy
           yield new ListFromNode(
               parseNode,
-              (Rql2Type) listType.innerType(),
+              (SnapiType) listType.innerType(),
               generatorSlot,
               listSlot,
               currentIdxSlot,
@@ -123,7 +123,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
         } else {
           yield new ListFromUnsafe(
               parseNode,
-              (Rql2Type) listType.innerType(),
+              (SnapiType) listType.innerType(),
               generatorSlot,
               listSlot,
               currentIdxSlot,
@@ -131,7 +131,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
               resultSlot);
         }
       }
-      case Rql2TypeWithProperties t -> {
+      case SnapiTypeWithProperties t -> {
         ExpressionNode parseNode =
             new XmlReadValueNode(
                 unnamedArgs.get(0).exprNode(),

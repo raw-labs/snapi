@@ -17,11 +17,11 @@ import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 import com.rawlabs.snapi.frontend.rql2.source.{
-  Rql2BoolType,
-  Rql2IsNullableTypeProperty,
-  Rql2IsTryableTypeProperty,
-  Rql2ListType,
-  Rql2StringType
+  SnapiBoolType,
+  SnapiIsNullableTypeProperty,
+  SnapiIsTryableTypeProperty,
+  SnapiListType,
+  SnapiStringType
 }
 
 class RegexPackage extends PackageExtension {
@@ -68,7 +68,7 @@ class RegexReplaceEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 3
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -76,7 +76,7 @@ class RegexReplaceEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2StringType(Set(Rql2IsTryableTypeProperty())))
+    Right(SnapiStringType(Set(SnapiIsTryableTypeProperty())))
   }
 
 }
@@ -106,7 +106,7 @@ class RegexMatchesEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -114,7 +114,7 @@ class RegexMatchesEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2BoolType(Set(Rql2IsTryableTypeProperty())))
+    Right(SnapiBoolType(Set(SnapiIsTryableTypeProperty())))
   }
 
 }
@@ -150,7 +150,7 @@ class RegexFirstMatchInEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -158,7 +158,7 @@ class RegexFirstMatchInEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2StringType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())))
+    Right(SnapiStringType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())))
   }
 
 }
@@ -193,7 +193,7 @@ class RegexGroupsEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -201,9 +201,9 @@ class RegexGroupsEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = Right(
-    Rql2ListType(
-      Rql2StringType(Set(Rql2IsNullableTypeProperty())),
-      Set(Rql2IsTryableTypeProperty())
+    SnapiListType(
+      SnapiStringType(Set(SnapiIsNullableTypeProperty())),
+      Set(SnapiIsTryableTypeProperty())
     )
   )
 

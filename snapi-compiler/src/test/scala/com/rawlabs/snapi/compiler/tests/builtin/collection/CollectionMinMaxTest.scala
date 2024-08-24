@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin.collection
 
 import com.rawlabs.snapi.frontend.rql2.errors.ItemsNotComparable
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class CollectionMinMaxTest extends Rql2TestContext {
+class CollectionMinMaxTest extends SnapiTestContext {
 
   // Date
   test("""

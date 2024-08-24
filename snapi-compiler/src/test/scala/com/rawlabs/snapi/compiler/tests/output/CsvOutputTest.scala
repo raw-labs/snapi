@@ -13,13 +13,13 @@
 package com.rawlabs.snapi.compiler.tests.output
 
 import com.rawlabs.utils.core.RawUtils
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.utils.core._
 
 import java.nio.file.Files
 
-class CsvOutputTest extends Rql2TestContext {
+class CsvOutputTest extends SnapiTestContext {
 
   option("output-format", "csv")
 

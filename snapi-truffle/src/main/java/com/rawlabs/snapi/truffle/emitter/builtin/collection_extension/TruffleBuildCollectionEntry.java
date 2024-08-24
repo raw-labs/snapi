@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.BuildCollectionEntry;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionBuildNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -24,7 +24,7 @@ import java.util.List;
 public class TruffleBuildCollectionEntry extends BuildCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     return new CollectionBuildNode(
         args.stream().map(TruffleArg::exprNode).toArray(ExpressionNode[]::new));
   }

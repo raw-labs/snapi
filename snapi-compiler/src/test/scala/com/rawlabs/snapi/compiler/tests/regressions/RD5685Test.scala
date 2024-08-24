@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5685Test extends Rql2TestContext {
+class RD5685Test extends SnapiTestContext {
 
   test("""let itemType = type int,
     |    listType = type list(itemType),

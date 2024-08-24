@@ -14,9 +14,9 @@ package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.compiler.{GetProgramDescriptionSuccess, ProgramEnvironment}
 import com.rawlabs.snapi.frontend.rql2.SnapiInterpolator
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD10767Test extends Rql2TestContext {
+class RD10767Test extends SnapiTestContext {
   private val data = tempFile("""
     |[
     |  {"a": 1, "b": 10, "c": 100},

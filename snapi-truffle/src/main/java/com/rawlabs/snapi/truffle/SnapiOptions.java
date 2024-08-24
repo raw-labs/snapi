@@ -16,7 +16,7 @@ import org.graalvm.options.OptionDescriptor;
 import org.graalvm.options.OptionDescriptors;
 import org.graalvm.options.OptionKey;
 
-public class Rql2Options {
+public class SnapiOptions {
 
   public static final String STAGED_COMPILER = optionName("staged-compiler");
   public static final OptionKey<String> STAGED_COMPILER_KEY = new OptionKey<>("");
@@ -34,6 +34,6 @@ public class Rql2Options {
           java.util.Arrays.asList(STAGED_COMPILER_DESCRIPTOR, RAW_SETTINGS_DESCRIPTOR));
 
   private static String optionName(String name) {
-    return Rql2Language.ID + "." + name;
+    return SnapiLanguage.ID + "." + name;
   }
 }

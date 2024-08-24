@@ -18,22 +18,22 @@ import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 
 public class ZeroedConstNode extends ExpressionNode {
 
-  Rql2Type type;
+  SnapiType type;
 
-  public ZeroedConstNode(Rql2Type type) {
+  public ZeroedConstNode(SnapiType type) {
     this.type = type;
   }
 
   @Override
   public final Object executeGeneric(VirtualFrame virtualFrame) {
       return switch (this.type) {
-          case Rql2ByteType rql2ByteType -> (byte) 0;
-          case Rql2ShortType rql2ShortType -> (short) 0;
-          case Rql2IntType rql2IntType -> 0;
-          case Rql2LongType rql2LongType -> (long) 0;
-          case Rql2FloatType rql2FloatType -> (float) 0;
-          case Rql2DoubleType rql2DoubleType -> (double) 0;
-          case Rql2BoolType rql2BoolType -> false;
+          case SnapiByteType rql2ByteType -> (byte) 0;
+          case SnapiShortType rql2ShortType -> (short) 0;
+          case SnapiIntType rql2IntType -> 0;
+          case SnapiLongType rql2LongType -> (long) 0;
+          case SnapiFloatType rql2FloatType -> (float) 0;
+          case SnapiDoubleType rql2DoubleType -> (double) 0;
+          case SnapiBoolType rql2BoolType -> false;
           case null, default -> null;
       };
   }

@@ -32,46 +32,46 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
   }
 
   test("""type priority tests""") { _ =>
-    val props = Set[Rql2TypeProperty](Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
-    assert(parseType("int or string") == Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props))
+    val props = Set[SnapiTypeProperty](SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty())
+    assert(parseType("int or string") == SnapiOrType(Vector(SnapiIntType(props), SnapiStringType(props)), props))
     assert(
-      parseType("int or string or float") == Rql2OrType(
-        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
+      parseType("int or string or float") == SnapiOrType(
+        Vector(SnapiIntType(props), SnapiStringType(props), SnapiFloatType(props)),
         props
       )
     )
     assert(
-      parseType("(int or string) or float") == Rql2OrType(
-        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
+      parseType("(int or string) or float") == SnapiOrType(
+        Vector(SnapiIntType(props), SnapiStringType(props), SnapiFloatType(props)),
         props
       )
     )
     assert(
-      parseType("int or (string or float)") == Rql2OrType(
-        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
+      parseType("int or (string or float)") == SnapiOrType(
+        Vector(SnapiIntType(props), SnapiStringType(props), SnapiFloatType(props)),
         props
       )
     )
     assert(
-      parseType("int -> string") == FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+      parseType("int -> string") == FunType(Vector(SnapiIntType(props)), Vector.empty, SnapiStringType(props), props)
     )
     assert(
       parseType("int or string -> float") ==
         FunType(
           Vector(
-            Rql2OrType(
-              Vector(Rql2IntType(props), Rql2StringType(props)),
+            SnapiOrType(
+              Vector(SnapiIntType(props), SnapiStringType(props)),
               props
             )
           ),
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
     assert(
-      parseType("int or (string -> float)") == Rql2OrType(
-        Vector(Rql2IntType(props), FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props)),
+      parseType("int or (string -> float)") == SnapiOrType(
+        Vector(SnapiIntType(props), FunType(Vector(SnapiStringType(props)), Vector.empty, SnapiFloatType(props), props)),
         props
       )
     )
@@ -79,13 +79,13 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
       parseType("(int or string) -> float") ==
         FunType(
           Vector(
-            Rql2OrType(
-              Vector(Rql2IntType(props), Rql2StringType(props)),
+            SnapiOrType(
+              Vector(SnapiIntType(props), SnapiStringType(props)),
               props
             )
           ),
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
@@ -93,17 +93,17 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
       parseType("(x: int) -> float") ==
         FunType(
           Vector.empty,
-          Vector(FunOptTypeParam("x", Rql2IntType(props))),
-          Rql2FloatType(props),
+          Vector(FunOptTypeParam("x", SnapiIntType(props))),
+          SnapiFloatType(props),
           props
         )
     )
     assert(
       parseType("(int, b: string) -> float") ==
         FunType(
-          Vector(Rql2IntType(props)),
-          Vector(FunOptTypeParam("b", Rql2StringType(props))),
-          Rql2FloatType(props),
+          Vector(SnapiIntType(props)),
+          Vector(FunOptTypeParam("b", SnapiStringType(props))),
+          SnapiFloatType(props),
           props
         )
     )
@@ -111,13 +111,13 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
       parseType("(int or string, c: float or bool) -> float") ==
         FunType(
           Vector(
-            Rql2OrType(
-              Vector(Rql2IntType(props), Rql2StringType(props)),
+            SnapiOrType(
+              Vector(SnapiIntType(props), SnapiStringType(props)),
               props
             )
           ),
-          Vector(FunOptTypeParam("c", Rql2OrType(Vector(Rql2FloatType(props), Rql2BoolType(props)), props))),
-          Rql2FloatType(props),
+          Vector(FunOptTypeParam("c", SnapiOrType(Vector(SnapiFloatType(props), SnapiBoolType(props)), props))),
+          SnapiFloatType(props),
           props
         )
     )
@@ -125,10 +125,10 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
       parseType("int -> string -> float") ==
         FunType(
           Vector(
-            FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+            FunType(Vector(SnapiIntType(props)), Vector.empty, SnapiStringType(props), props)
           ),
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
@@ -136,26 +136,26 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
       parseType("(int -> string) -> float") ==
         FunType(
           Vector(
-            FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+            FunType(Vector(SnapiIntType(props)), Vector.empty, SnapiStringType(props), props)
           ),
           Vector.empty,
-          Rql2FloatType(props),
+          SnapiFloatType(props),
           props
         )
     )
     assert(
       parseType("int -> (string -> float)") ==
         FunType(
-          Vector(Rql2IntType(props)),
+          Vector(SnapiIntType(props)),
           Vector.empty,
-          FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props),
+          FunType(Vector(SnapiStringType(props)), Vector.empty, SnapiFloatType(props), props),
           props
         )
     )
     assert(
       parseType("list(int)") ==
-        Rql2ListType(
-          Rql2IntType(props),
+        SnapiListType(
+          SnapiIntType(props),
           props
         )
     )
@@ -167,7 +167,7 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
         | let f = (v: int): string -> v
         | in f (1)
         | """.stripMargin) ==
-        Rql2Program(
+        SnapiProgram(
           Vector(),
           Some(
             Let(
@@ -178,11 +178,11 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
                       Vector(
                         FunParam(
                           IdnDef("v"),
-                          Some(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                          Some(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                           None
                         )
                       ),
-                      Some(Rql2StringType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                      Some(SnapiStringType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                       FunBody(IdnExp(IdnUse("v")))
                     )
                   ),
@@ -203,7 +203,7 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
         |let apply(boolFunc: (int -> bool) -> bool) = boolFunc((x: int) -> x > 10)
         |in apply((f: int -> bool) -> f(14))
         |""".stripMargin) ==
-        Rql2Program(
+        SnapiProgram(
           Vector(),
           Some(
             Let(
@@ -217,15 +217,15 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
                           FunType(
                             Vector(
                               FunType(
-                                Vector(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                                Vector(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                                 Vector(),
-                                Rql2BoolType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())),
-                                Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+                                SnapiBoolType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())),
+                                Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())
                               )
                             ),
                             Vector(),
-                            Rql2BoolType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())),
-                            Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+                            SnapiBoolType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())),
+                            Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())
                           )
                         ),
                         None
@@ -242,7 +242,7 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
                                 Vector(
                                   FunParam(
                                     IdnDef("x"),
-                                    Some(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                                    Some(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                                     None
                                   )
                                 ),
@@ -270,10 +270,10 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
                             IdnDef("f"),
                             Some(
                               FunType(
-                                Vector(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                                Vector(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                                 Vector(),
-                                Rql2BoolType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())),
-                                Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+                                SnapiBoolType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())),
+                                Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())
                               )
                             ),
                             None

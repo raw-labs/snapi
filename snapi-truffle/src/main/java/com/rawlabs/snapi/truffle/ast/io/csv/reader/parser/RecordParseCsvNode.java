@@ -16,8 +16,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2AttrType;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiAttrType;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.record.RecordNodes;
@@ -32,12 +32,12 @@ public class RecordParseCsvNode extends ExpressionNode {
 
   @Children private final DirectCallNode[] childDirectCalls;
 
-  private final Rql2AttrType[] columns;
+  private final SnapiAttrType[] columns;
 
   private final boolean hasDuplicateKeys;
-  private final Rql2Language language = Rql2Language.get(this);
+  private final SnapiLanguage language = SnapiLanguage.get(this);
 
-  public RecordParseCsvNode(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
+  public RecordParseCsvNode(ProgramExpressionNode[] columnParsers, SnapiAttrType[] columns) {
     this.columns = columns;
     this.childDirectCalls = new DirectCallNode[columnParsers.length];
     for (int i = 0; i < columnParsers.length; i++) {
@@ -48,7 +48,7 @@ public class RecordParseCsvNode extends ExpressionNode {
       addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
     }
 
-    List<String> keys = Arrays.stream(columns).map(Rql2AttrType::idn).toList();
+    List<String> keys = Arrays.stream(columns).map(SnapiAttrType::idn).toList();
 
     hasDuplicateKeys = keys.size() != keys.stream().distinct().count();
   }

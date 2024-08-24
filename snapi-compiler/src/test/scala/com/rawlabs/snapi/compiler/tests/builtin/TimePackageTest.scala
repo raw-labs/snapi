@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class TimePackageTest extends Rql2TestContext {
+class TimePackageTest extends SnapiTestContext {
 
   test("Time.Build(9, 30)") { it =>
     it should typeAs("time")

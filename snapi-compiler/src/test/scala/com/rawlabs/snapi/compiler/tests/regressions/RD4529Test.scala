@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD4529Test extends Rql2TestContext {
+class RD4529Test extends SnapiTestContext {
 
   test("""
     |let a: float = 1.0f

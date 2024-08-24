@@ -66,7 +66,7 @@ class ErrorBuildEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = idx match {
-    case 0 => Right(ExpParam(Rql2StringType()))
+    case 0 => Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -74,7 +74,7 @@ class ErrorBuildEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2UndefinedType(Set(Rql2IsTryableTypeProperty())))
+    Right(SnapiUndefinedType(Set(SnapiIsTryableTypeProperty())))
   }
 
 }
@@ -90,8 +90,8 @@ class ErrorBuildWithTypeEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = idx match {
-    case 0 => Right(TypeParam(DoesNotHaveTypeProperties(Set(Rql2IsTryableTypeProperty()))))
-    case 1 => Right(ExpParam(Rql2StringType()))
+    case 0 => Right(TypeParam(DoesNotHaveTypeProperties(Set(SnapiIsTryableTypeProperty()))))
+    case 1 => Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -100,7 +100,7 @@ class ErrorBuildWithTypeEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val TypeArg(t) = mandatoryArgs(0)
-    Right(addProp(t, Rql2IsTryableTypeProperty()))
+    Right(addProp(t, SnapiIsTryableTypeProperty()))
   }
 
 }
@@ -124,7 +124,7 @@ class ErrorGetEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2StringType())
+    Right(SnapiStringType())
   }
 
 }

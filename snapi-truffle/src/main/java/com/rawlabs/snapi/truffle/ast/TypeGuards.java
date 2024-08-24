@@ -18,13 +18,13 @@ import com.rawlabs.snapi.frontend.rql2.source.*;
 
 public class TypeGuards {
 
-  public static final Rql2IsTryableTypeProperty tryable = Rql2IsTryableTypeProperty.apply();
-  public static final Rql2IsNullableTypeProperty nullable = Rql2IsNullableTypeProperty.apply();
+  public static final SnapiIsTryableTypeProperty tryable = SnapiIsTryableTypeProperty.apply();
+  public static final SnapiIsNullableTypeProperty nullable = SnapiIsNullableTypeProperty.apply();
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isTryable(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
+  public static boolean isTryable(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties.props().contains(tryable);
     }
     return false;
@@ -32,8 +32,8 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isNullable(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
+  public static boolean isNullable(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties.props().contains(nullable);
     }
     return false;
@@ -41,9 +41,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isBooleanKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2BoolType
+  public static boolean isBooleanKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiBoolType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -51,9 +51,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isByteKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2ByteType
+  public static boolean isByteKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiByteType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -61,9 +61,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isShortKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2ShortType
+  public static boolean isShortKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiShortType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -71,9 +71,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isIntKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2IntType
+  public static boolean isIntKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiIntType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -81,9 +81,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isLongKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2LongType
+  public static boolean isLongKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiLongType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -91,9 +91,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isFloatKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2FloatType
+  public static boolean isFloatKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiFloatType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -101,9 +101,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isDoubleKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2DoubleType
+  public static boolean isDoubleKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiDoubleType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -111,9 +111,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isDecimalKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2DecimalType
+  public static boolean isDecimalKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiDecimalType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -121,9 +121,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isStringKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2StringType
+  public static boolean isStringKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiStringType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -131,9 +131,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isIntervalKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2IntervalType
+  public static boolean isIntervalKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiIntervalType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -141,9 +141,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isDateKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2DateType
+  public static boolean isDateKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiDateType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -151,9 +151,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isTimeKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2TimeType
+  public static boolean isTimeKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiTimeType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -161,9 +161,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isTimestampKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2TimestampType
+  public static boolean isTimestampKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiTimestampType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -171,9 +171,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isRecordKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2RecordType
+  public static boolean isRecordKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiRecordType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -181,9 +181,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isListKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2ListType
+  public static boolean isListKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiListType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -191,9 +191,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isIterableKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2IterableType
+  public static boolean isIterableKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiIterableType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;
@@ -201,9 +201,9 @@ public class TypeGuards {
 
   @Idempotent
   @CompilerDirectives.TruffleBoundary
-  public static boolean isBinaryKind(Rql2Type rql2Type) {
-    if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties instanceof Rql2BinaryType
+  public static boolean isBinaryKind(SnapiType snapiType) {
+    if (snapiType instanceof SnapiTypeWithProperties rql2TypeWithProperties) {
+      return rql2TypeWithProperties instanceof SnapiBinaryType
           && rql2TypeWithProperties.props().isEmpty();
     }
     return false;

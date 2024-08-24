@@ -17,7 +17,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.protocol.compiler.SQLServerConfig;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.primitives.*;
@@ -36,7 +36,7 @@ public class LocationFromSQLServerCredentialNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Rql2Context context = Rql2Context.get(this);
+    SnapiContext context = SnapiContext.get(this);
 
     String credentialName = (String) this.credentialName.executeGeneric(frame);
     LocationConfig l = context.getLocationConfig(credentialName);

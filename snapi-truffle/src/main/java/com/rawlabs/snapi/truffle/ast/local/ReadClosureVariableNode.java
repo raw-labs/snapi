@@ -21,7 +21,7 @@ import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.TypeGuards;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
@@ -29,11 +29,11 @@ import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 @ImportStatic(TypeGuards.class)
 @NodeField(name = "depth", type = Integer.class)
 @NodeField(name = "index", type = Integer.class)
-@NodeField(name = "rql2Type", type = Rql2Type.class)
+@NodeField(name = "rql2Type", type = SnapiType.class)
 public abstract class ReadClosureVariableNode extends ExpressionNode {
 
   private static final TruffleLogger LOG =
-      TruffleLogger.getLogger(Rql2Language.ID, TruffleRuntimeException.class);
+      TruffleLogger.getLogger(SnapiLanguage.ID, TruffleRuntimeException.class);
 
   @Idempotent
   protected abstract Integer getDepth();
@@ -42,7 +42,7 @@ public abstract class ReadClosureVariableNode extends ExpressionNode {
   protected abstract Integer getIndex();
 
   @Idempotent
-  protected abstract Rql2Type getRql2Type();
+  protected abstract SnapiType getRql2Type();
 
   @Specialization(guards = "isBooleanKind(getRql2Type())")
   protected final boolean doBoolean(VirtualFrame frame) {

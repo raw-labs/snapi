@@ -95,11 +95,11 @@ class AwsV4SignedRequest extends EntryExtension {
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "region" | "sessionToken" | "path" | "method" | "host" | "bodyString" => Right(ExpParam(Rql2StringType()))
+      case "region" | "sessionToken" | "path" | "method" | "host" | "bodyString" => Right(ExpParam(SnapiStringType()))
       case "args" | "headers" => Right(
           ExpParam(
-            Rql2ListType(
-              Rql2RecordType(Vector(Rql2AttrType("_1", Rql2StringType()), Rql2AttrType("_2", Rql2StringType())))
+            SnapiListType(
+              SnapiRecordType(Vector(SnapiAttrType("_1", SnapiStringType()), SnapiAttrType("_2", SnapiStringType())))
             )
           )
         )
@@ -107,13 +107,13 @@ class AwsV4SignedRequest extends EntryExtension {
   }
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[String, Type] = Right(Rql2LocationType())
+  )(implicit programContext: ProgramContext): Either[String, Type] = Right(SnapiLocationType())
 
 }

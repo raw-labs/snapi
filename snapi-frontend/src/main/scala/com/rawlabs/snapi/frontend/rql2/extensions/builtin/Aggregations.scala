@@ -19,11 +19,11 @@ import com.rawlabs.snapi.frontend.rql2.extensions.{EntryExtension, EntryExtensio
 import com.rawlabs.snapi.frontend.rql2.source.{
   HasTypeProperties,
   IsNullable,
-  Rql2AttrType,
-  Rql2DecimalType,
-  Rql2IsNullableTypeProperty,
-  Rql2LongType,
-  Rql2RecordType
+  SnapiAttrType,
+  SnapiDecimalType,
+  SnapiIsNullableTypeProperty,
+  SnapiLongType,
+  SnapiRecordType
 }
 
 abstract class Aggregation extends EntryExtensionHelper {
@@ -36,7 +36,7 @@ abstract class Aggregation extends EntryExtensionHelper {
 
 object SumAggregation extends Aggregation {
 
-  override val innerTypeConstraint: Type = OneOfType(number.tipes.map(addProp(_, Rql2IsNullableTypeProperty())))
+  override val innerTypeConstraint: Type = OneOfType(number.tipes.map(addProp(_, SnapiIsNullableTypeProperty())))
 
   override def aggregationType(t: Type): Either[String, Type] = Right(t)
 
@@ -47,7 +47,7 @@ object MinAggregation extends Aggregation {
   override val innerTypeConstraint: Type = IsNullable()
 
   override def aggregationType(t: Type): Either[String, Type] = {
-    if (isComparable(t)) Right(resetProps(t, Set(Rql2IsNullableTypeProperty())))
+    if (isComparable(t)) Right(resetProps(t, Set(SnapiIsNullableTypeProperty())))
     else Left(ItemsNotComparable.message)
   }
 
@@ -58,7 +58,7 @@ object MaxAggregation extends Aggregation {
   override val innerTypeConstraint: Type = IsNullable()
 
   override def aggregationType(t: Type): Either[String, Type] = {
-    if (isComparable(t)) Right(resetProps(t, Set(Rql2IsNullableTypeProperty())))
+    if (isComparable(t)) Right(resetProps(t, Set(SnapiIsNullableTypeProperty())))
     else Left(ItemsNotComparable.message)
   }
 
@@ -66,17 +66,17 @@ object MaxAggregation extends Aggregation {
 
 object FirstAggregation extends Aggregation {
 
-  override val innerTypeConstraint: Type = HasTypeProperties(Set(Rql2IsNullableTypeProperty()))
+  override val innerTypeConstraint: Type = HasTypeProperties(Set(SnapiIsNullableTypeProperty()))
 
-  override def aggregationType(t: Type): Either[String, Type] = Right(addProp(t, Rql2IsNullableTypeProperty()))
+  override def aggregationType(t: Type): Either[String, Type] = Right(addProp(t, SnapiIsNullableTypeProperty()))
 
 }
 
 object LastAggregation extends Aggregation {
 
-  override val innerTypeConstraint: Type = HasTypeProperties(Set(Rql2IsNullableTypeProperty()))
+  override val innerTypeConstraint: Type = HasTypeProperties(Set(SnapiIsNullableTypeProperty()))
 
-  override def aggregationType(t: Type): Either[String, Type] = Right(addProp(t, Rql2IsNullableTypeProperty()))
+  override def aggregationType(t: Type): Either[String, Type] = Right(addProp(t, SnapiIsNullableTypeProperty()))
 
 }
 
@@ -84,19 +84,19 @@ object CountAggregation extends Aggregation {
 
   override val innerTypeConstraint: Type = AnythingType()
 
-  override def aggregationType(t: Type): Either[String, Type] = Right(Rql2LongType())
+  override def aggregationType(t: Type): Either[String, Type] = Right(SnapiLongType())
 
 }
 
 object AvgAggregation extends Aggregation {
 
-  override val innerTypeConstraint: Type = OneOfType(number.tipes.map(t => addProp(t, Rql2IsNullableTypeProperty())))
+  override val innerTypeConstraint: Type = OneOfType(number.tipes.map(t => addProp(t, SnapiIsNullableTypeProperty())))
 
   override def aggregationType(t: Type): Either[String, Type] = Right(
-    Rql2RecordType(
+    SnapiRecordType(
       Vector(
-        Rql2AttrType("sum", addProp(Rql2DecimalType(), Rql2IsNullableTypeProperty())),
-        Rql2AttrType("count", Rql2LongType())
+        SnapiAttrType("sum", addProp(SnapiDecimalType(), SnapiIsNullableTypeProperty())),
+        SnapiAttrType("count", SnapiLongType())
       )
     )
   )

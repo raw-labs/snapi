@@ -77,11 +77,11 @@ class FloatFromEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     // Type as Try when passed a string in case the content doesn't parse.
-    val props: Set[Rql2TypeProperty] = mandatoryArgs(0).t match {
-      case _: Rql2StringType => Set(Rql2IsTryableTypeProperty())
-      case _ => Set.empty[Rql2TypeProperty]
+    val props: Set[SnapiTypeProperty] = mandatoryArgs(0).t match {
+      case _: SnapiStringType => Set(SnapiIsTryableTypeProperty())
+      case _ => Set.empty[SnapiTypeProperty]
     }
-    Right(Rql2FloatType(props))
+    Right(SnapiFloatType(props))
   }
 
 }

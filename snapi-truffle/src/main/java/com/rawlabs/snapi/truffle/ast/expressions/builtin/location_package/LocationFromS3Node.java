@@ -16,7 +16,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.protocol.compiler.S3Config;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.primitives.*;
@@ -69,7 +69,7 @@ public class LocationFromS3Node extends ExpressionNode {
     // "If the S3 bucket is not registered in the credentials storage, then the region, accessKey
     // and secretKey must be provided as arguments."
     // However, if the access key/secret key are passed, they should be used.
-    Rql2Context context = Rql2Context.get(this);
+    SnapiContext context = SnapiContext.get(this);
     S3Path location;
     if (this.accessKey == null
         && this.secretKey == null

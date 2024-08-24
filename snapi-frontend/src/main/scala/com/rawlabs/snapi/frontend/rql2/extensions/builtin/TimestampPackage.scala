@@ -76,8 +76,8 @@ class TimestampBuildEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Build",
-      mandatoryParams = Vector(Rql2IntType(), Rql2IntType(), Rql2IntType(), Rql2IntType(), Rql2IntType()),
-      returnType = Rql2TimestampType(Set(Rql2IsTryableTypeProperty())),
+      mandatoryParams = Vector(SnapiIntType(), SnapiIntType(), SnapiIntType(), SnapiIntType(), SnapiIntType()),
+      returnType = SnapiTimestampType(Set(SnapiIsTryableTypeProperty())),
       docs = EntryDoc(
         "Builds a timestamp value",
         params = List(
@@ -104,8 +104,8 @@ class TimestampBuildEntry
         )
       ),
       optionalParamsMap = ListMap(
-        "seconds" -> ((Rql2IntType(), IntConst("0"))),
-        "millis" -> ((Rql2IntType(), IntConst("0")))
+        "seconds" -> ((SnapiIntType(), IntConst("0"))),
+        "millis" -> ((SnapiIntType(), IntConst("0")))
       )
     )
 
@@ -113,8 +113,8 @@ class TimestampFromDateEntry
     extends ShortEntryExtension(
       "Timestamp",
       "FromDate",
-      Vector(Rql2DateType()),
-      Rql2TimestampType(),
+      Vector(SnapiDateType()),
+      SnapiTimestampType(),
       EntryDoc(
         summary = "Builds a timestamp from a date.",
         params = List(
@@ -130,8 +130,8 @@ class TimestampParseEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Parse",
-      mandatoryParams = Vector(Rql2StringType(), Rql2StringType()),
-      returnType = Rql2TimestampType(Set(Rql2IsTryableTypeProperty())),
+      mandatoryParams = Vector(SnapiStringType(), SnapiStringType()),
+      returnType = SnapiTimestampType(Set(SnapiIsTryableTypeProperty())),
       EntryDoc(
         summary = "Parses a timestamp from a string.",
         description = Some(
@@ -160,7 +160,7 @@ class TimestampNowEntry
       "Timestamp",
       "Now",
       mandatoryParams = Vector(),
-      returnType = Rql2TimestampType(),
+      returnType = SnapiTimestampType(),
       EntryDoc(
         summary = "Returns the current timestamp.",
         examples = List(ExampleDoc("""Timestamp.Now()""")),
@@ -197,14 +197,14 @@ class TimestampRangeEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2TimestampType()))
+    Right(ExpParam(SnapiTimestampType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("step"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     assert(idn == "step")
-    Right(ExpParam(Rql2IntervalType()))
+    Right(ExpParam(SnapiIntervalType()))
   }
 
   override def returnType(
@@ -212,7 +212,7 @@ class TimestampRangeEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2IterableType(Rql2TimestampType()))
+    Right(SnapiIterableType(SnapiTimestampType()))
   }
 
 }
@@ -221,8 +221,8 @@ class TimestampYearEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Year",
-      mandatoryParams = Vector(Rql2TimestampType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimestampType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the year component of the timestamp.",
         params = List(
@@ -237,8 +237,8 @@ class TimestampMonthEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Month",
-      mandatoryParams = Vector(Rql2TimestampType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimestampType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the month component of the timestamp.",
         params = List(
@@ -257,8 +257,8 @@ class TimestampDayEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Day",
-      mandatoryParams = Vector(Rql2TimestampType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimestampType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the day component of the timestamp.",
         params = List(
@@ -273,8 +273,8 @@ class TimestampHourEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Hour",
-      mandatoryParams = Vector(Rql2TimestampType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimestampType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the hours component of the timestamp.",
         params = List(
@@ -293,8 +293,8 @@ class TimestampMinuteEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Minute",
-      mandatoryParams = Vector(Rql2TimestampType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimestampType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns minutes part of the timestamp as an integer.",
         params = List(
@@ -313,8 +313,8 @@ class TimestampSecondEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Second",
-      mandatoryParams = Vector(Rql2TimestampType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimestampType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the seconds component of the timestamp.",
         params = List(
@@ -335,8 +335,8 @@ class TimestampMillisEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Millis",
-      mandatoryParams = Vector(Rql2TimestampType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiTimestampType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = "Returns the milliseconds component of the timestamp.",
         params = List(
@@ -360,8 +360,8 @@ class TimestampFromUnixTimestampEntry
     extends ShortEntryExtension(
       "Timestamp",
       "FromUnixTimestamp",
-      mandatoryParams = Vector(Rql2LongType()),
-      returnType = Rql2TimestampType(),
+      mandatoryParams = Vector(SnapiLongType()),
+      returnType = SnapiTimestampType(),
       EntryDoc(
         summary = "Builds a timestamp from a Unix epoch (number of seconds since 01-01-1970).",
         params = List(
@@ -381,8 +381,8 @@ class TimestampToUnixTimestampEntry
     extends ShortEntryExtension(
       "Timestamp",
       "ToUnixTimestamp",
-      mandatoryParams = Vector(Rql2TimestampType()),
-      returnType = Rql2LongType(),
+      mandatoryParams = Vector(SnapiTimestampType()),
+      returnType = SnapiLongType(),
       EntryDoc(
         summary = "Converts a timestamp into the corresponding Unix epoch (number of seconds since 01-01-1970).",
         params = List(ParamDoc("timestamp", TypeDoc(List("timestamp")), "Timestamp to convert to Unix epoch.")),
@@ -457,8 +457,8 @@ class TimestampTimeBucketEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    if (idx == 0) Right(ExpParam(OneOfType(Rql2StringType(), Rql2IntervalType())))
-    else Right(ExpParam(Rql2TimestampType()))
+    if (idx == 0) Right(ExpParam(OneOfType(SnapiStringType(), SnapiIntervalType())))
+    else Right(ExpParam(SnapiTimestampType()))
   }
 
   override def returnType(
@@ -466,7 +466,7 @@ class TimestampTimeBucketEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2TimestampType())
+    Right(SnapiTimestampType())
   }
 
 }
@@ -475,8 +475,8 @@ class TimestampSubtractEntry
     extends ShortEntryExtension(
       "Timestamp",
       "Subtract",
-      mandatoryParams = Vector(Rql2TimestampType(), Rql2TimestampType()),
-      returnType = Rql2IntervalType(),
+      mandatoryParams = Vector(SnapiTimestampType(), SnapiTimestampType()),
+      returnType = SnapiIntervalType(),
       EntryDoc(
         summary = "Subtracts two timestamps.",
         params = List(
@@ -506,8 +506,8 @@ class TimestampAddIntervalEntry
     extends ShortEntryExtension(
       "Timestamp",
       "AddInterval",
-      mandatoryParams = Vector(Rql2TimestampType(), Rql2IntervalType()),
-      returnType = Rql2TimestampType(),
+      mandatoryParams = Vector(SnapiTimestampType(), SnapiIntervalType()),
+      returnType = SnapiTimestampType(),
       EntryDoc(
         summary = "Adds an interval to a timestamp.",
         params = List(
@@ -537,8 +537,8 @@ class TimestampSubtractIntervalEntry
     extends ShortEntryExtension(
       "Timestamp",
       "SubtractInterval",
-      mandatoryParams = Vector(Rql2TimestampType(), Rql2IntervalType()),
-      returnType = Rql2TimestampType(),
+      mandatoryParams = Vector(SnapiTimestampType(), SnapiIntervalType()),
+      returnType = SnapiTimestampType(),
       EntryDoc(
         summary = "Subtracts an interval to a timestamp.",
         params = List(

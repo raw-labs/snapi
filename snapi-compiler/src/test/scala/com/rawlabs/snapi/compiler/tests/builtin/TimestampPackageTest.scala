@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class TimestampPackageTest extends Rql2TestContext {
+class TimestampPackageTest extends SnapiTestContext {
 
   test("Timestamp.Build(2022, 1, 15, 9, 30)") { it =>
     it should typeAs("timestamp")

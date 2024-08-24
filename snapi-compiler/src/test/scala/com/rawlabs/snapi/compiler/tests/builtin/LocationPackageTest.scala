@@ -13,12 +13,12 @@
 package com.rawlabs.snapi.compiler.tests.builtin
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
 import java.nio.file.Path
 
-class LocationPackageTest extends Rql2TestContext with LocalLocationsTestContext {
+class LocationPackageTest extends SnapiTestContext with LocalLocationsTestContext {
 
   test(s"""
     |let

@@ -26,7 +26,7 @@ import com.rawlabs.snapi.frontend.rql2.extensions.{
   ValueParam
 }
 import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.source.{Rql2RecordType, _}
+import com.rawlabs.snapi.frontend.rql2.source.{SnapiRecordType, _}
 
 object RecordPackageBuilder {
   object Build {
@@ -111,8 +111,8 @@ class RecordBuildEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     Right(
-      Rql2RecordType(
-        optionalArgs.map { case (i, arg: ExpArg) => Rql2AttrType(i, arg.t) }.to
+      SnapiRecordType(
+        optionalArgs.map { case (i, arg: ExpArg) => SnapiAttrType(i, arg.t) }.to
       )
     )
   }
@@ -153,9 +153,9 @@ class RecordConcatEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val Rql2RecordType(atts1, props1) = mandatoryArgs(0).t
-    val Rql2RecordType(atts2, props2) = mandatoryArgs(1).t
-    Right(Rql2RecordType(atts1 ++ atts2, props1 ++ props2))
+    val SnapiRecordType(atts1, props1) = mandatoryArgs(0).t
+    val SnapiRecordType(atts2, props2) = mandatoryArgs(1).t
+    Right(SnapiRecordType(atts1 ++ atts2, props1 ++ props2))
   }
 
 }
@@ -192,7 +192,7 @@ class RecordFieldsEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2ListType(Rql2StringType()))
+    Right(SnapiListType(SnapiStringType()))
   }
 
 }
@@ -230,7 +230,7 @@ class RecordAddFieldEntry extends EntryExtension {
   override def optionalParams: Option[Set[String]] = Some(Set.empty)
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    val t = prevMandatoryArgs(0).asInstanceOf[ExpArg].t.asInstanceOf[Rql2RecordType]
+    val t = prevMandatoryArgs(0).asInstanceOf[ExpArg].t.asInstanceOf[SnapiRecordType]
     if (t.atts.exists(att => att.idn == idn)) {
       Left("field already exists in record")
     } else {
@@ -244,8 +244,8 @@ class RecordAddFieldEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val Rql2RecordType(atts, _) = mandatoryArgs.head.t
-    Right(Rql2RecordType(atts ++ optionalArgs.map(a => Rql2AttrType(a._1, a._2.t))))
+    val SnapiRecordType(atts, _) = mandatoryArgs.head.t
+    Right(SnapiRecordType(atts ++ optionalArgs.map(a => SnapiAttrType(a._1, a._2.t))))
   }
 
 }
@@ -278,7 +278,7 @@ class RecordRemoveFieldEntry extends EntryExtension {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
       case 0 => Right(ExpParam(ExpectedRecordType(Set.empty)))
-      case 1 => Right(ValueParam(Rql2StringType()))
+      case 1 => Right(ValueParam(SnapiStringType()))
     }
   }
 
@@ -287,12 +287,12 @@ class RecordRemoveFieldEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val t = mandatoryArgs(0).asInstanceOf[ExpArg].t.asInstanceOf[Rql2RecordType]
+    val t = mandatoryArgs(0).asInstanceOf[ExpArg].t.asInstanceOf[SnapiRecordType]
     val idn = getStringValue(mandatoryArgs(1))
     if (!t.atts.exists(att => att.idn == idn)) {
       Left(s"field $idn not found")
     } else {
-      Right(Rql2RecordType(t.atts.filter(att => att.idn != idn)))
+      Right(SnapiRecordType(t.atts.filter(att => att.idn != idn)))
     }
   }
 
@@ -326,7 +326,7 @@ class RecordGetFieldByIndexEntry extends EntryExtension {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
       case 0 => Right(ExpParam(ExpectedRecordType(Set.empty)))
-      case 1 => Right(ValueParam(Rql2IntType()))
+      case 1 => Right(ValueParam(SnapiIntType()))
     }
   }
 
@@ -335,7 +335,7 @@ class RecordGetFieldByIndexEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val t = mandatoryArgs(0).asInstanceOf[ExpArg].t.asInstanceOf[Rql2RecordType]
+    val t = mandatoryArgs(0).asInstanceOf[ExpArg].t.asInstanceOf[SnapiRecordType]
     val idx = getIntValue(mandatoryArgs(1))
     if (idx >= 1 && idx <= t.atts.length) {
       Right(t.atts(idx - 1).tipe)

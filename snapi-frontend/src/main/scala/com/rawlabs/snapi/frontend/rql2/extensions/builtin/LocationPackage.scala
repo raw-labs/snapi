@@ -54,7 +54,7 @@ class LocationFromStringEntry extends EntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = None
@@ -64,7 +64,7 @@ class LocationFromStringEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2LocationType())
+    Right(SnapiLocationType())
   }
 
 }
@@ -114,52 +114,52 @@ class LocationDescribeEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] =
-    Right(ExpParam(Rql2LocationType()))
+    Right(ExpParam(SnapiLocationType()))
 
   override def returnType(
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = Right(
-    Rql2RecordType(
+    SnapiRecordType(
       Vector(
-        Rql2AttrType("format", Rql2StringType()),
-        Rql2AttrType("comment", Rql2StringType()),
-        Rql2AttrType("type", Rql2StringType()),
-        Rql2AttrType(
+        SnapiAttrType("format", SnapiStringType()),
+        SnapiAttrType("comment", SnapiStringType()),
+        SnapiAttrType("type", SnapiStringType()),
+        SnapiAttrType(
           "properties",
-          Rql2ListType(
-            Rql2RecordType(
+          SnapiListType(
+            SnapiRecordType(
               Vector(
-                Rql2AttrType("name", Rql2StringType()),
-                Rql2AttrType("value", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                SnapiAttrType("name", SnapiStringType()),
+                SnapiAttrType("value", SnapiStringType(Set(SnapiIsNullableTypeProperty())))
               )
             )
           )
         ),
-        Rql2AttrType("is_collection", Rql2BoolType()),
-        Rql2AttrType(
+        SnapiAttrType("is_collection", SnapiBoolType()),
+        SnapiAttrType(
           "columns",
-          Rql2ListType(
-            Rql2RecordType(
+          SnapiListType(
+            SnapiRecordType(
               Vector(
-                Rql2AttrType("col_name", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                Rql2AttrType("col_type", Rql2StringType()),
-                Rql2AttrType("nullable", Rql2BoolType())
+                SnapiAttrType("col_name", SnapiStringType(Set(SnapiIsNullableTypeProperty()))),
+                SnapiAttrType("col_type", SnapiStringType()),
+                SnapiAttrType("nullable", SnapiBoolType())
               )
             )
           )
         ),
-        Rql2AttrType("sampled", Rql2BoolType())
+        SnapiAttrType("sampled", SnapiBoolType())
       ),
-      Set(Rql2IsTryableTypeProperty())
+      Set(SnapiIsTryableTypeProperty())
     )
   )
 
   override def optionalParams: Option[Set[String]] = Some(Set("sampleSize"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    Right(ExpParam(Rql2IntType(Set(Rql2IsNullableTypeProperty()))))
+    Right(ExpParam(SnapiIntType(Set(SnapiIsNullableTypeProperty()))))
   }
 
 }
@@ -183,7 +183,7 @@ class LocationLsEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2LocationType()))
+    Right(ExpParam(SnapiLocationType()))
   }
 
   override def returnType(
@@ -191,7 +191,7 @@ class LocationLsEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] =
-    Right(Rql2ListType(Rql2StringType(), Set(Rql2IsTryableTypeProperty())))
+    Right(SnapiListType(SnapiStringType(), Set(SnapiIsTryableTypeProperty())))
 
 }
 
@@ -226,7 +226,7 @@ class LocationLlEntry() extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2LocationType()))
+    Right(ExpParam(SnapiLocationType()))
   }
 
   override def returnType(
@@ -234,24 +234,24 @@ class LocationLlEntry() extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = Right(
-    Rql2ListType(
-      Rql2RecordType(
+    SnapiListType(
+      SnapiRecordType(
         Vector(
-          Rql2AttrType("url", Rql2StringType()),
-          Rql2AttrType(
+          SnapiAttrType("url", SnapiStringType()),
+          SnapiAttrType(
             "metadata",
-            Rql2RecordType(
+            SnapiRecordType(
               Vector(
-                Rql2AttrType("modified", Rql2TimestampType(Set(Rql2IsNullableTypeProperty()))),
-                Rql2AttrType("size", Rql2LongType(Set(Rql2IsNullableTypeProperty()))),
-                Rql2AttrType(
+                SnapiAttrType("modified", SnapiTimestampType(Set(SnapiIsNullableTypeProperty()))),
+                SnapiAttrType("size", SnapiLongType(Set(SnapiIsNullableTypeProperty()))),
+                SnapiAttrType(
                   "blocks",
-                  Rql2ListType(
-                    Rql2RecordType(
+                  SnapiListType(
+                    SnapiRecordType(
                       Vector(
-                        Rql2AttrType("hosts", Rql2ListType(Rql2StringType())),
-                        Rql2AttrType("offset", Rql2LongType()),
-                        Rql2AttrType("length", Rql2LongType())
+                        SnapiAttrType("hosts", SnapiListType(SnapiStringType())),
+                        SnapiAttrType("offset", SnapiLongType()),
+                        SnapiAttrType("length", SnapiLongType())
                       )
                     )
                   )
@@ -261,7 +261,7 @@ class LocationLlEntry() extends EntryExtension {
           )
         )
       ),
-      Set(Rql2IsTryableTypeProperty())
+      Set(SnapiIsTryableTypeProperty())
     )
   )
 

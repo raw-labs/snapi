@@ -41,24 +41,24 @@ class HttpReadEntry
     extends ShortEntryExtension(
       "Http",
       "Read",
-      Vector(Rql2LocationType()),
-      Rql2RecordType(
+      Vector(SnapiLocationType()),
+      SnapiRecordType(
         Vector(
-          Rql2AttrType("status", Rql2IntType()),
-          Rql2AttrType("data", Rql2BinaryType()),
-          Rql2AttrType(
+          SnapiAttrType("status", SnapiIntType()),
+          SnapiAttrType("data", SnapiBinaryType()),
+          SnapiAttrType(
             "headers",
-            Rql2ListType(
-              Rql2RecordType(
+            SnapiListType(
+              SnapiRecordType(
                 Vector(
-                  Rql2AttrType("_1", Rql2StringType()),
-                  Rql2AttrType("_2", Rql2StringType())
+                  SnapiAttrType("_1", SnapiStringType()),
+                  SnapiAttrType("_2", SnapiStringType())
                 )
               )
             )
           )
         ),
-        Set(Rql2IsTryableTypeProperty())
+        Set(SnapiIsTryableTypeProperty())
       ),
       docs = EntryDoc(
         summary = "Makes an HTTP call",
@@ -90,8 +90,8 @@ class HttpReadEntry
         )
       ),
       optionalParamsMap = ListMap(
-        "expectedStatus" -> (Rql2ListType(Rql2IntType(), Set(Rql2IsNullableTypeProperty())),
-        NullablePackageBuilder.Empty(Rql2ListType(Rql2IntType())))
+        "expectedStatus" -> (SnapiListType(SnapiIntType(), Set(SnapiIsNullableTypeProperty())),
+        NullablePackageBuilder.Empty(SnapiListType(SnapiIntType())))
       )
     )
 
@@ -171,7 +171,7 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(
@@ -189,18 +189,18 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "bodyString" => Right(ExpParam(Rql2StringType()))
-      case "bodyBinary" => Right(ExpParam(Rql2BinaryType()))
-      case "authCredentialName" => Right(ExpParam(Rql2StringType()))
-      case "username" => Right(ExpParam(Rql2StringType()))
-      case "password" => Right(ExpParam(Rql2StringType()))
+      case "bodyString" => Right(ExpParam(SnapiStringType()))
+      case "bodyBinary" => Right(ExpParam(SnapiBinaryType()))
+      case "authCredentialName" => Right(ExpParam(SnapiStringType()))
+      case "username" => Right(ExpParam(SnapiStringType()))
+      case "password" => Right(ExpParam(SnapiStringType()))
       case "args" => Right(
           ExpParam(
-            Rql2ListType(
-              Rql2RecordType(
+            SnapiListType(
+              SnapiRecordType(
                 Vector(
-                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                  SnapiAttrType("_1", SnapiStringType(Set(SnapiIsNullableTypeProperty()))),
+                  SnapiAttrType("_2", SnapiStringType(Set(SnapiIsNullableTypeProperty())))
                 )
               )
             )
@@ -208,17 +208,17 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
         )
       case "headers" => Right(
           ExpParam(
-            Rql2ListType(
-              Rql2RecordType(
+            SnapiListType(
+              SnapiRecordType(
                 Vector(
-                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                  SnapiAttrType("_1", SnapiStringType(Set(SnapiIsNullableTypeProperty()))),
+                  SnapiAttrType("_2", SnapiStringType(Set(SnapiIsNullableTypeProperty())))
                 )
               )
             )
           )
         )
-      case "expectedStatus" => Right(ExpParam(Rql2ListType(Rql2IntType())))
+      case "expectedStatus" => Right(ExpParam(SnapiListType(SnapiIntType())))
     }
   }
 
@@ -227,7 +227,7 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2LocationType())
+    Right(SnapiLocationType())
   }
 
 }
@@ -236,8 +236,8 @@ class HttpUrlEncodeEntry
     extends ShortEntryExtension(
       "Http",
       "UrlEncode",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         "Encodes a string as a URL.",
         params = List(ParamDoc("value", TypeDoc(List("string")), "The string to encode.")),
@@ -249,8 +249,8 @@ class HttpUrlDecodeEntry
     extends ShortEntryExtension(
       "Http",
       "UrlDecode",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         "Decodes a URL-encoded string.",
         params = List(ParamDoc("value", TypeDoc(List("string")), "The string to decode.")),

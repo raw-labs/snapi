@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.ast.io.kryo;
 
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.kryo.KryoNodes;
 import com.rawlabs.snapi.truffle.runtime.kryo.KryoNodesFactory;
@@ -23,9 +23,9 @@ import java.io.ByteArrayOutputStream;
 public class KryoWriteNode extends ExpressionNode {
   @Child private ExpressionNode valueNode;
   @Child private KryoNodes.KryoWriteNode writer = KryoNodesFactory.KryoWriteNodeGen.create();
-  private final Rql2TypeWithProperties t;
+  private final SnapiTypeWithProperties t;
 
-  public KryoWriteNode(ExpressionNode valueNode, Rql2TypeWithProperties t) {
+  public KryoWriteNode(ExpressionNode valueNode, SnapiTypeWithProperties t) {
     this.valueNode = valueNode;
     this.t = t;
   }

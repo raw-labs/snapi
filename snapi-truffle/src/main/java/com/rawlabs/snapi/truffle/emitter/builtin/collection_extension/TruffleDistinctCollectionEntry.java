@@ -15,10 +15,10 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.DistinctCollectionEntry;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2IterableType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiIterableType;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionDistinctNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -29,7 +29,7 @@ import java.util.List;
 public class TruffleDistinctCollectionEntry extends DistinctCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+  public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
     List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
 
@@ -42,7 +42,7 @@ public class TruffleDistinctCollectionEntry extends DistinctCollectionEntry
 
     return CollectionDistinctNodeGen.create(
         truffleArgs.get(0).exprNode(),
-        (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType(),
+        (SnapiTypeWithProperties) ((SnapiIterableType) type).innerType(),
         generatorSlot,
         offHeapDistinctSlot);
   }

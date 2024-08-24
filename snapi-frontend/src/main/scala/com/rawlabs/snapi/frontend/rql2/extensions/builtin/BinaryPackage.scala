@@ -40,7 +40,7 @@ class BinaryPackage extends PackageExtension {
 object BinaryPackage extends BinaryPackage {
 
   def outputWriteSupport(dataType: Type): Boolean = {
-    dataType.isInstanceOf[Rql2BinaryType] // nullable/tryable or not. All are supported
+    dataType.isInstanceOf[SnapiBinaryType] // nullable/tryable or not. All are supported
   }
 }
 
@@ -48,8 +48,8 @@ class FromStringBinaryEntryExtension
     extends ShortEntryExtension(
       "Binary",
       "FromString",
-      Vector(Rql2StringType()),
-      Rql2BinaryType(),
+      Vector(SnapiStringType()),
+      SnapiBinaryType(),
       EntryDoc(
         "Converts a string into a binary.",
         params = List(ParamDoc("value", TypeDoc(List("string")), "The string to convert to binary.")),
@@ -69,8 +69,8 @@ class BinaryReadEntry
     extends ShortEntryExtension(
       "Binary",
       "Read",
-      Vector(Rql2LocationType()),
-      Rql2BinaryType(Set(Rql2IsTryableTypeProperty())),
+      Vector(SnapiLocationType()),
+      SnapiBinaryType(Set(SnapiIsTryableTypeProperty())),
       EntryDoc(
         "Reads the contents of a location as a binary.",
         params = List(ParamDoc("value", TypeDoc(List("location")), "The location to read bytes from.")),
@@ -89,8 +89,8 @@ class BinaryBase64Entry
     extends ShortEntryExtension(
       "Binary",
       "Base64",
-      Vector(Rql2BinaryType()),
-      Rql2StringType(),
+      Vector(SnapiBinaryType()),
+      SnapiStringType(),
       EntryDoc(
         "Encodes a binary value onto a base64 string.",
         params = List(ParamDoc("value", TypeDoc(List("binary")), "The binary to convert to a base64 string.")),

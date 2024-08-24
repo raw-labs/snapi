@@ -16,7 +16,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiType;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.ArrayOperationNodes;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
@@ -58,7 +58,7 @@ public class ListFromUnsafe extends ExpressionNode {
   private ArrayOperationNodes.ArrayBuildListNode arrayBuildListNode =
       ArrayOperationNodesFactory.ArrayBuildListNodeGen.create();
 
-  private final Rql2Type resultType;
+  private final SnapiType resultType;
 
   private final int generatorSlot;
   private final int listSlot;
@@ -67,13 +67,13 @@ public class ListFromUnsafe extends ExpressionNode {
   private final int resultSlot;
 
   public ListFromUnsafe(
-      ExpressionNode iterableNode,
-      Rql2Type resultType,
-      int generatorSlot,
-      int listSlot,
-      int currentIdxSlot,
-      int listSizeSlot,
-      int resultSlot) {
+          ExpressionNode iterableNode,
+          SnapiType resultType,
+          int generatorSlot,
+          int listSlot,
+          int currentIdxSlot,
+          int listSizeSlot,
+          int resultSlot) {
     this.resultType = resultType;
     this.iterableNode = iterableNode;
     this.generatorSlot = generatorSlot;

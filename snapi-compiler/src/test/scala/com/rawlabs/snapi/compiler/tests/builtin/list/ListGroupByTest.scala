@@ -14,10 +14,10 @@ package com.rawlabs.snapi.compiler.tests.builtin.list
 
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.errors.KeyNotComparable
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-class ListGroupByTest extends Rql2TestContext with LocalLocationsTestContext {
+class ListGroupByTest extends SnapiTestContext with LocalLocationsTestContext {
 
   private val lineitemType = """record(
     |   l_orderkey: int,

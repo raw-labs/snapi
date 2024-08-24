@@ -28,7 +28,7 @@ class CommentsAntlrSyntaxAnalyzer(
 ) extends Antlr4SyntaxAnalyzer(positions, isFrontend) {
 
   override def parse(s: String): ParseProgramResult[SourceProgram] = {
-    val rawErrorListener = new Rql2ErrorListener()
+    val rawErrorListener = new SnapiErrorListener()
     val source = StringSource(s)
     val stream = getTokenStream(s, rawErrorListener)
     val r = parse(stream, source, rawErrorListener)

@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.collection
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class CollectionRangeTest extends Rql2TestContext {
+class CollectionRangeTest extends SnapiTestContext {
 
   // Long.Range
 

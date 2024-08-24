@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.compiler.{HoverResponse, Pos, TypeCompletion}
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD9409Test extends Rql2TestContext {
+class RD9409Test extends SnapiTestContext {
 
   test("""let
     |    a = 1,

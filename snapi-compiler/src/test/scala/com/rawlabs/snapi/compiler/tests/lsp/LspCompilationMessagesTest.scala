@@ -14,8 +14,8 @@ package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.{ErrorMessage, WarningMessage}
 import com.rawlabs.snapi.frontend.base.errors.{MissingSecretWarning, UnknownDecl}
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
-class LspCompilationMessagesTest extends Rql2TestContext {
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
+class LspCompilationMessagesTest extends SnapiTestContext {
 
   test("should return a waning") { _ =>
     val code = """let a = Environment.Secret("a") in a""".stripMargin

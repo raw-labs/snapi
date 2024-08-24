@@ -17,7 +17,7 @@ import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer
 
 import scala.collection.mutable
 
-class Rql2ErrorListener extends BaseErrorListener {
+class SnapiErrorListener extends BaseErrorListener {
 
   private val errors = new mutable.ListBuffer[Message]
 

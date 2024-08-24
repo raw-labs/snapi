@@ -13,11 +13,11 @@
 package com.rawlabs.snapi.compiler.tests.builtin
 
 import com.google.common.collect.HashMultiset
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 import scala.collection.JavaConverters._
 
-class EnvironmentPackageTest extends Rql2TestContext {
+class EnvironmentPackageTest extends SnapiTestContext {
 
   test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("unknown secret: my-typo"))
 

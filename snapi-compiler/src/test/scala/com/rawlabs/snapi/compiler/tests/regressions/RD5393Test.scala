@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.snapi.frontend.rql2.errors.CannotDetermineTypeOfParameter
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5393Test extends Rql2TestContext {
+class RD5393Test extends SnapiTestContext {
 
   test("""main(country: string = null,code: string = null) =
     |    let

@@ -42,7 +42,7 @@ public class ListTransformNode extends ExpressionNode {
 
   @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
 
-  private final Rql2Type resultType;
+  private final SnapiType resultType;
 
   private final int currentIndexSlot;
   private final int listSizeSlot;
@@ -51,14 +51,14 @@ public class ListTransformNode extends ExpressionNode {
   private final int resultSlot;
 
   public ListTransformNode(
-      ExpressionNode listNode,
-      ExpressionNode functionNode,
-      Rql2Type resultType,
-      int listSlot,
-      int functionSlot,
-      int currentIndexSlot,
-      int listSizeSlot,
-      int resultSlot) {
+          ExpressionNode listNode,
+          ExpressionNode functionNode,
+          SnapiType resultType,
+          int listSlot,
+          int functionSlot,
+          int currentIndexSlot,
+          int listSizeSlot,
+          int resultSlot) {
     this.listNode = listNode;
     this.functionNode = functionNode;
     this.resultType = resultType;

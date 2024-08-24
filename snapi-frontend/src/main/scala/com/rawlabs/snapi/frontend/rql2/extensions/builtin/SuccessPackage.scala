@@ -20,8 +20,8 @@ import com.rawlabs.snapi.frontend.rql2.source.{
   FunAppArg,
   PackageIdnExp,
   Proj,
-  Rql2IsTryableTypeProperty,
-  Rql2TypeWithProperties
+  SnapiIsTryableTypeProperty,
+  SnapiTypeWithProperties
 }
 import com.rawlabs.snapi.frontend.rql2._
 import com.rawlabs.snapi.frontend.rql2.extensions.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
@@ -63,11 +63,11 @@ class SuccessBuildEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     mandatoryArgs(0).t match {
-      case x: Rql2TypeWithProperties if x.props.contains(Rql2IsTryableTypeProperty()) =>
+      case x: SnapiTypeWithProperties if x.props.contains(SnapiIsTryableTypeProperty()) =>
         return Left("argument is tryable")
       case _ =>
     }
-    val t = addProp(mandatoryArgs(0).t, Rql2IsTryableTypeProperty())
+    val t = addProp(mandatoryArgs(0).t, SnapiIsTryableTypeProperty())
     Right(t)
   }
 

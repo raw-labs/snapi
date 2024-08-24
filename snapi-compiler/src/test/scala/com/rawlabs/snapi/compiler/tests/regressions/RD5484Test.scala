@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.utils.core.TestData
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5484Test extends Rql2TestContext {
+class RD5484Test extends SnapiTestContext {
 
   // top-level and correct.
   test("""Timestamp.Build(2015, 1, 4, 22, 0)""")(_ should run)

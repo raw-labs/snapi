@@ -20,24 +20,24 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.iterable.IterableNodes;
 
 @ExportLibrary(InteropLibrary.class)
 public class DistinctCollection implements TruffleObject {
   final Object iterable;
-  final Rql2TypeWithProperties rowType;
+  final SnapiTypeWithProperties rowType;
   private final MaterializedFrame frame;
   private final int generatorSlot;
   private final int offHeapDistinctSlot;
 
   public DistinctCollection(
-      Object iterable,
-      Rql2TypeWithProperties vType,
-      MaterializedFrame frame,
-      int generatorSlot,
-      int offHeapDistinctSlot) {
+          Object iterable,
+          SnapiTypeWithProperties vType,
+          MaterializedFrame frame,
+          int generatorSlot,
+          int offHeapDistinctSlot) {
     this.iterable = iterable;
     this.rowType = vType;
     this.frame = frame;
@@ -49,7 +49,7 @@ public class DistinctCollection implements TruffleObject {
     return iterable;
   }
 
-  public Rql2TypeWithProperties getRowType() {
+  public SnapiTypeWithProperties getRowType() {
     return rowType;
   }
 

@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.{HoverResponse, Pos, TypeCompletion}
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LspBrokenCodeTest extends Rql2TestContext {
+class LspBrokenCodeTest extends SnapiTestContext {
 
   test("broken code hover test") { _ =>
     val code = """let

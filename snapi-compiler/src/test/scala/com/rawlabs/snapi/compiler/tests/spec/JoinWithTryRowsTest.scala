@@ -12,11 +12,11 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 import com.rawlabs.snapi.frontend.rql2._
 
-class JoinWithTryRowsTest extends Rql2TestContext with LocalLocationsTestContext {
+class JoinWithTryRowsTest extends SnapiTestContext with LocalLocationsTestContext {
 
   /* testing joins with failed rows. How a dataset of failed rows is built: by engineering
        a dataset of nested list of records, and pick one using List.Get so that it sometimes

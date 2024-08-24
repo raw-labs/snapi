@@ -39,7 +39,7 @@ class StringPackage extends PackageExtension {
 object StringPackage extends StringPackage {
 
   def outputWriteSupport(dataType: Type): Boolean = {
-    dataType.isInstanceOf[Rql2StringType] // nullable/tryable or not. All are supported
+    dataType.isInstanceOf[SnapiStringType] // nullable/tryable or not. All are supported
   }
 }
 
@@ -71,19 +71,19 @@ class StringFromEntry extends EntryExtension {
     Right(
       ExpParam(
         OneOfType(
-          Rql2ByteType(),
-          Rql2ShortType(),
-          Rql2IntType(),
-          Rql2LongType(),
-          Rql2FloatType(),
-          Rql2DoubleType(),
-          Rql2DecimalType(),
-          Rql2BoolType(),
-          Rql2DateType(),
-          Rql2TimeType(),
-          Rql2TimestampType(),
-          Rql2IntervalType(),
-          Rql2LocationType()
+          SnapiByteType(),
+          SnapiShortType(),
+          SnapiIntType(),
+          SnapiLongType(),
+          SnapiFloatType(),
+          SnapiDoubleType(),
+          SnapiDecimalType(),
+          SnapiBoolType(),
+          SnapiDateType(),
+          SnapiTimeType(),
+          SnapiTimestampType(),
+          SnapiIntervalType(),
+          SnapiLocationType()
         )
       )
     )
@@ -93,7 +93,7 @@ class StringFromEntry extends EntryExtension {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[String, Type] = Right(Rql2StringType())
+  )(implicit programContext: ProgramContext): Either[String, Type] = Right(SnapiStringType())
 
 }
 
@@ -115,13 +115,13 @@ class StringReadEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2LocationType()))
+    Right(ExpParam(SnapiLocationType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("encoding"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    Right(ExpParam(Rql2StringType()))
+    Right(ExpParam(SnapiStringType()))
   }
 
   override def returnType(
@@ -129,7 +129,7 @@ class StringReadEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2StringType(Set(Rql2IsTryableTypeProperty())))
+    Right(SnapiStringType(Set(SnapiIsTryableTypeProperty())))
   }
 
 }
@@ -138,8 +138,8 @@ class StringContainsEntry
     extends ShortEntryExtension(
       "String",
       "Contains",
-      Vector(Rql2StringType(), Rql2StringType()),
-      Rql2BoolType(),
+      Vector(SnapiStringType(), SnapiStringType()),
+      SnapiBoolType(),
       EntryDoc(
         summary = "Returns true if a given string contains another given string.",
         params = List(
@@ -158,8 +158,8 @@ class StringTrimEntry
     extends ShortEntryExtension(
       "String",
       "Trim",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Removes white space characters from the beginning and end of a string.",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to be trimmed.")),
@@ -175,8 +175,8 @@ class StringLTrimEntry
     extends ShortEntryExtension(
       "String",
       "LTrim",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Removes white space characters from the beginning of a string.",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to be trimmed.")),
@@ -193,8 +193,8 @@ class StringRTrimEntry
     extends ShortEntryExtension(
       "String",
       "RTrim",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Removes white space characters from the end of a string.",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to be trimmed.")),
@@ -235,9 +235,9 @@ class StringReplaceEntry extends EntryExtension {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 3)
     idx match {
-      case 0 => Right(ExpParam(Rql2StringType()))
-      case 1 => Right(ExpParam(Rql2StringType()))
-      case 2 => Right(ExpParam(Rql2StringType()))
+      case 0 => Right(ExpParam(SnapiStringType()))
+      case 1 => Right(ExpParam(SnapiStringType()))
+      case 2 => Right(ExpParam(SnapiStringType()))
     }
   }
 
@@ -246,7 +246,7 @@ class StringReplaceEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2StringType())
+    Right(SnapiStringType())
   }
 
 }
@@ -255,8 +255,8 @@ class StringReverseEntry
     extends ShortEntryExtension(
       "String",
       "Reverse",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Reverses a string.",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to reverse.")),
@@ -269,8 +269,8 @@ class StringReplicateEntry
     extends ShortEntryExtension(
       "String",
       "Replicate",
-      Vector(Rql2StringType(), Rql2IntType()),
-      Rql2StringType(),
+      Vector(SnapiStringType(), SnapiIntType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Replicates a string by coping the substring for the specific number of repetitions.",
         params = List(
@@ -289,8 +289,8 @@ class StringUpperEntry
     extends ShortEntryExtension(
       "String",
       "Upper",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Convert a string to uppercase.",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to convert to uppercase.")),
@@ -306,8 +306,8 @@ class StringLowerEntry
     extends ShortEntryExtension(
       "String",
       "Lower",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Convert a string to lowercase.",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to convert to lowercase.")),
@@ -323,8 +323,8 @@ class StringSplitEntry
     extends ShortEntryExtension(
       "String",
       "Split",
-      Vector(Rql2StringType(), Rql2StringType()),
-      Rql2ListType(Rql2StringType()),
+      Vector(SnapiStringType(), SnapiStringType()),
+      SnapiListType(SnapiStringType()),
       EntryDoc(
         summary = "Split a string into a list of strings given a separator.",
         params = List(
@@ -349,8 +349,8 @@ class StringLengthEntry
     extends ShortEntryExtension(
       "String",
       "Length",
-      Vector(Rql2StringType()),
-      Rql2IntType(),
+      Vector(SnapiStringType()),
+      SnapiIntType(),
       EntryDoc(
         summary = "Compute the size of a string.",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to compute the size.")),
@@ -362,8 +362,8 @@ class StringSubStringEntry
     extends ShortEntryExtension(
       "String",
       "SubString",
-      Vector(Rql2StringType(), Rql2IntType(), Rql2IntType()),
-      Rql2StringType(),
+      Vector(SnapiStringType(), SnapiIntType(), SnapiIntType()),
+      SnapiStringType(),
       EntryDoc(
         summary = """Extract a substring from a string, given the start index and length of extraction.""",
         info = Some("""The index starts at 1. A negative number as the length means the remainder of the string."""),
@@ -384,8 +384,8 @@ class StringCountSubStringEntry
     extends ShortEntryExtension(
       "String",
       "CountSubString",
-      Vector(Rql2StringType(), Rql2StringType()),
-      Rql2IntType(),
+      Vector(SnapiStringType(), SnapiStringType()),
+      SnapiIntType(),
       EntryDoc(
         summary = "Count the number of occurrences of a substring in a string.",
         params = List(
@@ -405,8 +405,8 @@ class StringStartsWithEntry
     extends ShortEntryExtension(
       "String",
       "StartsWith",
-      Vector(Rql2StringType(), Rql2StringType()),
-      Rql2BoolType(),
+      Vector(SnapiStringType(), SnapiStringType()),
+      SnapiBoolType(),
       EntryDoc(
         summary = """Check if a string starts with a given prefix.""",
         params = List(
@@ -430,8 +430,8 @@ class StringEmptyEntry
     extends ShortEntryExtension(
       "String",
       "Empty",
-      Vector(Rql2StringType()),
-      Rql2BoolType(),
+      Vector(SnapiStringType()),
+      SnapiBoolType(),
       EntryDoc(
         summary = """Returns true the string is empty.""",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to check if empty.")),
@@ -447,8 +447,8 @@ class Base64EntryExtension
     extends ShortEntryExtension(
       "String",
       "Base64",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Returns the base64 encoding of a string",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to encode as base64.")),
@@ -461,8 +461,8 @@ class StringEncodeEntry
     extends ShortEntryExtension(
       "String",
       "Encode",
-      Vector(Rql2StringType(), Rql2StringType()),
-      Rql2BinaryType(Set(Rql2IsTryableTypeProperty())),
+      Vector(SnapiStringType(), SnapiStringType()),
+      SnapiBinaryType(Set(SnapiIsTryableTypeProperty())),
       EntryDoc(
         summary = "Converts a string to a binary, given an encoding.",
         params = List(
@@ -478,8 +478,8 @@ class StringDecodeEntry
     extends ShortEntryExtension(
       "String",
       "Decode",
-      Vector(Rql2BinaryType(), Rql2StringType()),
-      Rql2StringType(Set(Rql2IsTryableTypeProperty())),
+      Vector(SnapiBinaryType(), SnapiStringType()),
+      SnapiStringType(Set(SnapiIsTryableTypeProperty())),
       EntryDoc(
         summary = "Builds a string from a binary, given an encoding.",
         params = List(
@@ -503,8 +503,8 @@ class StringLevenshteinDistanceEntry
     extends ShortEntryExtension(
       "String",
       "LevenshteinDistance",
-      Vector(Rql2StringType(), Rql2StringType()),
-      Rql2IntType(),
+      Vector(SnapiStringType(), SnapiStringType()),
+      SnapiIntType(),
       EntryDoc(
         summary = """Calculates the Levenshtein distance between two strings.""",
         info = Some(
@@ -555,7 +555,7 @@ class StringReadLinesEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2LocationType()))
+    Right(ExpParam(SnapiLocationType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("encoding"))
@@ -565,7 +565,7 @@ class StringReadLinesEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2IterableType(Rql2StringType()))
+    Right(SnapiIterableType(SnapiStringType()))
   }
 }
 
@@ -573,8 +573,8 @@ class StringCapitalizeEntry
     extends ShortEntryExtension(
       "String",
       "Capitalize",
-      Vector(Rql2StringType()),
-      Rql2StringType(),
+      Vector(SnapiStringType()),
+      SnapiStringType(),
       EntryDoc(
         summary = "Makes the first character of a string be uppercase and the rest lowercase.",
         params = List(ParamDoc("string", TypeDoc(List("string")), "The string to be capitalized.")),

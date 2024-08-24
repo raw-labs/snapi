@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.parser
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class ListSugarTest extends Rql2TestContext {
+class ListSugarTest extends SnapiTestContext {
 
   test("""[1,2,3]""") { it =>
     it should typeAs("list(int)")

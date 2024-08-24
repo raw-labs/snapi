@@ -88,13 +88,13 @@ class Antlr4LspTests extends RawTestSuite {
     val result = parseWithAntlr4(prog)
     assert(result.hasErrors)
     assert(
-      result.tree == Rql2Program(
+      result.tree == SnapiProgram(
         Vector(),
         Some(
           Let(
             Vector(
               LetBind(
-                TypeExp(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                TypeExp(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                 IdnDef("b"),
                 None
               ),
@@ -112,13 +112,13 @@ class Antlr4LspTests extends RawTestSuite {
     val result = parseWithAntlr4(prog)
     assert(result.hasErrors)
     assert(
-      result.tree == Rql2Program(
+      result.tree == SnapiProgram(
         Vector(),
         Some(
           Let(
             Vector(
               LetBind(
-                TypeExp(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                TypeExp(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                 IdnDef("b"),
                 None
               ),

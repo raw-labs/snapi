@@ -26,19 +26,19 @@ import com.rawlabs.snapi.frontend.rql2.source._
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class Rql2SnapiVisitor(
+class SnapiVisitor(
     positions: Positions,
     private val source: Source,
     isFrontend: Boolean,
-    private val errors: Rql2VisitorParseErrors
+    private val errors: SnapiVisitorParseErrors
 ) extends SnapiParserBaseVisitor[SourceNode] {
 
-  private val positionsWrapper = new Rql2Positions(positions, source)
+  private val positionsWrapper = new SnapiPositions(positions, source)
 
   private val assertionMessage = "This is a helper (better grammar readability)  node, should never visit it"
 
-  private def defaultProps: Set[Rql2TypeProperty] =
-    if (isFrontend) Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+  private def defaultProps: Set[SnapiTypeProperty] =
+    if (isFrontend) Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())
     else Set.empty
 
   private def getBrokenTypeCompletion(t: Option[Type], context: ParserRuleContext): Option[Type] = {
@@ -61,7 +61,7 @@ class Rql2SnapiVisitor(
   override def visitProg(ctx: SnapiParser.ProgContext): SourceNode = Option(ctx)
     .flatMap(context => Option(context.stat))
     .flatMap(statContext => Option(visit(statContext)))
-    .getOrElse(Rql2Program(Vector.empty, Option.empty))
+    .getOrElse(SnapiProgram(Vector.empty, Option.empty))
 
   override def visitFunDecStat(ctx: SnapiParser.FunDecStatContext): SourceNode = Option(ctx)
     .map { context =>
@@ -70,17 +70,17 @@ class Rql2SnapiVisitor(
           m.asScala.map(md =>
             Option(md)
               .flatMap(mdContext => Option(visit(mdContext)))
-              .getOrElse(Rql2Method(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
-              .asInstanceOf[Rql2Method]
+              .getOrElse(SnapiMethod(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+              .asInstanceOf[SnapiMethod]
           )
         )
         .getOrElse(Vector.empty)
         .toVector
-      val result = Rql2Program(methods, Option.empty)
+      val result = SnapiProgram(methods, Option.empty)
       positionsWrapper.setPosition(context, result)
       result
     }
-    .getOrElse(Rql2Program(Vector.empty, Option.empty))
+    .getOrElse(SnapiProgram(Vector.empty, Option.empty))
 
   override def visitFunDecExprStat(ctx: SnapiParser.FunDecExprStatContext): SourceNode = Option(ctx)
     .map { context =>
@@ -89,18 +89,18 @@ class Rql2SnapiVisitor(
           m.asScala.map(md =>
             Option(md)
               .flatMap(mdContext => Option(visit(mdContext)))
-              .getOrElse(Rql2Method(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
-              .asInstanceOf[Rql2Method]
+              .getOrElse(SnapiMethod(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+              .asInstanceOf[SnapiMethod]
           )
         )
         .getOrElse(Vector.empty)
         .toVector
       val me = Option(context.expr).map(expContext => Option(visit(expContext)).getOrElse(ErrorExp()).asInstanceOf[Exp])
-      val result = Rql2Program(methods, me)
+      val result = SnapiProgram(methods, me)
       positionsWrapper.setPosition(context, result)
       result
     }
-    .getOrElse(Rql2Program(Vector.empty, Option.empty))
+    .getOrElse(SnapiProgram(Vector.empty, Option.empty))
 
   override def visitFun_proto(ctx: SnapiParser.Fun_protoContext): SourceNode = Option(ctx)
     .map { context =>
@@ -223,11 +223,11 @@ class Rql2SnapiVisitor(
           res
         }
         .getOrElse(IdnDef(""))
-      val result = Rql2Method(funProto, idnDef)
+      val result = SnapiMethod(funProto, idnDef)
       positionsWrapper.setPosition(context, result)
       result
     }
-    .getOrElse(Rql2Method(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+    .getOrElse(SnapiMethod(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
 
   override def visitNormalFun(ctx: SnapiParser.NormalFunContext): SourceNode = Option(ctx)
     .map { context =>
@@ -337,11 +337,11 @@ class Rql2SnapiVisitor(
       val tipe = Option(context.tipe())
         .map(tipeContext => Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
         .getOrElse(ErrorType())
-      val result = Rql2AttrType(ident, tipe)
+      val result = SnapiAttrType(ident, tipe)
       positionsWrapper.setPosition(context, result)
       result
     }
-    .getOrElse(Rql2AttrType("", ErrorType()))
+    .getOrElse(SnapiAttrType("", ErrorType()))
 
   override def visitFunArgExpr(ctx: SnapiParser.FunArgExprContext): SourceNode = Option(ctx)
     .flatMap { context =>
@@ -477,14 +477,14 @@ class Rql2SnapiVisitor(
         .getOrElse(Vector.empty)
       val orType = Option(context.or_type())
         .flatMap(orTypeContext => Option(visit(orTypeContext)))
-        .getOrElse(Rql2OrType(Vector(ErrorType())))
-        .asInstanceOf[Rql2OrType]
+        .getOrElse(SnapiOrType(Vector(ErrorType())))
+        .asInstanceOf[SnapiOrType]
       val combinedTypes = tipes ++ orType.tipes
-      val result = Rql2OrType(combinedTypes, defaultProps)
+      val result = SnapiOrType(combinedTypes, defaultProps)
       positionsWrapper.setPosition(context, result)
       result
     }
-    .getOrElse(Rql2OrType(Vector(ErrorType())))
+    .getOrElse(SnapiOrType(Vector(ErrorType())))
 
   // this one is helper, it doesn't need to set position (basically an accumulator for or_type)
   override def visitOr_type(ctx: SnapiParser.Or_typeContext): SourceNode = Option(ctx)
@@ -495,9 +495,9 @@ class Rql2SnapiVisitor(
         .asInstanceOf[Type]
       val orType = Option(context.or_type())
         .flatMap(orTypeContext => Option(visit(orTypeContext)))
-        .getOrElse(Rql2OrType(Vector.empty))
-        .asInstanceOf[Rql2OrType]
-      Rql2OrType(Vector(tipe) ++ orType.tipes, defaultProps)
+        .getOrElse(SnapiOrType(Vector.empty))
+        .asInstanceOf[SnapiOrType]
+      SnapiOrType(Vector(tipe) ++ orType.tipes, defaultProps)
     }
     .getOrElse(ErrorType())
 
@@ -509,10 +509,10 @@ class Rql2SnapiVisitor(
 
       val orType = Option(context.or_type())
         .flatMap(orTypeContext => Option(visit(orTypeContext)))
-        .getOrElse(Rql2OrType(Vector.empty))
-        .asInstanceOf[Rql2OrType]
+        .getOrElse(SnapiOrType(Vector.empty))
+        .asInstanceOf[SnapiOrType]
       val combinedTypes = types ++ orType.tipes
-      val domainOrType = Rql2OrType(combinedTypes, defaultProps)
+      val domainOrType = SnapiOrType(combinedTypes, defaultProps)
       val rType = Option(context.tipe(1))
         .flatMap(tipeContext => Option(visit(tipeContext)))
         .getOrElse(ErrorType())
@@ -531,14 +531,14 @@ class Rql2SnapiVisitor(
   override def visitRecordTypeType(ctx: SnapiParser.RecordTypeTypeContext): SourceNode = Option(ctx)
     .flatMap(context => Option(context.record_type).flatMap(recordTypeContext => Option(visit(recordTypeContext))))
     .getOrElse(ErrorType())
-    .asInstanceOf[Rql2RecordType]
+    .asInstanceOf[SnapiRecordType]
 
   override def visitIterableTypeType(ctx: SnapiParser.IterableTypeTypeContext): SourceNode = Option(ctx)
     .flatMap(context =>
       Option(context.iterable_type).flatMap(iterableTypeContext => Option(visit(iterableTypeContext)))
     )
     .getOrElse(ErrorType())
-    .asInstanceOf[Rql2IterableType]
+    .asInstanceOf[SnapiIterableType]
 
   override def visitTypeWithParenType(ctx: SnapiParser.TypeWithParenTypeContext): SourceNode = Option(ctx)
     .flatMap(context => Option(context.tipe()).flatMap(tipeContext => Option(visit(tipeContext))))
@@ -555,22 +555,22 @@ class Rql2SnapiVisitor(
   override def visitPrimitive_types(ctx: SnapiParser.Primitive_typesContext): SourceNode = Option(ctx)
     .map { context =>
       val result =
-        if (context.BOOL_TOKEN != null) Rql2BoolType(defaultProps)
-        else if (context.STRING_TOKEN != null) Rql2StringType(defaultProps)
-        else if (context.LOCATION_TOKEN != null) Rql2LocationType(defaultProps)
-        else if (context.BINARY_TOKEN != null) Rql2BinaryType(defaultProps)
-        else if (context.DATE_TOKEN != null) Rql2DateType(defaultProps)
-        else if (context.TIME_TOKEN != null) Rql2TimeType(defaultProps)
-        else if (context.INTERVAL_TOKEN != null) Rql2IntervalType(defaultProps)
-        else if (context.TIMESTAMP_TOKEN != null) Rql2TimestampType(defaultProps)
-        else if (context.BYTE_TOKEN != null) Rql2ByteType(defaultProps)
-        else if (context.SHORT_TOKEN != null) Rql2ShortType(defaultProps)
-        else if (context.INT_TOKEN != null) Rql2IntType(defaultProps)
-        else if (context.LONG_TOKEN != null) Rql2LongType(defaultProps)
-        else if (context.FLOAT_TOKEN != null) Rql2FloatType(defaultProps)
-        else if (context.DOUBLE_TOKEN != null) Rql2DoubleType(defaultProps)
-        else if (context.DECIMAL_TOKEN != null) Rql2DecimalType(defaultProps)
-        else if (context.UNDEFINED_TOKEN != null) Rql2UndefinedType(defaultProps)
+        if (context.BOOL_TOKEN != null) SnapiBoolType(defaultProps)
+        else if (context.STRING_TOKEN != null) SnapiStringType(defaultProps)
+        else if (context.LOCATION_TOKEN != null) SnapiLocationType(defaultProps)
+        else if (context.BINARY_TOKEN != null) SnapiBinaryType(defaultProps)
+        else if (context.DATE_TOKEN != null) SnapiDateType(defaultProps)
+        else if (context.TIME_TOKEN != null) SnapiTimeType(defaultProps)
+        else if (context.INTERVAL_TOKEN != null) SnapiIntervalType(defaultProps)
+        else if (context.TIMESTAMP_TOKEN != null) SnapiTimestampType(defaultProps)
+        else if (context.BYTE_TOKEN != null) SnapiByteType(defaultProps)
+        else if (context.SHORT_TOKEN != null) SnapiShortType(defaultProps)
+        else if (context.INT_TOKEN != null) SnapiIntType(defaultProps)
+        else if (context.LONG_TOKEN != null) SnapiLongType(defaultProps)
+        else if (context.FLOAT_TOKEN != null) SnapiFloatType(defaultProps)
+        else if (context.DOUBLE_TOKEN != null) SnapiDoubleType(defaultProps)
+        else if (context.DECIMAL_TOKEN != null) SnapiDecimalType(defaultProps)
+        else if (context.UNDEFINED_TOKEN != null) SnapiUndefinedType(defaultProps)
         else throw new AssertionError("Unknown primitive type")
       positionsWrapper.setPosition(context, result)
       result
@@ -634,15 +634,15 @@ class Rql2SnapiVisitor(
                 .map(a =>
                   Option(a)
                     .flatMap(aContext => Option(visit(aContext)))
-                    .getOrElse(Rql2AttrType("", ErrorType()))
-                    .asInstanceOf[Rql2AttrType]
+                    .getOrElse(SnapiAttrType("", ErrorType()))
+                    .asInstanceOf[SnapiAttrType]
                 )
                 .toVector
             )
           }
           .getOrElse(Vector.empty)
 
-        val result = Rql2RecordType(atts, defaultProps)
+        val result = SnapiRecordType(atts, defaultProps)
         positionsWrapper.setPosition(context, result)
         result
       }
@@ -655,7 +655,7 @@ class Rql2SnapiVisitor(
         .flatMap(tipeContext => Option(visit(tipeContext)))
         .getOrElse(ErrorType())
         .asInstanceOf[Type]
-      val result = Rql2IterableType(tipe, defaultProps)
+      val result = SnapiIterableType(tipe, defaultProps)
       positionsWrapper.setPosition(context, result)
       result
     }
@@ -667,7 +667,7 @@ class Rql2SnapiVisitor(
         .flatMap(tipeContext => Option(visit(tipeContext)))
         .getOrElse(ErrorType())
         .asInstanceOf[Type]
-      val result = Rql2ListType(tipe, defaultProps)
+      val result = SnapiListType(tipe, defaultProps)
       positionsWrapper.setPosition(context, result)
       result
     }
@@ -1342,18 +1342,18 @@ class Rql2SnapiVisitor(
             .flatMap(tipeContext => Option(visit(tipeContext)))
             .getOrElse(ErrorType())
           tipe match {
-            case rql2TypeWithProperties: Rql2TypeWithProperties => Option(context.nullable_tryable())
+            case rql2TypeWithProperties: SnapiTypeWithProperties => Option(context.nullable_tryable())
                 .map { nullableTryable =>
                   val withoutNullable = Option(nullableTryable.NULLABLE_TOKEN())
                     .map(_ =>
                       rql2TypeWithProperties
-                        .cloneAndAddProp(Rql2IsNullableTypeProperty())
-                        .asInstanceOf[Rql2TypeWithProperties]
+                        .cloneAndAddProp(SnapiIsNullableTypeProperty())
+                        .asInstanceOf[SnapiTypeWithProperties]
                     )
                     .getOrElse(rql2TypeWithProperties)
                   Option(nullableTryable.TRYABLE_TOKEN())
                     .map(_ =>
-                      withoutNullable.cloneAndAddProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+                      withoutNullable.cloneAndAddProp(SnapiIsTryableTypeProperty()).asInstanceOf[SnapiTypeWithProperties]
                     )
                     .getOrElse(withoutNullable)
                 }

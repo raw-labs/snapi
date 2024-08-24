@@ -17,17 +17,17 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 
 public final class ProgramExpressionNode extends RootNode {
 
   private static final Source DUMMY_SOURCE =
-      Source.newBuilder(Rql2Language.ID, "", "dummy").build();
+      Source.newBuilder(SnapiLanguage.ID, "", "dummy").build();
 
   @Child private ExpressionNode bodyNode;
 
   public ProgramExpressionNode(
-      Rql2Language language, FrameDescriptor frameDescriptor, ExpressionNode body) {
+          SnapiLanguage language, FrameDescriptor frameDescriptor, ExpressionNode body) {
     super(language, frameDescriptor);
     this.bodyNode = body;
     this.bodyNode.addRootTag();

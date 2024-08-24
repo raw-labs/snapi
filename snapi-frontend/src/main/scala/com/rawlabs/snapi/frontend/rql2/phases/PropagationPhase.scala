@@ -23,7 +23,7 @@ import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{
   TryPackageBuilder,
   TypePackageBuilder
 }
-import com.rawlabs.snapi.frontend.rql2.{FunAppPackageEntryArguments, PipelinedPhase, Rql2TypeUtils, Rql2Value, Tree}
+import com.rawlabs.snapi.frontend.rql2.{FunAppPackageEntryArguments, PipelinedPhase, SnapiTypeUtils, SnapiValue, Tree}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 
@@ -33,7 +33,7 @@ import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 class PropagationPhase(protected val parent: Phase[SourceProgram], protected val phaseName: String)(
     protected val baseProgramContext: com.rawlabs.snapi.frontend.base.ProgramContext
 ) extends PipelinedPhase
-    with Rql2TypeUtils {
+    with SnapiTypeUtils {
 
   override protected def execute(program: SourceProgram): SourceProgram = {
     propagate(program)
@@ -49,7 +49,7 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
         entryArguments: FunAppPackageEntryArguments,
         args: Seq[FunAppArg],
         idx: Int
-    ): Option[Rql2Value] = {
+    ): Option[SnapiValue] = {
       val arg: Arg = args(idx).idn match {
         case Some(i) => entryArguments.optionalArgs.collectFirst { case a if a._1 == i => a._2 }.get
         case None =>
@@ -68,23 +68,23 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
             val expType = analyzer.tipe(binExp)
             op match {
               case _: BooleanOp =>
-                val plainType = Rql2BoolType(Set(Rql2IsNullableTypeProperty()))
+                val plainType = SnapiBoolType(Set(SnapiIsNullableTypeProperty()))
                 val arguments = Vector((e1, ne1), (e2, ne2))
                 val argExpProps = arguments.map {
                   case (e, ne) =>
                     val t = analyzer.tipe(e)
-                    val extraProps = getProps(t) - Rql2IsNullableTypeProperty()
+                    val extraProps = getProps(t) - SnapiIsNullableTypeProperty()
                     ExpProps(ne, t, castNeeded = false, extraProps)
                 }
                 coreFix(
                   plainType,
                   argExpProps,
                   (idns => BinaryExp(op, idns(0), idns(1))),
-                  getProps(expType) - Rql2IsNullableTypeProperty()
+                  getProps(expType) - SnapiIsNullableTypeProperty()
                 )
               case _ =>
-                val operationProps: Set[Rql2TypeProperty] = op match {
-                  case _: Div => Set(Rql2IsTryableTypeProperty())
+                val operationProps: Set[SnapiTypeProperty] = op match {
+                  case _: Div => Set(SnapiIsTryableTypeProperty())
                   case _ => Set.empty
                 }
                 // expType possibly got more flags because of the parameters. We remove
@@ -102,7 +102,7 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
       case unaryExp @ UnaryExp(op, e) => congruence(id, s) <* rule[Any] {
           case UnaryExp(_, ne) => trivialFix(unaryExp, Vector((e, ne)), idns => UnaryExp(op, idns(0)), Set.empty)
         }
-      case proj @ Proj(record, fieldName) if analyzer.tipe(record).isInstanceOf[Rql2RecordType] =>
+      case proj @ Proj(record, fieldName) if analyzer.tipe(record).isInstanceOf[SnapiRecordType] =>
         congruence(s, id) <* rule[Any] {
           case Proj(nRecord, _) =>
             trivialFix(proj, Vector((record, nRecord)), idns => Proj(idns(0), fieldName), Set.empty)
@@ -214,7 +214,7 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
         originalExp: Exp,
         arguments: Vector[(Exp, Exp)],
         apply: Vector[IdnExp] => Exp,
-        effectiveOutputProps: Set[Rql2TypeProperty]
+        effectiveOutputProps: Set[SnapiTypeProperty]
     ): Exp = {
       val argExpProps = arguments.map {
         case (e, ne) =>
@@ -229,7 +229,7 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
         plainType: Type,
         arguments: Vector[(Exp, Exp)],
         apply: Vector[IdnExp] => Exp,
-        extraProps: Set[Rql2TypeProperty]
+        extraProps: Set[SnapiTypeProperty]
     ): Exp = {
       val argExpProps = arguments.map {
         case (e, ne) =>
@@ -244,7 +244,7 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
         rootType: Type,
         argExpProps: Vector[ExpProps],
         apply: Vector[IdnExp] => Exp,
-        extraProps: Set[Rql2TypeProperty]
+        extraProps: Set[SnapiTypeProperty]
     ): Exp = {
       val idns = argExpProps.map(_ => IdnDef())
       val boxedBody = {
@@ -258,22 +258,22 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
           if (outProps.isEmpty) {
             // the operation isn't nullable/tryable. Wrap it with the needed nodes to match.
             val withNullWrapping =
-              if (effectiveOutputProps.contains(Rql2IsNullableTypeProperty())) NullablePackageBuilder.Build(root)
+              if (effectiveOutputProps.contains(SnapiIsNullableTypeProperty())) NullablePackageBuilder.Build(root)
               else root
             val withTryWrapping =
-              if (effectiveOutputProps.contains(Rql2IsTryableTypeProperty()))
+              if (effectiveOutputProps.contains(SnapiIsTryableTypeProperty()))
                 SuccessPackageBuilder.Build(withNullWrapping)
               else withNullWrapping
             withTryWrapping
-          } else if (outProps == Set(Rql2IsNullableTypeProperty())) {
+          } else if (outProps == Set(SnapiIsNullableTypeProperty())) {
             // e.g. nullable and/or called with errors
             assert(
-              effectiveOutputProps.contains(Rql2IsTryableTypeProperty())
+              effectiveOutputProps.contains(SnapiIsTryableTypeProperty())
             ) // otherwise it should have been equal above
             SuccessPackageBuilder.Build(root)
-          } else if (outProps == Set(Rql2IsTryableTypeProperty())) {
+          } else if (outProps == Set(SnapiIsTryableTypeProperty())) {
             // e.g. division.
-            if (outProps.contains(Rql2IsNullableTypeProperty())) {
+            if (outProps.contains(SnapiIsNullableTypeProperty())) {
               // special case: the operation is a plain tryable one, but needs to be computed as a nullable too.
               // We cannot box it in a nullable.build since it would be a null(try) instead of try(null). We
               // compute the operation (as a try) and box its results as a nullable with Transform.
@@ -302,7 +302,7 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
             val funParam = FunParam(idn, Some(innerType), None)
             // if the map/flatmap is applied to a 'undefined', the function won't be executed. We replace the
             // body by an unspecified zero of the body type.
-            val nextBody = if (innerType == Rql2UndefinedType()) TypePackageBuilder.Empty(outputType) else body
+            val nextBody = if (innerType == SnapiUndefinedType()) TypePackageBuilder.Empty(outputType) else body
             val fun = FunAbs(
               FunProto(
                 Vector(funParam),
@@ -336,12 +336,12 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
 
 }
 
-private case class TypeAndValue(t: Type, value: Option[Rql2Value])
+private case class TypeAndValue(t: Type, value: Option[SnapiValue])
 
 private case class ExpProps(
-    ne: Exp,
-    t: Type,
-    castNeeded: Boolean,
-    props: Set[Rql2TypeProperty],
-    value: Option[Rql2Value] = None
+                             ne: Exp,
+                             t: Type,
+                             castNeeded: Boolean,
+                             props: Set[SnapiTypeProperty],
+                             value: Option[SnapiValue] = None
 )

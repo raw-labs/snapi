@@ -35,4 +35,4 @@ final class FunParamEntity(val f: FunParam) extends Entity
 
 final class PackageEntity(val p: PackageExtension) extends Entity
 
-final class MethodEntity(val d: Rql2Method) extends Entity
+final class MethodEntity(val d: SnapiMethod) extends Entity

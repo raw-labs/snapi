@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.function;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.function.Closure;
 import com.rawlabs.snapi.truffle.runtime.function.Function;
@@ -35,7 +35,7 @@ public final class MethodNode extends ExpressionNode {
   private final String name;
   private final boolean hasFreeVars;
   private final boolean hasOptionalArgs;
-  private final FunctionRegistry functionRegistry = Rql2Context.get(this).getFunctionRegistry();
+  private final FunctionRegistry functionRegistry = SnapiContext.get(this).getFunctionRegistry();
 
   public MethodNode(
       String name, Function f, ExpressionNode[] defaultArgumentExps, boolean hasFreeVars) {

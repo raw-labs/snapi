@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.offheap
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-trait OffHeapDatasets { this: Rql2TestContext =>
+trait OffHeapDatasets { this: SnapiTestContext =>
 
   protected val N = 100
 

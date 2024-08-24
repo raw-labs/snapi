@@ -143,12 +143,12 @@ class LspAnalyzer(
     maybeNode match {
       case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) | Some(
             LetBind(_, _, Some(TypeAliasType(_)))
-          ) | Some(Rql2AttrType(_, ErrorType())) | Some(TypeExp(ErrorType())) | Some(TypeAliasType(_)) =>
+          ) | Some(SnapiAttrType(_, ErrorType())) | Some(TypeExp(ErrorType())) | Some(TypeAliasType(_)) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
         AutoCompleteResponse(allTypes)
       case _ => // Given that node, ask the "chain" for all entries in scope.
         nodeAtCurrentPosition match {
-          case Some(Rql2ListType(ErrorType(), _)) =>
+          case Some(SnapiListType(ErrorType(), _)) =>
             val allTypes = getAllTypesInScope(maybeNode, prefix)
             AutoCompleteResponse(allTypes)
           case _ =>
@@ -232,7 +232,7 @@ class LspAnalyzer(
       .sortBy { e: Exp => positions.textOf(e).get.length }
       .collectFirst {
         case e: Exp => analyzer.tipe(e) match {
-            case Rql2RecordType(atts, _) => atts.map { a =>
+            case SnapiRecordType(atts, _) => atts.map { a =>
                 FieldCompletion(
                   SourcePrettyPrinter.ident(a.idn),
                   SourcePrettyPrinter.format(a.tipe)
@@ -251,16 +251,16 @@ class LspAnalyzer(
                   val docs = pkg.getEntry(e).docs
                   PackageEntryCompletion(e, docs)
                 }
-            case Rql2ListType(Rql2RecordType(atts, _), _) => atts.map(a =>
+            case SnapiListType(SnapiRecordType(atts, _), _) => atts.map(a =>
                 FieldCompletion(
                   SourcePrettyPrinter.ident(a.idn),
-                  SourcePrettyPrinter.format(Rql2ListType(a.tipe))
+                  SourcePrettyPrinter.format(SnapiListType(a.tipe))
                 )
               )
-            case Rql2IterableType(Rql2RecordType(atts, _), _) => atts.map { a =>
+            case SnapiIterableType(SnapiRecordType(atts, _), _) => atts.map { a =>
                 FieldCompletion(
                   SourcePrettyPrinter.ident(a.idn),
-                  SourcePrettyPrinter.format(Rql2IterableType(a.tipe))
+                  SourcePrettyPrinter.format(SnapiIterableType(a.tipe))
                 )
               }
             case _ => Seq.empty[Completion]
@@ -306,7 +306,7 @@ class LspAnalyzer(
               val LetFun(p, i) = letFunEntity.f
               HoverResponse(Some(TypeCompletion(i.idn, getFunctionSignature(i, p))))
             case methodEntity: MethodEntity => //gets here
-              val Rql2Method(p, i) = methodEntity.d
+              val SnapiMethod(p, i) = methodEntity.d
               HoverResponse(Some(TypeCompletion(i.idn, getFunctionSignature(i, p))))
             case letFunRecEntity: LetFunRecEntity => //gets here
               val LetFunRec(i, p) = letFunRecEntity.f
@@ -317,7 +317,7 @@ class LspAnalyzer(
             case _ => HoverResponse(None)
           }
         case Proj(e, i) => analyzer.actualType(e) match { //gets here
-            case Rql2RecordType(atts, _) =>
+            case SnapiRecordType(atts, _) =>
               val att = atts.find(a => a.idn == i)
               if (att.isDefined) HoverResponse(Some(TypeCompletion(i, SourcePrettyPrinter.format(att.get.tipe))))
               else HoverResponse(None)
@@ -398,7 +398,7 @@ class LspAnalyzer(
               val pos = positions.getStart(i)
               GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
             case methodEntity: MethodEntity =>
-              val Rql2Method(p, i) = methodEntity.d
+              val SnapiMethod(p, i) = methodEntity.d
               val pos = positions.getStart(i)
               GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
             case letFunRecEntity: LetFunRecEntity =>
@@ -408,7 +408,7 @@ class LspAnalyzer(
             case _ => GoToDefinitionResponse(None)
           }
         case Proj(e, i) => analyzer.actualType(e) match {
-            case Rql2RecordType(atts, _) =>
+            case SnapiRecordType(atts, _) =>
               val posRes = for {
                 att <- atts.find(a => a.idn == i)
                 pos <- positions.getStart(att.idn)

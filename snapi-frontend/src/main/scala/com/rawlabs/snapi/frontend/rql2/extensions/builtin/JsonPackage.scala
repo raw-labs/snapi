@@ -47,7 +47,7 @@ object JsonPackage extends JsonPackage {
 
   def outputWriteSupport(dataType: Type): Boolean = {
     everywhere(query[Type] {
-      case _: FunType | _: PackageType | _: PackageEntryType | _: Rql2LocationType => return false;
+      case _: FunType | _: PackageType | _: PackageEntryType | _: SnapiLocationType => return false;
     })(dataType)
     true
   }
@@ -100,7 +100,7 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ValueParam(Rql2LocationType()))
+    Right(ValueParam(SnapiLocationType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(
@@ -113,9 +113,9 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "sampleSize" => Right(ValueParam(Rql2IntType()))
-      case "encoding" => Right(ValueParam(Rql2StringType()))
-      case "preferNulls" => Right(ValueParam(Rql2BoolType()))
+      case "sampleSize" => Right(ValueParam(SnapiIntType()))
+      case "encoding" => Right(ValueParam(SnapiStringType()))
+      case "preferNulls" => Right(ValueParam(SnapiBoolType()))
     }
   }
 
@@ -141,8 +141,8 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
       rql2Type = inferTypeToRql2Type(inferredType, makeNullable = preferNulls && sampled, makeTryable = sampled);
       okType <- validateInferredJsonType(rql2Type, node)
     ) yield okType match {
-      case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
-      case other => addProp(other, Rql2IsTryableTypeProperty())
+      case SnapiIterableType(rowType, _) => SnapiIterableType(rowType)
+      case other => addProp(other, SnapiIsTryableTypeProperty())
     }
   }
 
@@ -248,7 +248,7 @@ class ReadJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2LocationType()))
+      case 0 => Right(ExpParam(SnapiLocationType()))
       case 1 =>
         // We check valid types in return type instead, since it's easier to express there, as we do not
         // have a specific constraint.
@@ -267,10 +267,10 @@ class ReadJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "encoding" => Right(ExpParam(Rql2StringType()))
-      case "timeFormat" => Right(ExpParam(Rql2StringType()))
-      case "dateFormat" => Right(ExpParam(Rql2StringType()))
-      case "timestampFormat" => Right(ExpParam(Rql2StringType()))
+      case "encoding" => Right(ExpParam(SnapiStringType()))
+      case "timeFormat" => Right(ExpParam(SnapiStringType()))
+      case "dateFormat" => Right(ExpParam(SnapiStringType()))
+      case "timestampFormat" => Right(ExpParam(SnapiStringType()))
     }
   }
 
@@ -282,8 +282,8 @@ class ReadJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(1).t
     validateUserJsonType(t).right.map {
-      case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
-      case t => addProp(t, Rql2IsTryableTypeProperty())
+      case SnapiIterableType(rowType, _) => SnapiIterableType(rowType)
+      case t => addProp(t, SnapiIsTryableTypeProperty())
     }
   }
 
@@ -335,7 +335,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ValueParam(Rql2StringType()))
+    Right(ValueParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(
@@ -348,9 +348,9 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "sampleSize" => Right(ValueParam(Rql2IntType()))
-      case "encoding" => Right(ValueParam(Rql2StringType()))
-      case "preferNulls" => Right(ValueParam(Rql2BoolType()))
+      case "sampleSize" => Right(ValueParam(SnapiIntType()))
+      case "encoding" => Right(ValueParam(SnapiStringType()))
+      case "preferNulls" => Right(ValueParam(SnapiBoolType()))
     }
   }
 
@@ -363,7 +363,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
     val codeData = getStringValue(mandatoryArgs.head)
     val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
     val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InferrerOutput] = getJsonInferrerProperties(
-      Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
+      Seq(ValueArg(SnapiLocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), SnapiLocationType())),
       optionalArgs
     )
       .flatMap(programContext.infer)
@@ -379,8 +379,8 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       rql2Type = inferTypeToRql2Type(inferredType, makeNullable = preferNulls && sampled, makeTryable = sampled);
       okType <- validateInferredJsonType(rql2Type, node)
     ) yield okType match {
-      case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
-      case other => addProp(other, Rql2IsTryableTypeProperty())
+      case SnapiIterableType(rowType, _) => SnapiIterableType(rowType)
+      case other => addProp(other, SnapiIsTryableTypeProperty())
     }
   }
 
@@ -395,7 +395,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
 
     val inputFormatDescriptor = for (
       inferrerProperties <- getJsonInferrerProperties(
-        Seq(ValueArg(Rql2LocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), Rql2LocationType())),
+        Seq(ValueArg(SnapiLocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), SnapiLocationType())),
         optionalArgs
       );
       inputFormatDescriptor <- programContext.infer(inferrerProperties)
@@ -493,7 +493,7 @@ class ParseJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     idx match {
-      case 0 => Right(ExpParam(Rql2StringType()))
+      case 0 => Right(ExpParam(SnapiStringType()))
       case 1 =>
         // We check valid types in return type instead, since it's easier to express there, as we do not
         // have a specific constraint.
@@ -511,9 +511,9 @@ class ParseJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "timeFormat" => Right(ExpParam(Rql2StringType()))
-      case "dateFormat" => Right(ExpParam(Rql2StringType()))
-      case "timestampFormat" => Right(ExpParam(Rql2StringType()))
+      case "timeFormat" => Right(ExpParam(SnapiStringType()))
+      case "dateFormat" => Right(ExpParam(SnapiStringType()))
+      case "timestampFormat" => Right(ExpParam(SnapiStringType()))
     }
   }
 
@@ -525,7 +525,7 @@ class ParseJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(1).t
     validateUserJsonType(t).right.map {
-      case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
+      case SnapiIterableType(rowType, _) => SnapiIterableType(rowType)
       case other => other
     }
   }
@@ -563,7 +563,7 @@ class PrintJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     // Here we validate the type of the argument, and always return a string
     val data = mandatoryArgs.head
-    if (JsonPackage.outputWriteSupport(data.t)) Right(Rql2StringType())
+    if (JsonPackage.outputWriteSupport(data.t)) Right(SnapiStringType())
     else Left(s"unsupported type ${SourcePrettyPrinter.format(data.t)}")
   }
 
@@ -600,8 +600,8 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
     )
 
   private def validateJsonType(t: Type): Either[Seq[(Type, Option[String])], Type] = t match {
-    case _: Rql2LocationType => Left(Seq((t, None)))
-    case Rql2RecordType(atts, props) =>
+    case _: SnapiLocationType => Left(Seq((t, None)))
+    case SnapiRecordType(atts, props) =>
       val duplicates = atts.groupBy(_.idn).mapValues(_.size).collect { case (field, n) if n > 1 => field }
       if (duplicates.nonEmpty) {
         val explanation =
@@ -616,15 +616,15 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
         if (errors.nonEmpty) Left(errors.flatten)
         else {
           val attTypes = validation.collect { case Right(t) => t }
-          val validAttributes = atts.zip(attTypes).map { case (a, validType) => Rql2AttrType(a.idn, validType) }
-          Right(Rql2RecordType(validAttributes, props))
+          val validAttributes = atts.zip(attTypes).map { case (a, validType) => SnapiAttrType(a.idn, validType) }
+          Right(SnapiRecordType(validAttributes, props))
         }
       }
-    case Rql2IterableType(innerType, props) =>
-      validateJsonType(innerType).right.map(validType => Rql2IterableType(validType, props))
-    case Rql2ListType(innerType, props) =>
-      validateJsonType(innerType).right.map(validType => Rql2ListType(validType, props))
-    case Rql2OrType(options, props) =>
+    case SnapiIterableType(innerType, props) =>
+      validateJsonType(innerType).right.map(validType => SnapiIterableType(validType, props))
+    case SnapiListType(innerType, props) =>
+      validateJsonType(innerType).right.map(validType => SnapiListType(validType, props))
+    case SnapiOrType(options, props) =>
       // inner types may have 'tryable' or 'nullable' flags:
       // * tryable is removed because a tryable-whatever option would always successfully parse
       //   as a failed whatever, and other parsers would never be tested.
@@ -638,12 +638,12 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
       else {
         val validOptions = validation.collect { case Right(t) => t }
         val nullable =
-          options.exists { case t: Rql2TypeWithProperties => t.props.contains(Rql2IsNullableTypeProperty()) }
-        val finalProps = if (nullable) props + Rql2IsNullableTypeProperty() else props
-        Right(Rql2OrType(validOptions, finalProps))
+          options.exists { case t: SnapiTypeWithProperties => t.props.contains(SnapiIsNullableTypeProperty()) }
+        val finalProps = if (nullable) props + SnapiIsNullableTypeProperty() else props
+        Right(SnapiOrType(validOptions, finalProps))
       }
-    case t: Rql2PrimitiveType => Right(t)
-    case t: Rql2UndefinedType => Right(t)
+    case t: SnapiPrimitiveType => Right(t)
+    case t: SnapiUndefinedType => Right(t)
     case t => Left(Seq((t, None)))
   }
 

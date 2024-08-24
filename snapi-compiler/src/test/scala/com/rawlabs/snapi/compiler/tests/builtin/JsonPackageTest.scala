@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class JsonPackageTest extends Rql2TestContext {
+class JsonPackageTest extends SnapiTestContext {
 
   private val junkAfter10Items = tempFile("""[
     |  {"a": 1, "b": "#1", "c": 1.1},

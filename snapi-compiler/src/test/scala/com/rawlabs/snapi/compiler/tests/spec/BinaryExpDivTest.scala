@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class BinaryExpDivTest extends Rql2TestContext with CombinationSpecTestHelper {
+class BinaryExpDivTest extends SnapiTestContext with CombinationSpecTestHelper {
 
   test("""4 / 2""") { it =>
     it should typeAs("int")

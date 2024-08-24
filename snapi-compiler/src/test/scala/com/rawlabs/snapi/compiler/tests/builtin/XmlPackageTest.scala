@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class XmlPackageTest extends Rql2TestContext {
+class XmlPackageTest extends SnapiTestContext {
 
   private val allTypes = tempFile("""<items>
     | <byte>120</byte>

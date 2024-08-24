@@ -43,7 +43,7 @@ class KryoEncodeEntry extends EntryExtension {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[String, Type] = Right(Rql2BinaryType())
+  )(implicit programContext: ProgramContext): Either[String, Type] = Right(SnapiBinaryType())
 
 }
 
@@ -58,7 +58,7 @@ class KryoDecodeEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    if (idx == 0) Right(ExpParam(Rql2BinaryType()))
+    if (idx == 0) Right(ExpParam(SnapiBinaryType()))
     else Right(TypeParam(AnythingType()))
   }
 

@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class StagedCompilerTest extends Rql2TestContext {
+class StagedCompilerTest extends SnapiTestContext {
 
   val data = tempFile("""
     |[

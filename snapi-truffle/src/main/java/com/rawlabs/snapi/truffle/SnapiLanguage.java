@@ -37,7 +37,7 @@ import com.rawlabs.snapi.frontend.rql2.phases.ListProjDesugarerPhase;
 import com.rawlabs.snapi.frontend.rql2.phases.PropagationPhase;
 import com.rawlabs.snapi.frontend.rql2.phases.SugarExtensionDesugarerPhase;
 import com.rawlabs.snapi.frontend.rql2.source.InternalSourcePrettyPrinter;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2Program;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiProgram;
 import com.rawlabs.snapi.frontend.rql2.source.SourceProgram;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmit;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleValidationException;
@@ -52,11 +52,11 @@ import org.graalvm.options.OptionDescriptors;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(
-    id = Rql2Language.ID,
+    id = SnapiLanguage.ID,
     name = "RQL",
-    version = Rql2Language.VERSION,
-    defaultMimeType = Rql2Language.MIME_TYPE,
-    characterMimeTypes = Rql2Language.MIME_TYPE)
+    version = SnapiLanguage.VERSION,
+    defaultMimeType = SnapiLanguage.MIME_TYPE,
+    characterMimeTypes = SnapiLanguage.MIME_TYPE)
 @ProvidedTags({
   StandardTags.CallTag.class,
   StandardTags.StatementTag.class,
@@ -66,13 +66,13 @@ import scala.collection.JavaConverters;
   StandardTags.ReadVariableTag.class,
   StandardTags.WriteVariableTag.class
 })
-public final class Rql2Language extends TruffleLanguage<Rql2Context> {
+public final class SnapiLanguage extends TruffleLanguage<SnapiContext> {
 
   public static final String ID = "rql";
   public static final String VERSION = "0.10";
   public static final String MIME_TYPE = "application/x-rql";
 
-  private static final Rql2LanguageCache languageCache = new Rql2LanguageCache();
+  private static final SnapiLanguageCache languageCache = new SnapiLanguageCache();
 
   private static final RawSettings defaultRawSettings =
       new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
@@ -92,23 +92,23 @@ public final class Rql2Language extends TruffleLanguage<Rql2Context> {
   }
 
   @Override
-  protected final Rql2Context createContext(Env env) {
-    Rql2Context context = new Rql2Context(this, env);
+  protected final SnapiContext createContext(Env env) {
+    SnapiContext context = new SnapiContext(this, env);
     // The language cache keeps track of active contexts, so that it knows when to shutdown itself.
     languageCache.incrementContext(context);
     return context;
   }
 
   @Override
-  protected void finalizeContext(Rql2Context context) {
+  protected void finalizeContext(SnapiContext context) {
     // The language cache keeps track of active contexts, so that it knows when to shutdown itself.
     languageCache.releaseContext(context);
   }
 
-  private static final LanguageReference<Rql2Language> REFERENCE =
-      LanguageReference.create(Rql2Language.class);
+  private static final LanguageReference<SnapiLanguage> REFERENCE =
+      LanguageReference.create(SnapiLanguage.class);
 
-  public static Rql2Language get(Node node) {
+  public static SnapiLanguage get(Node node) {
     return REFERENCE.get(node);
   }
 
@@ -116,12 +116,12 @@ public final class Rql2Language extends TruffleLanguage<Rql2Context> {
 
   @Override
   protected OptionDescriptors getOptionDescriptors() {
-    return Rql2Options.OPTION_DESCRIPTORS;
+    return SnapiOptions.OPTION_DESCRIPTORS;
   }
 
   @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
-    Rql2Context context = Rql2Context.get(null);
+    SnapiContext context = SnapiContext.get(null);
 
     ProgramContext programContext =
         new ProgramContext(
@@ -136,13 +136,13 @@ public final class Rql2Language extends TruffleLanguage<Rql2Context> {
     if (context
         .getEnv()
         .getOptions()
-        .get(Rql2Options.STAGED_COMPILER_KEY)
+        .get(SnapiOptions.STAGED_COMPILER_KEY)
         .equalsIgnoreCase("true")) {
       frontend = false;
     }
     TreeWithPositions tree = new TreeWithPositions(source, false, frontend, programContext);
     if (tree.valid()) {
-      Rql2Program inputProgram = (Rql2Program) tree.root();
+      SnapiProgram inputProgram = (SnapiProgram) tree.root();
       SourceProgram outputProgram = transpile(inputProgram, programContext);
       Entrypoint entrypoint = TruffleEmit.doEmit(outputProgram, this, programContext);
       RootNode rootNode = (RootNode) entrypoint.target();
@@ -237,7 +237,7 @@ public final class Rql2Language extends TruffleLanguage<Rql2Context> {
   // We return the function registry as a polyglot 'hasMembers' object (members
   // are the function names, that resolve to the function objects).
   @Override
-  protected Object getScope(Rql2Context context) {
+  protected Object getScope(SnapiContext context) {
     return context.getFunctionRegistry().asPolyglot();
   }
 

@@ -13,22 +13,22 @@
 package com.rawlabs.snapi.truffle.emitter;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public interface TruffleEntryExtension {
-  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     throw new UnsupportedOperationException("Not implemented");
   }
 
-  default ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+  default ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
     return toTruffle(type, rql2argsToTruffleArgs(args, emitter), emitter.getLanguage());
   }
 
-  default List<TruffleArg> rql2argsToTruffleArgs(List<Rql2Arg> args, TruffleEmitter emitter) {
+  default List<TruffleArg> rql2argsToTruffleArgs(List<SnapiArg> args, TruffleEmitter emitter) {
     return args.stream()
         .map(
             a ->

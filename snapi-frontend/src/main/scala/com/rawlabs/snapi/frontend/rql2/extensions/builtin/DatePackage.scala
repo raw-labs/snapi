@@ -60,8 +60,8 @@ class DateBuildEntry
     extends ShortEntryExtension(
       "Date",
       "Build",
-      Vector(Rql2IntType(), Rql2IntType(), Rql2IntType()),
-      Rql2DateType(Set(Rql2IsTryableTypeProperty())),
+      Vector(SnapiIntType(), SnapiIntType(), SnapiIntType()),
+      SnapiDateType(Set(SnapiIsTryableTypeProperty())),
       docs = EntryDoc(
         "Builds a date value.",
         examples = List(ExampleDoc("""Date.Build(2022, 1, 15)""", result = Some("15th January 2022"))),
@@ -78,8 +78,8 @@ class DateFromEpochDayEntry
     extends ShortEntryExtension(
       "Date",
       "FromEpochDay",
-      Vector(Rql2LongType()),
-      Rql2DateType(),
+      Vector(SnapiLongType()),
+      SnapiDateType(),
       EntryDoc(
         summary = "Builds a date by adding the number of days from 1970-01-01 (Unix epoch).",
         examples = List(
@@ -98,8 +98,8 @@ class DateFromTimestampEntry
     extends ShortEntryExtension(
       "Date",
       "FromTimestamp",
-      Vector(Rql2TimestampType()),
-      Rql2DateType(),
+      Vector(SnapiTimestampType()),
+      SnapiDateType(),
       EntryDoc(
         summary = "Builds a date from a timestamp.",
         examples = List(
@@ -116,8 +116,8 @@ class DateParseEntry
     extends ShortEntryExtension(
       "Date",
       "Parse",
-      Vector(Rql2StringType(), Rql2StringType()),
-      Rql2DateType(Set(Rql2IsTryableTypeProperty())),
+      Vector(SnapiStringType(), SnapiStringType()),
+      SnapiDateType(Set(SnapiIsTryableTypeProperty())),
       EntryDoc(
         summary = "Parses a date from a string.",
         description = Some(
@@ -140,7 +140,7 @@ class DateNowEntry
       "Date",
       "Now",
       Vector(),
-      Rql2DateType(),
+      SnapiDateType(),
       EntryDoc(
         summary = "Returns the current date.",
         ret = Some(ReturnDoc("The current date.", retType = Some(TypeDoc(List("date")))))
@@ -151,8 +151,8 @@ class DateYearEntry
     extends ShortEntryExtension(
       "Date",
       "Year",
-      Vector(Rql2DateType()),
-      Rql2IntType(),
+      Vector(SnapiDateType()),
+      SnapiIntType(),
       EntryDoc(
         summary = "Returns the year component of the date.",
         examples = List(ExampleDoc("""Date.Year(Date.Build(1975, 6, 23))""", result = Some("1975"))),
@@ -167,8 +167,8 @@ class DateMonthEntry
     extends ShortEntryExtension(
       "Date",
       "Month",
-      Vector(Rql2DateType()),
-      Rql2IntType(),
+      Vector(SnapiDateType()),
+      SnapiIntType(),
       EntryDoc(
         summary = "Returns the month component of the date.",
         examples = List(ExampleDoc("""Date.Month(Date.Build(1975, 6, 23))""", result = Some("6"))),
@@ -183,8 +183,8 @@ class DateDayEntry
     extends ShortEntryExtension(
       "Date",
       "Day",
-      Vector(Rql2DateType()),
-      Rql2IntType(),
+      Vector(SnapiDateType()),
+      SnapiIntType(),
       EntryDoc(
         summary = "Returns the day component of the date.",
         examples = List(ExampleDoc("""Date.Day(Date.Build(1975, 6, 23))""", result = Some("23"))),
@@ -199,8 +199,8 @@ class DateSubtractEntry
     extends ShortEntryExtension(
       "Date",
       "Subtract",
-      Vector(Rql2DateType(), Rql2DateType()),
-      Rql2IntervalType(),
+      Vector(SnapiDateType(), SnapiDateType()),
+      SnapiIntervalType(),
       EntryDoc(
         summary = "Subtracts two dates.",
         examples = List(
@@ -225,8 +225,8 @@ class DateAddIntervalEntry
     extends ShortEntryExtension(
       "Date",
       "AddInterval",
-      mandatoryParams = Vector(Rql2DateType(), Rql2IntervalType()),
-      returnType = Rql2TimestampType(),
+      mandatoryParams = Vector(SnapiDateType(), SnapiIntervalType()),
+      returnType = SnapiTimestampType(),
       EntryDoc(
         summary = "Adds an interval to a date.",
         examples = List(
@@ -256,8 +256,8 @@ class DateSubtractIntervalEntry
     extends ShortEntryExtension(
       "Date",
       "SubtractInterval",
-      mandatoryParams = Vector(Rql2DateType(), Rql2IntervalType()),
-      returnType = Rql2TimestampType(),
+      mandatoryParams = Vector(SnapiDateType(), SnapiIntervalType()),
+      returnType = SnapiTimestampType(),
       EntryDoc(
         summary = "Subtracts an interval to a date.",
         examples = List(

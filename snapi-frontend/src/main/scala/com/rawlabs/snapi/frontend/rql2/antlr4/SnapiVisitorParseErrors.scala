@@ -16,7 +16,7 @@ import com.rawlabs.compiler.Message
 
 import scala.collection.mutable
 
-class Rql2VisitorParseErrors {
+class SnapiVisitorParseErrors {
 
   private val errors = new mutable.ListBuffer[Message]
 

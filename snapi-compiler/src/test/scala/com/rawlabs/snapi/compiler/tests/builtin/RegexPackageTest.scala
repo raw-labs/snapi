@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RegexPackageTest extends Rql2TestContext {
+class RegexPackageTest extends SnapiTestContext {
 
   test("""Regex.Replace("Heelloo John", "[aeiou]+", "_")""")(it => it should evaluateTo(""" "H_ll_ J_hn" """))
 

@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LetFunTest extends Rql2TestContext {
+class LetFunTest extends SnapiTestContext {
 
   test("""let f(x: int) = x + 1
     |in f(0)

@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.ValidateResponse
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LspValidateTest extends Rql2TestContext {
+class LspValidateTest extends SnapiTestContext {
 
   test("validate simple code test") { _ =>
     val code = """String.Lower("Hello")""".stripMargin

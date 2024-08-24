@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin
 
 import com.rawlabs.utils.core.TestData
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class FunctionPackageTest extends Rql2TestContext {
+class FunctionPackageTest extends SnapiTestContext {
 
   test("""Function.InvokeAfter(() -> 1 +1, 10)""".stripMargin)(_ should evaluateTo("2"))
 

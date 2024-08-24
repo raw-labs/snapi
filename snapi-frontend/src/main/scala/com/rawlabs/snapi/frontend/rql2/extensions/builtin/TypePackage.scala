@@ -129,18 +129,18 @@ class TypeProtectCastEntry extends EntryExtension {
   // TODO (bgaidioz) share the code somewhere?
   private def extraProps(target: Type, source: Type) = {
 
-    def recurse(target: Type, source: Type): Set[Rql2TypeProperty] = (target, source) match {
-      case (Rql2ListType(inner1, props1), Rql2ListType(inner2, props2)) => recurse(inner1, inner2) ++ (props2 &~ props1)
-      case (Rql2IterableType(_, props1), Rql2IterableType(_, props2)) =>
+    def recurse(target: Type, source: Type): Set[SnapiTypeProperty] = (target, source) match {
+      case (SnapiListType(inner1, props1), SnapiListType(inner2, props2)) => recurse(inner1, inner2) ++ (props2 &~ props1)
+      case (SnapiIterableType(_, props1), SnapiIterableType(_, props2)) =>
         // inner types aren't checked because iterables aren't consumed in the moment they're passed to
         // the function. No exception will be raised under ProtectCast regarding an iterable's items.
         props2 &~ props1
-      case (Rql2RecordType(atts1, props1), Rql2RecordType(atts2, props2)) =>
+      case (SnapiRecordType(atts1, props1), SnapiRecordType(atts2, props2)) =>
         val tipes1 = atts1.map(_.tipe)
         val tipes2 = atts2.map(_.tipe)
         assert(tipes1.size == tipes2.size)
         tipes1.zip(tipes2).flatMap { case (t1, t2) => recurse(t1, t2) }.toSet ++ (props2 &~ props1)
-      case (t1: Rql2TypeWithProperties, t2: Rql2TypeWithProperties) => t2.props &~ t1.props
+      case (t1: SnapiTypeWithProperties, t2: SnapiTypeWithProperties) => t2.props &~ t1.props
     }
     recurse(target, source)
   }
@@ -204,12 +204,12 @@ class TypeMatchEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(Rql2OrType(Vector(AnythingType()))))
+    Right(ExpParam(SnapiOrType(Vector(AnythingType()))))
   }
   override def hasVarArgs: Boolean = true
 
   override def getVarParam(prevMandatoryArgs: Seq[Arg], prevVarArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    val Rql2OrType(options, _) = prevMandatoryArgs(0).t
+    val SnapiOrType(options, _) = prevMandatoryArgs(0).t
     if (idx == 0) Right(ExpParam(OneOfType(options.map(o => FunType(Vector(o), Vector.empty, AnythingType())))))
     else {
       val FunType(_, _, outputType, _) = prevVarArgs(0).t
@@ -223,7 +223,7 @@ class TypeMatchEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val typesMerger = new TypesMerger
-    val Rql2OrType(options, _) = mandatoryArgs(0).t
+    val SnapiOrType(options, _) = mandatoryArgs(0).t
     val varTypes: Vector[Type] = varArgs.map(_.t).collect { case FunType(Vector(t), _, _, _) => t }.toVector
     val distincted = varTypes.groupBy(identity).mapValues(v => v.length)
     if (distincted.exists(_._2 >= 2)) return Left("only one handler function per type is expected")

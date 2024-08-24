@@ -20,7 +20,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.xml.XmlParserTruffleException;
@@ -40,7 +40,7 @@ public class RecordParseXmlNode extends ExpressionNode {
   // Field name and its index in the childDirectCalls array
   private final int fieldsSize;
   private final String[] fields;
-  private final Rql2TypeWithProperties[] fieldTypes;
+  private final SnapiTypeWithProperties[] fieldTypes;
   private final Map<String, ArrayList<Object>> collectionValues = new HashMap<>();
   private final Map<String, Integer> fieldsIndex = new HashMap<>();
   private final Map<String, Integer> attributesIndex = new HashMap<>();
@@ -49,12 +49,12 @@ public class RecordParseXmlNode extends ExpressionNode {
   private final BitSet bitSet;
   private final boolean hasDuplicateKeys;
 
-  private final Rql2Language language = Rql2Language.get(this);
+  private final SnapiLanguage language = SnapiLanguage.get(this);
 
   public RecordParseXmlNode(
-      ProgramExpressionNode[] childProgramExpressionNode,
-      String[] fieldNames,
-      Rql2TypeWithProperties[] fieldTypes) {
+          ProgramExpressionNode[] childProgramExpressionNode,
+          String[] fieldNames,
+          SnapiTypeWithProperties[] fieldTypes) {
     this.fieldTypes = fieldTypes;
     this.fields = fieldNames;
     this.fieldsSize = childProgramExpressionNode.length;
@@ -73,7 +73,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       }
       // take note of fields that should be parsed as collections
       Type fieldType = fieldTypes[index];
-      if (fieldType instanceof Rql2IterableType || fieldType instanceof Rql2ListType) {
+      if (fieldType instanceof SnapiIterableType || fieldType instanceof SnapiListType) {
         collectionsIndex.put(fieldName, index);
         refBitSet.set(index);
       }
@@ -149,7 +149,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       ObjectList list = new ObjectList(items.toArray());
       int index = collectionsIndex.get(keys[i]);
       Type fieldType = fieldTypes[index];
-      if (fieldType instanceof Rql2IterableType) {
+      if (fieldType instanceof SnapiIterableType) {
         // if the collection is an iterable, convert the list to an iterable.
         addPropNode[i].execute(this, record, keys[i], list.toIterable(), hasDuplicateKeys);
       } else {
@@ -165,7 +165,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       for (int i = 0; i < fieldsSize; i++) {
         String fieldName = fields[i];
         if (!bitSet.get(i)) {
-          if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
+          if (fieldTypes[i].props().contains(SnapiIsNullableTypeProperty.apply())) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.

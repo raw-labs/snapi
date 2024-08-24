@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.{HoverResponse, PackageCompletion, PackageEntryCompletion, Pos, TypeCompletion}
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LspHoverTest extends Rql2TestContext {
+class LspHoverTest extends SnapiTestContext {
 
   test("hover identifier at definition test") { _ =>
     val code = """let

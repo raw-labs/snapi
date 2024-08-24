@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.protocol.compiler.HttpHeadersConfig;
 import com.rawlabs.protocol.compiler.LocationConfig;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.list.ListNodes;
@@ -164,7 +164,7 @@ public class LocationFromHttpNode extends ExpressionNode {
                                 .encodeToString((username + ":" + password).getBytes())));
       }
 
-      Rql2Context context = Rql2Context.get(this);
+      SnapiContext context = SnapiContext.get(this);
 
       // Append any additional headers related to the authentication (if credential name is defined)
       if (this.authCredentialName != null) {

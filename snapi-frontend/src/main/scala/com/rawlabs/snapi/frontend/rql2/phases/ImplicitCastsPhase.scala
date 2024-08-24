@@ -16,7 +16,7 @@ import com.rawlabs.snapi.frontend.base.Phase
 import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin._
-import com.rawlabs.snapi.frontend.rql2.{PipelinedPhase, Rql2TypeUtils, Tree}
+import com.rawlabs.snapi.frontend.rql2.{PipelinedPhase, SnapiTypeUtils, Tree}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 
@@ -26,7 +26,7 @@ import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected val phaseName: String)(
     protected val baseProgramContext: com.rawlabs.snapi.frontend.base.ProgramContext
 ) extends PipelinedPhase
-    with Rql2TypeUtils {
+    with SnapiTypeUtils {
 
   override protected def execute(program: SourceProgram): SourceProgram = {
     implicitCast(program)
@@ -39,17 +39,17 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
     // Cast "e" from "actual" type to "expected".
     def cast(e: Exp, actual: Type, expected: Type): Option[Exp] = {
       if (actual == expected) None
-      else if (actual == Rql2UndefinedType()) Some(TypePackageBuilder.Empty(expected))
+      else if (actual == SnapiUndefinedType()) Some(TypePackageBuilder.Empty(expected))
       else expected match {
-        case r: Rql2TypeWithProperties =>
+        case r: SnapiTypeWithProperties =>
           val expectedProps = r.props
           val actualProps = getProps(actual)
-          if (expectedProps.contains(Rql2IsTryableTypeProperty())) {
-            if (actualProps.contains(Rql2IsTryableTypeProperty())) {
+          if (expectedProps.contains(SnapiIsTryableTypeProperty())) {
+            if (actualProps.contains(SnapiIsTryableTypeProperty())) {
               // both are tryables, cast in TryPackage.Transform
               val arg = IdnDef()
-              val a = removeProp(actual, Rql2IsTryableTypeProperty())
-              val t = removeProp(expected, Rql2IsTryableTypeProperty())
+              val a = removeProp(actual, SnapiIsTryableTypeProperty())
+              val t = removeProp(expected, SnapiIsTryableTypeProperty())
               cast(IdnExp(arg.idn), a, t).map { xCode =>
                 val mapFun = FunAbs(
                   FunProto(Vector(FunParam(arg, Some(a), None)), Some(t), FunBody(xCode))
@@ -58,24 +58,24 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
               }
             } else {
               // expected is tryable, not actual. This case is casting, say, Int to Success(Float)
-              cast(e, actual, removeProp(expected, Rql2IsTryableTypeProperty())) match {
+              cast(e, actual, removeProp(expected, SnapiIsTryableTypeProperty())) match {
                 case Some(ne) => Some(SuccessPackageBuilder.Build(ne))
                 case None => Some(SuccessPackageBuilder.Build(e))
               }
             }
-          } else if (actualProps.contains(Rql2IsTryableTypeProperty())) {
+          } else if (actualProps.contains(SnapiIsTryableTypeProperty())) {
             // expected isn't tryable, but actual is. We use a .get
-            val inner = cast(e, actual, addProp(expected, Rql2IsTryableTypeProperty()))
+            val inner = cast(e, actual, addProp(expected, SnapiIsTryableTypeProperty()))
             val inner2 = inner.getOrElse(e)
             Some(TryPackageBuilder.UnsafeGet(inner2))
           } else {
             // expected isn't tryable
-            if (expectedProps.contains(Rql2IsNullableTypeProperty())) {
-              if (actualProps.contains(Rql2IsNullableTypeProperty())) {
+            if (expectedProps.contains(SnapiIsNullableTypeProperty())) {
+              if (actualProps.contains(SnapiIsNullableTypeProperty())) {
                 // both are nullables, use Null.Transform
                 val arg = IdnDef()
-                val a = removeProp(actual, Rql2IsNullableTypeProperty())
-                val t = removeProp(expected, Rql2IsNullableTypeProperty())
+                val a = removeProp(actual, SnapiIsNullableTypeProperty())
+                val t = removeProp(expected, SnapiIsNullableTypeProperty())
                 cast(IdnExp(arg.idn), a, t).map { xCode =>
                   val mapFun = FunAbs(
                     FunProto(Vector(FunParam(arg, Some(a), None)), Some(t), FunBody(xCode))
@@ -85,72 +85,72 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
               } else {
                 // expected is nullable, not actual
                 // This case is casting, say, Int to Option(Float)
-                cast(e, actual, removeProp(expected, Rql2IsNullableTypeProperty())) match {
+                cast(e, actual, removeProp(expected, SnapiIsNullableTypeProperty())) match {
                   case Some(ne) => Some(NullablePackageBuilder.Build(ne))
                   case None => Some(NullablePackageBuilder.Build(e))
                 }
               }
             } else {
               // expected isn't nullable
-              if (actualProps.contains(Rql2IsNullableTypeProperty())) {
+              if (actualProps.contains(SnapiIsNullableTypeProperty())) {
                 // expected isn't nullable, but actual is. We stack .get on actual
-                val inner = cast(e, actual, addProp(expected, Rql2IsNullableTypeProperty()))
+                val inner = cast(e, actual, addProp(expected, SnapiIsNullableTypeProperty()))
                 val inner2 = inner.getOrElse(e)
                 Some(NullablePackageBuilder.UnsafeGet(inner2))
               } else {
                 // regular cast
                 expected match {
-                  case _: Rql2ShortType => actual match {
-                      case _: Rql2ByteType => Some(ShortPackageBuilder.From(e))
+                  case _: SnapiShortType => actual match {
+                      case _: SnapiByteType => Some(ShortPackageBuilder.From(e))
                       case _ => None
                     }
-                  case _: Rql2IntType => actual match {
-                      case _: Rql2ByteType => Some(IntPackageBuilder.From(e))
-                      case _: Rql2ShortType => Some(IntPackageBuilder.From(e))
+                  case _: SnapiIntType => actual match {
+                      case _: SnapiByteType => Some(IntPackageBuilder.From(e))
+                      case _: SnapiShortType => Some(IntPackageBuilder.From(e))
                       case _ => None
                     }
-                  case _: Rql2LongType => actual match {
-                      case _: Rql2ByteType => Some(LongPackageBuilder.From(e))
-                      case _: Rql2ShortType => Some(LongPackageBuilder.From(e))
-                      case _: Rql2IntType => Some(LongPackageBuilder.From(e))
+                  case _: SnapiLongType => actual match {
+                      case _: SnapiByteType => Some(LongPackageBuilder.From(e))
+                      case _: SnapiShortType => Some(LongPackageBuilder.From(e))
+                      case _: SnapiIntType => Some(LongPackageBuilder.From(e))
                       case _ => None
                     }
-                  case _: Rql2FloatType => actual match {
-                      case _: Rql2ByteType => Some(FloatPackageBuilder.From(e))
-                      case _: Rql2ShortType => Some(FloatPackageBuilder.From(e))
-                      case _: Rql2IntType => Some(FloatPackageBuilder.From(e))
-                      case _: Rql2LongType => Some(FloatPackageBuilder.From(e))
+                  case _: SnapiFloatType => actual match {
+                      case _: SnapiByteType => Some(FloatPackageBuilder.From(e))
+                      case _: SnapiShortType => Some(FloatPackageBuilder.From(e))
+                      case _: SnapiIntType => Some(FloatPackageBuilder.From(e))
+                      case _: SnapiLongType => Some(FloatPackageBuilder.From(e))
                       case _ => None
                     }
-                  case _: Rql2DoubleType => actual match {
-                      case _: Rql2ByteType => Some(DoublePackageBuilder.From(e))
-                      case _: Rql2ShortType => Some(DoublePackageBuilder.From(e))
-                      case _: Rql2IntType => Some(DoublePackageBuilder.From(e))
-                      case _: Rql2LongType => Some(DoublePackageBuilder.From(e))
-                      case _: Rql2FloatType => Some(DoublePackageBuilder.From(e))
+                  case _: SnapiDoubleType => actual match {
+                      case _: SnapiByteType => Some(DoublePackageBuilder.From(e))
+                      case _: SnapiShortType => Some(DoublePackageBuilder.From(e))
+                      case _: SnapiIntType => Some(DoublePackageBuilder.From(e))
+                      case _: SnapiLongType => Some(DoublePackageBuilder.From(e))
+                      case _: SnapiFloatType => Some(DoublePackageBuilder.From(e))
                       case _ => None
                     }
-                  case _: Rql2DecimalType => actual match {
-                      case _: Rql2ByteType => Some(DecimalPackageBuilder.From(e))
-                      case _: Rql2ShortType => Some(DecimalPackageBuilder.From(e))
-                      case _: Rql2IntType => Some(DecimalPackageBuilder.From(e))
-                      case _: Rql2LongType => Some(DecimalPackageBuilder.From(e))
-                      case _: Rql2FloatType => Some(DecimalPackageBuilder.From(e))
-                      case _: Rql2DoubleType => Some(DecimalPackageBuilder.From(e))
+                  case _: SnapiDecimalType => actual match {
+                      case _: SnapiByteType => Some(DecimalPackageBuilder.From(e))
+                      case _: SnapiShortType => Some(DecimalPackageBuilder.From(e))
+                      case _: SnapiIntType => Some(DecimalPackageBuilder.From(e))
+                      case _: SnapiLongType => Some(DecimalPackageBuilder.From(e))
+                      case _: SnapiFloatType => Some(DecimalPackageBuilder.From(e))
+                      case _: SnapiDoubleType => Some(DecimalPackageBuilder.From(e))
                       case _ => None
                     }
-                  case _: Rql2TimestampType => actual match {
-                      case _: Rql2DateType => Some(TimestampPackageBuilder.FromDate(e))
+                  case _: SnapiTimestampType => actual match {
+                      case _: SnapiDateType => Some(TimestampPackageBuilder.FromDate(e))
                       case _ => None
                     }
-                  case _: Rql2LocationType => actual match {
-                      case _: Rql2StringType => Some(LocationPackageBuilder.FromString(e))
+                  case _: SnapiLocationType => actual match {
+                      case _: SnapiStringType => Some(LocationPackageBuilder.FromString(e))
                       case _ => None
                     }
-                  case Rql2IterableType(t, _) => actual match {
-                      case Rql2IterableType(Rql2UndefinedType(props), _) if props.isEmpty =>
+                  case SnapiIterableType(t, _) => actual match {
+                      case SnapiIterableType(SnapiUndefinedType(props), _) if props.isEmpty =>
                         Some(CollectionPackageBuilder.Empty(t))
-                      case Rql2IterableType(a, _) =>
+                      case SnapiIterableType(a, _) =>
                         val arg = IdnDef()
                         cast(IdnExp(arg.idn), a, t).map { xCode =>
                           val mapFun = FunAbs(
@@ -159,10 +159,10 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
                           CollectionPackageBuilder.Transform(e, mapFun)
                         }
                     }
-                  case Rql2ListType(t, _) => actual match {
-                      case Rql2ListType(Rql2UndefinedType(props), _) if props.isEmpty =>
+                  case SnapiListType(t, _) => actual match {
+                      case SnapiListType(SnapiUndefinedType(props), _) if props.isEmpty =>
                         Some(ListPackageBuilder.Empty(t))
-                      case Rql2ListType(a, _) =>
+                      case SnapiListType(a, _) =>
                         val arg = IdnDef()
                         cast(IdnExp(arg.idn), a, t).map { xCode =>
                           val mapFun = FunAbs(
@@ -171,8 +171,8 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
                           ListPackageBuilder.Transform(e, mapFun)
                         }
                     }
-                  case Rql2RecordType(expectedFields, _) => actual match {
-                      case Rql2RecordType(actualFields, _) =>
+                  case SnapiRecordType(expectedFields, _) => actual match {
+                      case SnapiRecordType(actualFields, _) =>
                         assert(expectedFields.size == actualFields.size)
                         // We'll copy the record in that variable so that its value
                         // isn't duplicated (RD-5502)
@@ -292,11 +292,11 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
               val ExpType(t) = analyzer.tipe(args(1).e)
               t
             case ("List", "Build") =>
-              val Rql2ListType(itemType, props) = analyzer.tipe(fa)
+              val SnapiListType(itemType, props) = analyzer.tipe(fa)
               assert(props.isEmpty)
               itemType
             case ("Collection", "Build") =>
-              val Rql2IterableType(itemType, props) = analyzer.tipe(fa)
+              val SnapiIterableType(itemType, props) = analyzer.tipe(fa)
               assert(props.isEmpty)
               itemType
             case ("Collection", "Union") => analyzer.tipe(fa)
@@ -362,9 +362,9 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
       case LetFunRec(idn, p) =>
         val FunType(_, _, rType, _) = analyzer.idnType(idn)
         handleProto(p, rType) <* rule[Any] { case nProto: FunProto => LetFunRec(idn, nProto) }
-      case Rql2Method(p, idn) =>
+      case SnapiMethod(p, idn) =>
         val FunType(_, _, rType, _) = analyzer.idnType(idn)
-        handleProto(p, rType) <* rule[Any] { case nProto: FunProto => Rql2Method(nProto, idn) }
+        handleProto(p, rType) <* rule[Any] { case nProto: FunProto => SnapiMethod(nProto, idn) }
       case unaryExp @ UnaryExp(op, e) => congruence(id, s) <* rule[Any] {
           case UnaryExp(_, re) =>
             val t = analyzer.tipe(unaryExp)
@@ -376,7 +376,7 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
           case BinaryExp(_, re1, re2) =>
             val te1 = analyzer.tipe(e1)
             val te2 = analyzer.tipe(e2)
-            val tm = Rql2BoolType(Set(Rql2IsNullableTypeProperty()))
+            val tm = SnapiBoolType(Set(SnapiIsNullableTypeProperty()))
             val ne1 = cast(re1, te1, tm).getOrElse(re1)
             val ne2 = cast(e2, te2, tm).getOrElse(re2)
             BinaryExp(op, ne1, ne2)
@@ -410,7 +410,7 @@ class ImplicitCastsPhase(protected val parent: Phase[SourceProgram], protected v
         congruence(s, s, s) <* rule[Any] {
           case r @ IfThenElse(re1, re2, re3) => analyzer.mergeType(te2, te3) match {
               case Some(tm) =>
-                val ne1 = cast(re1, te1, Rql2BoolType()).getOrElse(re1)
+                val ne1 = cast(re1, te1, SnapiBoolType()).getOrElse(re1)
                 val ne2 = cast(re2, te2, tm).getOrElse(re2)
                 val ne3 = cast(re3, te3, tm).getOrElse(re3)
                 IfThenElse(ne1, ne2, ne3)

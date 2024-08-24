@@ -16,8 +16,8 @@ import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.trya
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ParseJsonEntry;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.io.json.reader.JsonParseNode;
 import com.rawlabs.snapi.truffle.ast.io.json.reader.JsonParseNodeGen;
@@ -29,7 +29,7 @@ import java.util.List;
 public class TruffleParseJsonEntry extends ParseJsonEntry
     implements TruffleEntryExtension, WithJsonArgs {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     ExpressionNode timeFormat = timeFormat(args);
     ExpressionNode dateFormat = dateFormat(args);
     ExpressionNode timestampFormat = timestampFormat(args);
@@ -40,8 +40,8 @@ public class TruffleParseJsonEntry extends ParseJsonEntry
     JsonParseNode parseNode =
         JsonParseNodeGen.create(
             unnamedArgs[0],
-            parser.recurse((Rql2TypeWithProperties) type, rawLanguage).getCallTarget());
-    if (((Rql2TypeWithProperties) type).props().contains(tryable))
+            parser.recurse((SnapiTypeWithProperties) type, rawLanguage).getCallTarget());
+    if (((SnapiTypeWithProperties) type).props().contains(tryable))
       return new TryableTopLevelWrapper(parseNode);
     else return parseNode;
   }

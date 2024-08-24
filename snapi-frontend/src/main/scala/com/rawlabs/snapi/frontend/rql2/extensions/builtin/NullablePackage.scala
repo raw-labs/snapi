@@ -77,7 +77,7 @@ class NullableEmptyEntry extends EntryExtension {
   override def hasVarArgs: Boolean = false
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = idx match {
-    case 0 => Right(TypeParam(DoesNotHaveTypeProperties(Set(Rql2IsNullableTypeProperty()))))
+    case 0 => Right(TypeParam(DoesNotHaveTypeProperties(Set(SnapiIsNullableTypeProperty()))))
   }
 
   override def returnType(
@@ -86,7 +86,7 @@ class NullableEmptyEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val TypeArg(t) = mandatoryArgs(0)
-    Right(addProp(t, Rql2IsNullableTypeProperty()))
+    Right(addProp(t, SnapiIsNullableTypeProperty()))
   }
 
 }
@@ -110,7 +110,7 @@ class NullableBuildEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val t = addProp(mandatoryArgs(0).t, Rql2IsNullableTypeProperty())
+    val t = addProp(mandatoryArgs(0).t, SnapiIsNullableTypeProperty())
     Right(t)
   }
 
@@ -143,7 +143,7 @@ class NullableIsNullEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(HasTypeProperties(Set(Rql2IsNullableTypeProperty()))))
+    Right(ExpParam(HasTypeProperties(Set(SnapiIsNullableTypeProperty()))))
   }
 
   override def returnType(
@@ -151,7 +151,7 @@ class NullableIsNullEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2BoolType())
+    Right(SnapiBoolType())
   }
 
 }
@@ -167,7 +167,7 @@ class NullableUnsafeGetEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(HasTypeProperties(Set(Rql2IsNullableTypeProperty()))))
+    Right(ExpParam(HasTypeProperties(Set(SnapiIsNullableTypeProperty()))))
   }
 
   override def returnType(
@@ -176,7 +176,7 @@ class NullableUnsafeGetEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val ExpArg(_, t) = mandatoryArgs(0)
-    Right(removeProp(t, Rql2IsNullableTypeProperty()))
+    Right(removeProp(t, SnapiIsNullableTypeProperty()))
   }
 
 }
@@ -192,12 +192,12 @@ class NullableTransformEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = idx match {
-    case 0 => Right(ExpParam(HasTypeProperties(Set(Rql2IsNullableTypeProperty()))))
+    case 0 => Right(ExpParam(HasTypeProperties(Set(SnapiIsNullableTypeProperty()))))
     case 1 =>
       val ExpArg(_, t) = prevMandatoryArgs(0)
-      val innerType = removeProp(t, Rql2IsNullableTypeProperty())
+      val innerType = removeProp(t, SnapiIsNullableTypeProperty())
       Right(
-        ExpParam(FunType(Vector(innerType), Vector.empty, DoesNotHaveTypeProperties(Set(Rql2IsNullableTypeProperty()))))
+        ExpParam(FunType(Vector(innerType), Vector.empty, DoesNotHaveTypeProperties(Set(SnapiIsNullableTypeProperty()))))
       )
   }
 
@@ -207,7 +207,7 @@ class NullableTransformEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val FunType(_, _, outType, _) = mandatoryArgs(1).t
-    val t = addProp(outType, Rql2IsNullableTypeProperty())
+    val t = addProp(outType, SnapiIsNullableTypeProperty())
     Right(t)
   }
 

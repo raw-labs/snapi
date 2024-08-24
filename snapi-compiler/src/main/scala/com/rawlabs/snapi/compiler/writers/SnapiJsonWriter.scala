@@ -14,7 +14,7 @@ package com.rawlabs.snapi.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import com.rawlabs.compiler.utils.RecordFieldsNaming
-import com.rawlabs.snapi.frontend.rql2.Rql2TypeUtils
+import com.rawlabs.snapi.frontend.rql2.SnapiTypeUtils
 import com.rawlabs.snapi.frontend.rql2.source._
 import org.graalvm.polyglot.Value
 
@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.util.control.NonFatal
 
-final class Rql2JsonWriter(os: OutputStream, maxRows: Option[Long]) extends Closeable {
+final class SnapiJsonWriter(os: OutputStream, maxRows: Option[Long]) extends Closeable {
 
   final private val gen =
     try {
@@ -37,27 +37,27 @@ final class Rql2JsonWriter(os: OutputStream, maxRows: Option[Long]) extends Clos
   final private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
   final private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
   final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
-  final private val tryable = Rql2IsTryableTypeProperty()
-  final private val nullable = Rql2IsNullableTypeProperty()
+  final private val tryable = SnapiIsTryableTypeProperty()
+  final private val nullable = SnapiIsNullableTypeProperty()
 
   private var maxRowsReached = false
 
   def complete: Boolean = !maxRowsReached
 
-  def write(v: Value, t: Rql2TypeWithProperties): Unit = {
+  def write(v: Value, t: SnapiTypeWithProperties): Unit = {
     if (t.props.contains(tryable)) {
       if (v.isException) {
         v.throwException()
       } else {
-        writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties], maxRows)
+        writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[SnapiTypeWithProperties], maxRows)
       }
     } else {
-      writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties], maxRows)
+      writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[SnapiTypeWithProperties], maxRows)
     }
   }
 
   @throws[IOException]
-  private def writeValue(v: Value, t: Rql2TypeWithProperties, maxRows: Option[Long]): Unit = {
+  private def writeValue(v: Value, t: SnapiTypeWithProperties, maxRows: Option[Long]): Unit = {
     if (t.props.contains(tryable)) {
       if (v.isException) {
         try {
@@ -65,38 +65,38 @@ final class Rql2JsonWriter(os: OutputStream, maxRows: Option[Long]) extends Clos
         } catch {
           case NonFatal(ex) => gen.writeString(ex.getMessage)
         }
-      } else writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties], maxRows = maxRows)
+      } else writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[SnapiTypeWithProperties], maxRows = maxRows)
     } else if (t.props.contains(nullable)) {
       if (v.isNull) gen.writeNull()
-      else writeValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties], maxRows = maxRows)
+      else writeValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[SnapiTypeWithProperties], maxRows = maxRows)
     } else {
       t match {
-        case _: Rql2BinaryType =>
+        case _: SnapiBinaryType =>
           val bytes = (0L until v.getBufferSize).map(v.readBufferByte)
           gen.writeString(Base64.getEncoder.encodeToString(bytes.toArray))
-        case _: Rql2BoolType => gen.writeBoolean(v.asBoolean())
-        case _: Rql2ByteType => gen.writeNumber(v.asByte().toInt)
-        case _: Rql2ShortType => gen.writeNumber(v.asShort().toInt)
-        case _: Rql2IntType => gen.writeNumber(v.asInt())
-        case _: Rql2LongType => gen.writeNumber(v.asLong())
-        case _: Rql2FloatType => gen.writeNumber(v.asFloat())
-        case _: Rql2DoubleType => gen.writeNumber(v.asDouble())
-        case _: Rql2DecimalType => gen.writeNumber(v.asString())
-        case _: Rql2StringType => gen.writeString(v.asString())
-        case _: Rql2DateType =>
+        case _: SnapiBoolType => gen.writeBoolean(v.asBoolean())
+        case _: SnapiByteType => gen.writeNumber(v.asByte().toInt)
+        case _: SnapiShortType => gen.writeNumber(v.asShort().toInt)
+        case _: SnapiIntType => gen.writeNumber(v.asInt())
+        case _: SnapiLongType => gen.writeNumber(v.asLong())
+        case _: SnapiFloatType => gen.writeNumber(v.asFloat())
+        case _: SnapiDoubleType => gen.writeNumber(v.asDouble())
+        case _: SnapiDecimalType => gen.writeNumber(v.asString())
+        case _: SnapiStringType => gen.writeString(v.asString())
+        case _: SnapiDateType =>
           val date = v.asDate()
           gen.writeString(dateFormatter.format(date))
-        case _: Rql2TimeType =>
+        case _: SnapiTimeType =>
           val time = v.asTime()
           val formatted = timeFormatter.format(time)
           gen.writeString(formatted)
-        case _: Rql2TimestampType =>
+        case _: SnapiTimestampType =>
           val date = v.asDate()
           val time = v.asTime()
           val dateTime = date.atTime(time)
           val formatted = timestampFormatter.format(dateTime)
           gen.writeString(formatted)
-        case _: Rql2IntervalType =>
+        case _: SnapiIntervalType =>
           val duration = v.asDuration()
           val days = duration.toDays
           val hours = duration.toHoursPart
@@ -108,7 +108,7 @@ final class Rql2JsonWriter(os: OutputStream, maxRows: Option[Long]) extends Clos
           if (minutes > 0) s.append(s"$minutes minutes, ")
           s.append(s"$seconds seconds")
           gen.writeString(s.toString())
-        case Rql2RecordType(atts, _) =>
+        case SnapiRecordType(atts, _) =>
           gen.writeStartObject()
           val keys = new java.util.Vector[String]
           atts.foreach(a => keys.add(a.idn))
@@ -117,10 +117,10 @@ final class Rql2JsonWriter(os: OutputStream, maxRows: Option[Long]) extends Clos
             val field = distincted.get(i)
             gen.writeFieldName(field)
             val a = v.getMember(field)
-            writeValue(a, atts(i).tipe.asInstanceOf[Rql2TypeWithProperties], maxRows = None)
+            writeValue(a, atts(i).tipe.asInstanceOf[SnapiTypeWithProperties], maxRows = None)
           }
           gen.writeEndObject()
-        case Rql2IterableType(innerType, _) =>
+        case SnapiIterableType(innerType, _) =>
           var rowsWritten = 0L
           val iterator = v.getIterator
           gen.writeStartArray()
@@ -129,30 +129,30 @@ final class Rql2JsonWriter(os: OutputStream, maxRows: Option[Long]) extends Clos
               maxRowsReached = true
             } else {
               val next = iterator.getIteratorNextElement
-              writeValue(next, innerType.asInstanceOf[Rql2TypeWithProperties], maxRows = None)
+              writeValue(next, innerType.asInstanceOf[SnapiTypeWithProperties], maxRows = None)
               rowsWritten += 1
             }
           }
           gen.writeEndArray()
-        case Rql2ListType(innerType, _) =>
+        case SnapiListType(innerType, _) =>
           val size = v.getArraySize
           gen.writeStartArray()
           for (i <- 0L until Math.min(size, maxRows.getOrElse(Long.MaxValue))) {
             val next = v.getArrayElement(i)
-            writeValue(next, innerType.asInstanceOf[Rql2TypeWithProperties], maxRows = None)
+            writeValue(next, innerType.asInstanceOf[SnapiTypeWithProperties], maxRows = None)
           }
           gen.writeEndArray()
           // Check if maxRows is reached.
           maxRows.foreach(max => maxRowsReached = size > max)
-        case Rql2OrType(tipes, _) if tipes.exists(Rql2TypeUtils.getProps(_).nonEmpty) =>
+        case SnapiOrType(tipes, _) if tipes.exists(SnapiTypeUtils.getProps(_).nonEmpty) =>
           // A trick to make sur inner types do not have properties
-          val inners = tipes.map { case inner: Rql2TypeWithProperties => Rql2TypeUtils.resetProps(inner, Set.empty) }
-          val orProps = tipes.flatMap { case inner: Rql2TypeWithProperties => inner.props }.toSet
-          writeValue(v, Rql2OrType(inners, orProps), maxRows = None)
-        case Rql2OrType(tipes, _) =>
+          val inners = tipes.map { case inner: SnapiTypeWithProperties => SnapiTypeUtils.resetProps(inner, Set.empty) }
+          val orProps = tipes.flatMap { case inner: SnapiTypeWithProperties => inner.props }.toSet
+          writeValue(v, SnapiOrType(inners, orProps), maxRows = None)
+        case SnapiOrType(tipes, _) =>
           val index = v.invokeMember("getIndex").asInt()
           val actualValue = v.invokeMember("getValue")
-          writeValue(actualValue, tipes(index).asInstanceOf[Rql2TypeWithProperties], maxRows = None)
+          writeValue(actualValue, tipes(index).asInstanceOf[SnapiTypeWithProperties], maxRows = None)
 
         case _ => throw new RuntimeException("unsupported type")
       }

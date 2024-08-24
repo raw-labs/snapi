@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.typesafe.scalalogging.StrictLogging
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD8764Test extends Rql2TestContext with StrictLogging {
+class RD8764Test extends SnapiTestContext with StrictLogging {
 
   test("""
     |let f: (record(_1: int, _2: int)) -> bool = (x: int, y: int) -> x == y

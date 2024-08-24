@@ -17,14 +17,14 @@ import org.bitbucket.inkytonik.kiama.output._
 import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{ListPackageBuilder, RecordPackageBuilder}
-import com.rawlabs.snapi.frontend.rql2.{Keywords, Rql2TypeUtils}
+import com.rawlabs.snapi.frontend.rql2.{Keywords, SnapiTypeUtils}
 
 import scala.collection.mutable
 
 trait SourcePrettyPrinter
     extends base.source.SourcePrettyPrinter
     with Keywords
-    with Rql2TypeUtils
+    with SnapiTypeUtils
     with ParenPrettyPrinter {
 
   protected def args(n: Vector[SourceNode]): Doc = sepArgs(comma, n.map(toDoc): _*)
@@ -36,18 +36,18 @@ trait SourcePrettyPrinter
 
   protected def internal: Boolean = false
 
-  protected def rql2Type(t: Rql2Type): Doc = t match {
-    case t: Rql2TypeConstraint => rql2TypeConstraints(t)
-    case t: Rql2TypeWithProperties => rql2TypeWithProperties(t)
+  protected def rql2Type(t: SnapiType): Doc = t match {
+    case t: SnapiTypeConstraint => rql2TypeConstraints(t)
+    case t: SnapiTypeWithProperties => rql2TypeWithProperties(t)
     case TypeAliasType(idn) => idn
     case ExpType(t) => "type" <+> t
     case PackageType(name) => method("package", s""""$name"""")
     case PackageEntryType(pkgName, entName) => method("package", s""""$pkgName"""", s""""$entName"""")
   }
 
-  protected def rql2TypeWithProperties(t: Rql2TypeWithProperties): Doc = {
+  protected def rql2TypeWithProperties(t: SnapiTypeWithProperties): Doc = {
     val d: Doc = t match {
-      case Rql2OrType(ts, props) =>
+      case SnapiOrType(ts, props) =>
         val d = folddoc(ts.map(toDoc), _ <+> "or" <+> _)
         if (internal) {
           // Wrap in parenthesis to disambiguate the type property annotations.
@@ -67,36 +67,36 @@ trait SourcePrettyPrinter
           d
         }
       case other => other match {
-          case _: Rql2BoolType => "bool"
-          case _: Rql2StringType => "string"
-          case _: Rql2LocationType => "location"
-          case _: Rql2BinaryType => "binary"
-          case _: Rql2ByteType => "byte"
-          case _: Rql2ShortType => "short"
-          case _: Rql2IntType => "int"
-          case _: Rql2LongType => "long"
-          case _: Rql2FloatType => "float"
-          case _: Rql2DoubleType => "double"
-          case _: Rql2DecimalType => "decimal"
-          case _: Rql2DateType => "date"
-          case _: Rql2TimeType => "time"
-          case _: Rql2IntervalType => "interval"
-          case _: Rql2TimestampType => "timestamp"
-          case Rql2RecordType(atts, _) => method("record", atts.map(att => ident(att.idn) <> ":" <+> att.tipe): _*)
-          case Rql2IterableType(innerType, _) => innerType match {
+          case _: SnapiBoolType => "bool"
+          case _: SnapiStringType => "string"
+          case _: SnapiLocationType => "location"
+          case _: SnapiBinaryType => "binary"
+          case _: SnapiByteType => "byte"
+          case _: SnapiShortType => "short"
+          case _: SnapiIntType => "int"
+          case _: SnapiLongType => "long"
+          case _: SnapiFloatType => "float"
+          case _: SnapiDoubleType => "double"
+          case _: SnapiDecimalType => "decimal"
+          case _: SnapiDateType => "date"
+          case _: SnapiTimeType => "time"
+          case _: SnapiIntervalType => "interval"
+          case _: SnapiTimestampType => "timestamp"
+          case SnapiRecordType(atts, _) => method("record", atts.map(att => ident(att.idn) <> ":" <+> att.tipe): _*)
+          case SnapiIterableType(innerType, _) => innerType match {
               case _: AnythingType => "collection"
               case _ => method("collection", innerType)
             }
-          case Rql2ListType(innerType, _) => innerType match {
+          case SnapiListType(innerType, _) => innerType match {
               case _: AnythingType => "list"
               case _ => method("list", innerType)
             }
-          case _: Rql2UndefinedType => "undefined"
+          case _: SnapiUndefinedType => "undefined"
         }
     }
     if (internal) {
-      val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
-      val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
+      val isNullable = t.props.contains(SnapiIsNullableTypeProperty())
+      val isTryable = t.props.contains(SnapiIsTryableTypeProperty())
       if (!isTryable && !isNullable) d
       else {
         val props: Doc =
@@ -111,15 +111,15 @@ trait SourcePrettyPrinter
 
   }
 
-  private def rql2TypeConstraints(t: Rql2TypeConstraint): Doc = t match {
+  private def rql2TypeConstraints(t: SnapiTypeConstraint): Doc = t match {
     case MergeableType(t) => "compatible" <+> "with" <+> t
     case ExpectedProjType(i) =>
       "package" <> "," <+> "record" <> "," <+> "collection" <+> "or" <+> "list" <+> "with" <+> "field" <+> i
     case IsNullable() => "type nullable"
     case IsTryable() => "type tryable"
     case HasTypeProperties(props) =>
-      val isNullable = props.contains(Rql2IsNullableTypeProperty())
-      val isTryable = props.contains(Rql2IsTryableTypeProperty())
+      val isNullable = props.contains(SnapiIsNullableTypeProperty())
+      val isTryable = props.contains(SnapiIsTryableTypeProperty())
       if (isNullable && isTryable) {
         "type nullable and tryable"
       } else if (isNullable) {
@@ -131,8 +131,8 @@ trait SourcePrettyPrinter
       }
     case DoesNotHaveTypeProperties(props) =>
       // We are doing the "DoesNotHave" type constraints.
-      val isNotNullable = props.contains(Rql2IsNullableTypeProperty())
-      val isNotTryable = props.contains(Rql2IsTryableTypeProperty())
+      val isNotNullable = props.contains(SnapiIsNullableTypeProperty())
+      val isNotTryable = props.contains(SnapiIsTryableTypeProperty())
       if (isNotNullable && isNotTryable) {
         "type not nullable and not tryable"
       } else if (isNotNullable) {
@@ -144,7 +144,7 @@ trait SourcePrettyPrinter
       }
   }
 
-  protected def rql2Exp(e: Rql2Exp): Doc = e match {
+  protected def rql2Exp(e: SnapiExp): Doc = e match {
     case Let(stmts, e) =>
       "let" <> nest(line <> ssep(stmts.map(toDoc), comma <> line)) <> line <> "in" <> nest(line <> e)
     case TypeExp(t) => "type" <+> t
@@ -224,22 +224,22 @@ trait SourcePrettyPrinter
     }
   }
 
-  protected def rql2Node(n: Rql2Node): Doc = n match {
-    case e: Rql2Exp => rql2Exp(e)
-    case t: Rql2Type => rql2Type(t)
-    case Rql2Program(methods, me) =>
-      val methodsDoc = methods.map { case Rql2Method(p, idn) => idn <> funProto(p) }
+  protected def rql2Node(n: SnapiNode): Doc = n match {
+    case e: SnapiExp => rql2Exp(e)
+    case t: SnapiType => rql2Type(t)
+    case SnapiProgram(methods, me) =>
+      val methodsDoc = methods.map { case SnapiMethod(p, idn) => idn <> funProto(p) }
       ssep(methodsDoc ++ me.toSeq.map(toDoc), line)
     case l: LetDecl => rql2LetDecl(l)
   }
 
-  private val integer: Set[Type] = Set(Rql2ByteType(), Rql2ShortType(), Rql2IntType(), Rql2LongType())
-  private val number: Set[Type] = integer ++ Set(Rql2FloatType(), Rql2DoubleType(), Rql2DecimalType())
-  private val temporal: Set[Type] = Set(Rql2DateType(), Rql2TimeType(), Rql2TimestampType(), Rql2IntervalType())
+  private val integer: Set[Type] = Set(SnapiByteType(), SnapiShortType(), SnapiIntType(), SnapiLongType())
+  private val number: Set[Type] = integer ++ Set(SnapiFloatType(), SnapiDoubleType(), SnapiDecimalType())
+  private val temporal: Set[Type] = Set(SnapiDateType(), SnapiTimeType(), SnapiTimestampType(), SnapiIntervalType())
 
   override def toDoc(n: BaseNode): Doc = n match {
     case n: CommonNode => commonNode(n)
-    case n: Rql2Node => rql2Node(n)
+    case n: SnapiNode => rql2Node(n)
     case _ => super.toDoc(n)
   }
 
@@ -282,7 +282,7 @@ trait SourcePrettyPrinter
     case OneOfType(ts) =>
       val info = mutable.ArrayBuffer[Doc]()
       val cleanTs: mutable.HashSet[Type] =
-        ts.map(t => removeProps(t, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))).to
+        ts.map(t => removeProps(t, Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))).to
       if (number.subsetOf(cleanTs)) {
         number.foreach(cleanTs.remove)
         info += "number"

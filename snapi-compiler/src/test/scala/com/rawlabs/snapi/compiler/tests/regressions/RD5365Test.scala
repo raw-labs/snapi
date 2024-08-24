@@ -17,9 +17,9 @@ import org.bitbucket.inkytonik.kiama.util.Positions
 import org.scalatest.matchers.{MatchResult, Matcher}
 import com.rawlabs.snapi.frontend.rql2.FrontendSyntaxAnalyzer
 import com.rawlabs.snapi.frontend.rql2.source.SourcePrettyPrinter
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5365Test extends Rql2TestContext {
+class RD5365Test extends SnapiTestContext {
 
   private class PrettyPrintAs(expected: String) extends Matcher[TestData] {
     override def apply(query: TestData): MatchResult = {

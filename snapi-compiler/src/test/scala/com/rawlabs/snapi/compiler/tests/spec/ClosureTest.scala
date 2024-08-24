@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class ClosureTest extends Rql2TestContext {
+class ClosureTest extends SnapiTestContext {
 
   test("""let functions =
     |   List.Transform([1,2,3],

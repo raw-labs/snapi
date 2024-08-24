@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.iterable.operations.EquiJoinCollection;
 
@@ -26,9 +26,9 @@ public class CollectionEquiJoinNode extends ExpressionNode {
   @Child private ExpressionNode rightKeyFun;
   @Child private ExpressionNode remapFun;
 
-  private final Rql2TypeWithProperties leftValueType;
-  private final Rql2TypeWithProperties rightValueType;
-  private final Rql2TypeWithProperties keyType;
+  private final SnapiTypeWithProperties leftValueType;
+  private final SnapiTypeWithProperties rightValueType;
+  private final SnapiTypeWithProperties keyType;
 
   private final int computeNextSlot;
   private final int shouldContinueSlot;
@@ -37,19 +37,19 @@ public class CollectionEquiJoinNode extends ExpressionNode {
   private final int mapSlot;
 
   public CollectionEquiJoinNode(
-      ExpressionNode left,
-      ExpressionNode right,
-      ExpressionNode leftKeyFun,
-      ExpressionNode rightKeyFun,
-      Rql2TypeWithProperties keyType,
-      Rql2TypeWithProperties leftValueType,
-      Rql2TypeWithProperties rightValueType,
-      ExpressionNode remapFun,
-      int computeNextSlot,
-      int shouldContinueSlot,
-      int generatorSlot,
-      int keyFunctionSlot,
-      int mapSlot) {
+          ExpressionNode left,
+          ExpressionNode right,
+          ExpressionNode leftKeyFun,
+          ExpressionNode rightKeyFun,
+          SnapiTypeWithProperties keyType,
+          SnapiTypeWithProperties leftValueType,
+          SnapiTypeWithProperties rightValueType,
+          ExpressionNode remapFun,
+          int computeNextSlot,
+          int shouldContinueSlot,
+          int generatorSlot,
+          int keyFunctionSlot,
+          int mapSlot) {
     this.remapFun = remapFun;
     this.keyType = keyType;
     // left

@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD3742Test extends Rql2TestContext {
+class RD3742Test extends SnapiTestContext {
 
   val triple = "\"\"\""
 

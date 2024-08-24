@@ -41,7 +41,7 @@ class MathPiEntry
       "Math",
       "Pi",
       Vector.empty,
-      Rql2DoubleType(),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Pi mathematical constant (3.14159...)",
         ret = Some(ReturnDoc("The value of pi.", Some(TypeDoc(List("double")))))
@@ -53,7 +53,7 @@ class MathRandomEntry
       "Math",
       "Random",
       Vector.empty,
-      Rql2DoubleType(),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Pseudo random number generator, returns a double between 0.0 and 1.0.",
         ret = Some(ReturnDoc("A random number.", Some(TypeDoc(List("double")))))
@@ -64,8 +64,8 @@ class MathPowerEntry
     extends ShortEntryExtension(
       "Math",
       "Power",
-      Vector(Rql2DoubleType(), Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType(), SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the first value to the power of the second value.",
         examples = List(
@@ -84,8 +84,8 @@ class MathAtn2Entry
     extends ShortEntryExtension(
       "Math",
       "Atn2",
-      Vector(Rql2DoubleType(), Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType(), SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the angle in radians of the vector (x, y).",
         examples = List(
@@ -125,7 +125,7 @@ class MathAbsEntry extends EntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ExpParam(OneOfType(Rql2IntType(), Rql2LongType(), Rql2FloatType(), Rql2DoubleType())))
+    Right(ExpParam(OneOfType(SnapiIntType(), SnapiLongType(), SnapiFloatType(), SnapiDoubleType())))
   }
 
   override def nrMandatoryParams: Int = 1
@@ -136,7 +136,7 @@ class MathAbsEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     mandatoryArgs(0).t match {
-      case number: Rql2NumberType if !number.isInstanceOf[Rql2DecimalType] => Right(number)
+      case number: SnapiNumberType if !number.isInstanceOf[SnapiDecimalType] => Right(number)
       case _ => Left("unsupported type")
     }
   }
@@ -147,8 +147,8 @@ class MathAcosEntry
     extends ShortEntryExtension(
       "Math",
       "Acos",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Arcosine, returns the angle in radians which cosine is specified by the value.",
         examples = List(
@@ -165,8 +165,8 @@ class MathAsinEntry
     extends ShortEntryExtension(
       "Math",
       "Asin",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Arcsine, returns the angle in radians which sine is specified by the value.",
         examples = List(
@@ -183,8 +183,8 @@ class MathAtanEntry
     extends ShortEntryExtension(
       "Math",
       "Atan",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Arctangent, returns the angle in radians which tangent is specified by the value.",
         examples = List(
@@ -201,8 +201,8 @@ class MathCeilingEntry
     extends ShortEntryExtension(
       "Math",
       "Ceiling",
-      Vector(Rql2DecimalType()),
-      Rql2LongType(),
+      Vector(SnapiDecimalType()),
+      SnapiLongType(),
       EntryDoc(
         summary = "Returns the smallest integer greater or equal to the specified value.",
         examples = List(
@@ -220,8 +220,8 @@ class MathCosEntry
     extends ShortEntryExtension(
       "Math",
       "Cos",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the cosine specified by the value in radians.",
         examples = List(
@@ -237,8 +237,8 @@ class MathCotEntry
     extends ShortEntryExtension(
       "Math",
       "Cot",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the cotangent specified by the value in radians.",
         examples = List(
@@ -254,8 +254,8 @@ class MathDegreesEntry
     extends ShortEntryExtension(
       "Math",
       "Degrees",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Converts an angle from radians to degrees.",
         examples = List(
@@ -271,8 +271,8 @@ class MathExpEntry
     extends ShortEntryExtension(
       "Math",
       "Exp",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Return the exponential of the specified value.",
         examples = List(
@@ -290,8 +290,8 @@ class MathLogEntry
     extends ShortEntryExtension(
       "Math",
       "Log",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the logarithm base *e* specified by the value.",
         examples = List(
@@ -307,8 +307,8 @@ class MathLog10Entry
     extends ShortEntryExtension(
       "Math",
       "Log10",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the logarithm base 10 specified by the value.",
         params =
@@ -325,8 +325,8 @@ class MathRadiansEntry
     extends ShortEntryExtension(
       "Math",
       "Radians",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Converts an angle from degrees to radians.",
         params = List(ParamDoc("value", TypeDoc(List("double")), "The angle in degrees to convert to radians.")),
@@ -342,8 +342,8 @@ class MathSignEntry
     extends ShortEntryExtension(
       "Math",
       "Sign",
-      Vector(Rql2DoubleType()),
-      Rql2IntType(),
+      Vector(SnapiDoubleType()),
+      SnapiIntType(),
       EntryDoc(
         summary = "Returns the sign, 1, -1 or 0 for the specified value.",
         params = List(ParamDoc("value", TypeDoc(List("number")), "The value on which the sign is computed.")),
@@ -360,8 +360,8 @@ class MathSinEntry
     extends ShortEntryExtension(
       "Math",
       "Sin",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the sine specified by the value in radians.",
         params = List(ParamDoc("value", TypeDoc(List("double")), "The value on which the sine is computed.")),
@@ -377,8 +377,8 @@ class MathSqrtEntry
     extends ShortEntryExtension(
       "Math",
       "Sqrt",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the square root of the specified value.",
         params = List(ParamDoc("value", TypeDoc(List("double")), "The value on which the square root is computed.")),
@@ -394,8 +394,8 @@ class MathTanEntry
     extends ShortEntryExtension(
       "Math",
       "Tan",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the tangent specified by the value in radians.",
         params = List(ParamDoc("value", TypeDoc(List("double")), "The value on which the tangent is computed.")),
@@ -411,8 +411,8 @@ class MathSquareEntry
     extends ShortEntryExtension(
       "Math",
       "Square",
-      Vector(Rql2DoubleType()),
-      Rql2DoubleType(),
+      Vector(SnapiDoubleType()),
+      SnapiDoubleType(),
       EntryDoc(
         summary = "Returns the square value.",
         examples = List(
@@ -428,8 +428,8 @@ class MathFloorEntry
     extends ShortEntryExtension(
       "Math",
       "Floor",
-      Vector(Rql2DecimalType()),
-      Rql2LongType(),
+      Vector(SnapiDecimalType()),
+      SnapiLongType(),
       EntryDoc(
         params = List(ParamDoc("value", TypeDoc(List("decimal")), "The value to be floored.")),
         summary = "Returns the largest integer not greater than the value.",

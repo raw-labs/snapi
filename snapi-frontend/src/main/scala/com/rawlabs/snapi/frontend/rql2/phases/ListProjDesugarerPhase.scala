@@ -38,7 +38,7 @@ class ListProjDesugarerPhase(protected val parent: Phase[SourceProgram], protect
       case Proj(collection, i)
           if analyzer
             .tipe(collection)
-            .isInstanceOf[Rql2IterableType] || analyzer.tipe(collection).isInstanceOf[Rql2ListType] =>
+            .isInstanceOf[SnapiIterableType] || analyzer.tipe(collection).isInstanceOf[SnapiListType] =>
         congruence(s, id) <* rule[Any] {
           case Proj(nCollection, _) =>
             val arg = IdnDef()
@@ -46,7 +46,7 @@ class ListProjDesugarerPhase(protected val parent: Phase[SourceProgram], protect
               FunProto(Vector(FunParam(arg, None, None)), None, FunBody(Proj(IdnExp(arg), i)))
             )
 
-            if (analyzer.tipe(collection).isInstanceOf[Rql2IterableType]) {
+            if (analyzer.tipe(collection).isInstanceOf[SnapiIterableType]) {
               CollectionPackageBuilder.Transform(nCollection, projectFun)
             } else {
               ListPackageBuilder.Transform(nCollection, projectFun)

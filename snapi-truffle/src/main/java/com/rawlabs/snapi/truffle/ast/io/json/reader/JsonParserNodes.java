@@ -22,7 +22,7 @@ import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
 import com.rawlabs.snapi.truffle.ast.expressions.record.RecordStaticInitializers;
@@ -47,7 +47,7 @@ import java.util.Base64;
 public final class JsonParserNodes {
 
   private static final TruffleLogger LOG =
-      TruffleLogger.getLogger(Rql2Language.ID, TruffleRuntimeException.class);
+      TruffleLogger.getLogger(SnapiLanguage.ID, TruffleRuntimeException.class);
 
   @NodeInfo(shortName = "JsonParser.Initialize")
   @GenerateUncached
@@ -633,7 +633,7 @@ public final class JsonParserNodes {
         Node node,
         JsonParser parser,
         @Bind("$node") Node thisNode,
-        @Cached("getCachedLanguage(thisNode)") Rql2Language lang,
+        @Cached("getCachedLanguage(thisNode)") SnapiLanguage lang,
         @Cached(inline = false) @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
         @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken,
         @Cached @Cached.Shared("currentToken")
@@ -649,7 +649,7 @@ public final class JsonParserNodes {
 
       nextToken.execute(thisNode, parser);
 
-      Object record = Rql2Language.get(thisNode).createDuplicateKeyRecord();
+      Object record = SnapiLanguage.get(thisNode).createDuplicateKeyRecord();
       while (currentToken.execute(thisNode, parser) != JsonToken.END_OBJECT) {
         String fieldName = currentField.execute(thisNode, parser);
         nextToken.execute(thisNode, parser); // skip the field name

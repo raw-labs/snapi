@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
+import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
 import com.rawlabs.snapi.frontend.rql2.source.Exp;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import java.util.List;
@@ -27,7 +27,7 @@ public interface TruffleShortEntryExtension extends TruffleEntryExtension {
 
   ExpressionNode toTruffle(List<ExpressionNode> args);
 
-  default ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+  default ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
     List<ExpressionNode> orderedArgs =
         args.stream()
             .filter(a -> a.idn().isEmpty())

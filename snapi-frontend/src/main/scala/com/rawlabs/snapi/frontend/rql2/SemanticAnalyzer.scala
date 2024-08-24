@@ -58,7 +58,7 @@ case class FunAppPackageEntryArguments(
     mandatoryArgs: Seq[Arg],
     optionalArgs: Vector[(String, Arg)],
     varArgs: Seq[Arg],
-    extraProps: Set[Rql2TypeProperty]
+    extraProps: Set[SnapiTypeProperty]
 )
 
 final private class MergeTypeException extends Exception
@@ -74,17 +74,17 @@ final case class CompatibilityReport(t: Type, effective: Type) {
   // hit when consuming the iterable. This is then up to the consumer to protect itself from the error. An iterable consumer
   // should always handle a possible unexpected null/error because it's the one consuming. It can type as an try itself
   // in order to propagate the error, or handle it in some way.
-  def extraProps: Set[Rql2TypeProperty] = {
+  def extraProps: Set[SnapiTypeProperty] = {
 
-    def recurse(target: Type, effective: Type): Set[Rql2TypeProperty] = (target, effective) match {
-      case (Rql2ListType(inner1, props1), Rql2ListType(inner2, props2)) => recurse(inner1, inner2) ++ (props2 &~ props1)
-      case (Rql2IterableType(inner1, props1), Rql2IterableType(inner2, props2)) => (props2 &~ props1)
-      case (Rql2RecordType(atts1, props1), Rql2RecordType(atts2, props2)) =>
+    def recurse(target: Type, effective: Type): Set[SnapiTypeProperty] = (target, effective) match {
+      case (SnapiListType(inner1, props1), SnapiListType(inner2, props2)) => recurse(inner1, inner2) ++ (props2 &~ props1)
+      case (SnapiIterableType(inner1, props1), SnapiIterableType(inner2, props2)) => (props2 &~ props1)
+      case (SnapiRecordType(atts1, props1), SnapiRecordType(atts2, props2)) =>
         val tipes1 = atts1.map(_.tipe)
         val tipes2 = atts2.map(_.tipe)
         assert(tipes1.size == tipes2.size)
         tipes1.zip(tipes2).flatMap { case (t1, t2) => recurse(t1, t2) }.toSet ++ (props2 &~ props1)
-      case (t1: Rql2TypeWithProperties, t2: Rql2TypeWithProperties) => t2.props &~ t1.props
+      case (t1: SnapiTypeWithProperties, t2: SnapiTypeWithProperties) => t2.props &~ t1.props
       case (_: PackageEntryType, _: PackageEntryType) => Set.empty
       case (_: PackageType, _: PackageType) => Set.empty
       case _ => Set.empty
@@ -103,16 +103,16 @@ final case class CompatibilityReport(t: Type, effective: Type) {
   def castNeeded: Boolean = {
 
     def recurse(target: Type, effective: Type): Boolean = (target, effective) match {
-      case (Rql2ListType(inner1, props1), Rql2ListType(inner2, props2)) =>
+      case (SnapiListType(inner1, props1), SnapiListType(inner2, props2)) =>
         recurse(inner1, inner2) || (props2 &~ props1).nonEmpty
-      case (Rql2IterableType(inner1, props1), Rql2IterableType(inner2, props2)) =>
+      case (SnapiIterableType(inner1, props1), SnapiIterableType(inner2, props2)) =>
         recurse(inner1, inner2) || (props2 &~ props1).nonEmpty
-      case (Rql2RecordType(atts1, props1), Rql2RecordType(atts2, props2)) =>
+      case (SnapiRecordType(atts1, props1), SnapiRecordType(atts2, props2)) =>
         val tipes1 = atts1.map(_.tipe)
         val tipes2 = atts2.map(_.tipe)
         assert(tipes1.size == tipes2.size)
         tipes1.zip(tipes2).exists { case (t1, t2) => recurse(t1, t2) } || (props2 &~ props1).nonEmpty
-      case (t1: Rql2TypeWithProperties, t2: Rql2TypeWithProperties) => (t2.props &~ t1.props).nonEmpty
+      case (t1: SnapiTypeWithProperties, t2: SnapiTypeWithProperties) => (t2.props &~ t1.props).nonEmpty
       case (_: PackageEntryType, _: PackageEntryType) => false
       case (_: PackageType, _: PackageType) => false
       case _ => false
@@ -125,7 +125,7 @@ final case class CompatibilityReport(t: Type, effective: Type) {
 
 // Helper to merge types.
 // Does not handle PackageType or TypeAlias, since these are never exposed to Package extensions.
-class TypesMerger extends Rql2TypeUtils with StrictLogging {
+class TypesMerger extends SnapiTypeUtils with StrictLogging {
 
   final def isCompatible(actual: Type, expected: Type): Boolean = {
     getCompatibleType(actual, expected).isDefined
@@ -139,23 +139,23 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
       // For complex types (records, collections), get the inner types as merged and
       // wrap back, merging the properties
       (t1, t2) match {
-        case (Rql2RecordType(atts1, props1), Rql2RecordType(atts2, props2)) =>
+        case (SnapiRecordType(atts1, props1), SnapiRecordType(atts2, props2)) =>
           if (atts1.size != atts2.size) None
           else {
             val mergedAttrs =
-              atts1.zip(atts2).foldLeft(Some(Vector.empty[Rql2AttrType]): Option[Vector[Rql2AttrType]]) {
-                case (Some(atts), (Rql2AttrType(f1, i1), Rql2AttrType(f2, i2))) =>
+              atts1.zip(atts2).foldLeft(Some(Vector.empty[SnapiAttrType]): Option[Vector[SnapiAttrType]]) {
+                case (Some(atts), (SnapiAttrType(f1, i1), SnapiAttrType(f2, i2))) =>
                   if (f1 == f2) {
-                    merge(i1, i2).map(t => atts :+ Rql2AttrType(f1, t))
+                    merge(i1, i2).map(t => atts :+ SnapiAttrType(f1, t))
                   } else None
                 case _ => None
               }
-            mergedAttrs.map(atts => Rql2RecordType(atts, props1 ++ props2))
+            mergedAttrs.map(atts => SnapiRecordType(atts, props1 ++ props2))
           }
-        case (Rql2ListType(i1, props1), Rql2ListType(i2, props2)) =>
-          merge(i1, i2).map(t => Rql2ListType(t, props1 ++ props2))
-        case (Rql2IterableType(i1, props1), Rql2IterableType(i2, props2)) =>
-          merge(i1, i2).map(t => Rql2IterableType(t, props1 ++ props2))
+        case (SnapiListType(i1, props1), SnapiListType(i2, props2)) =>
+          merge(i1, i2).map(t => SnapiListType(t, props1 ++ props2))
+        case (SnapiIterableType(i1, props1), SnapiIterableType(i2, props2)) =>
+          merge(i1, i2).map(t => SnapiIterableType(t, props1 ++ props2))
         case _ =>
           // The merged type of two primitive types:
           // * Call getCompatibleType after having removed properties, _both ways_
@@ -187,11 +187,11 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
   def propertyCompatible(actual: Type, expected: Type): Boolean = {
     assert(!isTypeConstraint(expected))
     (actual, expected) match {
-      case (Rql2ListType(actualInner, actualProps), Rql2ListType(expectedInner, expectedProps)) =>
+      case (SnapiListType(actualInner, actualProps), SnapiListType(expectedInner, expectedProps)) =>
         expectedProps.subsetOf(actualProps) && propertyCompatible(actualInner, expectedInner)
-      case (Rql2IterableType(actualInner, actualProps), Rql2IterableType(expectedInner, expectedProps)) =>
+      case (SnapiIterableType(actualInner, actualProps), SnapiIterableType(expectedInner, expectedProps)) =>
         expectedProps.subsetOf(actualProps) && propertyCompatible(actualInner, expectedInner)
-      case (Rql2RecordType(actualAtts, actualProps), Rql2RecordType(expectedAtts, expectedProps)) =>
+      case (SnapiRecordType(actualAtts, actualProps), SnapiRecordType(expectedAtts, expectedProps)) =>
         // same field names, compatible properties and matching field types
         actualAtts.map(_.idn) == expectedAtts.map(_.idn) && (actualProps.intersect(expectedProps) == expectedProps) &&
           actualAtts.map(_.tipe).zip(expectedAtts.map(_.tipe)).forall {
@@ -214,7 +214,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
           // if we expected the type to be tryable (of anything), the target is the actual type as tryable (possibly nullable)
           Some(
             CompatibilityReport(
-              addProp(actual, Rql2IsTryableTypeProperty()),
+              addProp(actual, SnapiIsTryableTypeProperty()),
               actual
             )
           )
@@ -222,7 +222,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
           // if we expected the type to be nullable (of anything), the target is the actual type as nullable, and _not tryable_
           Some(
             CompatibilityReport(
-              resetProps(actual, Set(Rql2IsNullableTypeProperty())),
+              resetProps(actual, Set(SnapiIsNullableTypeProperty())),
               actual
             )
           )
@@ -235,9 +235,9 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
         case (_, OneOfType(expectedTypes)) =>
           expectedTypes.flatMap(t => funParamTypeCompatibility(actual, t)).headOption
         case (_, MergeableType(target)) => mergeType(actual, target).map(m => CompatibilityReport(m, m)) // m
-        case (Rql2RecordType(as, _), ExpectedRecordType(idns)) if idns.subsetOf(as.map(_.idn).toSet) =>
+        case (SnapiRecordType(as, _), ExpectedRecordType(idns)) if idns.subsetOf(as.map(_.idn).toSet) =>
           Some(CompatibilityReport(resetProps(actual, Set.empty), actual))
-        case (r: Rql2RecordType, e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) =>
+        case (r: SnapiRecordType, e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) =>
           Some(CompatibilityReport(actual, actual))
         case (_, _: AnythingType) => Some(CompatibilityReport(actual, actual))
         case _ => None
@@ -245,22 +245,22 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
     } else {
       try {
         (actual, expected) match {
-          case (Rql2ListType(actualItemType, actualProps), Rql2ListType(expectedItemType, expectedProps)) =>
+          case (SnapiListType(actualItemType, actualProps), SnapiListType(expectedItemType, expectedProps)) =>
             funParamTypeCompatibility(actualItemType, expectedItemType).map { report =>
               CompatibilityReport(
-                Rql2ListType(report.t, expectedProps),
-                Rql2ListType(report.effective, actualProps)
+                SnapiListType(report.t, expectedProps),
+                SnapiListType(report.effective, actualProps)
               )
             }
-          case (Rql2IterableType(actualItemType, actualProps), Rql2IterableType(expectedItemType, expectedProps)) =>
+          case (SnapiIterableType(actualItemType, actualProps), SnapiIterableType(expectedItemType, expectedProps)) =>
             val r = funParamTypeCompatibility(actualItemType, expectedItemType)
             r.map { report =>
               CompatibilityReport(
-                Rql2IterableType(report.t, expectedProps),
-                Rql2IterableType(report.effective, actualProps)
+                SnapiIterableType(report.t, expectedProps),
+                SnapiIterableType(report.effective, actualProps)
               )
             }
-          case (Rql2RecordType(actualAtts, actualProps), Rql2RecordType(expectedAtts, expectedProps)) =>
+          case (SnapiRecordType(actualAtts, actualProps), SnapiRecordType(expectedAtts, expectedProps)) =>
             if (actualAtts.size != expectedAtts.size || actualAtts.map(_.idn) != expectedAtts.map(_.idn)) None
             else {
               val actualTypes = actualAtts.map(_.tipe)
@@ -269,12 +269,12 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
                 actualTypes.zip(expectedTypes).map { case (t1, t2) => funParamTypeCompatibility(t1, t2) }
               if (fieldChecks.forall(_.isDefined)) {
                 val okChecks = fieldChecks.flatten
-                val effectiveFields = actualAtts.zip(okChecks).map { case (a, c) => Rql2AttrType(a.idn, c.effective) }
-                val targetFields = actualAtts.zip(okChecks).map { case (a, c) => Rql2AttrType(a.idn, c.t) }
+                val effectiveFields = actualAtts.zip(okChecks).map { case (a, c) => SnapiAttrType(a.idn, c.effective) }
+                val targetFields = actualAtts.zip(okChecks).map { case (a, c) => SnapiAttrType(a.idn, c.t) }
                 Some(
                   CompatibilityReport(
-                    Rql2RecordType(targetFields, expectedProps),
-                    Rql2RecordType(effectiveFields, actualProps)
+                    SnapiRecordType(targetFields, expectedProps),
+                    SnapiRecordType(effectiveFields, actualProps)
                   )
                 )
               } else None
@@ -325,89 +325,89 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
   @throws[MergeTypeException]
   protected def recurse(actual: Type, expected: Type): Type = (actual, expected) match {
     // Upcast to short
-    case (a: Rql2ByteType, e: Rql2ShortType) if a.props.subsetOf(e.props) => Rql2ShortType(e.props)
+    case (a: SnapiByteType, e: SnapiShortType) if a.props.subsetOf(e.props) => SnapiShortType(e.props)
     // Update to int
-    case (a: Rql2ByteType, e: Rql2IntType) if a.props.subsetOf(e.props) => Rql2IntType(e.props)
-    case (a: Rql2ShortType, e: Rql2IntType) if a.props.subsetOf(e.props) => Rql2IntType(e.props)
+    case (a: SnapiByteType, e: SnapiIntType) if a.props.subsetOf(e.props) => SnapiIntType(e.props)
+    case (a: SnapiShortType, e: SnapiIntType) if a.props.subsetOf(e.props) => SnapiIntType(e.props)
     // Upcast to long
-    case (a: Rql2ByteType, e: Rql2LongType) if a.props.subsetOf(e.props) => Rql2LongType(e.props)
-    case (a: Rql2ShortType, e: Rql2LongType) if a.props.subsetOf(e.props) => Rql2LongType(e.props)
-    case (a: Rql2IntType, e: Rql2LongType) if a.props.subsetOf(e.props) => Rql2LongType(e.props)
+    case (a: SnapiByteType, e: SnapiLongType) if a.props.subsetOf(e.props) => SnapiLongType(e.props)
+    case (a: SnapiShortType, e: SnapiLongType) if a.props.subsetOf(e.props) => SnapiLongType(e.props)
+    case (a: SnapiIntType, e: SnapiLongType) if a.props.subsetOf(e.props) => SnapiLongType(e.props)
     // Upcast to float
-    case (a: Rql2ByteType, e: Rql2FloatType) if a.props.subsetOf(e.props) => Rql2FloatType(e.props)
-    case (a: Rql2ShortType, e: Rql2FloatType) if a.props.subsetOf(e.props) => Rql2FloatType(e.props)
-    case (a: Rql2IntType, e: Rql2FloatType) if a.props.subsetOf(e.props) => Rql2FloatType(e.props)
-    case (a: Rql2LongType, e: Rql2FloatType) if a.props.subsetOf(e.props) => Rql2FloatType(e.props)
+    case (a: SnapiByteType, e: SnapiFloatType) if a.props.subsetOf(e.props) => SnapiFloatType(e.props)
+    case (a: SnapiShortType, e: SnapiFloatType) if a.props.subsetOf(e.props) => SnapiFloatType(e.props)
+    case (a: SnapiIntType, e: SnapiFloatType) if a.props.subsetOf(e.props) => SnapiFloatType(e.props)
+    case (a: SnapiLongType, e: SnapiFloatType) if a.props.subsetOf(e.props) => SnapiFloatType(e.props)
     // Upcast to double
-    case (a: Rql2ByteType, e: Rql2DoubleType) if a.props.subsetOf(e.props) => Rql2DoubleType(e.props)
-    case (a: Rql2ShortType, e: Rql2DoubleType) if a.props.subsetOf(e.props) => Rql2DoubleType(e.props)
-    case (a: Rql2IntType, e: Rql2DoubleType) if a.props.subsetOf(e.props) => Rql2DoubleType(e.props)
-    case (a: Rql2LongType, e: Rql2DoubleType) if a.props.subsetOf(e.props) => Rql2DoubleType(e.props)
-    case (a: Rql2FloatType, e: Rql2DoubleType) if a.props.subsetOf(e.props) => Rql2DoubleType(e.props)
+    case (a: SnapiByteType, e: SnapiDoubleType) if a.props.subsetOf(e.props) => SnapiDoubleType(e.props)
+    case (a: SnapiShortType, e: SnapiDoubleType) if a.props.subsetOf(e.props) => SnapiDoubleType(e.props)
+    case (a: SnapiIntType, e: SnapiDoubleType) if a.props.subsetOf(e.props) => SnapiDoubleType(e.props)
+    case (a: SnapiLongType, e: SnapiDoubleType) if a.props.subsetOf(e.props) => SnapiDoubleType(e.props)
+    case (a: SnapiFloatType, e: SnapiDoubleType) if a.props.subsetOf(e.props) => SnapiDoubleType(e.props)
     // Upcast do decimal
-    case (a: Rql2ByteType, e: Rql2DecimalType) if a.props.subsetOf(e.props) => Rql2DecimalType(e.props)
-    case (a: Rql2ShortType, e: Rql2DecimalType) if a.props.subsetOf(e.props) => Rql2DecimalType(e.props)
-    case (a: Rql2IntType, e: Rql2DecimalType) if a.props.subsetOf(e.props) => Rql2DecimalType(e.props)
-    case (a: Rql2LongType, e: Rql2DecimalType) if a.props.subsetOf(e.props) => Rql2DecimalType(e.props)
-    case (a: Rql2FloatType, e: Rql2DecimalType) if a.props.subsetOf(e.props) => Rql2DecimalType(e.props)
-    case (a: Rql2DoubleType, e: Rql2DecimalType) if a.props.subsetOf(e.props) => Rql2DecimalType(e.props)
+    case (a: SnapiByteType, e: SnapiDecimalType) if a.props.subsetOf(e.props) => SnapiDecimalType(e.props)
+    case (a: SnapiShortType, e: SnapiDecimalType) if a.props.subsetOf(e.props) => SnapiDecimalType(e.props)
+    case (a: SnapiIntType, e: SnapiDecimalType) if a.props.subsetOf(e.props) => SnapiDecimalType(e.props)
+    case (a: SnapiLongType, e: SnapiDecimalType) if a.props.subsetOf(e.props) => SnapiDecimalType(e.props)
+    case (a: SnapiFloatType, e: SnapiDecimalType) if a.props.subsetOf(e.props) => SnapiDecimalType(e.props)
+    case (a: SnapiDoubleType, e: SnapiDecimalType) if a.props.subsetOf(e.props) => SnapiDecimalType(e.props)
     // Upcast to timestamp
-    case (a: Rql2DateType, e: Rql2TimestampType) if a.props.subsetOf(e.props) => Rql2TimestampType(e.props)
+    case (a: SnapiDateType, e: SnapiTimestampType) if a.props.subsetOf(e.props) => SnapiTimestampType(e.props)
     // Upcast to location: a string can be used as a location type (without any properties)
-    case (a: Rql2StringType, e: Rql2LocationType) if a.props.subsetOf(e.props) => Rql2LocationType(e.props)
+    case (a: SnapiStringType, e: SnapiLocationType) if a.props.subsetOf(e.props) => SnapiLocationType(e.props)
     // Bool type
-    case (a: Rql2BoolType, e: Rql2BoolType) if a.props.subsetOf(e.props) => Rql2BoolType(e.props)
+    case (a: SnapiBoolType, e: SnapiBoolType) if a.props.subsetOf(e.props) => SnapiBoolType(e.props)
     // String type
-    case (a: Rql2StringType, e: Rql2StringType) if a.props.subsetOf(e.props) => Rql2StringType(e.props)
+    case (a: SnapiStringType, e: SnapiStringType) if a.props.subsetOf(e.props) => SnapiStringType(e.props)
     // Location type
-    case (a: Rql2LocationType, e: Rql2LocationType) if a.props.subsetOf(e.props) => Rql2LocationType(e.props)
+    case (a: SnapiLocationType, e: SnapiLocationType) if a.props.subsetOf(e.props) => SnapiLocationType(e.props)
     // Binary type
-    case (a: Rql2BinaryType, e: Rql2BinaryType) if a.props.subsetOf(e.props) => Rql2BinaryType(e.props)
+    case (a: SnapiBinaryType, e: SnapiBinaryType) if a.props.subsetOf(e.props) => SnapiBinaryType(e.props)
     // Byte type
-    case (a: Rql2ByteType, e: Rql2ByteType) if a.props.subsetOf(e.props) => Rql2ByteType(e.props)
+    case (a: SnapiByteType, e: SnapiByteType) if a.props.subsetOf(e.props) => SnapiByteType(e.props)
     // Short type
-    case (a: Rql2ShortType, e: Rql2ShortType) if a.props.subsetOf(e.props) => Rql2ShortType(e.props)
+    case (a: SnapiShortType, e: SnapiShortType) if a.props.subsetOf(e.props) => SnapiShortType(e.props)
     // Int type
-    case (a: Rql2IntType, e: Rql2IntType) if a.props.subsetOf(e.props) => Rql2IntType(e.props)
+    case (a: SnapiIntType, e: SnapiIntType) if a.props.subsetOf(e.props) => SnapiIntType(e.props)
     // Long type
-    case (a: Rql2LongType, e: Rql2LongType) if a.props.subsetOf(e.props) => Rql2LongType(e.props)
+    case (a: SnapiLongType, e: SnapiLongType) if a.props.subsetOf(e.props) => SnapiLongType(e.props)
     // Float type
-    case (a: Rql2FloatType, e: Rql2FloatType) if a.props.subsetOf(e.props) => Rql2FloatType(e.props)
+    case (a: SnapiFloatType, e: SnapiFloatType) if a.props.subsetOf(e.props) => SnapiFloatType(e.props)
     // Double type
-    case (a: Rql2DoubleType, e: Rql2DoubleType) if a.props.subsetOf(e.props) => Rql2DoubleType(e.props)
+    case (a: SnapiDoubleType, e: SnapiDoubleType) if a.props.subsetOf(e.props) => SnapiDoubleType(e.props)
     // Decimal type
-    case (a: Rql2DecimalType, e: Rql2DecimalType) if a.props.subsetOf(e.props) => Rql2DecimalType(e.props)
+    case (a: SnapiDecimalType, e: SnapiDecimalType) if a.props.subsetOf(e.props) => SnapiDecimalType(e.props)
     // Date type
-    case (a: Rql2DateType, e: Rql2DateType) if a.props.subsetOf(e.props) => Rql2DateType(e.props)
+    case (a: SnapiDateType, e: SnapiDateType) if a.props.subsetOf(e.props) => SnapiDateType(e.props)
     // Time type
-    case (a: Rql2TimeType, e: Rql2TimeType) if a.props.subsetOf(e.props) => Rql2TimeType(e.props)
+    case (a: SnapiTimeType, e: SnapiTimeType) if a.props.subsetOf(e.props) => SnapiTimeType(e.props)
     // Timestamp type
-    case (a: Rql2TimestampType, e: Rql2TimestampType) if a.props.subsetOf(e.props) => Rql2TimestampType(e.props)
+    case (a: SnapiTimestampType, e: SnapiTimestampType) if a.props.subsetOf(e.props) => SnapiTimestampType(e.props)
     // Interval type
-    case (a: Rql2IntervalType, e: Rql2IntervalType) if a.props.subsetOf(e.props) => Rql2IntervalType(e.props)
+    case (a: SnapiIntervalType, e: SnapiIntervalType) if a.props.subsetOf(e.props) => SnapiIntervalType(e.props)
     // Record Type
-    case (a: Rql2RecordType, e: Rql2RecordType)
+    case (a: SnapiRecordType, e: SnapiRecordType)
         if a.atts.map(_.idn) == e.atts.map(_.idn) && a.props.subsetOf(e.props) =>
-      Rql2RecordType(
-        a.atts.zip(e.atts).map { case (a, e) => Rql2AttrType(a.idn, recurse(a.tipe, e.tipe)) },
+      SnapiRecordType(
+        a.atts.zip(e.atts).map { case (a, e) => SnapiAttrType(a.idn, recurse(a.tipe, e.tipe)) },
         e.props
       )
     // Iterable Type
-    case (a: Rql2IterableType, e: Rql2IterableType) if a.props.subsetOf(e.props) =>
-      Rql2IterableType(recurse(a.innerType, e.innerType), e.props)
+    case (a: SnapiIterableType, e: SnapiIterableType) if a.props.subsetOf(e.props) =>
+      SnapiIterableType(recurse(a.innerType, e.innerType), e.props)
     // List Type
-    case (a: Rql2ListType, e: Rql2ListType) if a.props.subsetOf(e.props) =>
-      Rql2ListType(recurse(a.innerType, e.innerType), e.props)
+    case (a: SnapiListType, e: SnapiListType) if a.props.subsetOf(e.props) =>
+      SnapiListType(recurse(a.innerType, e.innerType), e.props)
     // FunType
     // We're strict with FunType. Function type arguments are handled with a relaxed semantic when they are arguments
     // of package extensions (accepting nullables/tryables, even for their parameter types). The case here is to process
     // function type arguments of user-defined functions.
     case (a: FunType, e: FunType) if a.ms == e.ms && a.os == e.os => FunType(e.ms, e.os, recurse(a.r, e.r), e.props)
     // Or Type
-    case (Rql2OrType(as, _), Rql2OrType(es, _)) =>
+    case (SnapiOrType(as, _), SnapiOrType(es, _)) =>
       if (as.forall(a => es.exists(e => getCompatibleType(a, e).isDefined))) actual
       else throw new MergeTypeException
-    case (a: Rql2UndefinedType, e) if !hasTypeConstraint(e) && a.props.subsetOf(getProps(e)) =>
+    case (a: SnapiUndefinedType, e) if !hasTypeConstraint(e) && a.props.subsetOf(getProps(e)) =>
       // Hit here
       e
     // ExpType
@@ -415,10 +415,10 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
     //
     // Type Constraints
     //
-    case (a: Rql2TypeWithProperties, IsTryable()) => addProp(a, Rql2IsTryableTypeProperty())
-    case (a: Rql2TypeWithProperties, IsNullable()) => addProp(a, Rql2IsNullableTypeProperty())
-    case (a: Rql2TypeWithProperties, HasTypeProperties(props)) if a.props.subsetOf(props) => addProps(actual, props)
-    case (a: Rql2TypeWithProperties, DoesNotHaveTypeProperties(props)) if props.intersect(a.props).isEmpty => actual
+    case (a: SnapiTypeWithProperties, IsTryable()) => addProp(a, SnapiIsTryableTypeProperty())
+    case (a: SnapiTypeWithProperties, IsNullable()) => addProp(a, SnapiIsNullableTypeProperty())
+    case (a: SnapiTypeWithProperties, HasTypeProperties(props)) if a.props.subsetOf(props) => addProps(actual, props)
+    case (a: SnapiTypeWithProperties, DoesNotHaveTypeProperties(props)) if props.intersect(a.props).isEmpty => actual
     case (_, OneOfType(expectedTypes)) =>
 //      assert(expectedTypes.forall(t => !isTypeConstraint(t)), s"Type constraint found in OneOfType: $expectedTypes")
       // We need to merge it (using getCompatibleType) with the actual type to get the target type.
@@ -428,11 +428,11 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
       expectedTypes.flatMap(t => getCompatibleType(actual, t)).headOption.getOrElse(throw new MergeTypeException)
     case (_, MergeableType(t)) => mergeType(actual, t).getOrElse(throw new MergeTypeException)
     // Type Constraints are different because they never "merge". They just return the actual type unchanged.
-    case (Rql2RecordType(as, _), ExpectedRecordType(idns)) if idns.subsetOf(as.map(_.idn).toSet) => actual
-    case (r: Rql2RecordType, e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
+    case (SnapiRecordType(as, _), ExpectedRecordType(idns)) if idns.subsetOf(as.map(_.idn).toSet) => actual
+    case (r: SnapiRecordType, e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
     // Projection on lists or collections: collection.name same as Collection.Transform(collection, x -> x.name)
-    case (Rql2IterableType(r: Rql2RecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
-    case (Rql2ListType(r: Rql2RecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
+    case (SnapiIterableType(r: SnapiRecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
+    case (SnapiListType(r: SnapiRecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
     case (_, _: AnythingType) => actual
     //
     // Base Types
@@ -456,7 +456,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     extends CommonSemanticAnalyzer(tree)
     with ExpectedTypes
     with StagedCompiler
-    with Rql2TypeUtils {
+    with SnapiTypeUtils {
 
   // This function checks if the semantic analysis is being run with the staged compiler
   // We need it to prevent infinite recursion in the getValue function
@@ -546,7 +546,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             v match {
               // If getValue returns an error which means the staged compiler failed to execute "Environment.Secret(<secret_name>)" code
               // We return a warning that the secret is missing.
-              case Right(Rql2TryValue(Left(error))) => Seq(MissingSecretWarning(e))
+              case Right(SnapiTryValue(Left(error))) => Seq(MissingSecretWarning(e))
               // In case of Right(TryValue(Right())) that <secret_name> in "Environment.Secret(<secret_name>)" is a free variable, we don't report that as a warning
               case _ => Seq.empty
             }
@@ -558,9 +558,9 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
 
   private def idnIsAmbiguous(idn: String, e: Exp): Boolean = {
     actualType(e) match {
-      case Rql2RecordType(atts, _) => atts.collect { case att if att.idn == idn => att }.length > 1
-      case Rql2IterableType(Rql2RecordType(atts, _), _) => atts.collect { case att if att.idn == idn => att }.length > 1
-      case Rql2ListType(Rql2RecordType(atts, _), _) => atts.collect { case att if att.idn == idn => att }.length > 1
+      case SnapiRecordType(atts, _) => atts.collect { case att if att.idn == idn => att }.length > 1
+      case SnapiIterableType(SnapiRecordType(atts, _), _) => atts.collect { case att if att.idn == idn => att }.length > 1
+      case SnapiListType(SnapiRecordType(atts, _), _) => atts.collect { case att if att.idn == idn => att }.length > 1
       case _ => false
     }
   }
@@ -698,7 +698,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     case tree.parent(f: LetFun) => new LetFunEntity(f)
     case tree.parent(f: LetFunRec) => new LetFunRecEntity(f)
     case tree.parent(f: FunParam) => new FunParamEntity(f)
-    case tree.parent(d: Rql2Method) => new MethodEntity(d)
+    case tree.parent(d: SnapiMethod) => new MethodEntity(d)
     case _ => super.defentity(i)
   }
 
@@ -794,7 +794,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
 
   override protected def actualTypeDef(n: Exp): Type = {
     val t = n match {
-      case e: Rql2Exp => actualTypeRql2Exp(e)
+      case e: SnapiExp => actualTypeRql2Exp(e)
       case _ => super.actualTypeDef(n)
     }
     // Resolve the type (remove type alias)
@@ -820,23 +820,23 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     }
   }
 
-  private def actualTypeRql2Exp(n: Rql2Exp): Type = n match {
+  private def actualTypeRql2Exp(n: SnapiExp): Type = n match {
     case c: Const => c match {
-        case _: NullConst => Rql2UndefinedType(Set(Rql2IsNullableTypeProperty()))
+        case _: NullConst => SnapiUndefinedType(Set(SnapiIsNullableTypeProperty()))
         case nc: NumberConst => nc match {
-            case _: ByteConst => Rql2ByteType()
-            case _: ShortConst => Rql2ShortType()
-            case _: IntConst => Rql2IntType()
-            case _: LongConst => Rql2LongType()
-            case _: FloatConst => Rql2FloatType()
-            case _: DoubleConst => Rql2DoubleType()
-            case _: DecimalConst => Rql2DecimalType()
+            case _: ByteConst => SnapiByteType()
+            case _: ShortConst => SnapiShortType()
+            case _: IntConst => SnapiIntType()
+            case _: LongConst => SnapiLongType()
+            case _: FloatConst => SnapiFloatType()
+            case _: DoubleConst => SnapiDoubleType()
+            case _: DecimalConst => SnapiDecimalType()
           }
-        case _: StringConst => Rql2StringType()
-        case _: TripleQuotedStringConst => Rql2StringType()
-        case _: BoolConst => Rql2BoolType()
-        case _: BinaryConst => Rql2BinaryType()
-        case _: LocationConst => Rql2LocationType()
+        case _: StringConst => SnapiStringType()
+        case _: TripleQuotedStringConst => SnapiStringType()
+        case _: BoolConst => SnapiBoolType()
+        case _: BinaryConst => SnapiBinaryType()
+        case _: LocationConst => SnapiLocationType()
       }
     case l: Let => actualType(l.e)
     case TypeExp(t) => ExpType(t)
@@ -845,15 +845,15 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         case None => ErrorType()
       }
     case UnaryExp(op, e) => op match {
-        case _: Not => Rql2BoolType(getProps(actualType(e)))
+        case _: Not => SnapiBoolType(getProps(actualType(e)))
         case _: Neg => actualType(e)
       }
     case BinaryExp(op, e1, e2) => op match {
-        case _: ComparableOp => Rql2BoolType(getProps(actualType(e1)) ++ getProps(actualType(e2)))
+        case _: ComparableOp => SnapiBoolType(getProps(actualType(e1)) ++ getProps(actualType(e2)))
         case _: BooleanOp =>
-          Rql2BoolType(Set(Rql2IsNullableTypeProperty()) ++ getProps(actualType(e1)) ++ getProps(actualType(e2)))
+          SnapiBoolType(Set(SnapiIsNullableTypeProperty()) ++ getProps(actualType(e1)) ++ getProps(actualType(e2)))
         case _: Div => mergeType(actualType(e1), actualType(e2)) match {
-            case Some(t) => addProp(t, Rql2IsTryableTypeProperty()) // Div can fail on divide by zero.
+            case Some(t) => addProp(t, SnapiIsTryableTypeProperty()) // Div can fail on divide by zero.
             case None => ErrorType()
           }
         case _ => mergeType(actualType(e1), actualType(e2)) match {
@@ -886,7 +886,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             case Some(p) if p.existsEntry(i) => PackageEntryType(name, i)
             case _ => ErrorType()
           }
-        case Rql2RecordType(atts, props) =>
+        case SnapiRecordType(atts, props) =>
           // Only type if record has the field.
           atts
             .collectFirst {
@@ -895,22 +895,22 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                 addProps(att.tipe, props)
             }
             .getOrElse(ErrorType())
-        case Rql2ListType(Rql2RecordType(atts, recordProps), listProps) =>
+        case SnapiListType(SnapiRecordType(atts, recordProps), listProps) =>
           // Only type if record has the field.
           atts
             .collectFirst {
               case att if att.idn == i =>
                 // Include the type properties of the <e> as well.
-                Rql2ListType(addProps(att.tipe, recordProps), listProps)
+                SnapiListType(addProps(att.tipe, recordProps), listProps)
             }
             .getOrElse(ErrorType())
-        case Rql2IterableType(Rql2RecordType(atts, recordProps), listProps) =>
+        case SnapiIterableType(SnapiRecordType(atts, recordProps), listProps) =>
           // Only type if record has the field.
           atts
             .collectFirst {
               case att if att.idn == i =>
                 // Include the type properties of the <e> as well.
-                Rql2IterableType(addProps(att.tipe, recordProps), listProps)
+                SnapiIterableType(addProps(att.tipe, recordProps), listProps)
             }
             .getOrElse(ErrorType())
         case _ => ErrorType()
@@ -930,7 +930,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     val prevMandatoryArgs = mutable.ArrayBuffer[Arg]()
     val prevOptionalArgs = mutable.ArrayBuffer[(String, Arg)]()
     val prevVarArgs = mutable.ArrayBuffer[Arg]()
-    val outProps = mutable.Set.empty[Rql2TypeProperty]
+    val outProps = mutable.Set.empty[SnapiTypeProperty]
 
     // This list includes mandatory and var args.
     val argsList = args.collect { case arg if arg.idn.isEmpty => arg }.to[mutable.ArrayBuffer]
@@ -1512,7 +1512,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     Right(r)
   }
 
-  final private def getValue(report: CompatibilityReport, e: Exp): Either[ErrorCompilerMessage, Rql2Value] = {
+  final private def getValue(report: CompatibilityReport, e: Exp): Either[ErrorCompilerMessage, SnapiValue] = {
     // Recurse over all entities in the order of its dependencies.
     // Populate an ordered list of declarations as a side-effect.
     val lets: mutable.ArrayBuffer[LetDecl] = mutable.ArrayBuffer.empty[LetDecl]
@@ -1598,8 +1598,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     // LocationType (i.e. LocationDescription).
     val expected = addProps(report.t, report.extraProps)
     val program = {
-      if (lets.isEmpty) Rql2Program(Vector.empty, Some(TypePackageBuilder.Cast(expected, e)))
-      else Rql2Program(Vector.empty, Some(TypePackageBuilder.Cast(expected, Let(lets.to, e))))
+      if (lets.isEmpty) SnapiProgram(Vector.empty, Some(TypePackageBuilder.Cast(expected, e)))
+      else SnapiProgram(Vector.empty, Some(TypePackageBuilder.Cast(expected, Let(lets.to, e))))
     }
 
     programContext.getOrAddStagedCompilation(
@@ -1620,19 +1620,19 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             case StagedCompilerSuccess(v) =>
               var stagedCompilerResult = v
               // Remove extraProps
-              if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
-                val tryValue = stagedCompilerResult.asInstanceOf[Rql2TryValue].v
+              if (report.extraProps.contains(SnapiIsTryableTypeProperty())) {
+                val tryValue = stagedCompilerResult.asInstanceOf[SnapiTryValue].v
                 if (tryValue.isLeft) {
                   return Left(FailedToEvaluate(e, tryValue.left.toOption))
                 }
-                stagedCompilerResult = stagedCompilerResult.asInstanceOf[Rql2TryValue].v.right.get
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[SnapiTryValue].v.right.get
               }
-              if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
-                val optionValue = stagedCompilerResult.asInstanceOf[Rql2OptionValue].v
+              if (report.extraProps.contains(SnapiIsNullableTypeProperty())) {
+                val optionValue = stagedCompilerResult.asInstanceOf[SnapiOptionValue].v
                 if (optionValue.isEmpty) {
                   return Left(FailedToEvaluate(e, Some("unexpected null value found")))
                 }
-                stagedCompilerResult = stagedCompilerResult.asInstanceOf[Rql2OptionValue].v.get
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[SnapiOptionValue].v.get
               }
               Right(stagedCompilerResult)
             case StagedCompilerValidationFailure(errs) =>
@@ -1718,8 +1718,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                       }
                     case Some(ErrorType()) => Right(ErrorType()) // Propagating errors silently
                     case Some(t) =>
-                      val paramTypes = fp.ps.map(x => x.t.getOrElse(Rql2UndefinedType()))
-                      val outType = fp.r.getOrElse(Rql2UndefinedType())
+                      val paramTypes = fp.ps.map(x => x.t.getOrElse(SnapiUndefinedType()))
+                      val outType = fp.r.getOrElse(SnapiUndefinedType())
                       Left(
                         Seq(
                           UnexpectedType(f, FunType(paramTypes, Vector.empty, outType, Set.empty), t),
@@ -1775,33 +1775,33 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
 
   final override protected def expectedTypeDef(n: Exp): ExpectedType = {
     n match {
-      case tree.parent.pair(e: Exp, parent: Rql2Node) => expectedTypeRql2(e, parent)
+      case tree.parent.pair(e: Exp, parent: SnapiNode) => expectedTypeRql2(e, parent)
       case _ => super.expectedTypeDef(n)
     }
   }
 
-  private val rql2byte = Rql2ByteType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2short = Rql2ShortType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2int = Rql2IntType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2long = Rql2LongType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2float = Rql2FloatType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2double = Rql2DoubleType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2decimal = Rql2DecimalType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2bool = Rql2BoolType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
+  private val rql2byte = SnapiByteType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2short = SnapiShortType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2int = SnapiIntType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2long = SnapiLongType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2float = SnapiFloatType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2double = SnapiDoubleType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2decimal = SnapiDecimalType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2bool = SnapiBoolType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
   private val rql2numerics = OneOfType(rql2byte, rql2short, rql2int, rql2long, rql2float, rql2double, rql2decimal)
-  private val rql2string = Rql2StringType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2time = Rql2TimeType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2interval = Rql2IntervalType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2date = Rql2DateType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-  private val rql2timestamp = Rql2TimestampType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
+  private val rql2string = SnapiStringType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2time = SnapiTimeType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2interval = SnapiIntervalType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2date = SnapiDateType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
+  private val rql2timestamp = SnapiTimestampType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
   private val rql2numbersAndString = OneOfType(rql2numerics.tipes :+ rql2string)
   private val rql2temporals = OneOfType(rql2time, rql2interval, rql2date, rql2timestamp)
   private val rql2numericsTemporalsString = OneOfType(rql2numerics.tipes ++ rql2temporals.tipes :+ rql2string)
   private val rql2numericsTemporalsStringsBools =
     OneOfType(rql2numerics.tipes ++ rql2temporals.tipes ++ Vector(rql2bool, rql2string))
 
-  private def expectedTypeRql2(e: Exp, parent: Rql2Node): ExpectedType = (parent: @unchecked) match {
-    case Rql2Program(_, Some(e1)) =>
+  private def expectedTypeRql2(e: Exp, parent: SnapiNode): ExpectedType = (parent: @unchecked) match {
+    case SnapiProgram(_, Some(e1)) =>
       assert(e eq e1)
       anything
     case b: LetBind =>
@@ -1833,7 +1833,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
           assert(e eq e2)
           expectedE2.getOrElse {
             val t1 = actualType(e1)
-            if (t1.isInstanceOf[Rql2UndefinedType]) expectedE1
+            if (t1.isInstanceOf[SnapiUndefinedType]) expectedE1
             else expectedE2.getOrElse(MergeableType(t1))
           }
         }
@@ -1899,7 +1899,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                 ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${packagesWithEntry.head}.$i?"))
               else ExpectedType(ExpectedProjType(i))
             } else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
-          case Rql2RecordType(atts, _) =>
+          case SnapiRecordType(atts, _) =>
             if (atts.exists(_.idn == i)) {
               ExpectedProjType(i)
             } else {
@@ -1909,7 +1909,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
               if (names.isEmpty) ExpectedProjType(i)
               else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
             }
-          case Rql2ListType(Rql2RecordType(atts, _), _) =>
+          case SnapiListType(SnapiRecordType(atts, _), _) =>
             if (atts.exists(_.idn == i)) {
               ExpectedProjType(i)
             } else {
@@ -1919,7 +1919,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
               if (names.isEmpty) ExpectedProjType(i)
               else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
             }
-          case Rql2IterableType(Rql2RecordType(atts, _), _) =>
+          case SnapiIterableType(SnapiRecordType(atts, _), _) =>
             if (atts.exists(_.idn == i)) {
               ExpectedProjType(i)
             } else {
@@ -1947,14 +1947,14 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   ///////////////////////////////////////////////////////////////////////////
 
   override lazy val rootType: Option[Type] = {
-    val Rql2Program(_, me) = tree.root
+    val SnapiProgram(_, me) = tree.root
     me.map(tipe)
   }
 
   override protected def descriptionDef: TreeDescription = {
-    val Rql2Program(methods, me) = tree.root
+    val SnapiProgram(methods, me) = tree.root
     val decls = methods.map {
-      case Rql2Method(FunProto(ps, r, FunBody(e)), idn) =>
+      case SnapiMethod(FunProto(ps, r, FunBody(e)), idn) =>
         val params = ps.map { p =>
           val t = resolveParamType(p) match {
             case Right(t) => t

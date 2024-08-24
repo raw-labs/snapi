@@ -25,7 +25,7 @@ import java.util.Base64
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
-final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Option[Long]) extends Closeable {
+final class SnapiCsvWriter(os: OutputStream, lineSeparator: String, maxRows: Option[Long]) extends Closeable {
 
   final private val gen =
     try {
@@ -48,30 +48,30 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
   final private val timeFormatterNoMs = DateTimeFormatter.ofPattern("HH:mm:ss")
   final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
   final private val timestampFormatterNoMs = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-  final private val tryable = Rql2IsTryableTypeProperty()
-  final private val nullable = Rql2IsNullableTypeProperty()
+  final private val tryable = SnapiIsTryableTypeProperty()
+  final private val nullable = SnapiIsNullableTypeProperty()
 
   private var maxRowsReached = false
 
   def complete: Boolean = !maxRowsReached
 
   @throws[IOException]
-  def write(v: Value, t: Rql2TypeWithProperties): Unit = {
+  def write(v: Value, t: SnapiTypeWithProperties): Unit = {
     if (t.props.contains(tryable)) {
       if (v.isException) {
         v.throwException()
       } else {
-        write(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties])
+        write(v, t.cloneAndRemoveProp(tryable).asInstanceOf[SnapiTypeWithProperties])
       }
     } else if (t.props.contains(nullable)) {
       if (v.isNull) {
         gen.writeString("")
       } else {
-        write(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties])
+        write(v, t.cloneAndRemoveProp(nullable).asInstanceOf[SnapiTypeWithProperties])
       }
     } else {
       t match {
-        case Rql2IterableType(recordType: Rql2RecordType, _) =>
+        case SnapiIterableType(recordType: SnapiRecordType, _) =>
           val columnNames = recordType.atts.map(_.idn)
           for (colName <- columnNames) {
             schemaBuilder.addColumn(colName)
@@ -89,7 +89,7 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
               rowsWritten += 1
             }
           }
-        case Rql2ListType(recordType: Rql2RecordType, _) =>
+        case SnapiListType(recordType: SnapiRecordType, _) =>
           val columnNames = recordType.atts.map(_.idn)
           for (colName <- columnNames) {
             schemaBuilder.addColumn(colName)
@@ -108,7 +108,7 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
     }
   }
 
-  private def writeColumns(value: Value, recordType: Rql2RecordType): Unit = {
+  private def writeColumns(value: Value, recordType: SnapiRecordType): Unit = {
     val keys = new java.util.Vector[String]
     recordType.atts.foreach(a => keys.add(a.idn))
     val distincted = RecordFieldsNaming.makeDistinct(keys)
@@ -117,14 +117,14 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
       val field: String = distincted.get(i)
       val v = value.getMember(field)
       gen.writeFieldName(field)
-      writeValue(v, recordType.atts(i).tipe.asInstanceOf[Rql2TypeWithProperties])
+      writeValue(v, recordType.atts(i).tipe.asInstanceOf[SnapiTypeWithProperties])
     }
     gen.writeEndObject()
   }
 
   @throws[IOException]
   @tailrec
-  private def writeValue(v: Value, t: Rql2TypeWithProperties): Unit = {
+  private def writeValue(v: Value, t: SnapiTypeWithProperties): Unit = {
     if (t.props.contains(tryable)) {
       if (v.isException) {
         try {
@@ -132,39 +132,39 @@ final class Rql2CsvWriter(os: OutputStream, lineSeparator: String, maxRows: Opti
         } catch {
           case NonFatal(ex) => gen.writeString(ex.getMessage)
         }
-      } else writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties])
+      } else writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[SnapiTypeWithProperties])
     } else if (t.props.contains(nullable)) {
       if (v.isNull) gen.writeNull()
-      else writeValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties])
+      else writeValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[SnapiTypeWithProperties])
     } else t match {
-      case _: Rql2BinaryType =>
+      case _: SnapiBinaryType =>
         val bytes = (0L until v.getBufferSize).map(v.readBufferByte)
         gen.writeString(Base64.getEncoder.encodeToString(bytes.toArray))
-      case _: Rql2BoolType => gen.writeBoolean(v.asBoolean())
-      case _: Rql2ByteType => gen.writeNumber(v.asByte().toInt)
-      case _: Rql2ShortType => gen.writeNumber(v.asShort().toInt)
-      case _: Rql2IntType => gen.writeNumber(v.asInt())
-      case _: Rql2LongType => gen.writeNumber(v.asLong())
-      case _: Rql2FloatType => gen.writeNumber(v.asFloat())
-      case _: Rql2DoubleType => gen.writeNumber(v.asDouble())
-      case _: Rql2DecimalType => gen.writeNumber(v.asString())
-      case _: Rql2StringType => gen.writeString(v.asString())
-      case _: Rql2DateType =>
+      case _: SnapiBoolType => gen.writeBoolean(v.asBoolean())
+      case _: SnapiByteType => gen.writeNumber(v.asByte().toInt)
+      case _: SnapiShortType => gen.writeNumber(v.asShort().toInt)
+      case _: SnapiIntType => gen.writeNumber(v.asInt())
+      case _: SnapiLongType => gen.writeNumber(v.asLong())
+      case _: SnapiFloatType => gen.writeNumber(v.asFloat())
+      case _: SnapiDoubleType => gen.writeNumber(v.asDouble())
+      case _: SnapiDecimalType => gen.writeNumber(v.asString())
+      case _: SnapiStringType => gen.writeString(v.asString())
+      case _: SnapiDateType =>
         val date = v.asDate()
         gen.writeString(dateFormatter.format(date))
-      case _: Rql2TimeType =>
+      case _: SnapiTimeType =>
         val time = v.asTime()
         val formatter = if (time.getNano > 0) timeFormatter else timeFormatterNoMs
         val formatted = formatter.format(time)
         gen.writeString(formatted)
-      case _: Rql2TimestampType =>
+      case _: SnapiTimestampType =>
         val date = v.asDate()
         val time = v.asTime()
         val dateTime = date.atTime(time)
         val formatter = if (time.getNano > 0) timestampFormatter else timestampFormatterNoMs
         val formatted = formatter.format(dateTime)
         gen.writeString(formatted)
-      case _: Rql2IntervalType =>
+      case _: SnapiIntervalType =>
         val duration = v.asDuration()
         val days = duration.toDays
         val hours = duration.toHoursPart

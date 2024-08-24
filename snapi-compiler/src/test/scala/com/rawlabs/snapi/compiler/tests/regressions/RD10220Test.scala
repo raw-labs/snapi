@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD10220Test extends Rql2TestContext {
+class RD10220Test extends SnapiTestContext {
 
   test("""Csv.InferAndParse("stringData")""")(
     _ should (typeAs("collection(record(stringData: undefined))") and evaluateTo("[]"))

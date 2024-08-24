@@ -16,10 +16,10 @@ import com.rawlabs.compiler.CompilerServiceTestContext
 import com.rawlabs.utils.core.{RawTestSuite, RawUtils, SettingsTestContext}
 import org.graalvm.polyglot.Engine
 
-trait Rql2CompilerServiceTestContext extends CompilerServiceTestContext {
+trait SnapiCompilerServiceTestContext extends CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>
 
-  var rql2TruffleCompilerService: Rql2CompilerService = _
+  var rql2TruffleCompilerService: SnapiCompilerService = _
 
   var engine: Engine = _
 
@@ -75,7 +75,7 @@ trait Rql2CompilerServiceTestContext extends CompilerServiceTestContext {
       .options(options)
       .build()
 
-    rql2TruffleCompilerService = new Rql2CompilerService((engine, false))
+    rql2TruffleCompilerService = new SnapiCompilerService((engine, false))
     setCompilerService(rql2TruffleCompilerService)
   }
 

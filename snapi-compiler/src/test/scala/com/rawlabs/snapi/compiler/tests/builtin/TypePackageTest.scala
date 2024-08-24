@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class TypePackageTest extends Rql2TestContext {
+class TypePackageTest extends SnapiTestContext {
 
   ignore("""Types.Merge(int, float)""")(it => it should typeAs("float"))
 

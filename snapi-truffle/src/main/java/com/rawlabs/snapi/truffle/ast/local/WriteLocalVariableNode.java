@@ -22,14 +22,14 @@ import com.rawlabs.snapi.truffle.ast.TypeGuards;
 @ImportStatic(TypeGuards.class)
 @NodeChild("value")
 @NodeField(name = "slot", type = int.class)
-@NodeField(name = "rql2Type", type = Rql2Type.class)
+@NodeField(name = "rql2Type", type = SnapiType.class)
 public abstract class WriteLocalVariableNode extends ExpressionNode {
 
   @Idempotent
   protected abstract int getSlot();
 
   @Idempotent
-  protected abstract Rql2Type getRql2Type();
+  protected abstract SnapiType getRql2Type();
 
   @Specialization(guards = "isBooleanKind(getRql2Type())")
   protected final boolean doBoolean(VirtualFrame frame, boolean value) {

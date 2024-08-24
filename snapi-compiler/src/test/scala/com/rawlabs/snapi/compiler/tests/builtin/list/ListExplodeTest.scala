@@ -13,10 +13,10 @@
 package com.rawlabs.snapi.compiler.tests.builtin.list
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-class ListExplodeTest extends Rql2TestContext with LocalLocationsTestContext {
+class ListExplodeTest extends SnapiTestContext with LocalLocationsTestContext {
 
   private val nba = tempFile("""[
     |  {"team": {"name": "Bulls", "city": "Chicago"},

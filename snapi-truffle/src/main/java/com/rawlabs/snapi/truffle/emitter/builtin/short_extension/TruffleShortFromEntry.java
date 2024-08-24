@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter.builtin.short_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ShortFromEntry;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.numeric.short_package.ShortFromNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -22,7 +22,7 @@ import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import java.util.List;
 
 public class TruffleShortFromEntry extends ShortFromEntry implements TruffleEntryExtension {
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     return ShortFromNodeGen.create(args.get(0).exprNode());
   }
 }

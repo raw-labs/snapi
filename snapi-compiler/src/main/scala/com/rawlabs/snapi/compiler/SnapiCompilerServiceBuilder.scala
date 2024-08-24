@@ -16,10 +16,10 @@ import com.rawlabs.compiler.CompilerServiceBuilder
 import com.rawlabs.compiler.CompilerService
 import com.rawlabs.utils.core.RawSettings
 
-class Rql2CompilerServiceBuilder extends CompilerServiceBuilder {
-  override def language: Set[String] = Rql2CompilerService.LANGUAGE
+class SnapiCompilerServiceBuilder extends CompilerServiceBuilder {
+  override def language: Set[String] = SnapiCompilerService.LANGUAGE
 
   override def build()(implicit settings: RawSettings): CompilerService = {
-    new Rql2CompilerService
+    new SnapiCompilerService
   }
 }

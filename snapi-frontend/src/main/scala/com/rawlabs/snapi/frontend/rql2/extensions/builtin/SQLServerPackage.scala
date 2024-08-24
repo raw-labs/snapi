@@ -113,15 +113,15 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 3)
-    Right(ValueParam(Rql2StringType()))
+    Right(ValueParam(SnapiStringType()))
   }
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "host" => Right(ValueParam(Rql2StringType()))
-      case "port" => Right(ValueParam(Rql2IntType()))
-      case "username" => Right(ValueParam(Rql2StringType()))
-      case "password" => Right(ValueParam(Rql2StringType()))
+      case "host" => Right(ValueParam(SnapiStringType()))
+      case "port" => Right(ValueParam(SnapiIntType()))
+      case "username" => Right(ValueParam(SnapiStringType()))
+      case "password" => Right(ValueParam(SnapiStringType()))
     }
   }
 
@@ -137,7 +137,7 @@ class SQLServerInferAndReadEntry extends SugarEntryExtension {
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(2))), None)
     val readType = FunAppArg(TypeExp(t), None)
     val optArgs =
-      optionalArgs.map { case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+      optionalArgs.map { case (idn, ValueArg(SnapiStringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("SQLServer"), "Read"),
       Vector(db, schema, table, readType) ++ optArgs
@@ -273,17 +273,17 @@ class SQLServerReadEntry extends SugarEntryExtension {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 4)
     if (idx == 3) Right(TypeParam(AnythingType()))
-    else Right(ExpParam(Rql2StringType()))
+    else Right(ExpParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("host", "username", "port", "password"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "host" => Right(ExpParam(Rql2StringType()))
-      case "port" => Right(ExpParam(Rql2IntType()))
-      case "username" => Right(ExpParam(Rql2StringType()))
-      case "password" => Right(ExpParam(Rql2StringType()))
+      case "host" => Right(ExpParam(SnapiStringType()))
+      case "port" => Right(ExpParam(SnapiIntType()))
+      case "username" => Right(ExpParam(SnapiStringType()))
+      case "password" => Right(ExpParam(SnapiStringType()))
     }
   }
 
@@ -398,15 +398,15 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 2)
-    Right(ValueParam(Rql2StringType()))
+    Right(ValueParam(SnapiStringType()))
   }
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "host" => Right(ValueParam(Rql2StringType()))
-      case "port" => Right(ValueParam(Rql2IntType()))
-      case "username" => Right(ValueParam(Rql2StringType()))
-      case "password" => Right(ValueParam(Rql2StringType()))
+      case "host" => Right(ValueParam(SnapiStringType()))
+      case "port" => Right(ValueParam(SnapiIntType()))
+      case "username" => Right(ValueParam(SnapiStringType()))
+      case "password" => Right(ValueParam(SnapiStringType()))
     }
   }
 
@@ -468,7 +468,7 @@ class SQLServerInferAndQueryEntry extends SugarEntryExtension {
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
     val optArgs =
-      optionalArgs.map { case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
+      optionalArgs.map { case (idn, ValueArg(SnapiStringValue(s), _)) => FunAppArg(StringConst(s), Some(idn)) }
     FunApp(
       Proj(PackageIdnExp("SQLServer"), "Query"),
       Vector(db, query, readType) ++ optArgs
@@ -543,17 +543,17 @@ class SQLServerQueryEntry extends EntryExtension {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 3)
     if (idx == 2) Right(TypeParam(AnythingType()))
-    else Right(ExpParam(Rql2StringType()))
+    else Right(ExpParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("host", "username", "port", "password"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "host" => Right(ExpParam(Rql2StringType()))
-      case "port" => Right(ExpParam(Rql2IntType()))
-      case "username" => Right(ExpParam(Rql2StringType()))
-      case "password" => Right(ExpParam(Rql2StringType()))
+      case "host" => Right(ExpParam(SnapiStringType()))
+      case "port" => Right(ExpParam(SnapiIntType()))
+      case "username" => Right(ExpParam(SnapiStringType()))
+      case "password" => Right(ExpParam(SnapiStringType()))
     }
   }
 

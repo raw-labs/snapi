@@ -17,7 +17,7 @@ import com.rawlabs.snapi.frontend.base.errors.{ErrorCompilerMessage, InvalidSema
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}
 import com.rawlabs.snapi.frontend.rql2.source._
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.{ProgramContext, Rql2TypeUtils, Rql2Value}
+import com.rawlabs.snapi.frontend.rql2.{ProgramContext, SnapiTypeUtils, SnapiValue}
 import com.rawlabs.utils.sources.api._
 import com.rawlabs.utils.sources.bytestream.api.ByteStreamLocation
 
@@ -54,7 +54,7 @@ abstract class PackageExtension {
 
 }
 
-final case class Rql2Arg(e: Exp, t: Type, idn: Option[String])
+final case class SnapiArg(e: Exp, t: Type, idn: Option[String])
 
 abstract class EntryExtension extends EntryExtensionHelper {
 
@@ -169,20 +169,20 @@ abstract class ShortEntryExtension(
 
 }
 
-trait EntryExtensionHelper extends Rql2TypeUtils {
+trait EntryExtensionHelper extends SnapiTypeUtils {
 
   ///////////////////////////////////////////////////////////////////////////
   // Value Helpers
   ///////////////////////////////////////////////////////////////////////////
 
-  final protected def getStringValue(v: Arg): String = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2StringValue].v }
+  final protected def getStringValue(v: Arg): String = { v.asInstanceOf[ValueArg].v.asInstanceOf[SnapiStringValue].v }
 
-  final protected def getIntValue(v: Arg): Int = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2IntValue].v }
+  final protected def getIntValue(v: Arg): Int = { v.asInstanceOf[ValueArg].v.asInstanceOf[SnapiIntValue].v }
 
-  final protected def getBoolValue(v: Arg): Boolean = { v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2BoolValue].v }
+  final protected def getBoolValue(v: Arg): Boolean = { v.asInstanceOf[ValueArg].v.asInstanceOf[SnapiBoolValue].v }
 
   final protected def getByteStreamLocation(v: Arg): Either[String, ByteStreamLocation] = {
-    val locationValue = v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2LocationValue]
+    val locationValue = v.asInstanceOf[ValueArg].v.asInstanceOf[SnapiLocationValue]
     locationValue.l match {
       case l: ByteStreamLocation => Right(l)
       case _ => Left("expected a bytestream")
@@ -190,36 +190,36 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
   }
 
   final protected def locationValueToExp(v: Arg): Exp = {
-    val locationValue = v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2LocationValue]
+    val locationValue = v.asInstanceOf[ValueArg].v.asInstanceOf[SnapiLocationValue]
     val location = locationValue.l
     val locationDescription = LocationDescription.toLocationDescription(location)
     LocationConst(LocationDescription.serialize(locationDescription), locationValue.publicDescription)
   }
 
   final protected def getListStringValue(v: Arg): Seq[String] = {
-    v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2ListValue].v.map(v => v.asInstanceOf[Rql2StringValue].v)
+    v.asInstanceOf[ValueArg].v.asInstanceOf[SnapiListValue].v.map(v => v.asInstanceOf[SnapiStringValue].v)
   }
 
   final protected def getListOptionStringValue(v: Arg): Seq[Option[String]] = {
     v
       .asInstanceOf[ValueArg]
       .v
-      .asInstanceOf[Rql2ListValue]
+      .asInstanceOf[SnapiListValue]
       .v
-      .map(v => v.asInstanceOf[Rql2OptionValue].v.map(_.asInstanceOf[Rql2StringValue].v))
+      .map(v => v.asInstanceOf[SnapiOptionValue].v.map(_.asInstanceOf[SnapiStringValue].v))
   }
 
   final protected def getListKVValue(v: Arg): Seq[(String, String)] = {
     val values = v
       .asInstanceOf[ValueArg]
       .v
-      .asInstanceOf[Rql2ListValue]
+      .asInstanceOf[SnapiListValue]
       .v
       .map { x =>
-        val values = x.asInstanceOf[Rql2RecordValue].v.map {
-          case Rql2RecordAttr(_, Rql2OptionValue(Some(v: Rql2StringValue))) => Some(v.v)
-          case Rql2RecordAttr(_, Rql2StringValue(v)) => Some(v)
-          case Rql2RecordAttr(_, Rql2OptionValue(None)) => None
+        val values = x.asInstanceOf[SnapiRecordValue].v.map {
+          case SnapiRecordAttr(_, SnapiOptionValue(Some(v: SnapiStringValue))) => Some(v.v)
+          case SnapiRecordAttr(_, SnapiStringValue(v)) => Some(v)
+          case SnapiRecordAttr(_, SnapiOptionValue(None)) => None
         }
         (values(0), values(1))
       }
@@ -229,7 +229,7 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
 
   final protected def getEncodingValue(v: Arg): Either[String, Encoding] = {
     Encoding
-      .fromEncodingString(v.asInstanceOf[ValueArg].v.asInstanceOf[Rql2StringValue].v)
+      .fromEncodingString(v.asInstanceOf[ValueArg].v.asInstanceOf[SnapiStringValue].v)
   }
 
   final protected def getMandatoryArgExp(mandatoryArgs: Seq[Arg], idx: Int): Exp = {
@@ -248,24 +248,24 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
   // Validator Helpers
   ///////////////////////////////////////////////////////////////////////////
 
-  protected def validateTableType(t: Type): Either[Seq[UnsupportedType], Rql2IterableType] = t match {
-    case Rql2IterableType(Rql2RecordType(atts, _), _) =>
+  protected def validateTableType(t: Type): Either[Seq[UnsupportedType], SnapiIterableType] = t match {
+    case SnapiIterableType(SnapiRecordType(atts, _), _) =>
       val validated = atts.map { x =>
         x.tipe match {
-          case _: Rql2StringType => Right(x)
-          case _: Rql2BoolType => Right(x)
-          case _: Rql2NumberType => Right(x)
-          case _: Rql2DateType => Right(x)
-          case _: Rql2TimeType => Right(x)
-          case _: Rql2TimestampType => Right(x)
-          case _: Rql2BinaryType => Right(x)
+          case _: SnapiStringType => Right(x)
+          case _: SnapiBoolType => Right(x)
+          case _: SnapiNumberType => Right(x)
+          case _: SnapiDateType => Right(x)
+          case _: SnapiTimeType => Right(x)
+          case _: SnapiTimestampType => Right(x)
+          case _: SnapiBinaryType => Right(x)
           // intervals are not supported, so we cannot match temporal types here.
           case _ => Left(Seq(UnsupportedType(x.tipe, x.tipe, None)))
         }
       }
       val errors = validated.collect { case Left(error) => error }
       if (errors.nonEmpty) Left(errors.flatten)
-      else Right(Rql2IterableType(Rql2RecordType(atts)))
+      else Right(SnapiIterableType(SnapiRecordType(atts)))
     case _ => Left(Seq(UnsupportedType(t, t, None)))
   }
 
@@ -276,29 +276,29 @@ trait EntryExtensionHelper extends Rql2TypeUtils {
   final val anything = AnythingType()
 
   // Primitive number types
-  final val byte = Rql2ByteType()
-  final val short = Rql2ShortType()
-  final val int = Rql2IntType()
-  final val long = Rql2LongType()
-  final val float = Rql2FloatType()
-  final val double = Rql2DoubleType()
-  final val decimal = Rql2DecimalType()
+  final val byte = SnapiByteType()
+  final val short = SnapiShortType()
+  final val int = SnapiIntType()
+  final val long = SnapiLongType()
+  final val float = SnapiFloatType()
+  final val double = SnapiDoubleType()
+  final val decimal = SnapiDecimalType()
 
   // Primitive temporal types
-  final val date = Rql2DateType()
-  final val time = Rql2TimeType()
-  final val interval = Rql2IntervalType()
-  final val timestamp = Rql2TimestampType()
+  final val date = SnapiDateType()
+  final val time = SnapiTimeType()
+  final val interval = SnapiIntervalType()
+  final val timestamp = SnapiTimestampType()
 
   // Primitive types
-  final val bool = Rql2BoolType()
-  final val string = Rql2StringType()
-  final val binary = Rql2BinaryType()
-  final val location = Rql2LocationType()
+  final val bool = SnapiBoolType()
+  final val string = SnapiStringType()
+  final val binary = SnapiBinaryType()
+  final val location = SnapiLocationType()
 
   // Collection types
-  final val iterable = Rql2IterableType(anything)
-  final val list = Rql2ListType(anything)
+  final val iterable = SnapiIterableType(anything)
+  final val list = SnapiListType(anything)
 
   // Number types constraints
   final val integer = OneOfType(byte, short, int, long)
@@ -322,7 +322,7 @@ sealed trait Arg {
 }
 final case class ExpArg(e: Exp, t: Type) extends Arg
 final case class TypeArg(t: Type) extends Arg
-final case class ValueArg(v: Rql2Value, t: Type) extends Arg
+final case class ValueArg(v: SnapiValue, t: Type) extends Arg
 
 abstract class SugarEntryExtension extends EntryExtension {
 

@@ -150,7 +150,7 @@ class BuildIntervalEntry extends EntryExtension {
   )
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
-    Right(ExpParam(Rql2IntType()))
+    Right(ExpParam(SnapiIntType()))
   }
 
   override def returnType(
@@ -158,7 +158,7 @@ class BuildIntervalEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(Rql2IntervalType())
+    Right(SnapiIntervalType())
   }
 
 }
@@ -167,8 +167,8 @@ class IntervalToMillisEntryExtension
     extends ShortEntryExtension(
       "Interval",
       "ToMillis",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2LongType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiLongType(),
       EntryDoc(
         summary = "Converts a interval to the corresponding number of milliseconds",
         examples = List(
@@ -194,8 +194,8 @@ class IntervalFromMillisEntryExtension
     extends ShortEntryExtension(
       "Interval",
       "FromMillis",
-      mandatoryParams = Vector(Rql2LongType()),
-      returnType = Rql2IntervalType(),
+      mandatoryParams = Vector(SnapiLongType()),
+      returnType = SnapiIntervalType(),
       EntryDoc(
         summary = "Converts a number of milliseconds to the corresponding interval",
         examples = List(
@@ -217,8 +217,8 @@ class IntervalParseEntryExtension
     extends ShortEntryExtension(
       "Interval",
       "Parse",
-      mandatoryParams = Vector(Rql2StringType()),
-      returnType = Rql2IntervalType(Set(Rql2IsTryableTypeProperty())),
+      mandatoryParams = Vector(SnapiStringType()),
+      returnType = SnapiIntervalType(Set(SnapiIsTryableTypeProperty())),
       EntryDoc(
         """"Parses an interval from a string.""",
         info = Some(
@@ -254,8 +254,8 @@ class IntervalYearsEntry
     extends ShortEntryExtension(
       "Interval",
       "Years",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = """"Gets the years part of an interval.""",
         examples = List(
@@ -277,8 +277,8 @@ class IntervalMonthsEntry
     extends ShortEntryExtension(
       "Interval",
       "Months",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = """"Gets the months part of an interval.""",
         examples = List(
@@ -300,8 +300,8 @@ class IntervalWeeksEntry
     extends ShortEntryExtension(
       "Interval",
       "Weeks",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = """"Gets the weeks part of an interval.""",
         examples = List(
@@ -323,8 +323,8 @@ class IntervalDaysEntry
     extends ShortEntryExtension(
       "Interval",
       "Days",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = """"Gets the days part of an interval.""",
         examples = List(
@@ -346,8 +346,8 @@ class IntervalHoursEntry
     extends ShortEntryExtension(
       "Interval",
       "Hours",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = """"Gets the hours part of an interval.""",
         examples = List(
@@ -369,8 +369,8 @@ class IntervalMinutesEntry
     extends ShortEntryExtension(
       "Interval",
       "Minutes",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = """"Gets the minutes part of an interval.""",
         examples = List(
@@ -392,8 +392,8 @@ class IntervalSecondsEntry
     extends ShortEntryExtension(
       "Interval",
       "Seconds",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = """"Gets the seconds part of an interval.""",
         examples = List(
@@ -415,8 +415,8 @@ class IntervalMillisEntry
     extends ShortEntryExtension(
       "Interval",
       "Millis",
-      mandatoryParams = Vector(Rql2IntervalType()),
-      returnType = Rql2IntType(),
+      mandatoryParams = Vector(SnapiIntervalType()),
+      returnType = SnapiIntType(),
       EntryDoc(
         summary = """"Gets the milliseconds part of an interval.""",
         examples = List(

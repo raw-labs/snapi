@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin;
 
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import java.util.List;
@@ -40,10 +40,10 @@ public interface WithArgs {
         .toArray(ExpressionNode[]::new);
   }
 
-  default Rql2TypeWithProperties[] optionalArgsTypes(List<TruffleArg> args) {
+  default SnapiTypeWithProperties[] optionalArgsTypes(List<TruffleArg> args) {
     return args.stream()
         .filter(a -> a.identifier() != null)
-        .map(a -> (Rql2TypeWithProperties) a.type())
-        .toArray(Rql2TypeWithProperties[]::new);
+        .map(a -> (SnapiTypeWithProperties) a.type())
+        .toArray(SnapiTypeWithProperties[]::new);
   }
 }

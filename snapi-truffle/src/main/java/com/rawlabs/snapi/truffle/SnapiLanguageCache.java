@@ -24,10 +24,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import scala.runtime.BoxedUnit;
 
-public class Rql2LanguageCache {
+public class SnapiLanguageCache {
 
   private final Object activeContextsLock = new Object();
-  private final Set<Rql2Context> activeContexts = new HashSet<Rql2Context>();
+  private final Set<SnapiContext> activeContexts = new HashSet<SnapiContext>();
 
   private final ConcurrentHashMap<RawUid, Value> map = new ConcurrentHashMap<>();
 
@@ -70,14 +70,14 @@ public class Rql2LanguageCache {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public void incrementContext(Rql2Context context) {
+  public void incrementContext(SnapiContext context) {
     synchronized (activeContextsLock) {
       activeContexts.add(context);
     }
   }
 
   @CompilerDirectives.TruffleBoundary
-  public void releaseContext(Rql2Context context) {
+  public void releaseContext(SnapiContext context) {
     synchronized (activeContextsLock) {
       activeContexts.remove(context);
       if (activeContexts.isEmpty()) {

@@ -101,9 +101,9 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   // Program vs Package
   ///////////////////////////////////////////////////////////////////////////
 
-  override lazy val program: Parser[BaseProgram] = rep(rql2Method) ~ opt(exp) ^^ { case ms ~ me => Rql2Program(ms, me) }
+  override lazy val program: Parser[BaseProgram] = rep(rql2Method) ~ opt(exp) ^^ { case ms ~ me => SnapiProgram(ms, me) }
 
-  final protected lazy val rql2Method: Parser[Rql2Method] = idnDef ~ funProto ^^ { case i ~ p => Rql2Method(p, i) }
+  final protected lazy val rql2Method: Parser[SnapiMethod] = idnDef ~ funProto ^^ { case i ~ p => SnapiMethod(p, i) }
 
   ///////////////////////////////////////////////////////////////////////////
   // Types
@@ -118,8 +118,8 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   final override protected lazy val tipe: Parser[Type] = (rawType | "(" ~> tipe <~ ")") ~ opt(typeProps) ^^ {
     case t ~ mProps => mProps match {
         case Some(props) => t match {
-            case pType: Rql2TypeWithProperties =>
-              props.foldLeft(pType)((t, p) => t.cloneAndAddProp(p).asInstanceOf[Rql2TypeWithProperties])
+            case pType: SnapiTypeWithProperties =>
+              props.foldLeft(pType)((t, p) => t.cloneAndAddProp(p).asInstanceOf[SnapiTypeWithProperties])
             case _ => t
           }
         case None => t
@@ -128,64 +128,64 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   private lazy val rawType: Parser[Type] = orType
   private lazy val basicType: Parser[Type] = propFriendlyType | plainType
 
-  final private lazy val propFriendlyType: Parser[Rql2TypeWithProperties] = funType | primitiveType |
+  final private lazy val propFriendlyType: Parser[SnapiTypeWithProperties] = funType | primitiveType |
     recordType | iterableType | listType |
     undefinedType | "(" ~> propFriendlyType <~ ")"
 
   protected lazy val orType: PackratParser[Type] = {
     tipe ~ rep1(tokOr ~> tipe) ^^ {
-      case t1 ~ ts => ts.tail.foldLeft(Rql2OrType(t1, ts.head, Set.empty))((agg, t) => Rql2OrType(agg, t, Set.empty))
+      case t1 ~ ts => ts.tail.foldLeft(SnapiOrType(t1, ts.head, Set.empty))((agg, t) => SnapiOrType(agg, t, Set.empty))
     } | basicType
   }
 
-  final protected lazy val primitiveType: Parser[Rql2PrimitiveType] =
+  final protected lazy val primitiveType: Parser[SnapiPrimitiveType] =
     boolType | stringType | locationType | binaryType | numberType | temporalType
 
-  final protected lazy val boolType: Parser[Rql2BoolType] = tokBool ^^^ Rql2BoolType()
+  final protected lazy val boolType: Parser[SnapiBoolType] = tokBool ^^^ SnapiBoolType()
 
-  final protected lazy val stringType: Parser[Rql2StringType] = tokString ^^^ Rql2StringType()
+  final protected lazy val stringType: Parser[SnapiStringType] = tokString ^^^ SnapiStringType()
 
-  final protected lazy val locationType: Parser[Rql2LocationType] = tokLocation ^^^ Rql2LocationType()
+  final protected lazy val locationType: Parser[SnapiLocationType] = tokLocation ^^^ SnapiLocationType()
 
-  final protected lazy val binaryType: Parser[Rql2BinaryType] = tokBinary ^^^ Rql2BinaryType()
+  final protected lazy val binaryType: Parser[SnapiBinaryType] = tokBinary ^^^ SnapiBinaryType()
 
-  final protected lazy val numberType: Parser[Rql2NumberType] =
+  final protected lazy val numberType: Parser[SnapiNumberType] =
     byteType | shortType | intType | longType | floatType | doubleType | decimalType
 
-  final protected lazy val byteType: Parser[Rql2ByteType] = tokByte ^^^ Rql2ByteType()
+  final protected lazy val byteType: Parser[SnapiByteType] = tokByte ^^^ SnapiByteType()
 
-  final protected lazy val shortType: Parser[Rql2ShortType] = tokShort ^^^ Rql2ShortType()
+  final protected lazy val shortType: Parser[SnapiShortType] = tokShort ^^^ SnapiShortType()
 
-  final protected lazy val intType: Parser[Rql2IntType] = tokInt ^^^ Rql2IntType()
+  final protected lazy val intType: Parser[SnapiIntType] = tokInt ^^^ SnapiIntType()
 
-  final protected lazy val longType: Parser[Rql2LongType] = tokLong ^^^ Rql2LongType()
+  final protected lazy val longType: Parser[SnapiLongType] = tokLong ^^^ SnapiLongType()
 
-  final protected lazy val floatType: Parser[Rql2FloatType] = tokFloat ^^^ Rql2FloatType()
+  final protected lazy val floatType: Parser[SnapiFloatType] = tokFloat ^^^ SnapiFloatType()
 
-  final protected lazy val doubleType: Parser[Rql2DoubleType] = tokDouble ^^^ Rql2DoubleType()
+  final protected lazy val doubleType: Parser[SnapiDoubleType] = tokDouble ^^^ SnapiDoubleType()
 
-  final protected lazy val decimalType: Parser[Rql2DecimalType] = tokDecimal ^^^ Rql2DecimalType()
+  final protected lazy val decimalType: Parser[SnapiDecimalType] = tokDecimal ^^^ SnapiDecimalType()
 
-  final protected lazy val temporalType: Parser[Rql2TemporalType] = dateType | timeType | intervalType | timestampType
+  final protected lazy val temporalType: Parser[SnapiTemporalType] = dateType | timeType | intervalType | timestampType
 
-  final protected lazy val dateType: Parser[Rql2DateType] = tokDate ^^^ Rql2DateType()
+  final protected lazy val dateType: Parser[SnapiDateType] = tokDate ^^^ SnapiDateType()
 
-  final protected lazy val timeType: Parser[Rql2TimeType] = tokTime ^^^ Rql2TimeType()
+  final protected lazy val timeType: Parser[SnapiTimeType] = tokTime ^^^ SnapiTimeType()
 
-  final protected lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ^^^ Rql2IntervalType()
+  final protected lazy val intervalType: Parser[SnapiIntervalType] = tokInterval ^^^ SnapiIntervalType()
 
-  final protected lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ^^^ Rql2TimestampType()
+  final protected lazy val timestampType: Parser[SnapiTimestampType] = tokTimestamp ^^^ SnapiTimestampType()
 
-  final protected lazy val recordType: Parser[Rql2RecordType] =
-    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ^^ (attrs => Rql2RecordType(attrs))
+  final protected lazy val recordType: Parser[SnapiRecordType] =
+    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ^^ (attrs => SnapiRecordType(attrs))
 
-  final protected lazy val attrType: Parser[Rql2AttrType] = (ident <~ ":") ~ tipe ^^ Rql2AttrType
+  final protected lazy val attrType: Parser[SnapiAttrType] = (ident <~ ":") ~ tipe ^^ SnapiAttrType
 
-  final protected lazy val iterableType: Parser[Rql2IterableType] =
-    tokCollection ~> ("(" ~> tipe <~ ")") ^^ (innerType => Rql2IterableType(innerType))
+  final protected lazy val iterableType: Parser[SnapiIterableType] =
+    tokCollection ~> ("(" ~> tipe <~ ")") ^^ (innerType => SnapiIterableType(innerType))
 
-  final protected lazy val listType: Parser[Rql2ListType] =
-    tokList ~> ("(" ~> tipe <~ ")") ^^ (innerType => Rql2ListType(innerType))
+  final protected lazy val listType: Parser[SnapiListType] =
+    tokList ~> ("(" ~> tipe <~ ")") ^^ (innerType => SnapiListType(innerType))
 
   final protected lazy val funType: PackratParser[FunType] = {
     ("(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe) ^^ {
@@ -204,7 +204,7 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
 
   final protected lazy val expType: Parser[ExpType] = tokType ~> tipe ^^ ExpType
 
-  final protected lazy val undefinedType: Parser[Rql2UndefinedType] = tokUndefined ^^^ Rql2UndefinedType()
+  final protected lazy val undefinedType: Parser[SnapiUndefinedType] = tokUndefined ^^^ SnapiUndefinedType()
 
   final protected lazy val typeAliasType: Parser[TypeAliasType] = typeIdnUse ^^ TypeAliasType
 
@@ -214,12 +214,12 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
     if (isReservedType(idn)) failure("reserved type keyword") else success(idn)
   }
 
-  final private lazy val typeProps: Parser[Set[Rql2TypeProperty]] = {
-    ("@try" ~ "@null" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())) |
-      ("@null" ~ "@try" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())) |
-      ("@try" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty())) |
-      ("@null" ^^^ Set[Rql2TypeProperty](Rql2IsNullableTypeProperty())) |
-      success(Set.empty[Rql2TypeProperty])
+  final private lazy val typeProps: Parser[Set[SnapiTypeProperty]] = {
+    ("@try" ~ "@null" ^^^ Set[SnapiTypeProperty](SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())) |
+      ("@null" ~ "@try" ^^^ Set[SnapiTypeProperty](SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty())) |
+      ("@try" ^^^ Set[SnapiTypeProperty](SnapiIsTryableTypeProperty())) |
+      ("@null" ^^^ Set[SnapiTypeProperty](SnapiIsNullableTypeProperty())) |
+      success(Set.empty[SnapiTypeProperty])
   }
 
   ///////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.builtin.jdbc;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
@@ -44,7 +44,7 @@ public class JdbcQueryNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    RawSettings rawSettings = Rql2Context.get(this).getSettings();
+    RawSettings rawSettings = SnapiContext.get(this).getSettings();
     LocationObject dbLocation = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String query = (String) this.queryExp.executeGeneric(virtualFrame);
     return new JdbcQueryCollection(

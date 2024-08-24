@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter.builtin.location_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.LocationFromStringEntry;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package.LocationFromStringNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -25,7 +25,7 @@ import java.util.List;
 public class TruffleLocationFromStringEntry extends LocationFromStringEntry
     implements TruffleEntryExtension, WithArgs {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     ExpressionNode url = args.get(0).exprNode();
     return new LocationFromStringNode(url);
   }

@@ -13,11 +13,11 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 import java.nio.file.Path
 
-class RD5779Test extends Rql2TestContext {
+class RD5779Test extends SnapiTestContext {
   val data: Path = tempFile("""[
     |  {"a": 1, "b": 10}
     |]""".stripMargin)

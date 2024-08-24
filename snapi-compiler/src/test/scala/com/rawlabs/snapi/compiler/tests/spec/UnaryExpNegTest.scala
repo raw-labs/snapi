@@ -14,9 +14,9 @@ package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class UnaryExpNegTest extends Rql2TestContext with TableDrivenPropertyChecks {
+class UnaryExpNegTest extends SnapiTestContext with TableDrivenPropertyChecks {
 
   test("- 1") { it =>
     it should typeAs("int")

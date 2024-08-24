@@ -19,13 +19,13 @@ import com.oracle.truffle.api.instrumentation.ProbeNode;
 import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.rawlabs.snapi.truffle.Rql2Types;
-import com.rawlabs.snapi.truffle.Rql2TypesGen;
+import com.rawlabs.snapi.truffle.SnapiTypes;
+import com.rawlabs.snapi.truffle.SnapiTypesGen;
 import com.rawlabs.snapi.truffle.runtime.primitives.*;
 import com.rawlabs.snapi.truffle.runtime.record.DuplicateKeyRecord;
 import com.rawlabs.snapi.truffle.runtime.record.PureRecord;
 
-@TypeSystemReference(Rql2Types.class)
+@TypeSystemReference(SnapiTypes.class)
 @GenerateWrapper
 public abstract class ExpressionNode extends StatementNode {
 
@@ -38,75 +38,75 @@ public abstract class ExpressionNode extends StatementNode {
   }
 
   public boolean executeBoolean(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectBoolean(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectBoolean(executeGeneric(virtualFrame));
   }
 
   public byte executeByte(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectByte(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectByte(executeGeneric(virtualFrame));
   }
 
   public short executeShort(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectShort(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectShort(executeGeneric(virtualFrame));
   }
 
   public int executeInt(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectInteger(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectInteger(executeGeneric(virtualFrame));
   }
 
   public long executeLong(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectLong(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectLong(executeGeneric(virtualFrame));
   }
 
   public float executeFloat(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectFloat(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectFloat(executeGeneric(virtualFrame));
   }
 
   public double executeDouble(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectDouble(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectDouble(executeGeneric(virtualFrame));
   }
 
   public BinaryObject executeBinary(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectBinaryObject(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectBinaryObject(executeGeneric(virtualFrame));
   }
 
   public DecimalObject executeDecimal(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectDecimalObject(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectDecimalObject(executeGeneric(virtualFrame));
   }
 
   public DateObject executeDate(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectDateObject(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectDateObject(executeGeneric(virtualFrame));
   }
 
   public IntervalObject executeInterval(VirtualFrame virtualFrame)
       throws UnexpectedResultException {
-    return Rql2TypesGen.expectIntervalObject(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectIntervalObject(executeGeneric(virtualFrame));
   }
 
   public TimeObject executeTime(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectTimeObject(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectTimeObject(executeGeneric(virtualFrame));
   }
 
   public TimestampObject executeTimestamp(VirtualFrame virtualFrame)
       throws UnexpectedResultException {
-    return Rql2TypesGen.expectTimestampObject(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectTimestampObject(executeGeneric(virtualFrame));
   }
 
   public String executeString(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectString(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectString(executeGeneric(virtualFrame));
   }
 
   public LocationObject executeLocation(VirtualFrame virtualFrame)
       throws UnexpectedResultException {
-    return Rql2TypesGen.expectLocationObject(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectLocationObject(executeGeneric(virtualFrame));
   }
 
   public PureRecord executePureRecord(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return Rql2TypesGen.expectPureRecord(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectPureRecord(executeGeneric(virtualFrame));
   }
 
   public DuplicateKeyRecord executeDuplicateKey(VirtualFrame virtualFrame)
       throws UnexpectedResultException {
-    return Rql2TypesGen.expectDuplicateKeyRecord(executeGeneric(virtualFrame));
+    return SnapiTypesGen.expectDuplicateKeyRecord(executeGeneric(virtualFrame));
   }
 
   @Override

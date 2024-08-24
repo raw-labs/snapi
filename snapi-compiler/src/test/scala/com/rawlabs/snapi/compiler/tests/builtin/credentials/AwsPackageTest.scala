@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.credentials
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class AwsPackageTest extends Rql2TestContext {
+class AwsPackageTest extends SnapiTestContext {
 
   val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
   val secretAccessKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")

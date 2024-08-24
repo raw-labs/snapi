@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.rql2.antlr4
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, Source}
 
-class Rql2Positions(positions: Positions, source: Source) {
+class SnapiPositions(positions: Positions, source: Source) {
 
   /**
    * Sets the position of the node in the position map based on start and end of a ParserRuleContext object.

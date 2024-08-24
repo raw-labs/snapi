@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.generator.collection.abstract_generato
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import java.io.File;
 
 public class JoinComputeNext {
@@ -29,7 +29,7 @@ public class JoinComputeNext {
   private Object leftRow = null;
   private Object rightRow = null;
   Input kryoRight = null;
-  private final Rql2TypeWithProperties rightRowType; // grouped key and value types.
+  private final SnapiTypeWithProperties rightRowType; // grouped key and value types.
   private int spilledRight = 0;
   private int readRight = 0;
   private final Boolean reshapeBeforePredicate;
@@ -41,19 +41,19 @@ public class JoinComputeNext {
   private final int outputBufferSlot;
 
   public JoinComputeNext(
-      Object leftIterable,
-      Object rightIterable,
-      Object remap,
-      Object predicate,
-      Boolean reshapeBeforePredicate,
-      Rql2TypeWithProperties rightRowType,
-      int kryoOutputBufferSize,
-      MaterializedFrame frame,
-      int computeNextSlot,
-      int shouldContinueSlot,
-      int resultSlot,
-      int generatorSlot,
-      int outputBufferSlot) {
+          Object leftIterable,
+          Object rightIterable,
+          Object remap,
+          Object predicate,
+          Boolean reshapeBeforePredicate,
+          SnapiTypeWithProperties rightRowType,
+          int kryoOutputBufferSize,
+          MaterializedFrame frame,
+          int computeNextSlot,
+          int shouldContinueSlot,
+          int resultSlot,
+          int generatorSlot,
+          int outputBufferSlot) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;
@@ -121,7 +121,7 @@ public class JoinComputeNext {
     return kryoOutputBufferSize;
   }
 
-  public Rql2TypeWithProperties getRightRowType() {
+  public SnapiTypeWithProperties getRightRowType() {
     return rightRowType;
   }
 

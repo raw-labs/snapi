@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter.builtin.double_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.DoubleFromEntry;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.numeric.double_package.DoubleFromNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class TruffleDoubleFromEntry extends DoubleFromEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     return DoubleFromNodeGen.create(args.get(0).exprNode());
   }
 }

@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD9485Test extends Rql2TestContext {
+class RD9485Test extends SnapiTestContext {
 
   property("raw.snapi.frontend.inferrer.local.xml.sample-size", "2")
 

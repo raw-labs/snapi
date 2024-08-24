@@ -113,21 +113,21 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 3)
-    Right(ValueParam(Rql2StringType()))
+    Right(ValueParam(SnapiStringType()))
   }
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "accountID" => Right(ValueParam(Rql2StringType()))
-      case "username" => Right(ValueParam(Rql2StringType()))
-      case "password" => Right(ValueParam(Rql2StringType()))
+      case "accountID" => Right(ValueParam(SnapiStringType()))
+      case "username" => Right(ValueParam(SnapiStringType()))
+      case "password" => Right(ValueParam(SnapiStringType()))
       case "options" => Right(
           ValueParam(
-            Rql2ListType(
-              Rql2RecordType(
+            SnapiListType(
+              SnapiRecordType(
                 Vector(
-                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                  SnapiAttrType("_1", SnapiStringType(Set(SnapiIsNullableTypeProperty()))),
+                  SnapiAttrType("_2", SnapiStringType(Set(SnapiIsNullableTypeProperty())))
                 )
               )
             )
@@ -148,13 +148,13 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(2))), None)
     val readType = FunAppArg(TypeExp(t), None)
     val optArgs = optionalArgs.map {
-      case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn))
-      case (idn, ValueArg(Rql2ListValue(v: Seq[Rql2RecordValue]), _)) =>
+      case (idn, ValueArg(SnapiStringValue(s), _)) => FunAppArg(StringConst(s), Some(idn))
+      case (idn, ValueArg(SnapiListValue(v: Seq[SnapiRecordValue]), _)) =>
         val records = v.map { r =>
           val fields = r.v.zipWithIndex.map {
-            case (Rql2RecordAttr(_, Rql2OptionValue(Some(Rql2StringValue(v)))), idx) =>
+            case (SnapiRecordAttr(_, SnapiOptionValue(Some(SnapiStringValue(v)))), idx) =>
               s"_${idx + 1}" -> NullablePackageBuilder.Build(StringConst(v))
-            case (Rql2RecordAttr(_, Rql2OptionValue(None)), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
+            case (SnapiRecordAttr(_, SnapiOptionValue(None)), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
           }.toVector
           RecordPackageBuilder.Build(fields)
         }
@@ -301,23 +301,23 @@ class SnowflakeReadEntry extends SugarEntryExtension {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 4)
     if (idx == 3) Right(TypeParam(AnythingType()))
-    else Right(ExpParam(Rql2StringType()))
+    else Right(ExpParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("accountID", "username", "password", "options"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "accountID" => Right(ExpParam(Rql2StringType()))
-      case "username" => Right(ExpParam(Rql2StringType()))
-      case "password" => Right(ExpParam(Rql2StringType()))
+      case "accountID" => Right(ExpParam(SnapiStringType()))
+      case "username" => Right(ExpParam(SnapiStringType()))
+      case "password" => Right(ExpParam(SnapiStringType()))
       case "options" => Right(
           ExpParam(
-            Rql2ListType(
-              Rql2RecordType(
+            SnapiListType(
+              SnapiRecordType(
                 Vector(
-                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                  SnapiAttrType("_1", SnapiStringType(Set(SnapiIsNullableTypeProperty()))),
+                  SnapiAttrType("_2", SnapiStringType(Set(SnapiIsNullableTypeProperty())))
                 )
               )
             )
@@ -442,21 +442,21 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 2)
-    Right(ValueParam(Rql2StringType()))
+    Right(ValueParam(SnapiStringType()))
   }
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "accountID" => Right(ValueParam(Rql2StringType()))
-      case "username" => Right(ValueParam(Rql2StringType()))
-      case "password" => Right(ValueParam(Rql2StringType()))
+      case "accountID" => Right(ValueParam(SnapiStringType()))
+      case "username" => Right(ValueParam(SnapiStringType()))
+      case "password" => Right(ValueParam(SnapiStringType()))
       case "options" => Right(
           ValueParam(
-            Rql2ListType(
-              Rql2RecordType(
+            SnapiListType(
+              SnapiRecordType(
                 Vector(
-                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                  SnapiAttrType("_1", SnapiStringType(Set(SnapiIsNullableTypeProperty()))),
+                  SnapiAttrType("_2", SnapiStringType(Set(SnapiIsNullableTypeProperty())))
                 )
               )
             )
@@ -530,14 +530,14 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
     val optArgs = optionalArgs.map {
-      case (idn, ValueArg(Rql2StringValue(s), _)) => FunAppArg(StringConst(s), Some(idn))
-      case (idn, ValueArg(Rql2ListValue(v: Seq[Rql2RecordValue]), _)) =>
+      case (idn, ValueArg(SnapiStringValue(s), _)) => FunAppArg(StringConst(s), Some(idn))
+      case (idn, ValueArg(SnapiListValue(v: Seq[SnapiRecordValue]), _)) =>
         // building a List of tuples
         val records = v.map { r =>
           val fields = r.v.zipWithIndex.map {
-            case (Rql2RecordAttr(_, Rql2OptionValue(Some(Rql2StringValue(v)))), idx) =>
+            case (SnapiRecordAttr(_, SnapiOptionValue(Some(SnapiStringValue(v)))), idx) =>
               s"_${idx + 1}" -> NullablePackageBuilder.Build(StringConst(v))
-            case (Rql2RecordAttr(_, Rql2OptionValue(None)), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
+            case (SnapiRecordAttr(_, SnapiOptionValue(None)), idx) => s"_${idx + 1}" -> NullablePackageBuilder.Empty(t)
 
           }.toVector
           RecordPackageBuilder.Build(fields)
@@ -620,23 +620,23 @@ class SnowflakeQueryEntry extends EntryExtension {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx < 3)
     if (idx == 2) Right(TypeParam(AnythingType()))
-    else Right(ExpParam(Rql2StringType()))
+    else Right(ExpParam(SnapiStringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(Set("accountID", "username", "password", "options"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "accountID" => Right(ExpParam(Rql2StringType()))
-      case "username" => Right(ExpParam(Rql2StringType()))
-      case "password" => Right(ExpParam(Rql2StringType()))
+      case "accountID" => Right(ExpParam(SnapiStringType()))
+      case "username" => Right(ExpParam(SnapiStringType()))
+      case "password" => Right(ExpParam(SnapiStringType()))
       case "options" => Right(
           ValueParam(
-            Rql2ListType(
-              Rql2RecordType(
+            SnapiListType(
+              SnapiRecordType(
                 Vector(
-                  Rql2AttrType("_1", Rql2StringType(Set(Rql2IsNullableTypeProperty()))),
-                  Rql2AttrType("_2", Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+                  SnapiAttrType("_1", SnapiStringType(Set(SnapiIsNullableTypeProperty()))),
+                  SnapiAttrType("_2", SnapiStringType(Set(SnapiIsNullableTypeProperty())))
                 )
               )
             )

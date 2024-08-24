@@ -17,7 +17,7 @@ import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.source.*;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListBuildNode;
 import com.rawlabs.snapi.truffle.ast.expressions.literals.IntNode;
@@ -66,8 +66,8 @@ public class CsvParser {
         arg("nulls")
             .orElse(
                 new ListBuildNode(
-                    Rql2ListType.apply(
-                            Rql2StringType.apply(new HashSet<>()),
+                    SnapiListType.apply(
+                            SnapiStringType.apply(new HashSet<>()),
                             new HashSet<>()),
                     new ExpressionNode[] {new StringNode("")}));
 
@@ -75,7 +75,7 @@ public class CsvParser {
         arg("nans")
             .orElse(
                 new ListBuildNode(
-                    Rql2ListType.apply(Rql2StringType.apply(
+                    SnapiListType.apply(SnapiStringType.apply(
                             new HashSet<>()),
                             new HashSet<>()),
                     new ExpressionNode[] {}));
@@ -87,25 +87,25 @@ public class CsvParser {
   }
 
   private RecordParseCsvNode getRecordParser(
-      Rql2TypeWithProperties t, Rql2Language lang) {
-    Rql2IterableType rql2IterableType = (Rql2IterableType) t;
-    Rql2RecordType rql2RecordType = (Rql2RecordType) rql2IterableType.innerType();
+          SnapiTypeWithProperties t, SnapiLanguage lang) {
+    SnapiIterableType rql2IterableType = (SnapiIterableType) t;
+    SnapiRecordType rql2RecordType = (SnapiRecordType) rql2IterableType.innerType();
     assert rql2RecordType.props().isEmpty();
     assert rql2IterableType.props().isEmpty();
 
     ProgramExpressionNode[] columnParsers =
-        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (Rql2AttrType) a)
+        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (SnapiAttrType) a)
             .map(col -> columnParser(col.tipe(), lang))
             .map(parser -> new ProgramExpressionNode(lang, new FrameDescriptor(), parser))
             .toArray(ProgramExpressionNode[]::new);
 
     return new RecordParseCsvNode(
         columnParsers,
-        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new));
+        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (SnapiAttrType) a).toArray(SnapiAttrType[]::new));
   }
 
   public ExpressionNode stringParser(
-      ExpressionNode str, Rql2TypeWithProperties t, Rql2Language lang) {
+          ExpressionNode str, SnapiTypeWithProperties t, SnapiLanguage lang) {
     return new IterableParseCsvString(
         str,
         skip,
@@ -120,7 +120,7 @@ public class CsvParser {
         timestampFormat);
   }
 
-  public ExpressionNode fileParser(ExpressionNode url, Rql2TypeWithProperties t, Rql2Language lang) {
+  public ExpressionNode fileParser(ExpressionNode url, SnapiTypeWithProperties t, SnapiLanguage lang) {
     return new IterableParseCsvFile(
         url,
         encoding,
@@ -136,43 +136,43 @@ public class CsvParser {
         timestampFormat);
   }
 
-  private ExpressionNode columnParser(Type t, Rql2Language lang) {
+  private ExpressionNode columnParser(Type t, SnapiLanguage lang) {
     return switch (t) {
-      case Rql2TypeWithProperties r when r.props().contains(tryable) -> {
+      case SnapiTypeWithProperties r when r.props().contains(tryable) -> {
         ExpressionNode inner = columnParser(r.cloneAndRemoveProp(tryable), lang);
         yield  new TryableParseCsvNode(program(inner, lang));
       }
-      case Rql2TypeWithProperties r when r.props().contains(nullable) -> switch (r) {
-        case Rql2ByteType ignored -> new OptionByteParseCsvNode();
-        case Rql2ShortType ignored -> new OptionShortParseCsvNode();
-        case Rql2IntType ignored -> new OptionIntParseCsvNode();
-        case Rql2LongType ignored -> new OptionLongParseCsvNode();
-        case Rql2FloatType ignored -> new OptionFloatParseCsvNode();
-        case Rql2DoubleType ignored -> new OptionDoubleParseCsvNode();
-        case Rql2DecimalType ignored -> new OptionDecimalParseCsvNode();
-        case Rql2StringType ignored -> new OptionStringParseCsvNode();
-        case Rql2BoolType ignored -> new OptionBoolParseCsvNode();
-        case Rql2DateType ignored -> new OptionDateParseCsvNode();
-        case Rql2TimeType ignored -> new OptionTimeParseCsvNode();
-        case Rql2TimestampType ignored -> new OptionTimestampParseCsvNode();
-        case Rql2UndefinedType ignored -> new OptionUndefinedParseCsvNode();
+      case SnapiTypeWithProperties r when r.props().contains(nullable) -> switch (r) {
+        case SnapiByteType ignored -> new OptionByteParseCsvNode();
+        case SnapiShortType ignored -> new OptionShortParseCsvNode();
+        case SnapiIntType ignored -> new OptionIntParseCsvNode();
+        case SnapiLongType ignored -> new OptionLongParseCsvNode();
+        case SnapiFloatType ignored -> new OptionFloatParseCsvNode();
+        case SnapiDoubleType ignored -> new OptionDoubleParseCsvNode();
+        case SnapiDecimalType ignored -> new OptionDecimalParseCsvNode();
+        case SnapiStringType ignored -> new OptionStringParseCsvNode();
+        case SnapiBoolType ignored -> new OptionBoolParseCsvNode();
+        case SnapiDateType ignored -> new OptionDateParseCsvNode();
+        case SnapiTimeType ignored -> new OptionTimeParseCsvNode();
+        case SnapiTimestampType ignored -> new OptionTimestampParseCsvNode();
+        case SnapiUndefinedType ignored -> new OptionUndefinedParseCsvNode();
         default -> throw new TruffleInternalErrorException();
       };
-      case Rql2TypeWithProperties r -> {
+      case SnapiTypeWithProperties r -> {
         assert r.props().isEmpty();
         // These would be types returned by the inferrer. Not all types are expected
         // from the inferrer.
         yield switch (r){
-          case Rql2IntType ignored -> new IntParseCsvNode();
-          case Rql2LongType ignored -> new LongParseCsvNode();
-          case Rql2DoubleType ignored -> new DoubleParseCsvNode();
-          case Rql2DecimalType ignored -> new DecimalParseCsvNode();
-          case Rql2BoolType ignored -> new BoolParseCsvNode();
-          case Rql2StringType ignored -> new StringParseCsvNode();
-          case Rql2DateType ignored -> new DateParseCsvNode();
-          case Rql2TimeType ignored -> new TimeParseCsvNode();
-          case Rql2TimestampType ignored -> new TimestampParseCsvNode();
-          case Rql2UndefinedType ignored -> new UndefinedParseCsvNode();
+          case SnapiIntType ignored -> new IntParseCsvNode();
+          case SnapiLongType ignored -> new LongParseCsvNode();
+          case SnapiDoubleType ignored -> new DoubleParseCsvNode();
+          case SnapiDecimalType ignored -> new DecimalParseCsvNode();
+          case SnapiBoolType ignored -> new BoolParseCsvNode();
+          case SnapiStringType ignored -> new StringParseCsvNode();
+          case SnapiDateType ignored -> new DateParseCsvNode();
+          case SnapiTimeType ignored -> new TimeParseCsvNode();
+          case SnapiTimestampType ignored -> new TimestampParseCsvNode();
+          case SnapiUndefinedType ignored -> new UndefinedParseCsvNode();
           default -> throw new TruffleInternalErrorException();
         };
       }
@@ -180,7 +180,7 @@ public class CsvParser {
     };
   }
 
-  private ProgramExpressionNode program(ExpressionNode e, Rql2Language lang){
+  private ProgramExpressionNode program(ExpressionNode e, SnapiLanguage lang){
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new ProgramExpressionNode(lang, frameDescriptor, e);
   }

@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5679Test extends Rql2TestContext {
+class RD5679Test extends SnapiTestContext {
 
   // regular XML file (types as record) with a list inside
   private val xml = tempFile("""

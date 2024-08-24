@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter.builtin.list_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.rql2.extensions.builtin.EmptyListEntry;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListBuildNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class TruffleEmptyListEntry extends EmptyListEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     return new ListBuildNode(type, new ExpressionNode[0]);
   }
 }

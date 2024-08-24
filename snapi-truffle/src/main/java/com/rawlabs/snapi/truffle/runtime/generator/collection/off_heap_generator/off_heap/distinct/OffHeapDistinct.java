@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.data_structures.treemap.TreeMapObject;
 import com.rawlabs.snapi.truffle.runtime.utils.KryoFootPrint;
 import java.io.File;
@@ -30,7 +30,7 @@ public class OffHeapDistinct {
   // spill
   // to disk).
 
-  private final Rql2TypeWithProperties itemType; // grouped key and value types.
+  private final SnapiTypeWithProperties itemType; // grouped key and value types.
   private final int itemSize; // grouped key and value kryo binary size
   private final int kryoOutputBufferSize,
       kryoInputBufferSize; // size of the kryo buffers used to write and read the data.
@@ -38,11 +38,11 @@ public class OffHeapDistinct {
   private final MaterializedFrame frame;
 
   public OffHeapDistinct(
-      Rql2TypeWithProperties vType,
-      MaterializedFrame frame,
-      long blockSize,
-      int kryoOutputBufferSize,
-      int kryoInputBufferSize) {
+          SnapiTypeWithProperties vType,
+          MaterializedFrame frame,
+          long blockSize,
+          int kryoOutputBufferSize,
+          int kryoInputBufferSize) {
     this.index = new TreeMapObject();
     this.itemType = vType;
     this.itemSize = KryoFootPrint.of(vType);
@@ -73,7 +73,7 @@ public class OffHeapDistinct {
     return binarySize;
   }
 
-  public Rql2TypeWithProperties getItemType() {
+  public SnapiTypeWithProperties getItemType() {
     return itemType;
   }
 

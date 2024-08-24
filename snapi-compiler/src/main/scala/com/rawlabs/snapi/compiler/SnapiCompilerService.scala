@@ -54,7 +54,7 @@ import com.rawlabs.compiler.{
   ValidateResponse
 }
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
-import com.rawlabs.snapi.compiler.writers.{Rql2CsvWriter, Rql2JsonWriter}
+import com.rawlabs.snapi.compiler.writers.{SnapiCsvWriter, SnapiJsonWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
@@ -75,20 +75,20 @@ import java.io.{IOException, OutputStream}
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
-object Rql2CompilerService {
+object SnapiCompilerService {
   val LANGUAGE: Set[String] = Set("rql2", "rql2-truffle", "snapi")
 
   val JARS_PATH = "raw.snapi.compiler.jars-path"
 }
 
-class Rql2CompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
+class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
     extends CompilerService
     with CustomClassAndModuleLoader
-    with Rql2TypeUtils {
+    with SnapiTypeUtils {
 
   private val maybeTruffleClassLoader: Option[ClassLoader] = {
     // If defined, contains the path used to create a classloader for the Truffle language runtime.
-    val maybeJarsPath = settings.getStringOpt(Rql2CompilerService.JARS_PATH)
+    val maybeJarsPath = settings.getStringOpt(SnapiCompilerService.JARS_PATH)
 
     // If the jars path is defined, create a custom class loader.
     maybeJarsPath.map(jarsPath => createCustomClassAndModuleLoader(jarsPath))
@@ -107,7 +107,7 @@ class Rql2CompilerService(engineDefinition: (Engine, Boolean))(implicit protecte
     this(CompilerService.getEngine)
   }
 
-  override def language: Set[String] = Rql2CompilerService.LANGUAGE
+  override def language: Set[String] = SnapiCompilerService.LANGUAGE
 
   // Map of users to compiler context.
   private val compilerContextCaches = new mutable.HashMap[RawUid, CompilerContext]
@@ -311,9 +311,9 @@ class Rql2CompilerService(engineDefinition: (Engine, Boolean))(implicit protecte
             case _ => false
           }
           val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-          val w = new Rql2CsvWriter(outputStream, lineSeparator, maxRows)
+          val w = new SnapiCsvWriter(outputStream, lineSeparator, maxRows)
           try {
-            w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
+            w.write(v, tipe.asInstanceOf[SnapiTypeWithProperties])
             w.flush()
             ExecutionSuccess(w.complete)
           } catch {
@@ -325,9 +325,9 @@ class Rql2CompilerService(engineDefinition: (Engine, Boolean))(implicit protecte
           if (!JsonPackage.outputWriteSupport(tipe)) {
             return ExecutionRuntimeFailure("unsupported type")
           }
-          val w = new Rql2JsonWriter(outputStream, maxRows)
+          val w = new SnapiJsonWriter(outputStream, maxRows)
           try {
-            w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
+            w.write(v, tipe.asInstanceOf[SnapiTypeWithProperties])
             w.flush()
             ExecutionSuccess(w.complete)
           } catch {

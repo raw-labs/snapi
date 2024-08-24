@@ -13,11 +13,11 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import java.nio.file.Files
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 import scala.io.Source
 
-class RD5714Test extends Rql2TestContext {
+class RD5714Test extends SnapiTestContext {
 
   test("""let colA = [{id: 1, name: "john"}],
     |    colB = [{id: 2, firstName: "john"}],

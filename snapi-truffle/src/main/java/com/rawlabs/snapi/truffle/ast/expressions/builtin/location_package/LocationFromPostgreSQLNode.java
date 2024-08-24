@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.primitives.*;
 import com.rawlabs.utils.core.RawSettings;
@@ -54,7 +54,7 @@ public class LocationFromPostgreSQLNode extends ExpressionNode {
 
     JdbcServerLocation location =
         getJdbcServerLocation(
-            host, port, db, username, password, Rql2Context.get(this).getSettings());
+            host, port, db, username, password, SnapiContext.get(this).getSettings());
 
     return new LocationObject(location, "pgsql:" + db);
   }

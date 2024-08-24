@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin.credentials
 
 import com.rawlabs.snapi.compiler.tests.TestCredentials
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class S3PackageTest extends Rql2TestContext {
+class S3PackageTest extends SnapiTestContext {
 
   import TestCredentials._
 
