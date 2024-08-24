@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.http_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.HttpReadEntry;
-import com.rawlabs.snapi.frontend.rql2.source.Exp;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.HttpReadEntry;
+import com.rawlabs.snapi.frontend.snapi.source.Exp;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.http_package.HttpReadNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleShortEntryExtension;

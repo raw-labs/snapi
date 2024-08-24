@@ -12,12 +12,12 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.collection
 
-import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.errors.KeyNotComparable
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.frontend.snapi._
+import com.rawlabs.snapi.frontend.snapi.errors.KeyNotComparable
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 
-class CollectionJoinTest extends Rql2TestContext with LocalLocationsTestContext {
+class CollectionJoinTest extends SnapiTestContext with LocalLocationsTestContext {
 
   test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    nations = Csv.InferAndRead("$tpchNationCsvLocal")

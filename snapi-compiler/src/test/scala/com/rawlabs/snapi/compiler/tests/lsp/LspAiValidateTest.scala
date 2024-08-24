@@ -13,10 +13,10 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.ValidateResponse
-import com.rawlabs.snapi.frontend.rql2.errors.OutputTypeRequiredForRecursiveFunction
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.frontend.snapi.errors.OutputTypeRequiredForRecursiveFunction
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LspAiValidateTest extends Rql2TestContext {
+class LspAiValidateTest extends SnapiTestContext {
 
   test("AI validate package that does not exist") { _ =>
     val code = """let

@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class DatePackageTest extends Rql2TestContext {
+class DatePackageTest extends SnapiTestContext {
 
   test("Date.Build(2022, 1, 15)") { it =>
     it should typeAs("date")

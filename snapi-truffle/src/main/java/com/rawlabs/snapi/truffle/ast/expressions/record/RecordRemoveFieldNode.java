@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.record;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.record.RecordNodes;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public abstract class RecordRemoveFieldNode extends ExpressionNode {
       Object record,
       Object dropKey,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getCachedLanguage(thisNode)", neverDefault = true) Rql2Language lang,
+      @Cached(value = "getCachedLanguage(thisNode)", neverDefault = true) SnapiLanguage lang,
       @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode,
       @Cached(value = "getKeysNode.execute(thisNode, record)", neverDefault = true, dimensions = 1)
           Object[] objKeys,

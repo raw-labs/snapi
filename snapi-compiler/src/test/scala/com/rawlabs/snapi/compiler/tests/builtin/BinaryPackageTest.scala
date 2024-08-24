@@ -12,13 +12,13 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.frontend.snapi._
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 import java.nio.file.Path
 import java.util.Base64
 
-class BinaryPackageTest extends Rql2TestContext {
+class BinaryPackageTest extends SnapiTestContext {
 
   // FIXME (msb): This should use cast to support string to binary and do .getBytes("utf-8")
 

@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.emitter.writers;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.source.*;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;
 import com.rawlabs.snapi.truffle.ast.io.json.writer.internal.*;
@@ -26,65 +26,65 @@ import static com.rawlabs.snapi.truffle.emitter.writers.CompilerScalaConsts.trya
 
 public class JsonWriter {
 
-  public static ProgramStatementNode recurse(Rql2TypeWithProperties tipe, Rql2Language lang) {
+  public static ProgramStatementNode recurse(SnapiTypeWithProperties tipe, SnapiLanguage lang) {
     return recurse(tipe, false, lang);
   }
 
-  private static ProgramStatementNode recurse(Rql2TypeWithProperties tipe, boolean isSafe, Rql2Language lang) {
+  private static ProgramStatementNode recurse(SnapiTypeWithProperties tipe, boolean isSafe, SnapiLanguage lang) {
     return program(switch (tipe){
-      case Rql2TypeWithProperties nt when nt.props().contains(tryable) -> {
-        Rql2TypeWithProperties nextType = (Rql2TypeWithProperties) nt.cloneAndRemoveProp(tryable);
+      case SnapiTypeWithProperties nt when nt.props().contains(tryable) -> {
+        SnapiTypeWithProperties nextType = (SnapiTypeWithProperties) nt.cloneAndRemoveProp(tryable);
         ProgramStatementNode child = recurse(nextType, lang);
         if (isSafe) yield  new TryableWriteJsonNode(child);
         else yield  new TryableUnsafeWriteJsonNode(child);
       }
-      case Rql2TypeWithProperties nt when nt.props().contains(nullable) -> {
-        Rql2TypeWithProperties nextType = (Rql2TypeWithProperties) nt.cloneAndRemoveProp(nullable);
+      case SnapiTypeWithProperties nt when nt.props().contains(nullable) -> {
+        SnapiTypeWithProperties nextType = (SnapiTypeWithProperties) nt.cloneAndRemoveProp(nullable);
         ProgramStatementNode child = recurse(nextType, lang);
         yield new NullableWriteJsonNode(child);
       }
-      case Rql2ListType r ->{
-        ProgramStatementNode child = recurse((Rql2TypeWithProperties)r.innerType(), true, lang);
+      case SnapiListType r ->{
+        ProgramStatementNode child = recurse((SnapiTypeWithProperties)r.innerType(), true, lang);
         yield new ListWriteJsonNode(child);
       }
-      case Rql2IterableType r ->{
-        ProgramStatementNode child = recurse((Rql2TypeWithProperties)r.innerType(), true, lang);
+      case SnapiIterableType r ->{
+        ProgramStatementNode child = recurse((SnapiTypeWithProperties)r.innerType(), true, lang);
         yield new IterableWriteJsonNode(child);
       }
-      case Rql2RecordType r ->{
+      case SnapiRecordType r ->{
         ProgramStatementNode[] children = JavaConverters.asJavaCollection(r.atts())
-                .stream().map(a -> (Rql2AttrType) a)
-                .map(att -> recurse((Rql2TypeWithProperties) att.tipe(), true, lang))
+                .stream().map(a -> (SnapiAttrType) a)
+                .map(att -> recurse((SnapiTypeWithProperties) att.tipe(), true, lang))
                 .toArray(ProgramStatementNode[]::new);
         yield new RecordWriteJsonNode(children);
       }
-      case Rql2ByteType ignored -> new ByteWriteJsonNode();
-      case Rql2ShortType ignored -> new ShortWriteJsonNode();
-      case Rql2IntType ignored ->  new IntWriteJsonNode();
-      case Rql2LongType ignored -> new LongWriteJsonNode();
-      case Rql2FloatType ignored -> new FloatWriteJsonNode();
-      case Rql2DoubleType ignored -> new DoubleWriteJsonNode();
-      case Rql2DecimalType ignored -> new DecimalWriteJsonNode();
-      case Rql2BoolType ignored -> new BooleanWriteJsonNode();
-      case Rql2StringType ignored -> new StringWriteJsonNode();
-      case Rql2DateType ignored -> new DateWriteJsonNode();
-      case Rql2TimeType ignored -> new TimeWriteJsonNode();
-      case Rql2TimestampType ignored -> new TimestampWriteJsonNode();
-      case Rql2IntervalType ignored ->new IntervalWriteJsonNode();
-      case Rql2BinaryType ignored -> new BinaryWriteJsonNode();
-      case Rql2OrType or -> {
+      case SnapiByteType ignored -> new ByteWriteJsonNode();
+      case SnapiShortType ignored -> new ShortWriteJsonNode();
+      case SnapiIntType ignored ->  new IntWriteJsonNode();
+      case SnapiLongType ignored -> new LongWriteJsonNode();
+      case SnapiFloatType ignored -> new FloatWriteJsonNode();
+      case SnapiDoubleType ignored -> new DoubleWriteJsonNode();
+      case SnapiDecimalType ignored -> new DecimalWriteJsonNode();
+      case SnapiBoolType ignored -> new BooleanWriteJsonNode();
+      case SnapiStringType ignored -> new StringWriteJsonNode();
+      case SnapiDateType ignored -> new DateWriteJsonNode();
+      case SnapiTimeType ignored -> new TimeWriteJsonNode();
+      case SnapiTimestampType ignored -> new TimestampWriteJsonNode();
+      case SnapiIntervalType ignored ->new IntervalWriteJsonNode();
+      case SnapiBinaryType ignored -> new BinaryWriteJsonNode();
+      case SnapiOrType or -> {
           ProgramStatementNode[] children = JavaConverters.asJavaCollection(or.tipes())
                 .stream()
-                .map(t -> recurse((Rql2TypeWithProperties) t, true,lang))
+                .map(t -> recurse((SnapiTypeWithProperties) t, true,lang))
                 .toArray(ProgramStatementNode[]::new);
         yield new OrWriteJsonNode(children);
       }
-      case Rql2UndefinedType ignored -> new UndefinedWriteJsonNode();
+      case SnapiUndefinedType ignored -> new UndefinedWriteJsonNode();
       default -> throw new TruffleInternalErrorException();
     }, lang);
   }
 
-  private static ProgramStatementNode program(StatementNode e, Rql2Language lang) {
+  private static ProgramStatementNode program(StatementNode e, SnapiLanguage lang) {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new ProgramStatementNode(lang, frameDescriptor, e);
   }

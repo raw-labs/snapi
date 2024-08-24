@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.ast.io.binary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
@@ -28,7 +28,7 @@ public class BinaryWriterNode extends StatementNode {
 
   @Child private DirectCallNode innerWriter;
 
-  private final OutputStream os = Rql2Context.get(this).getOutput();
+  private final OutputStream os = SnapiContext.get(this).getOutput();
 
   public BinaryWriterNode(ExpressionNode binaryNode, ProgramStatementNode innerWriter) {
     this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());

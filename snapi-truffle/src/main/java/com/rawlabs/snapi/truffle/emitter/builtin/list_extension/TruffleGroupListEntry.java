@@ -15,9 +15,9 @@ package com.rawlabs.snapi.truffle.emitter.builtin.list_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.GroupListEntry;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.GroupListEntry;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListGroupByNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -30,29 +30,29 @@ import scala.collection.immutable.HashSet;
 
 public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+  public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
 
-    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    List<TruffleArg> truffleArgs = snapiargsToTruffleArgs(args, emitter);
 
-    Rql2ListType listType = (Rql2ListType) type;
-    Rql2RecordType record = (Rql2RecordType) listType.innerType();
-    Rql2AttrType[] atts =
-        JavaConverters.asJavaCollection(record.atts()).toArray(Rql2AttrType[]::new);
+    SnapiListType listType = (SnapiListType) type;
+    SnapiRecordType record = (SnapiRecordType) listType.innerType();
+    SnapiAttrType[] atts =
+        JavaConverters.asJavaCollection(record.atts()).toArray(SnapiAttrType[]::new);
 
-    Rql2TypeWithProperties keyType =
-        (Rql2TypeWithProperties)
+    SnapiTypeWithProperties keyType =
+        (SnapiTypeWithProperties)
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("key"))
                 .findFirst()
-                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(SnapiAttrType.apply("key", new SnapiUndefinedType(new HashSet<>())))
                 .tipe();
 
-    Rql2ListType groupType =
-        (Rql2ListType)
+    SnapiListType groupType =
+        (SnapiListType)
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("group"))
                 .findFirst()
-                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(SnapiAttrType.apply("key", new SnapiUndefinedType(new HashSet<>())))
                 .tipe();
 
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
@@ -69,7 +69,7 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
     return new ListGroupByNode(
         truffleArgs.get(0).exprNode(),
         truffleArgs.get(1).exprNode(),
-        (Rql2TypeWithProperties) groupType.innerType(),
+        (SnapiTypeWithProperties) groupType.innerType(),
         keyType,
         generatorSlot,
         keyFuncSlot,

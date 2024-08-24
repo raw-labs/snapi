@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD572Test extends Rql2TestContext {
+class RD572Test extends SnapiTestContext {
 
   test("-128b") { it =>
     it should typeAs("byte")

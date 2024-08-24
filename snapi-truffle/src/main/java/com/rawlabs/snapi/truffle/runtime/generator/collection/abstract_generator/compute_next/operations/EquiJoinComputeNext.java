@@ -13,13 +13,13 @@
 package com.rawlabs.snapi.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 
 public class EquiJoinComputeNext {
 
   private final Object leftIterable, rightIterable;
   private final Object leftKeyF, rightKeyF, mkJoinedRecord;
-  private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;
+  private final SnapiTypeWithProperties leftRowType, rightRowType, keyType;
   private Object leftMapGenerator = null,
       rightMapGenerator = null; // generators from group-by key maps
   private Object[] leftEntry = null, rightEntry = null;
@@ -36,11 +36,11 @@ public class EquiJoinComputeNext {
   public EquiJoinComputeNext(
       Object leftIterable,
       Object leftKeyF,
-      Rql2TypeWithProperties leftRowType,
+      SnapiTypeWithProperties leftRowType,
       Object rightIterable,
       Object rightKeyF,
-      Rql2TypeWithProperties rightRowType,
-      Rql2TypeWithProperties keyType,
+      SnapiTypeWithProperties rightRowType,
+      SnapiTypeWithProperties keyType,
       Object mkJoinedRecord,
       MaterializedFrame frame,
       int computeNextSlot,
@@ -84,15 +84,15 @@ public class EquiJoinComputeNext {
     return mkJoinedRecord;
   }
 
-  public Rql2TypeWithProperties getLeftRowType() {
+  public SnapiTypeWithProperties getLeftRowType() {
     return leftRowType;
   }
 
-  public Rql2TypeWithProperties getRightRowType() {
+  public SnapiTypeWithProperties getRightRowType() {
     return rightRowType;
   }
 
-  public Rql2TypeWithProperties getKeyType() {
+  public SnapiTypeWithProperties getKeyType() {
     return keyType;
   }
 

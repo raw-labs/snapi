@@ -14,9 +14,9 @@ package com.rawlabs.snapi.truffle.emitter.builtin.json_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.ast.io.json.reader.parser.*;
 import com.rawlabs.snapi.truffle.ast.io.json.reader.parser.BinaryParseJsonNodeGen;
@@ -53,11 +53,11 @@ public class JsonParser {
     this.timestampFormat = timestampFormat;
   }
 
-  public ProgramExpressionNode recurse(Rql2TypeWithProperties tipe, Rql2Language lang) {
+  public ProgramExpressionNode recurse(SnapiTypeWithProperties tipe, SnapiLanguage lang) {
     return recurse(tipe, true, lang);
   }
 
-  private ProgramExpressionNode recurse(Rql2TypeWithProperties tipe, boolean appendNullCheck, Rql2Language lang) {
+  private ProgramExpressionNode recurse(SnapiTypeWithProperties tipe, boolean appendNullCheck, SnapiLanguage lang) {
     FrameDescriptor.Builder builder = FrameDescriptor.newBuilder();
     int parserSlot =
             builder.addSlot(
@@ -73,22 +73,22 @@ public class JsonParser {
     int resultSlot =
             builder.addSlot(FrameSlotKind.Object, "list", "a slot to store the result internal array for osr");
     ExpressionNode e = switch (tipe){
-      case Rql2TypeWithProperties nt when nt.props().contains(tryable) -> {
-        Rql2TypeWithProperties nextType = (Rql2TypeWithProperties) nt.cloneAndRemoveProp(tryable);
-        ProgramExpressionNode child = recurse(nextType, !(nt instanceof Rql2UndefinedType), lang);
+      case SnapiTypeWithProperties nt when nt.props().contains(tryable) -> {
+        SnapiTypeWithProperties nextType = (SnapiTypeWithProperties) nt.cloneAndRemoveProp(tryable);
+        ProgramExpressionNode child = recurse(nextType, !(nt instanceof SnapiUndefinedType), lang);
         yield new TryableParseJsonNode(child);
       }
-      case Rql2TypeWithProperties nt when nt.props().contains(nullable) -> {
-        Rql2TypeWithProperties nextType = (Rql2TypeWithProperties) nt.cloneAndRemoveProp(nullable);
-        ProgramExpressionNode child = recurse(nextType, !(nt instanceof Rql2UndefinedType), lang);
+      case SnapiTypeWithProperties nt when nt.props().contains(nullable) -> {
+        SnapiTypeWithProperties nextType = (SnapiTypeWithProperties) nt.cloneAndRemoveProp(nullable);
+        ProgramExpressionNode child = recurse(nextType, !(nt instanceof SnapiUndefinedType), lang);
         yield new NullableParseJsonNode(child);
       }
-      case Rql2TypeWithProperties v when v.props().isEmpty() -> {
+      case SnapiTypeWithProperties v when v.props().isEmpty() -> {
         ExpressionNode result =  switch (v){
-          case Rql2ListType r -> {
-            ProgramExpressionNode child = recurse((Rql2TypeWithProperties)r.innerType(), lang);
+          case SnapiListType r -> {
+            ProgramExpressionNode child = recurse((SnapiTypeWithProperties)r.innerType(), lang);
             yield new ListParseJsonNode(
-                    (Rql2TypeWithProperties)r.innerType(),
+                    (SnapiTypeWithProperties)r.innerType(),
                     child.getCallTarget(),
                     parserSlot,
                     llistSlot,
@@ -96,54 +96,54 @@ public class JsonParser {
                     listSizeSlot,
                     resultSlot);
           }
-          case Rql2IterableType r ->{
-            ProgramExpressionNode child = recurse((Rql2TypeWithProperties)r.innerType(), lang);
+          case SnapiIterableType r ->{
+            ProgramExpressionNode child = recurse((SnapiTypeWithProperties)r.innerType(), lang);
             yield new IterableParseJsonNode(
                     program(new ListParseJsonNode(
-                                (Rql2TypeWithProperties)r.innerType(),
+                                (SnapiTypeWithProperties)r.innerType(),
                                 child.getCallTarget(),
                                 parserSlot, llistSlot, currentIdxSlot, listSizeSlot, resultSlot),
                               builder.build(), lang));
           }
-          case Rql2RecordType r ->{
+          case SnapiRecordType r ->{
             LinkedHashMap<String,Integer> hashMap = new LinkedHashMap<>();
             ProgramExpressionNode[] children = JavaConverters.asJavaCollection(r.atts())
                     .stream()
-                    .map(a -> (Rql2AttrType) a)
-                    .map(att -> recurse((Rql2TypeWithProperties) att.tipe(),lang))
+                    .map(a -> (SnapiAttrType) a)
+                    .map(att -> recurse((SnapiTypeWithProperties) att.tipe(),lang))
                     .toArray(ProgramExpressionNode[]::new);
-            JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).forEach(a -> hashMap.put(a.idn(),hashMap.size()));
-            List<String> keys = JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).map(Rql2AttrType::idn).toList();
+            JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (SnapiAttrType) a).forEach(a -> hashMap.put(a.idn(),hashMap.size()));
+            List<String> keys = JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (SnapiAttrType) a).map(SnapiAttrType::idn).toList();
             boolean hasDuplicateKeys = keys.size() != keys.stream().distinct().count();
             yield new RecordParseJsonNode(
                     children,
                     hashMap,
-                    JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).map(a -> (Rql2TypeWithProperties) a.tipe()).toArray(Rql2TypeWithProperties[]::new),
+                    JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (SnapiAttrType) a).map(a -> (SnapiTypeWithProperties) a.tipe()).toArray(SnapiTypeWithProperties[]::new),
                     hasDuplicateKeys
             );
           }
-          case Rql2ByteType ignored -> ByteParseJsonNodeGen.create();
-          case Rql2ShortType ignored -> ShortParseJsonNodeGen.create();
-          case Rql2IntType ignored -> IntParseJsonNodeGen.create();
-          case Rql2LongType ignored -> LongParseJsonNodeGen.create();
-          case Rql2FloatType ignored -> FloatParseJsonNodeGen.create();
-          case Rql2DoubleType ignored -> DoubleParseJsonNodeGen.create();
-          case Rql2DecimalType ignored -> DecimalParseJsonNodeGen.create();
-          case Rql2BoolType ignored -> BooleanParseJsonNodeGen.create();
-          case Rql2StringType ignored -> StringParseJsonNodeGen.create();
-          case Rql2DateType ignored -> DateParseJsonNodeGen.create(dateFormat);
-          case Rql2TimeType ignored -> TimeParseJsonNodeGen.create(timeFormat);
-          case Rql2TimestampType ignored -> TimestampParseJsonNodeGen.create(timestampFormat);
-          case Rql2IntervalType ignored -> IntervalParseJsonNodeGen.create();
-          case Rql2BinaryType ignored -> BinaryParseJsonNodeGen.create();
-          case Rql2OrType or -> {
+          case SnapiByteType ignored -> ByteParseJsonNodeGen.create();
+          case SnapiShortType ignored -> ShortParseJsonNodeGen.create();
+          case SnapiIntType ignored -> IntParseJsonNodeGen.create();
+          case SnapiLongType ignored -> LongParseJsonNodeGen.create();
+          case SnapiFloatType ignored -> FloatParseJsonNodeGen.create();
+          case SnapiDoubleType ignored -> DoubleParseJsonNodeGen.create();
+          case SnapiDecimalType ignored -> DecimalParseJsonNodeGen.create();
+          case SnapiBoolType ignored -> BooleanParseJsonNodeGen.create();
+          case SnapiStringType ignored -> StringParseJsonNodeGen.create();
+          case SnapiDateType ignored -> DateParseJsonNodeGen.create(dateFormat);
+          case SnapiTimeType ignored -> TimeParseJsonNodeGen.create(timeFormat);
+          case SnapiTimestampType ignored -> TimestampParseJsonNodeGen.create(timestampFormat);
+          case SnapiIntervalType ignored -> IntervalParseJsonNodeGen.create();
+          case SnapiBinaryType ignored -> BinaryParseJsonNodeGen.create();
+          case SnapiOrType or -> {
             ProgramExpressionNode[] children = JavaConverters.asJavaCollection(or.tipes())
                     .stream()
-                    .map(t -> recurse((Rql2TypeWithProperties) t,lang))
+                    .map(t -> recurse((SnapiTypeWithProperties) t,lang))
                     .toArray(ProgramExpressionNode[]::new);
             yield new OrParseJsonNode(children);
           }
-          case Rql2UndefinedType ignored -> new UndefinedParseJsonNode();
+          case SnapiUndefinedType ignored -> new UndefinedParseJsonNode();
           default -> throw new TruffleInternalErrorException();
         };
         if (appendNullCheck) {
@@ -156,7 +156,7 @@ public class JsonParser {
     return program(e, builder.build(), lang);
   }
 
-  private ProgramExpressionNode program(ExpressionNode e, FrameDescriptor frameDescriptor, Rql2Language lang){
+  private ProgramExpressionNode program(ExpressionNode e, FrameDescriptor frameDescriptor, SnapiLanguage lang){
     return new ProgramExpressionNode(lang, frameDescriptor, e);
   }
 }

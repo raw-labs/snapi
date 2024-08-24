@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5722Test extends Rql2TestContext {
+class RD5722Test extends SnapiTestContext {
 
   test("""let data = Collection.Build({
     |  a: { b: 123}

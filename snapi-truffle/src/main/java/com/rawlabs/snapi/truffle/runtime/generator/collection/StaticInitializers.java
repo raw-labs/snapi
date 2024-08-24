@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.generator.collection;
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.OffHeapDistinct;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
@@ -37,7 +37,7 @@ public class StaticInitializers {
   @CompilerDirectives.TruffleBoundary
   public static FileOutputStream getGroupByKeyNewDiskBuffer(
       OffHeapGroupByKey offHeapGroupByKey, Node node) {
-    RawSettings settings = Rql2Context.get(node).getSettings();
+    RawSettings settings = SnapiContext.get(node).getSettings();
     File file;
     file = IOUtils.getScratchFile("groupby.", ".kryo", settings).toFile();
     offHeapGroupByKey.getSpilledBuffers().add(file);
@@ -52,7 +52,7 @@ public class StaticInitializers {
   public static FileOutputStream groupByKeysNextFile(
       OffHeapGroupByKeys offHeapGroupByKeys, Node node) {
     File file;
-    RawSettings settings = Rql2Context.get(node).getSettings();
+    RawSettings settings = SnapiContext.get(node).getSettings();
     file = IOUtils.getScratchFile("orderby.", ".kryo", settings).toFile();
     offHeapGroupByKeys.getSpilledBuffers().add(file);
     try {
@@ -65,7 +65,7 @@ public class StaticInitializers {
   @CompilerDirectives.TruffleBoundary
   public static FileOutputStream distinctNextFile(OffHeapDistinct offHeapDistinct, Node node) {
     File file;
-    RawSettings settings = Rql2Context.get(node).getSettings();
+    RawSettings settings = SnapiContext.get(node).getSettings();
     file = IOUtils.getScratchFile("distinct.", ".kryo", settings).toFile();
     offHeapDistinct.getSpilledBuffers().add(file);
     try {
@@ -82,12 +82,12 @@ public class StaticInitializers {
 
   public static int getKryoOutputBufferSize(Node node) {
     return (int)
-        Rql2Context.get(node).getSettings().getMemorySize("raw.runtime.kryo.output-buffer-size");
+        SnapiContext.get(node).getSettings().getMemorySize("raw.runtime.kryo.output-buffer-size");
   }
 
   @CompilerDirectives.TruffleBoundary
   public static long[] getContextValues(Node node) {
-    RawSettings rawSettings = Rql2Context.get(node).getSettings();
+    RawSettings rawSettings = SnapiContext.get(node).getSettings();
     long[] contextValues = new long[3];
     contextValues[0] = rawSettings.getMemorySize("raw.runtime.external.disk-block-max-size");
     contextValues[1] = getKryoOutputBufferSize(node);
@@ -97,21 +97,21 @@ public class StaticInitializers {
 
   @CompilerDirectives.TruffleBoundary
   public static RawSettings getRawSettings(Node node) {
-    return Rql2Context.get(node).getSettings();
+    return SnapiContext.get(node).getSettings();
   }
 
   @CompilerDirectives.TruffleBoundary
-  public static Rql2Context getRql2Context(Node node) {
-    return Rql2Context.get(node);
+  public static SnapiContext getSnapiContext(Node node) {
+    return SnapiContext.get(node);
   }
 
   @CompilerDirectives.TruffleBoundary
   public static OutputStream getOutputStream(Node node) {
-    return Rql2Context.get(node).getOutput();
+    return SnapiContext.get(node).getOutput();
   }
 
   @CompilerDirectives.TruffleBoundary
   public static String[] getScopes(Node node) {
-    return Rql2Context.get(node).getScopes();
+    return SnapiContext.get(node).getScopes();
   }
 }

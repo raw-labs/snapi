@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin.credentials
 
 import com.rawlabs.snapi.compiler.tests.TestCredentials
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class OraclePackageTest extends Rql2TestContext {
+class OraclePackageTest extends SnapiTestContext {
 
   import TestCredentials._
 
@@ -26,7 +26,7 @@ class OraclePackageTest extends Rql2TestContext {
   rdbms("oracle", oracleCreds)
 
   test(s"""Oracle.InferAndRead("oracle", "$oracleSchema", "$oracleTable")""") { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should evaluateTo(
       """[
         |  {A: 1, B: 1, C: Decimal.From(1.5), D: Decimal.From(1.5), X: "x1", Y: "y1"},
@@ -41,7 +41,7 @@ class OraclePackageTest extends Rql2TestContext {
       |   type collection(record(A: int, B: int, C: double, D: double, X: string, Y: string))
       |)""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should evaluateTo(
       """[
         |  {A: 1, B: 1, C: 1.5, D: 1.5, X: "x1", Y: "y1"},
@@ -55,7 +55,7 @@ class OraclePackageTest extends Rql2TestContext {
     s"""Oracle.Read("oracle", "$oracleSchema", "$oracleTable",
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)))""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should orderEvaluateTo(
       """[
         |  {A: 1, B: 1, C: 1.5, D: 1.5, X: Error.Build("failed to read value: column 'X': Fail to convert to internal representation"), Y: "y1"},
@@ -69,7 +69,7 @@ class OraclePackageTest extends Rql2TestContext {
     s"""Oracle.InferAndRead("$oracleDb", "$oracleSchema", "$oracleTable",
       |   host = "${oracleCreds.getHost}", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}")""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should evaluateTo(
       """[
         |  {A: 1, B: 1, C: Decimal.From(1.5), D: Decimal.From(1.5), X: "x1", Y: "y1"},
@@ -84,7 +84,7 @@ class OraclePackageTest extends Rql2TestContext {
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |   host = "${oracleCreds.getHost}", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}" )""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should orderEvaluateTo(
       """[
         |  {A: 1, B: 1, C: 1.5, D: 1.5, X: Error.Build("failed to read value: column 'X': Fail to convert to internal representation"), Y: "y1"},
@@ -123,7 +123,7 @@ class OraclePackageTest extends Rql2TestContext {
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string))
       |)""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should runErrorAs(s"""o credential found for oracle: $oracleSchema""".stripMargin)
   }
 
@@ -135,7 +135,7 @@ class OraclePackageTest extends Rql2TestContext {
       |  host = "oracle.localdomain", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}"
       |)""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should runErrorAs("""unknown host: oracle.localdomain""".stripMargin)
   }
 
@@ -147,7 +147,7 @@ class OraclePackageTest extends Rql2TestContext {
       |  host = "localhost", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}"
       |)""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should runErrorAs("error connecting to database: localhost")
   }
 
@@ -160,7 +160,7 @@ class OraclePackageTest extends Rql2TestContext {
       |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}", port = 1234
       |)""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should runErrorAs("""connect timed out: test-oracle.raw-labs.com""".stripMargin)
   }
 
@@ -172,7 +172,7 @@ class OraclePackageTest extends Rql2TestContext {
       |  host = "test-oracle.raw-labs.com"
       |)""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should runErrorAs("""username is required""".stripMargin)
   }
 
@@ -184,7 +184,7 @@ class OraclePackageTest extends Rql2TestContext {
       |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.getUser}", password = "wrong!"
       |)""".stripMargin
   ) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should runErrorAs("""authentication failed""".stripMargin)
   }
 

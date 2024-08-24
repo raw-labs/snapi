@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.json_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.PrintJsonEntry;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.PrintJsonEntry;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.io.json.reader.JsonPrintNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -25,10 +25,10 @@ import java.util.List;
 
 public class TrufflePrintJsonEntry extends PrintJsonEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     return JsonPrintNodeGen.create(
         args.getFirst().exprNode(),
-        JsonWriter.recurse((Rql2TypeWithProperties) args.getFirst().type(), rawLanguage)
+        JsonWriter.recurse((SnapiTypeWithProperties) args.getFirst().type(), rawLanguage)
             .getCallTarget());
   }
 }

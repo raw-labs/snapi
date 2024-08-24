@@ -12,10 +12,10 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.frontend.rql2.errors.OutputTypeRequiredForRecursiveFunction
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.frontend.snapi.errors.OutputTypeRequiredForRecursiveFunction
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LetFunRecTest extends Rql2TestContext {
+class LetFunRecTest extends SnapiTestContext {
 
   test("""let rec fact(v: int): int = if (v > 1) then v * fact(v - 1) else v
     |in fact(4)

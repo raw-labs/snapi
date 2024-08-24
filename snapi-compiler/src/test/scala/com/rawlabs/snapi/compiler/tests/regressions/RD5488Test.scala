@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.utils.core.TestData
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5488Test extends Rql2TestContext {
+class RD5488Test extends SnapiTestContext {
 
   // All these tests are valid queries. They fail in the middle of compilation, at L0, with "lines is declared more than once".
 

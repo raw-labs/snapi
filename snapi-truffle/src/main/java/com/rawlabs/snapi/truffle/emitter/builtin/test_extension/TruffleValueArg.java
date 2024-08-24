@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.record.RecordBuildNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public interface TruffleValueArg extends TruffleEntryExtension {
   @Override
-  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     return new RecordBuildNode(new ExpressionNode[] {args.get(0).exprNode()}, new String[] {"arg"});
   }
 }

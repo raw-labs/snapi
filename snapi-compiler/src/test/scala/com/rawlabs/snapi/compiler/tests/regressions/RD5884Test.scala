@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5884Test extends Rql2TestContext {
+class RD5884Test extends SnapiTestContext {
 
   test("""let f(x: int, y: int = 12) = 3.14 + x + y
     |in f(1)""".stripMargin)(_ should run)

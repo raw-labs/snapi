@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.MinCollectionEntry;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.MinCollectionEntry;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.aggregation.AggregateSingleNode;
 import com.rawlabs.snapi.truffle.ast.expressions.aggregation.Aggregations;
@@ -27,8 +27,8 @@ import java.util.List;
 
 public class TruffleMinCollectionEntry extends MinCollectionEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
-    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+  public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
+    List<TruffleArg> truffleArgs = snapiargsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
     int generatorSlot =
         builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");

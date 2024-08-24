@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD9228Test extends Rql2TestContext {
+class RD9228Test extends SnapiTestContext {
 
   // pass a plain URL. It will be turned into a location, directly passed as a parameter.
   test("""

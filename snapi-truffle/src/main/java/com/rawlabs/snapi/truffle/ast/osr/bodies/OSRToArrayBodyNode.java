@@ -13,14 +13,14 @@
 package com.rawlabs.snapi.truffle.ast.osr.bodies;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2Type;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiType;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.TypeGuards;
 import java.util.ArrayList;
 
 public class OSRToArrayBodyNode extends ExpressionNode {
 
-  private final Rql2Type resultType;
+  private final SnapiType resultType;
 
   private final int listSlot;
 
@@ -28,7 +28,8 @@ public class OSRToArrayBodyNode extends ExpressionNode {
 
   private final int resultSlot;
 
-  public OSRToArrayBodyNode(Rql2Type resultType, int listSlot, int currentIdxSlot, int resultSlot) {
+  public OSRToArrayBodyNode(
+      SnapiType resultType, int listSlot, int currentIdxSlot, int resultSlot) {
     this.resultType = resultType;
     this.currentIdxSlot = currentIdxSlot;
     this.resultSlot = resultSlot;

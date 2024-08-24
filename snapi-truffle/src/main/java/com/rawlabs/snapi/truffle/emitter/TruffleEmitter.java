@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.truffle.emitter;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.rawlabs.snapi.frontend.rql2.source.Exp;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2Method;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.source.Exp;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiMethod;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.expressions.function.ClosureNode;
@@ -31,7 +31,7 @@ public abstract class TruffleEmitter {
 
   public abstract FrameDescriptor.Builder getFrameDescriptorBuilder();
 
-  public abstract Rql2Language getLanguage();
+  public abstract SnapiLanguage getLanguage();
 
-  protected abstract StatementNode emitMethod(Rql2Method m);
+  protected abstract StatementNode emitMethod(SnapiMethod m);
 }

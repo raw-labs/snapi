@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.builtin.environment_package;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.StaticInitializers;
@@ -30,7 +30,7 @@ public abstract class EnvironmentSecretNode extends ExpressionNode {
   protected static Object doSecret(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) Rql2Context context) {
+      @Cached(value = "getSnapiContext(thisNode)", neverDefault = true) SnapiContext context) {
     try {
       return context.getSecret(key);
     } catch (TruffleRuntimeException e) {

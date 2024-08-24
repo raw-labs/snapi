@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import java.time.LocalDate;
 
 @ExportLibrary(InteropLibrary.class)
@@ -57,7 +57,7 @@ public final class DateObject implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return Rql2Language.class;
+    return SnapiLanguage.class;
   }
 
   @ExportMessage

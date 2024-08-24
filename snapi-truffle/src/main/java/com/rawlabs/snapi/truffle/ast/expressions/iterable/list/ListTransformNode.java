@@ -16,7 +16,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.ArrayOperationNodes;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
@@ -42,7 +42,7 @@ public class ListTransformNode extends ExpressionNode {
 
   @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
 
-  private final Rql2Type resultType;
+  private final SnapiType resultType;
 
   private final int currentIndexSlot;
   private final int listSizeSlot;
@@ -53,7 +53,7 @@ public class ListTransformNode extends ExpressionNode {
   public ListTransformNode(
       ExpressionNode listNode,
       ExpressionNode functionNode,
-      Rql2Type resultType,
+      SnapiType resultType,
       int listSlot,
       int functionSlot,
       int currentIndexSlot,

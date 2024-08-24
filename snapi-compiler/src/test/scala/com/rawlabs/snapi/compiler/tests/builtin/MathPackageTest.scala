@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class MathPackageTest extends Rql2TestContext {
+class MathPackageTest extends SnapiTestContext {
 
   // Nullable - Tryable tests
   test("""Math.Sin(if(true) then 3.13 else null)""")(_ should beCloseTo("0.011592393936158275"))

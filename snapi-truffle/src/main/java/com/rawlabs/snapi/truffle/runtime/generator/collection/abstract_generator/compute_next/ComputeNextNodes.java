@@ -24,8 +24,8 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Context;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiContext;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.io.csv.reader.CsvParserNodes;
 import com.rawlabs.snapi.truffle.ast.io.json.reader.JsonParserNodes;
 import com.rawlabs.snapi.truffle.ast.io.xml.parser.TruffleXmlParser;
@@ -357,8 +357,8 @@ public class ComputeNextNodes {
       return next;
     }
 
-    public static Rql2Language getRql2Language(Node node) {
-      return Rql2Language.get(node);
+    public static SnapiLanguage getSnapiLanguage(Node node) {
+      return SnapiLanguage.get(node);
     }
 
     @Specialization
@@ -366,7 +366,7 @@ public class ComputeNextNodes {
         Node node,
         ZipComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) Rql2Language language,
+        @Cached(value = "getSnapiLanguage(thisNode)", allowUncached = true) SnapiLanguage language,
         @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode1,
         @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode2,
         @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode1,
@@ -803,7 +803,7 @@ public class ComputeNextNodes {
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode) {
 
-      RawSettings settings = Rql2Context.get(thisNode).getSettings();
+      RawSettings settings = SnapiContext.get(thisNode).getSettings();
       computeNext.setDiskRight(IOUtils.getScratchFile("cartesian.", ".kryo", settings).toFile());
 
       // save right to disk

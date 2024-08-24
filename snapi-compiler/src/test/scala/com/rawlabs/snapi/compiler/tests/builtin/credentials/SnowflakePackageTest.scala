@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin.credentials
 
 import com.rawlabs.snapi.compiler.tests.TestCredentials
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class SnowflakePackageTest extends Rql2TestContext {
+class SnowflakePackageTest extends SnapiTestContext {
 
   import TestCredentials._
 

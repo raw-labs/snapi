@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class PackageNameTest extends Rql2TestContext {
+class PackageNameTest extends SnapiTestContext {
 
   test("""Record""")(it => it should typeAs("""package("Record")"""))
 

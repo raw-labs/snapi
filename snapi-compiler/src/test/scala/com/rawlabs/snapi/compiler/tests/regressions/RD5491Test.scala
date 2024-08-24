@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5491Test extends Rql2TestContext {
+class RD5491Test extends SnapiTestContext {
 
   test(s"""let
     |  query = \"\"\"SELECT (?item as ?cat) ?itemLabel

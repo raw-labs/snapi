@@ -15,25 +15,25 @@ package com.rawlabs.snapi.truffle.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.iterable.operations.GroupByCollection;
 
 @NodeInfo(shortName = "Collection.GroupBy")
 @NodeChild("iterable")
 @NodeChild("keyFun")
-@NodeField(name = "keyType", type = Rql2TypeWithProperties.class)
-@NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
+@NodeField(name = "keyType", type = SnapiTypeWithProperties.class)
+@NodeField(name = "rowType", type = SnapiTypeWithProperties.class)
 @NodeField(name = "generatorSlot", type = int.class)
 @NodeField(name = "functionSlot", type = int.class)
 @NodeField(name = "mapSlot", type = int.class)
 public abstract class CollectionGroupByNode extends ExpressionNode {
 
   @Idempotent
-  protected abstract Rql2TypeWithProperties getKeyType();
+  protected abstract SnapiTypeWithProperties getKeyType();
 
   @Idempotent
-  protected abstract Rql2TypeWithProperties getRowType();
+  protected abstract SnapiTypeWithProperties getRowType();
 
   @Idempotent
   protected abstract int getGeneratorSlot();

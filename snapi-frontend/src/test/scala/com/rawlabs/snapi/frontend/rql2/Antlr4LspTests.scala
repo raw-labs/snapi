@@ -10,11 +10,11 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.rql2
+package com.rawlabs.snapi.frontend.snapi
 
-import com.rawlabs.snapi.frontend.rql2.source.{ErrorType, IdnDef, IdnExp, IdnUse}
-import com.rawlabs.snapi.frontend.rql2.antlr4.Antlr4SyntaxAnalyzer
-import com.rawlabs.snapi.frontend.rql2.source._
+import com.rawlabs.snapi.frontend.snapi.source.{ErrorType, IdnDef, IdnExp, IdnUse}
+import com.rawlabs.snapi.frontend.snapi.antlr4.Antlr4SyntaxAnalyzer
+import com.rawlabs.snapi.frontend.snapi.source._
 import com.rawlabs.utils.core.RawTestSuite
 
 class Antlr4LspTests extends RawTestSuite {
@@ -88,13 +88,13 @@ class Antlr4LspTests extends RawTestSuite {
     val result = parseWithAntlr4(prog)
     assert(result.hasErrors)
     assert(
-      result.tree == Rql2Program(
+      result.tree == SnapiProgram(
         Vector(),
         Some(
           Let(
             Vector(
               LetBind(
-                TypeExp(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                TypeExp(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                 IdnDef("b"),
                 None
               ),
@@ -112,13 +112,13 @@ class Antlr4LspTests extends RawTestSuite {
     val result = parseWithAntlr4(prog)
     assert(result.hasErrors)
     assert(
-      result.tree == Rql2Program(
+      result.tree == SnapiProgram(
         Vector(),
         Some(
           Let(
             Vector(
               LetBind(
-                TypeExp(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                TypeExp(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
                 IdnDef("b"),
                 None
               ),

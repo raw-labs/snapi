@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LetFunTest extends Rql2TestContext {
+class LetFunTest extends SnapiTestContext {
 
   test("""let f(x: int) = x + 1
     |in f(0)
@@ -248,7 +248,7 @@ class LetFunTest extends Rql2TestContext {
     |    functions = List.Transform(numbers, n -> let f(x: int, v: int = n) = x * v in f)
     |in List.Transform(functions, f -> f(10))
     |""".stripMargin) { it =>
-    assume(compilerService.language.contains("rql2-truffle")) // The scala executor fails to turn this code to L0
+    assume(compilerService.language.contains("snapi")) // The scala executor fails to turn this code to L0
     it should evaluateTo("[10, 20, 30, 40]")
   }
 

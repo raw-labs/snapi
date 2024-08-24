@@ -14,9 +14,9 @@ package com.rawlabs.snapi.compiler.tests.offheap
 
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class KryoPackageTest extends Rql2TestContext with TableDrivenPropertyChecks {
+class KryoPackageTest extends SnapiTestContext with TableDrivenPropertyChecks {
 
   private val cases = Table(
     ("value", "type"),

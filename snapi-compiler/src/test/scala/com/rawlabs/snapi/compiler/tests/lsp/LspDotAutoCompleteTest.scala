@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.{AutoCompleteResponse, FieldCompletion, PackageEntryCompletion, Pos}
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LspDotAutoCompleteTest extends Rql2TestContext {
+class LspDotAutoCompleteTest extends SnapiTestContext {
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, String)]): Unit = {
     val AutoCompleteResponse(entries) = dotAutoComplete(code, Pos(line, col))

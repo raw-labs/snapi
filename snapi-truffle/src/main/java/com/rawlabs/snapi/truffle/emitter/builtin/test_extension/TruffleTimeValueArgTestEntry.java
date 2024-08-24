@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TimeValueArgTestEntry;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.TimeValueArgTestEntry;
 
 public class TruffleTimeValueArgTestEntry extends TimeValueArgTestEntry
     implements TruffleValueArg {}

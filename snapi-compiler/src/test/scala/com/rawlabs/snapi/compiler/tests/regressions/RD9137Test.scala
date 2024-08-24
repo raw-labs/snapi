@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.typesafe.scalalogging.StrictLogging
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD9137Test extends Rql2TestContext with StrictLogging {
+class RD9137Test extends SnapiTestContext with StrictLogging {
 
   test("""Json.InferAndRead("https://raw-tutorial.s3.eu-west-1.amazonaws.com/patients.json")""".stripMargin)(
     _ should run

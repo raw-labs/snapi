@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class ImplicitCastTest extends Rql2TestContext {
+class ImplicitCastTest extends SnapiTestContext {
 
   // compatible options as function param
   test(s"""let f = (x: int) -> Record.Build(o = x)

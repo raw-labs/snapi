@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.builtin.credentials
 
 import com.rawlabs.snapi.compiler.tests.TestCredentials
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class PostgreSQLPackageTest extends Rql2TestContext {
+class PostgreSQLPackageTest extends SnapiTestContext {
 
   import TestCredentials._
 

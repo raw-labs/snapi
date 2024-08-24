@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.record_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.RecordGetFieldByIndexEntry;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.RecordGetFieldByIndexEntry;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.record.RecordProjNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -24,7 +24,7 @@ import java.util.List;
 public class TruffleRecordGetFieldByIndexEntry extends RecordGetFieldByIndexEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     return RecordProjNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.ast.expressions.record;
 
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.runtime.record.RecordNodes;
 import com.rawlabs.snapi.truffle.runtime.record.RecordNodesFactory;
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import java.util.List;
 
 public class RecordStaticInitializers {
 
-  public static Rql2Language getCachedLanguage(Node node) {
-    return Rql2Language.get(node);
+  public static SnapiLanguage getCachedLanguage(Node node) {
+    return SnapiLanguage.get(node);
   }
 
   public static boolean hasDuplicateKeys(Object[] keys) {

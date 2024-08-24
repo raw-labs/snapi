@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD10723Test extends Rql2TestContext {
+class RD10723Test extends SnapiTestContext {
 
   private val qqq = "\"\"\""
   test(s"""main() =

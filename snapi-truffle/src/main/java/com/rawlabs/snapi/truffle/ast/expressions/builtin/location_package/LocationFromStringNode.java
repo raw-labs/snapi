@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription$;
-import com.rawlabs.snapi.truffle.Rql2Context;
+import com.rawlabs.snapi.frontend.snapi.extensions.LocationDescription$;
+import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.primitives.LocationObject;
@@ -36,14 +36,14 @@ public class LocationFromStringNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     String url = (String) this.url.executeGeneric(frame);
 
-    Rql2Context context = Rql2Context.get(this);
+    SnapiContext context = SnapiContext.get(this);
 
     Location location = getLocationFromUrl(url, context);
     return new LocationObject(location, url);
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Location getLocationFromUrl(String url, Rql2Context context) {
+  private Location getLocationFromUrl(String url, SnapiContext context) {
     Either<String, Location> maybeLocation =
         LocationDescription$.MODULE$.urlToLocation(
             url, context.getProgramEnvironment(), context.getSettings());

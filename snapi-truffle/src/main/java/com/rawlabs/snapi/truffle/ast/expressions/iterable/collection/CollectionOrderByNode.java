@@ -16,7 +16,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.iterable.operations.OrderByCollection;
@@ -26,8 +26,8 @@ public class CollectionOrderByNode extends ExpressionNode {
   @Child private ExpressionNode input;
   @Children private final ExpressionNode[] keyFuns;
   @Children private final ExpressionNode[] orderings;
-  private final Rql2TypeWithProperties[] keyTypes;
-  private final Rql2TypeWithProperties valueType;
+  private final SnapiTypeWithProperties[] keyTypes;
+  private final SnapiTypeWithProperties valueType;
   private final int generatorSlot;
   private final int collectionSlot;
   private final int offHeapGroupByKeysSlot;
@@ -36,8 +36,8 @@ public class CollectionOrderByNode extends ExpressionNode {
       ExpressionNode input,
       ExpressionNode[] keyFuns,
       ExpressionNode[] orderings,
-      Rql2TypeWithProperties[] keyTypes,
-      Rql2TypeWithProperties valueType,
+      SnapiTypeWithProperties[] keyTypes,
+      SnapiTypeWithProperties valueType,
       int generatorSlot,
       int collectionSlot,
       int offHeapGroupByKeysSlot) {

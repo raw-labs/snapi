@@ -12,13 +12,13 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.collection
 
-import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.errors.ItemsNotComparable
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.frontend.snapi._
+import com.rawlabs.snapi.frontend.snapi.errors.ItemsNotComparable
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 import java.nio.file.Path
 
-class CollectionPackageTest extends Rql2TestContext {
+class CollectionPackageTest extends SnapiTestContext {
 
   // a test to check if there are multiple instances of generators
   test("""let a = Collection.Build(1,2,3),

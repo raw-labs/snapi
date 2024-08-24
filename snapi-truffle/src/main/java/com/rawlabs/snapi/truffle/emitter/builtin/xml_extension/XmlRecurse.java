@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.xml_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.option.OptionSomeNodeGen;
 import com.rawlabs.snapi.truffle.ast.io.xml.parser.*;
@@ -26,46 +26,46 @@ import java.util.stream.Stream;
 
 public class XmlRecurse {
 
-  private static ExpressionNode primitiveParserNode(Rql2TypeWithProperties tipe) {
+  private static ExpressionNode primitiveParserNode(SnapiTypeWithProperties tipe) {
     return switch (tipe) {
-      case Rql2UndefinedType v -> UndefinedParseXmlNodeGen.create();
-      case Rql2ByteType v -> ByteParseXmlNodeGen.create();
-      case Rql2ShortType v -> ShortParseXmlNodeGen.create();
-      case Rql2IntType v -> IntParseXmlNodeGen.create();
-      case Rql2LongType v -> LongParseXmlNodeGen.create();
-      case Rql2FloatType v -> FloatParseXmlNodeGen.create();
-      case Rql2DoubleType v -> DoubleParseXmlNodeGen.create();
-      case Rql2DecimalType v -> DecimalParseXmlNodeGen.create();
-      case Rql2StringType v -> StringParseXmlNodeGen.create();
-      case Rql2BoolType v -> BoolParseXmlNodeGen.create();
-      case Rql2DateType v -> DateParseXmlNodeGen.create();
-      case Rql2TimeType v -> TimeParseXmlNodeGen.create();
-      case Rql2TimestampType v -> TimestampParseXmlNodeGen.create();
+      case SnapiUndefinedType v -> UndefinedParseXmlNodeGen.create();
+      case SnapiByteType v -> ByteParseXmlNodeGen.create();
+      case SnapiShortType v -> ShortParseXmlNodeGen.create();
+      case SnapiIntType v -> IntParseXmlNodeGen.create();
+      case SnapiLongType v -> LongParseXmlNodeGen.create();
+      case SnapiFloatType v -> FloatParseXmlNodeGen.create();
+      case SnapiDoubleType v -> DoubleParseXmlNodeGen.create();
+      case SnapiDecimalType v -> DecimalParseXmlNodeGen.create();
+      case SnapiStringType v -> StringParseXmlNodeGen.create();
+      case SnapiBoolType v -> BoolParseXmlNodeGen.create();
+      case SnapiDateType v -> DateParseXmlNodeGen.create();
+      case SnapiTimeType v -> TimeParseXmlNodeGen.create();
+      case SnapiTimestampType v -> TimestampParseXmlNodeGen.create();
       default -> throw new TruffleInternalErrorException();
     };
   }
 
 
-  public static ProgramExpressionNode recurseXmlParser(Rql2TypeWithProperties tipe, Rql2Language lang) {
+  public static ProgramExpressionNode recurseXmlParser(SnapiTypeWithProperties tipe, SnapiLanguage lang) {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new ProgramExpressionNode(lang, frameDescriptor, recurse(lang, frameDescriptor, tipe, "*"));
   }
 
-  private static ExpressionNode recurse(Rql2Language lang, FrameDescriptor frameDescriptor, Rql2TypeWithProperties tipe, String fieldName) {
+  private static ExpressionNode recurse(SnapiLanguage lang, FrameDescriptor frameDescriptor, SnapiTypeWithProperties tipe, String fieldName) {
     boolean isAttribute = fieldName.startsWith("@");
     boolean isText = fieldName.equals("#text");
     ExpressionNode parserNode;
     if (isTryable(tipe)) {
       // tryable goes first. That way it can catch errors hit when parsing compound XML elements, but also
       // XML attributes or XML "text" content.
-      Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) tipe.cloneAndRemoveProp(new Rql2IsTryableTypeProperty());
+      SnapiTypeWithProperties innerType = (SnapiTypeWithProperties) tipe.cloneAndRemoveProp(new SnapiIsTryableTypeProperty());
       ExpressionNode source = recurse(lang, frameDescriptor, innerType, fieldName);
       ProgramExpressionNode childRootNode = new ProgramExpressionNode(lang, frameDescriptor, source);
       // errors are recovered differently for attributes
       parserNode = isAttribute ? new TryableParseAttributeXmlNode(childRootNode) : new TryableParseXmlNode(childRootNode);
     } else if (isNullable(tipe)) {
-      Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) tipe.cloneAndRemoveProp(new Rql2IsNullableTypeProperty());
-      if (innerType instanceof Rql2PrimitiveType || innerType instanceof Rql2UndefinedType) {
+      SnapiTypeWithProperties innerType = (SnapiTypeWithProperties) tipe.cloneAndRemoveProp(new SnapiIsNullableTypeProperty());
+      if (innerType instanceof SnapiPrimitiveType || innerType instanceof SnapiUndefinedType) {
         // nullable primitive. We use the "nullable parser" which checks if the element is empty, and if not applies
         // the primitive parser. The case of 'undefined' is handled as a primitive parser because the nullable checks
         // the empty string, and calls the undefined parser (which throws) if not.
@@ -83,26 +83,26 @@ public class XmlRecurse {
       }
     } else {
       parserNode = switch (tipe) {
-        case Rql2OrType orType -> {
+        case SnapiOrType orType -> {
           Stream<ProgramExpressionNode> children = JavaConverters.seqAsJavaList(orType.tipes()).stream().map(innerType -> {
-            ExpressionNode child = recurse(lang, frameDescriptor, (Rql2TypeWithProperties) innerType, fieldName);
+            ExpressionNode child = recurse(lang, frameDescriptor, (SnapiTypeWithProperties) innerType, fieldName);
             return new ProgramExpressionNode(lang, frameDescriptor, child);
           });
           yield new OrTypeParseXml(children.toArray(ProgramExpressionNode[]::new));
         }
-        case Rql2ListType listType ->
+        case SnapiListType listType ->
           // lists are parsed with their item parser, and then wrapped in a list
-            recurse(lang, frameDescriptor, (Rql2TypeWithProperties) listType.innerType(), fieldName);
-        case Rql2IterableType iterableType ->
+            recurse(lang, frameDescriptor, (SnapiTypeWithProperties) listType.innerType(), fieldName);
+        case SnapiIterableType iterableType ->
           // iterables are parsed with their item parser, and then wrapped in a list
-            recurse(lang, frameDescriptor, (Rql2TypeWithProperties) iterableType.innerType(), fieldName);
-        case Rql2RecordType recordType -> {
+            recurse(lang, frameDescriptor, (SnapiTypeWithProperties) iterableType.innerType(), fieldName);
+        case SnapiRecordType recordType -> {
           Stream<ProgramExpressionNode> children = JavaConverters.seqAsJavaList(recordType.atts()).stream().map(att -> {
-            ExpressionNode child = recurse(lang, frameDescriptor, (Rql2TypeWithProperties) att.tipe(), att.idn());
+            ExpressionNode child = recurse(lang, frameDescriptor, (SnapiTypeWithProperties) att.tipe(), att.idn());
             return new ProgramExpressionNode(lang, frameDescriptor, child);
           });
-          String[] idns = JavaConverters.seqAsJavaList(recordType.atts()).stream().map(Rql2AttrType::idn).toArray(String[]::new);
-          Rql2TypeWithProperties[] tipes = JavaConverters.seqAsJavaList(recordType.atts()).stream().map(a -> (Rql2TypeWithProperties) a.tipe()).toArray(Rql2TypeWithProperties[]::new);
+          String[] idns = JavaConverters.seqAsJavaList(recordType.atts()).stream().map(SnapiAttrType::idn).toArray(String[]::new);
+          SnapiTypeWithProperties[] tipes = JavaConverters.seqAsJavaList(recordType.atts()).stream().map(a -> (SnapiTypeWithProperties) a.tipe()).toArray(SnapiTypeWithProperties[]::new);
           yield new RecordParseXmlNode(
               children.toArray(ProgramExpressionNode[]::new),
               idns,
@@ -121,12 +121,12 @@ public class XmlRecurse {
     return parserNode;
   }
 
-  public static boolean isTryable(Rql2TypeWithProperties tipe) {
-    return tipe.props().contains(new Rql2IsTryableTypeProperty());
+  public static boolean isTryable(SnapiTypeWithProperties tipe) {
+    return tipe.props().contains(new SnapiIsTryableTypeProperty());
   }
 
-  private static boolean isNullable(Rql2TypeWithProperties tipe) {
-    return tipe.props().contains(new Rql2IsNullableTypeProperty());
+  private static boolean isNullable(SnapiTypeWithProperties tipe) {
+    return tipe.props().contains(new SnapiIsNullableTypeProperty());
   }
 
 }

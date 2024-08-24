@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class BasicStagedCompilerTest extends Rql2TestContext {
+class BasicStagedCompilerTest extends SnapiTestContext {
 
   test("""TestPackage.ByteValueArg(22b)""")(_ should evaluateTo("{arg: 22b}"))
   test("""TestPackage.ShortValueArg(22s)""")(_ should evaluateTo("{arg: 22s}"))

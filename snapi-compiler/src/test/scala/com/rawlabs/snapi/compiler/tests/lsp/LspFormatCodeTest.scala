@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.FormatCodeResponse
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LspFormatCodeTest extends Rql2TestContext {
+class LspFormatCodeTest extends SnapiTestContext {
 
   def assertFormattedCode(code: String, expected: String) = {
     val FormatCodeResponse(Some(formattedCode)) = formatCode(code)

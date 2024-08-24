@@ -19,7 +19,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLogger;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
@@ -127,7 +127,7 @@ public class TruffleCsvParser {
   }
 
   private static final TruffleLogger LOG =
-      TruffleLogger.getLogger(Rql2Language.ID, TruffleRuntimeException.class);
+      TruffleLogger.getLogger(SnapiLanguage.ID, TruffleRuntimeException.class);
 
   @TruffleBoundary
   public void close() {

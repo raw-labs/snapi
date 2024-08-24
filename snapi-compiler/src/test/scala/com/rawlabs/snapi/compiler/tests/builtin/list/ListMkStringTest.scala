@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.list
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class ListMkStringTest extends Rql2TestContext {
+class ListMkStringTest extends SnapiTestContext {
 
   test("""let items = List.Build()
     |in List.MkString(items, sep="|")""".stripMargin)(_ should evaluateTo(""" "" """))

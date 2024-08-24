@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class IfThenElseTest extends Rql2TestContext with CombinationSpecTestHelper {
+class IfThenElseTest extends SnapiTestContext with CombinationSpecTestHelper {
 
   test("""
     |if true then "a" else "b"

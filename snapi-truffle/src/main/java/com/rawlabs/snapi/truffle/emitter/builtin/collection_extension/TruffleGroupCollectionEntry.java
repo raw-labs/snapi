@@ -15,9 +15,9 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.GroupCollectionEntry;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.GroupCollectionEntry;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionGroupByNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -31,8 +31,8 @@ import scala.collection.immutable.HashSet;
 public class TruffleGroupCollectionEntry extends GroupCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
-    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+  public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
+    List<TruffleArg> truffleArgs = snapiargsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
 
     int generatorSlot =
@@ -41,30 +41,30 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
         builder.addSlot(FrameSlotKind.Object, "function", "a slot to store the function of osr");
     int mapSlot = builder.addSlot(FrameSlotKind.Object, "map", "a slot to store the map of osr");
 
-    Rql2IterableType iterable = (Rql2IterableType) type;
-    Rql2RecordType record = (Rql2RecordType) iterable.innerType();
-    Rql2AttrType[] atts =
+    SnapiIterableType iterable = (SnapiIterableType) type;
+    SnapiRecordType record = (SnapiRecordType) iterable.innerType();
+    SnapiAttrType[] atts =
         JavaConverters.asJavaCollection(record.atts()).stream()
-            .map(a -> (Rql2AttrType) a)
-            .toArray(Rql2AttrType[]::new);
+            .map(a -> (SnapiAttrType) a)
+            .toArray(SnapiAttrType[]::new);
 
-    Rql2TypeWithProperties keyType =
-        (Rql2TypeWithProperties)
+    SnapiTypeWithProperties keyType =
+        (SnapiTypeWithProperties)
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("key"))
                 .findFirst()
-                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(SnapiAttrType.apply("key", new SnapiUndefinedType(new HashSet<>())))
                 .tipe();
 
-    Rql2IterableType iterableValueType =
-        (Rql2IterableType)
+    SnapiIterableType iterableValueType =
+        (SnapiIterableType)
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("group"))
                 .findFirst()
-                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(SnapiAttrType.apply("key", new SnapiUndefinedType(new HashSet<>())))
                 .tipe();
 
-    Rql2TypeWithProperties valueType = (Rql2TypeWithProperties) iterableValueType.innerType();
+    SnapiTypeWithProperties valueType = (SnapiTypeWithProperties) iterableValueType.innerType();
 
     return CollectionGroupByNodeGen.create(
         truffleArgs.get(0).exprNode(),

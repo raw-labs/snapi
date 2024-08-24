@@ -64,21 +64,6 @@ target/
 /.project
 *.iml
 
-language/version
-extensions/version
-utils/version
-client/version
-snapi-client/version
-sql-client/version
-snapi-frontend/version
-snapi-truffle/version
-sql-parser/version
-snapi-parser/version
-python-client/version
-
-snapi-parser/src/main/java/raw/compiler/rql2/generated
-sql-parser/src/main/java/raw/client/sql/generated
-
 **/pom.xml.versionsBackup
 
 version

@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class ErrorPackageTest extends Rql2TestContext {
+class ErrorPackageTest extends SnapiTestContext {
   test(""" Error.Build("an error")""")(it => it should runErrorAs("an error"))
   test(""" Error.Build("an error") == Error.Build("an error")""")(it => it should runErrorAs("an error"))
   test(""" Error.Build("an error") == Error.Build("another error")""")(it => it should runErrorAs("an error"))

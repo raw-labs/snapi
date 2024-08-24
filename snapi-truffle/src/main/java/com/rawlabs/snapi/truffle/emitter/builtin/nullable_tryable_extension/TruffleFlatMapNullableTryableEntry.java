@@ -15,10 +15,10 @@ package com.rawlabs.snapi.truffle.emitter.builtin.nullable_tryable_extension;
 import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.*;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.FlatMapNullableTryableEntry;
-import com.rawlabs.snapi.frontend.rql2.source.FunType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.FlatMapNullableTryableEntry;
+import com.rawlabs.snapi.frontend.snapi.source.FunType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.option.OptionFlatMapNodeGen;
 import com.rawlabs.snapi.truffle.ast.expressions.option.OptionGetOrElseNodeGen;
@@ -35,11 +35,11 @@ import java.util.List;
 public class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
-    Rql2TypeWithProperties eType = (Rql2TypeWithProperties) args.get(0).t();
+  public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
+    SnapiTypeWithProperties eType = (SnapiTypeWithProperties) args.get(0).t();
     FunType fType = (FunType) args.get(1).t();
-    Rql2TypeWithProperties inType = (Rql2TypeWithProperties) fType.ms().apply(0);
-    Rql2TypeWithProperties outType = (Rql2TypeWithProperties) fType.r();
+    SnapiTypeWithProperties inType = (SnapiTypeWithProperties) fType.ms().apply(0);
+    SnapiTypeWithProperties outType = (SnapiTypeWithProperties) fType.r();
 
     // The value is try+nullable, and both properties need to be checked before applying the
     // function.

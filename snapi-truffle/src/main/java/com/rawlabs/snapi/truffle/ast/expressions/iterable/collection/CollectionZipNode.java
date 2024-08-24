@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.iterable.operations.ZipCollection;
 
@@ -25,7 +25,7 @@ import com.rawlabs.snapi.truffle.runtime.iterable.operations.ZipCollection;
 public abstract class CollectionZipNode extends ExpressionNode {
   @Specialization
   protected Object doZip(Object iterable1, Object iterable2) {
-    Rql2Language language = Rql2Language.get(this);
+    SnapiLanguage language = SnapiLanguage.get(this);
     return new ZipCollection(iterable1, iterable2, language);
   }
 }

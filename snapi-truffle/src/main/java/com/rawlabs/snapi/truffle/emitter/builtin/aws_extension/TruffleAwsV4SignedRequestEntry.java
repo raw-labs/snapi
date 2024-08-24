@@ -13,11 +13,11 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.aws_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.AwsV4SignedRequest;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2AttrType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2ListType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2RecordType;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.AwsV4SignedRequest;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiAttrType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiListType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiRecordType;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.binary.PlusNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.aws_package.AwsV4SignedRequestNodeGen;
@@ -33,7 +33,7 @@ import scala.collection.immutable.Vector;
 public class TruffleAwsV4SignedRequestEntry extends AwsV4SignedRequest
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     ExpressionNode key = args.get(0).exprNode();
     ExpressionNode secretKey = args.get(1).exprNode();
     ExpressionNode service = args.get(2).exprNode();
@@ -97,8 +97,8 @@ public class TruffleAwsV4SignedRequestEntry extends AwsV4SignedRequest
             .findFirst()
             .orElse(
                 new ListBuildNode(
-                    Rql2ListType.apply(
-                        Rql2RecordType.apply(new Vector<Rql2AttrType>(0, 0, 0), new HashSet<>()),
+                    SnapiListType.apply(
+                        SnapiRecordType.apply(new Vector<SnapiAttrType>(0, 0, 0), new HashSet<>()),
                         new HashSet<>()),
                     new ExpressionNode[] {}));
 
@@ -109,8 +109,8 @@ public class TruffleAwsV4SignedRequestEntry extends AwsV4SignedRequest
             .findFirst()
             .orElse(
                 new ListBuildNode(
-                    Rql2ListType.apply(
-                        Rql2RecordType.apply(new Vector<Rql2AttrType>(0, 0, 0), new HashSet<>()),
+                    SnapiListType.apply(
+                        SnapiRecordType.apply(new Vector<SnapiAttrType>(0, 0, 0), new HashSet<>()),
                         new HashSet<>()),
                     new ExpressionNode[] {}));
 

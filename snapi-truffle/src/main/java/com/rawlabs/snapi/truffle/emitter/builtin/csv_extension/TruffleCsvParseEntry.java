@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.csv_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.CsvParseEntry;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.CsvParseEntry;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
@@ -23,10 +23,10 @@ import java.util.List;
 
 public class TruffleCsvParseEntry extends CsvParseEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     CsvParser makeParser = new CsvParser(args);
     ExpressionNode url =
         args.stream().filter(a -> a.identifier() == null).findFirst().orElseThrow().exprNode();
-    return makeParser.stringParser(url, (Rql2TypeWithProperties) type, rawLanguage);
+    return makeParser.stringParser(url, (SnapiTypeWithProperties) type, rawLanguage);
   }
 }

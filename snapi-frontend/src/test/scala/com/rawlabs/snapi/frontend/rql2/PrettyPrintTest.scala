@@ -10,9 +10,9 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.rql2
+package com.rawlabs.snapi.frontend.snapi
 
-import com.rawlabs.snapi.frontend.rql2.source.SourceCommentsPrettyPrinter
+import com.rawlabs.snapi.frontend.snapi.source.SourceCommentsPrettyPrinter
 import com.rawlabs.utils.core.RawTestSuite
 import org.scalatest.Assertion
 

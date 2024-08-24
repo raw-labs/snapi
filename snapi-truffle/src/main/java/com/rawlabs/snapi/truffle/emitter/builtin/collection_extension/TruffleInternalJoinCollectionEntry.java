@@ -15,11 +15,11 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.Rql2Arg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.InternalJoinCollectionEntry;
-import com.rawlabs.snapi.frontend.rql2.source.FunType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2IterableType;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.InternalJoinCollectionEntry;
+import com.rawlabs.snapi.frontend.snapi.source.FunType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIterableType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionJoinNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -30,8 +30,8 @@ import java.util.List;
 public class TruffleInternalJoinCollectionEntry extends InternalJoinCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
-    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+  public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
+    List<TruffleArg> truffleArgs = snapiargsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
 
     int computeNextSlot =
@@ -52,8 +52,8 @@ public class TruffleInternalJoinCollectionEntry extends InternalJoinCollectionEn
     TruffleArg right = truffleArgs.get(1);
     TruffleArg reshape = truffleArgs.get(2);
     TruffleArg predicate = truffleArgs.get(3);
-    Rql2IterableType rql2IterableType = (Rql2IterableType) right.type();
-    Rql2TypeWithProperties rightType = (Rql2TypeWithProperties) rql2IterableType.innerType();
+    SnapiIterableType snapiIterableType = (SnapiIterableType) right.type();
+    SnapiTypeWithProperties rightType = (SnapiTypeWithProperties) snapiIterableType.innerType();
     boolean reshapeBeforePredicate = ((FunType) predicate.type()).ms().size() == 1;
     return CollectionJoinNodeGen.create(
         left.exprNode(),

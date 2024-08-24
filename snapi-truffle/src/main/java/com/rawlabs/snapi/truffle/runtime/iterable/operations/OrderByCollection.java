@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.iterable.IterableNodes;
 
@@ -29,8 +29,8 @@ public class OrderByCollection implements TruffleObject {
   final Object parentIterable;
   final Object[] keyFunctions;
   final int[] keyOrderings;
-  final Rql2TypeWithProperties[] keyTypes;
-  final Rql2TypeWithProperties rowType;
+  final SnapiTypeWithProperties[] keyTypes;
+  final SnapiTypeWithProperties rowType;
   private final MaterializedFrame frame;
   private final int generatorSlot;
   private final int collectionSlot;
@@ -40,8 +40,8 @@ public class OrderByCollection implements TruffleObject {
       Object iterable,
       Object[] keyFunctions,
       int[] keyOrderings,
-      Rql2TypeWithProperties[] keyTypes,
-      Rql2TypeWithProperties rowType,
+      SnapiTypeWithProperties[] keyTypes,
+      SnapiTypeWithProperties rowType,
       MaterializedFrame frame,
       int generatorSlot,
       int collectionSlot,
@@ -69,11 +69,11 @@ public class OrderByCollection implements TruffleObject {
     return keyOrderings;
   }
 
-  public Rql2TypeWithProperties[] getKeyTypes() {
+  public SnapiTypeWithProperties[] getKeyTypes() {
     return keyTypes;
   }
 
-  public Rql2TypeWithProperties getRowType() {
+  public SnapiTypeWithProperties getRowType() {
     return rowType;
   }
 

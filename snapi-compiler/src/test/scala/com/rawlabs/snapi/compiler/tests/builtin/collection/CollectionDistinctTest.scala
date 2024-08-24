@@ -12,10 +12,10 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.collection
 
-import com.rawlabs.snapi.frontend.rql2.errors.ItemsNotComparable
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.frontend.snapi.errors.ItemsNotComparable
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class CollectionDistinctTest extends Rql2TestContext {
+class CollectionDistinctTest extends SnapiTestContext {
 
   test("""let numbers = Collection.From([5, 2, 4, 2, 2, 4, 5])
     |in Collection.Distinct(numbers)""".stripMargin)(_ should evaluateTo("[2, 4, 5]"))

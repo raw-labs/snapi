@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.ast;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 
 public final class ProgramStatementNode extends RootNode {
 
@@ -25,7 +25,7 @@ public final class ProgramStatementNode extends RootNode {
   @Child protected StatementNode bodyNode;
 
   public ProgramStatementNode(
-      Rql2Language language, FrameDescriptor frameDescriptor, StatementNode body) {
+      SnapiLanguage language, FrameDescriptor frameDescriptor, StatementNode body) {
     super(language, frameDescriptor);
     this.bodyNode = body;
     this.bodyNode.addRootTag();

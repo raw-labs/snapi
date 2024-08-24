@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.emitter.writers;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import java.util.Arrays;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.source.*;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;
 import com.rawlabs.snapi.truffle.ast.io.csv.writer.internal.*;
@@ -24,7 +24,7 @@ import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorExceptio
 
 public class CsvWriter {
 
-  public static ProgramStatementNode getCsvWriter(Type[] args, Rql2Language lang) {
+  public static ProgramStatementNode getCsvWriter(Type[] args, SnapiLanguage lang) {
     ProgramStatementNode[] columnWriters =
         Arrays.stream(args)
             .map(arg -> columnWriter(arg, lang))
@@ -34,32 +34,32 @@ public class CsvWriter {
     return new ProgramStatementNode(lang, new FrameDescriptor(), recordWriter);
   }
 
-  private static StatementNode columnWriter(Type t, Rql2Language lang) {
+  private static StatementNode columnWriter(Type t, SnapiLanguage lang) {
     return switch (t){
-      case Rql2TypeWithProperties r when r.props().contains(CompilerScalaConsts.tryable) -> {
+      case SnapiTypeWithProperties r when r.props().contains(CompilerScalaConsts.tryable) -> {
         StatementNode inner = columnWriter(r.cloneAndRemoveProp(CompilerScalaConsts.tryable), lang);
         yield  new TryableWriteCsvNode(program(inner, lang));
       }
-      case Rql2TypeWithProperties r when r.props().contains(CompilerScalaConsts.nullable) -> {
+      case SnapiTypeWithProperties r when r.props().contains(CompilerScalaConsts.nullable) -> {
         StatementNode inner = columnWriter(r.cloneAndRemoveProp(CompilerScalaConsts.nullable), lang);
         yield  new NullableWriteCsvNode(program(inner, lang));
       }
-      case Rql2TypeWithProperties r -> {
+      case SnapiTypeWithProperties r -> {
         assert r.props().isEmpty();
         yield switch (r){
-          case Rql2ByteType ignored -> new ByteWriteCsvNode();
-          case Rql2ShortType ignored -> new ShortWriteCsvNode();
-          case Rql2IntType ignored -> new IntWriteCsvNode();
-          case Rql2LongType ignored -> new LongWriteCsvNode();
-          case Rql2FloatType ignored -> new FloatWriteCsvNode();
-          case Rql2DoubleType ignored -> new DoubleWriteCsvNode();
-          case Rql2DecimalType ignored -> new DecimalWriteCsvNode();
-          case Rql2BoolType ignored -> new BoolWriteCsvNode();
-          case Rql2StringType ignored -> new StringWriteCsvNode();
-          case Rql2DateType ignored -> new DateWriteCsvNode();
-          case Rql2TimeType ignored -> new TimeWriteCsvNode();
-          case Rql2TimestampType ignored -> new TimestampWriteCsvNode();
-          case Rql2BinaryType ignored -> new BinaryWriteCsvNode();
+          case SnapiByteType ignored -> new ByteWriteCsvNode();
+          case SnapiShortType ignored -> new ShortWriteCsvNode();
+          case SnapiIntType ignored -> new IntWriteCsvNode();
+          case SnapiLongType ignored -> new LongWriteCsvNode();
+          case SnapiFloatType ignored -> new FloatWriteCsvNode();
+          case SnapiDoubleType ignored -> new DoubleWriteCsvNode();
+          case SnapiDecimalType ignored -> new DecimalWriteCsvNode();
+          case SnapiBoolType ignored -> new BoolWriteCsvNode();
+          case SnapiStringType ignored -> new StringWriteCsvNode();
+          case SnapiDateType ignored -> new DateWriteCsvNode();
+          case SnapiTimeType ignored -> new TimeWriteCsvNode();
+          case SnapiTimestampType ignored -> new TimestampWriteCsvNode();
+          case SnapiBinaryType ignored -> new BinaryWriteCsvNode();
           default -> throw new TruffleInternalErrorException();
         };
       }
@@ -67,7 +67,7 @@ public class CsvWriter {
     };
   }
 
-  private static ProgramStatementNode program(StatementNode e, Rql2Language lang) {
+  private static ProgramStatementNode program(StatementNode e, SnapiLanguage lang) {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new ProgramStatementNode(lang, frameDescriptor, e);
   }

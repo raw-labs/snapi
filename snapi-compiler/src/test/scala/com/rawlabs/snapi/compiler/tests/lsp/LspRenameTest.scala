@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.{Pos, RenameResponse}
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LspRenameTest extends Rql2TestContext {
+class LspRenameTest extends SnapiTestContext {
 
   test("rename identifier at usage test") { _ =>
     val code = """let

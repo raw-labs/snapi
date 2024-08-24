@@ -12,19 +12,19 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.frontend.rql2.source.{
-  Rql2IntType,
-  Rql2IsNullableTypeProperty,
-  Rql2IsTryableTypeProperty,
-  Rql2UndefinedType
+import com.rawlabs.snapi.frontend.snapi.source.{
+  SnapiIntType,
+  SnapiIsNullableTypeProperty,
+  SnapiIsTryableTypeProperty,
+  SnapiUndefinedType
 }
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class MigrationTest extends Rql2TestContext {
+class MigrationTest extends SnapiTestContext {
 
   test("1") { it =>
     it should typeAs("int")
-    it should astTypeAs(Rql2IntType())
+    it should astTypeAs(SnapiIntType())
     it should evaluateTo("1")
   }
 
@@ -38,13 +38,13 @@ class MigrationTest extends Rql2TestContext {
 
   test("""Error.Build("broken!")""") { it =>
     it should typeAs("undefined")
-    it should astTypeAs(Rql2UndefinedType(Set(Rql2IsTryableTypeProperty())))
+    it should astTypeAs(SnapiUndefinedType(Set(SnapiIsTryableTypeProperty())))
     it should runErrorAs("""broken!""")
   }
 
   test("Success.Build(1)") { it =>
     it should typeAs("int")
-    it should astTypeAs(Rql2IntType(Set(Rql2IsTryableTypeProperty())))
+    it should astTypeAs(SnapiIntType(Set(SnapiIsTryableTypeProperty())))
     it should evaluateTo("1")
   }
 
@@ -64,14 +64,14 @@ class MigrationTest extends Rql2TestContext {
 
   test("""null""") { it =>
     it should typeAs("undefined")
-    it should astTypeAs(Rql2UndefinedType(Set(Rql2IsNullableTypeProperty())))
+    it should astTypeAs(SnapiUndefinedType(Set(SnapiIsNullableTypeProperty())))
   }
 
   test("""let x: int = null
     |  in x
     |""".stripMargin) { it =>
     it should typeAs("int")
-    it should astTypeAs(Rql2IntType(Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())))
+    it should astTypeAs(SnapiIntType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty())))
     it should evaluateTo("null")
   }
 

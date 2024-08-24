@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.parser
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class FrontendSyntaxAnalyzerTest extends Rql2TestContext {
+class FrontendSyntaxAnalyzerTest extends SnapiTestContext {
 
   // Internal node, not visible to the user parser.
   test(s"""$$package("Collection")""".stripMargin)(it => it shouldNot parse)

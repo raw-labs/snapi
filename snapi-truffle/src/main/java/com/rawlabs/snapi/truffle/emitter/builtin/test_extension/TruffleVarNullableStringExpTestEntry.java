@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.VarNullableStringExpTestEntry;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.VarNullableStringExpTestEntry;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
@@ -23,7 +23,7 @@ import java.util.List;
 public class TruffleVarNullableStringExpTestEntry extends VarNullableStringExpTestEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     return args.get(0).exprNode();
   }
 }

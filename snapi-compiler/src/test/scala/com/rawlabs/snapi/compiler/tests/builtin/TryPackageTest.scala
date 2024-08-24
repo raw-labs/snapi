@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class TryPackageTest extends Rql2TestContext {
+class TryPackageTest extends SnapiTestContext {
 
   test("""Try.IsError("hi")""")(_ should evaluateTo("false"))
   test("""Try.IsError(1)""")(_ should evaluateTo("false"))

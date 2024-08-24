@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LetBindTest extends Rql2TestContext with CombinationSpecTestHelper {
+class LetBindTest extends SnapiTestContext with CombinationSpecTestHelper {
 
   test("""let x = 1
     |in x

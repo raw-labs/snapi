@@ -14,12 +14,12 @@ package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.utils.core.TestData
 import org.scalatest.matchers.{MatchResult, Matcher}
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 import java.nio.file.Files
 import scala.io.Source
 
-class RD9445Test extends Rql2TestContext {
+class RD9445Test extends SnapiTestContext {
 
   def outputAs(expected: String, format: String = "json") = new OutputAs(expected, format)
 

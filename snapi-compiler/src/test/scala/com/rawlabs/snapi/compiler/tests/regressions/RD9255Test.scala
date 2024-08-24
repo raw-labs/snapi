@@ -30,11 +30,11 @@ import com.rawlabs.compiler.{
   RawValue
 }
 import org.scalatest.EitherValues
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 import java.time.{Duration, LocalDate, LocalDateTime, LocalTime}
 
-class RD9255Test extends Rql2TestContext with EitherValues {
+class RD9255Test extends SnapiTestContext with EitherValues {
 
   private val declarations = """
     |string_func(x: string) = String.Length(x)
@@ -152,7 +152,7 @@ class RD9255Test extends Rql2TestContext with EitherValues {
     exec("byte_func", "tralala", "byte").left.value should include("expected byte but got string")
   )
   test("missing mandatory arguments") { _ =>
-    assume(compilerService.language.contains("rql2-truffle"))
+    assume(compilerService.language.contains("snapi"))
     callDecl(declarations, "three_param_func", Array(("x", RawString("U"))), "string").left.value should include(
       "missing mandatory arguments"
     )

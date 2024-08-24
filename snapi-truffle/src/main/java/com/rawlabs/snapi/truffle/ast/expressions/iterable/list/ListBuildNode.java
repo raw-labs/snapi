@@ -17,7 +17,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.list.*;
@@ -37,8 +37,8 @@ public class ListBuildNode extends ExpressionNode {
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
 
-    Rql2ListType rql2Type = (Rql2ListType) type;
-    Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) rql2Type.innerType();
+    SnapiListType snapiType = (SnapiListType) type;
+    SnapiTypeWithProperties innerType = (SnapiTypeWithProperties) snapiType.innerType();
 
     try {
       if (!innerType.props().isEmpty()) {
@@ -49,56 +49,56 @@ public class ListBuildNode extends ExpressionNode {
         return new ObjectList(values);
       }
       switch (innerType) {
-        case Rql2ByteType rql2ByteType -> {
+        case SnapiByteType snapiByteType -> {
           byte[] values = new byte[exps.length];
           for (int i = 0; i < exps.length; i++) {
             values[i] = exps[i].executeByte(frame);
           }
           return new ByteList(values);
         }
-        case Rql2ShortType rql2ShortType -> {
+        case SnapiShortType snapiShortType -> {
           short[] values = new short[exps.length];
           for (int i = 0; i < exps.length; i++) {
             values[i] = exps[i].executeShort(frame);
           }
           return new ShortList(values);
         }
-        case Rql2IntType rql2IntType -> {
+        case SnapiIntType snapiIntType -> {
           int[] values = new int[exps.length];
           for (int i = 0; i < exps.length; i++) {
             values[i] = exps[i].executeInt(frame);
           }
           return new IntList(values);
         }
-        case Rql2LongType rql2LongType -> {
+        case SnapiLongType snapiLongType -> {
           long[] values = new long[exps.length];
           for (int i = 0; i < exps.length; i++) {
             values[i] = exps[i].executeLong(frame);
           }
           return new LongList(values);
         }
-        case Rql2FloatType rql2FloatType -> {
+        case SnapiFloatType snapiFloatType -> {
           float[] values = new float[exps.length];
           for (int i = 0; i < exps.length; i++) {
             values[i] = exps[i].executeFloat(frame);
           }
           return new FloatList(values);
         }
-        case Rql2DoubleType rql2DoubleType -> {
+        case SnapiDoubleType snapiDoubleType -> {
           double[] values = new double[exps.length];
           for (int i = 0; i < exps.length; i++) {
             values[i] = exps[i].executeDouble(frame);
           }
           return new DoubleList(values);
         }
-        case Rql2BoolType rql2BoolType -> {
+        case SnapiBoolType snapiBoolType -> {
           boolean[] values = new boolean[exps.length];
           for (int i = 0; i < exps.length; i++) {
             values[i] = exps[i].executeBoolean(frame);
           }
           return new BooleanList(values);
         }
-        case Rql2StringType rql2StringType -> {
+        case SnapiStringType snapiStringType -> {
           String[] values = new String[exps.length];
           for (int i = 0; i < exps.length; i++) {
             values[i] = exps[i].executeString(frame);

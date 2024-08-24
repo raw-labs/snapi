@@ -15,12 +15,12 @@ package com.rawlabs.snapi.truffle.emitter;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.rawlabs.compiler.Entrypoint;
-import com.rawlabs.snapi.frontend.rql2.ProgramContext;
-import com.rawlabs.snapi.frontend.rql2.Tree;
-import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.frontend.rql2.source.Exp;
-import com.rawlabs.snapi.frontend.rql2.source.SourceProgram;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.ProgramContext;
+import com.rawlabs.snapi.frontend.snapi.Tree;
+import com.rawlabs.snapi.frontend.snapi.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.Exp;
+import com.rawlabs.snapi.frontend.snapi.source.SourceProgram;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
@@ -30,12 +30,12 @@ import scala.collection.JavaConverters;
 public class TruffleEmit {
   public static Entrypoint doEmit(
       SourceProgram program,
-      Rql2Language language,
+      SnapiLanguage language,
       com.rawlabs.snapi.frontend.base.ProgramContext programContext) {
-    ProgramContext ctx = (com.rawlabs.snapi.frontend.rql2.ProgramContext) programContext;
+    ProgramContext ctx = (com.rawlabs.snapi.frontend.snapi.ProgramContext) programContext;
     Tree tree = new Tree(program, true, ctx);
     SnapiTruffleEmitter emitter = new SnapiTruffleEmitter(tree, language, ctx);
-    Rql2Program prog = (Rql2Program) tree.root();
+    SnapiProgram prog = (SnapiProgram) tree.root();
 
     Exp bodyExp = (prog.me().isDefined()) ? prog.me().get() : new IntConst("0");
     emitter.addScope();

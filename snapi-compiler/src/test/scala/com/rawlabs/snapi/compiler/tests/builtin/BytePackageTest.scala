@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class BytePackageTest extends Rql2TestContext {
+class BytePackageTest extends SnapiTestContext {
 
   test(""" Byte.From(1)""")(it => it should evaluateTo("1b"))
 

@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.http_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.HttpCallEntry;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.HttpCallEntry;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package.LocationFromHttpNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -33,7 +33,7 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry
   }
 
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     ExpressionNode url = args.get(0).exprNode();
 
     ExpressionNode bodyString = arg(args, "bodyString").orElse(null);

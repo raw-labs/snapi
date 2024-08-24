@@ -12,10 +12,10 @@
 
 package com.rawlabs.snapi.truffle.emitter.writers;
 
-import com.rawlabs.snapi.frontend.rql2.source.Rql2IsNullableTypeProperty;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2IsTryableTypeProperty;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIsNullableTypeProperty;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIsTryableTypeProperty;
 
 public class CompilerScalaConsts {
-  public static final Rql2IsTryableTypeProperty tryable = Rql2IsTryableTypeProperty.apply();
-  public static final Rql2IsNullableTypeProperty nullable = Rql2IsNullableTypeProperty.apply();
+  public static final SnapiIsTryableTypeProperty tryable = SnapiIsTryableTypeProperty.apply();
+  public static final SnapiIsNullableTypeProperty nullable = SnapiIsNullableTypeProperty.apply();
 }

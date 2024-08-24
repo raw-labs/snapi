@@ -17,8 +17,8 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription$;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.frontend.snapi.extensions.LocationDescription$;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.list.ObjectList;
 import com.rawlabs.snapi.truffle.runtime.list.StringList;
@@ -49,8 +49,8 @@ public abstract class LocationLlNode extends ExpressionNode {
       Object[] result = new Object[size];
 
       for (int i = 0; i < size; i++) {
-        Object topRecord = Rql2Language.get(this).createPureRecord();
-        Object metadata = Rql2Language.get(this).createPureRecord();
+        Object topRecord = SnapiLanguage.get(this).createPureRecord();
+        Object metadata = SnapiLanguage.get(this).createPureRecord();
         addPropNode.execute(
             this,
             topRecord,
@@ -95,7 +95,7 @@ public abstract class LocationLlNode extends ExpressionNode {
           int blocksSize = fileMetadata.blocks().length;
           Object[] blocks = new Object[blocksSize];
           for (int j = 0; j < blocksSize; j++) {
-            Object block = Rql2Language.get(this).createPureRecord();
+            Object block = SnapiLanguage.get(this).createPureRecord();
 
             addPropNode.execute(
                 this, block, "hosts", new StringList(fileMetadata.blocks()[j].hosts()), false);

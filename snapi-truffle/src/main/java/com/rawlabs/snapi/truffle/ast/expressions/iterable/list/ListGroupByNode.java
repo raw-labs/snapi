@@ -18,7 +18,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.osr.OSRGeneratorNode;
 import com.rawlabs.snapi.truffle.ast.osr.bodies.OSRListEquiJoinInitBodyNode;
@@ -64,8 +64,8 @@ public class ListGroupByNode extends ExpressionNode {
   OffHeapNodes.OffHeapGeneratorNode generatorNode =
       OffHeapNodesFactory.OffHeapGeneratorNodeGen.create();
 
-  private final Rql2TypeWithProperties rowType;
-  private final Rql2TypeWithProperties keyType;
+  private final SnapiTypeWithProperties rowType;
+  private final SnapiTypeWithProperties keyType;
 
   private final int generatorSlot;
   private final int keyFunctionSlot;
@@ -78,8 +78,8 @@ public class ListGroupByNode extends ExpressionNode {
   public ListGroupByNode(
       ExpressionNode inputNode,
       ExpressionNode keyFunNode,
-      Rql2TypeWithProperties rowType,
-      Rql2TypeWithProperties keyType,
+      SnapiTypeWithProperties rowType,
+      SnapiTypeWithProperties keyType,
       int generatorSlot,
       int keyFunctionSlot,
       int mapSlot,

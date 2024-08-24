@@ -47,18 +47,18 @@ module raw.snapi.frontend {
   exports com.rawlabs.snapi.frontend.base;
   exports com.rawlabs.snapi.frontend.base.errors;
   exports com.rawlabs.snapi.frontend.base.source;
-  exports com.rawlabs.snapi.frontend.rql2;
-  exports com.rawlabs.snapi.frontend.rql2.source;
-  exports com.rawlabs.snapi.frontend.rql2.phases;
-  exports com.rawlabs.snapi.frontend.rql2.errors;
-  exports com.rawlabs.snapi.frontend.rql2.antlr4;
-  exports com.rawlabs.snapi.frontend.rql2.extensions;
-  exports com.rawlabs.snapi.frontend.rql2.extensions.builtin;
+  exports com.rawlabs.snapi.frontend.snapi;
+  exports com.rawlabs.snapi.frontend.snapi.source;
+  exports com.rawlabs.snapi.frontend.snapi.phases;
+  exports com.rawlabs.snapi.frontend.snapi.errors;
+  exports com.rawlabs.snapi.frontend.snapi.antlr4;
+  exports com.rawlabs.snapi.frontend.snapi.extensions;
+  exports com.rawlabs.snapi.frontend.snapi.extensions.builtin;
   exports com.rawlabs.snapi.frontend.inferrer.api;
   exports com.rawlabs.snapi.frontend.inferrer.local;
 
   opens com.rawlabs.snapi.frontend.inferrer.api to
       com.fasterxml.jackson.databind;
-  opens com.rawlabs.snapi.frontend.rql2.extensions to
+  opens com.rawlabs.snapi.frontend.snapi.extensions to
       com.fasterxml.jackson.databind;
 }

@@ -24,9 +24,9 @@ import com.rawlabs.compiler.{
   Pos,
   TypeCompletion
 }
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class LspWordAutoCompleteTest extends Rql2TestContext {
+class LspWordAutoCompleteTest extends SnapiTestContext {
 
   private lazy val allTypes = Seq(
     ("byte", Some("")),

@@ -14,9 +14,9 @@ package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class UnaryExpNotTest extends Rql2TestContext with TableDrivenPropertyChecks {
+class UnaryExpNotTest extends SnapiTestContext with TableDrivenPropertyChecks {
   test("""not true""".stripMargin) { it =>
     it should typeAs("bool")
     it should evaluateTo("false")

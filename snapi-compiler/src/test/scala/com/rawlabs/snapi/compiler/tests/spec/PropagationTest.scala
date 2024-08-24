@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class PropagationTest extends Rql2TestContext {
+class PropagationTest extends SnapiTestContext {
   // lists
   test("""let l = List.Build(1,2,3,2,1)
     |in TestPackage.StrictArgs(l)""".stripMargin)(_ should (typeAs("float") and evaluateTo("5.0f")))

@@ -20,7 +20,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.PropertyType;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 
@@ -139,7 +139,7 @@ public class PureRecordNodes {
         @Cached AddPropNode addPropNode,
         @Cached GetKeysNode getKeysNode,
         @Cached GetValueNode getValueNode) {
-      Rql2Language lang = Rql2Language.get(thisNode);
+      SnapiLanguage lang = SnapiLanguage.get(thisNode);
       PureRecord newRecord = lang.createPureRecord();
       Object[] keys = getKeysNode.execute(thisNode, pureRecord);
       for (Object k : keys) {

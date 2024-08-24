@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class S3PackageTest extends Rql2TestContext {
+class S3PackageTest extends SnapiTestContext {
 
   import com.rawlabs.snapi.compiler.tests.TestCredentials._
 

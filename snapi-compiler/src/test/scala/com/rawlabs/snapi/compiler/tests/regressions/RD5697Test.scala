@@ -12,10 +12,10 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
+import com.rawlabs.snapi.frontend.snapi._
 
-class RD5697Test extends Rql2TestContext {
+class RD5697Test extends SnapiTestContext {
 
   private val jsonFile = tempFile("""{"a": 12, "b": 14}""")
 

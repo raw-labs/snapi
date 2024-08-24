@@ -17,8 +17,8 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.truffle.Rql2Context;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiContext;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.list.ListNodes;
@@ -197,16 +197,16 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       allHeaders[i] = getNode.execute(this, headers, i);
     }
 
-    allHeaders[headersSize] = Rql2Language.get(this).createPureRecord();
+    allHeaders[headersSize] = SnapiLanguage.get(this).createPureRecord();
     addPropNode.execute(this, allHeaders[headersSize], "_1", "host", false);
     addPropNode.execute(this, allHeaders[headersSize], "_2", host, false);
 
-    allHeaders[headersSize + 1] = Rql2Language.get(this).createPureRecord();
+    allHeaders[headersSize + 1] = SnapiLanguage.get(this).createPureRecord();
     addPropNode.execute(this, allHeaders[headersSize + 1], "_1", "x-amz-date", false);
     addPropNode.execute(this, allHeaders[headersSize + 1], "_2", amzdate, false);
 
     if (!sessionToken.isEmpty()) {
-      allHeaders[headersSize + 2] = Rql2Language.get(this).createPureRecord();
+      allHeaders[headersSize + 2] = SnapiLanguage.get(this).createPureRecord();
       addPropNode.execute(this, allHeaders[headersSize + 2], "_1", "x-amz-security-token", false);
       addPropNode.execute(this, allHeaders[headersSize + 2], "_2", sessionToken, false);
     }
@@ -325,7 +325,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       HttpURLConnection.HTTP_PARTIAL
     };
 
-    RawSettings rawSettings = Rql2Context.get(this).getSettings();
+    RawSettings rawSettings = SnapiContext.get(this).getSettings();
 
     HttpByteStreamLocation location =
         new HttpByteStreamLocation(

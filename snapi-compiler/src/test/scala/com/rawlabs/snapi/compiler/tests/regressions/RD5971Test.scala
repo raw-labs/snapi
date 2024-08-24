@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5971Test extends Rql2TestContext {
+class RD5971Test extends SnapiTestContext {
 
   // error when type isn't supported
   test(s"""[{a: "binary", b: [1,2,3,4]}]""") { it =>

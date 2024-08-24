@@ -13,52 +13,52 @@
 package com.rawlabs.snapi.truffle.runtime.utils;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import scala.collection.immutable.Vector;
 
 public class KryoFootPrint {
 
-  private static final Rql2TypeProperty nullable = new Rql2IsNullableTypeProperty();
-  private static final Rql2TypeProperty tryable = new Rql2IsTryableTypeProperty();
+  private static final SnapiTypeProperty nullable = new SnapiIsNullableTypeProperty();
+  private static final SnapiTypeProperty tryable = new SnapiIsTryableTypeProperty();
 
   @TruffleBoundary
-  public static int of(Rql2TypeWithProperties type) {
+  public static int of(SnapiTypeWithProperties type) {
     if (type.props().contains(tryable)) {
-      return 1 + of((Rql2TypeWithProperties) type.cloneAndRemoveProp(tryable));
+      return 1 + of((SnapiTypeWithProperties) type.cloneAndRemoveProp(tryable));
     } else if (type.props().contains(nullable)) {
-      return 1 + of((Rql2TypeWithProperties) type.cloneAndRemoveProp(nullable));
-    } else if (type instanceof Rql2BoolType || type instanceof Rql2ByteType) {
+      return 1 + of((SnapiTypeWithProperties) type.cloneAndRemoveProp(nullable));
+    } else if (type instanceof SnapiBoolType || type instanceof SnapiByteType) {
       return 1;
-    } else if (type instanceof Rql2ShortType) {
+    } else if (type instanceof SnapiShortType) {
       return 2;
-    } else if (type instanceof Rql2IntType || type instanceof Rql2FloatType) {
+    } else if (type instanceof SnapiIntType || type instanceof SnapiFloatType) {
       return 4;
-    } else if (type instanceof Rql2LongType || type instanceof Rql2DoubleType) {
+    } else if (type instanceof SnapiLongType || type instanceof SnapiDoubleType) {
       return 8;
-    } else if (type instanceof Rql2DecimalType) {
+    } else if (type instanceof SnapiDecimalType) {
       return 32;
-    } else if (type instanceof Rql2StringType) {
+    } else if (type instanceof SnapiStringType) {
       return 32;
-    } else if (type instanceof Rql2BinaryType) {
+    } else if (type instanceof SnapiBinaryType) {
       return 256;
-    } else if (type instanceof Rql2TimeType
-        || type instanceof Rql2IntervalType
-        || type instanceof Rql2DateType
-        || type instanceof Rql2TimestampType) {
+    } else if (type instanceof SnapiTimeType
+        || type instanceof SnapiIntervalType
+        || type instanceof SnapiDateType
+        || type instanceof SnapiTimestampType) {
       return 16;
-    } else if (type instanceof Rql2ListType) {
-      return 4 + 30 * of((Rql2TypeWithProperties) ((Rql2ListType) (type)).innerType());
-    } else if (type instanceof Rql2IterableType) {
+    } else if (type instanceof SnapiListType) {
+      return 4 + 30 * of((SnapiTypeWithProperties) ((SnapiListType) (type)).innerType());
+    } else if (type instanceof SnapiIterableType) {
       // same as ListType
-      return 4 + 30 * of((Rql2TypeWithProperties) ((Rql2IterableType) (type)).innerType());
-    } else if (type instanceof Rql2UndefinedType) {
+      return 4 + 30 * of((SnapiTypeWithProperties) ((SnapiIterableType) (type)).innerType());
+    } else if (type instanceof SnapiUndefinedType) {
       return 0;
-    } else if (type instanceof Rql2RecordType) {
-      Vector<Rql2AttrType> atts = ((Rql2RecordType) (type)).atts();
+    } else if (type instanceof SnapiRecordType) {
+      Vector<SnapiAttrType> atts = ((SnapiRecordType) (type)).atts();
       int n = atts.size();
       int size = 0;
-      for (int i = 0; i < n; i++) size += of((Rql2TypeWithProperties) atts.apply(i).tipe());
+      for (int i = 0; i < n; i++) size += of((SnapiTypeWithProperties) atts.apply(i).tipe());
       return size;
     } else {
       throw new TruffleRuntimeException("Unknown type: " + type);

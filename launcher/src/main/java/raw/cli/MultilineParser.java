@@ -35,7 +35,7 @@
 //        compilerService.parse(line)
 //
 //
-//      case Success(result: Rql2Program, _) =>
+//      case Success(result: SnapiProgram, _) =>
 //        // If success, let's just check it is a program with an expression.
 //        // If so, we keep going and ask for more input.
 //        // This handles cases like:

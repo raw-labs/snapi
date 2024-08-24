@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.truffle.Rql2Language;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.binary.MultNodeGen;
 import com.rawlabs.snapi.truffle.ast.expressions.literals.IntNode;
@@ -24,7 +24,7 @@ import java.util.List;
 
 public interface TruffleOptionalArgs extends TruffleEntryExtension, WithArgs {
   @Override
-  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, Rql2Language rawLanguage) {
+  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     ExpressionNode mandatory = mandatoryArgs(args)[0];
     ExpressionNode x = arg(args, "x").orElse(new IntNode("10"));
     ExpressionNode y = arg(args, "y").orElse(new IntNode("10"));

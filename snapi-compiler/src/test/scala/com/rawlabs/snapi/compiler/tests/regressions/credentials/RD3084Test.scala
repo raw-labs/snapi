@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.compiler.tests.regressions.credentials
 
 import com.rawlabs.snapi.compiler.tests.TestCredentials
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD3084Test extends Rql2TestContext {
+class RD3084Test extends SnapiTestContext {
 
   rdbms("mysql-test", TestCredentials.mysqlCreds)
   rdbms("postgres-test", TestCredentials.pgsqlCreds)
@@ -49,13 +49,13 @@ class RD3084Test extends Rql2TestContext {
   }
 
   test("""Oracle.InferAndQuery("oracle-test", "select * from rawtest.test_types")""") { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should run
   }
 
   test("""Oracle.Query("oracle-test", "select * from rawtest.test_types",
     |       type collection(record(integer1: int, char1: string)))""".stripMargin) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should run
   }
 

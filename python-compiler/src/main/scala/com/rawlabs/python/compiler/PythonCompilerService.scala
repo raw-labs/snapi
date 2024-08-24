@@ -29,7 +29,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
   // This is actually the "default constructor" which obtains a new engine or reuses an existing one.
   // Note that the engine will be released when the service is stopped only IF this auxiliary constructor created it.
   // Otherwise, we expect the external party - e.g. the test framework - to close it.
-  // Refer to Rql2TruffleCompilerServiceTestContext to see the engine being created and released from the test
+  // Refer to SnapiTruffleCompilerServiceTestContext to see the engine being created and released from the test
   // framework, so that every test suite instance has a fresh engine.
   def this()(implicit settings: RawSettings) = {
     this(CompilerService.getEngine)

@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.data_structures.treemap.TreeMapObject;
 import com.rawlabs.snapi.truffle.runtime.utils.KryoFootPrint;
 import java.io.File;
@@ -29,23 +29,23 @@ public class OffHeapGroupByKeys {
   // to
   // disk).
 
-  private final Rql2TypeWithProperties[] keyTypes; // grouped key and value types.
-  private final Rql2TypeWithProperties rowType; // grouped key and value types.
+  private final SnapiTypeWithProperties[] keyTypes; // grouped key and value types.
+  private final SnapiTypeWithProperties rowType; // grouped key and value types.
   private final int keysSize, rowSize; // grouping keys and row kryo binary size
   private final int kryoOutputBufferSize,
       kryoInputBufferSize; // size of the kryo buffers used to write and read the data.
 
-  private static int keysFootPrint(Rql2TypeWithProperties[] keyType) {
+  private static int keysFootPrint(SnapiTypeWithProperties[] keyType) {
     int size = 0;
-    for (Rql2TypeWithProperties t : keyType) {
+    for (SnapiTypeWithProperties t : keyType) {
       size += KryoFootPrint.of(t);
     }
     return size;
   }
 
   public OffHeapGroupByKeys(
-      Rql2TypeWithProperties[] kTypes,
-      Rql2TypeWithProperties rowType,
+      SnapiTypeWithProperties[] kTypes,
+      SnapiTypeWithProperties rowType,
       int[] keyOrderings,
       long maxSize,
       int kryoOutputBufferSize,
@@ -80,11 +80,11 @@ public class OffHeapGroupByKeys {
     return size;
   }
 
-  public Rql2TypeWithProperties[] getKeyTypes() {
+  public SnapiTypeWithProperties[] getKeyTypes() {
     return keyTypes;
   }
 
-  public Rql2TypeWithProperties getRowType() {
+  public SnapiTypeWithProperties getRowType() {
     return rowType;
   }
 

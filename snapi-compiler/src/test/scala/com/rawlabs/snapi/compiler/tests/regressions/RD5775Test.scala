@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.compiler.tests.Rql2TestContext
+import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
-class RD5775Test extends Rql2TestContext {
+class RD5775Test extends SnapiTestContext {
   test("""let data = Http.Get("https://jira.atlassian.com/rest/api/latest/search", args=[{"jql", "fixVersion=9.0.0"}]),
     |    r = Json.InferAndRead(data),
     |    issues = Collection.Transform(r.issues, i -> {

@@ -10,11 +10,11 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.rql2
+package com.rawlabs.snapi.frontend.snapi
 
-import com.rawlabs.snapi.frontend.rql2.source.{Exp, SourceNode}
-import com.rawlabs.snapi.frontend.rql2.antlr4.Antlr4SyntaxAnalyzer
-import com.rawlabs.snapi.frontend.rql2.source.TypeExp
+import com.rawlabs.snapi.frontend.snapi.source.{Exp, SourceNode}
+import com.rawlabs.snapi.frontend.snapi.antlr4.Antlr4SyntaxAnalyzer
+import com.rawlabs.snapi.frontend.snapi.source.TypeExp
 import com.rawlabs.utils.core.RawTestSuite
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 

@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.GeneratorNodes;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import com.rawlabs.snapi.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.EquiJoinComputeNext;
@@ -30,8 +30,8 @@ import com.rawlabs.snapi.truffle.runtime.iterable.IterableNodes;
 public class EquiJoinCollection implements TruffleObject {
   final Object leftIterable, rightIterable;
   final Object leftKeyF, rightKeyF, reshapeFun;
-  final Rql2TypeWithProperties leftRowType, rightRowType;
-  final Rql2TypeWithProperties keyType;
+  final SnapiTypeWithProperties leftRowType, rightRowType;
+  final SnapiTypeWithProperties keyType;
   private final MaterializedFrame frame;
   private final int computeNextSlot;
   private final int shouldContinueSlot;
@@ -42,11 +42,11 @@ public class EquiJoinCollection implements TruffleObject {
   public EquiJoinCollection(
       Object leftIterable,
       Object leftKeyF,
-      Rql2TypeWithProperties leftRowType,
+      SnapiTypeWithProperties leftRowType,
       Object rightIterable,
       Object rightKeyF,
-      Rql2TypeWithProperties rightRowType,
-      Rql2TypeWithProperties keyType,
+      SnapiTypeWithProperties rightRowType,
+      SnapiTypeWithProperties keyType,
       Object reshapeFun,
       MaterializedFrame frame,
       int computeNextSlot,

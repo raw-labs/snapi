@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generato
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.Rql2TypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.kryo.KryoNodes;
 
 public class InputBufferNodes {
@@ -51,7 +51,7 @@ public class InputBufferNodes {
         @Cached @Cached.Exclusive KryoNodes.KryoReadNode kryoRead) {
       // read the next key (if it is null, otherwise keep the current one).
       if (buffer.getKeys() == null) {
-        Rql2TypeWithProperties[] keyTypes = buffer.getOffHeapGroupByKey().getKeyTypes();
+        SnapiTypeWithProperties[] keyTypes = buffer.getOffHeapGroupByKey().getKeyTypes();
         Object[] keys = new Object[keyTypes.length];
         for (int i = 0; i < keyTypes.length; i++) {
           keys[i] = kryoRead.execute(thisNode, buffer.getInput(), keyTypes[i]);
