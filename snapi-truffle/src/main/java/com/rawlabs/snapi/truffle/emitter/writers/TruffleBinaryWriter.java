@@ -26,7 +26,7 @@ import com.rawlabs.snapi.truffle.ast.io.binary.TryableBinaryWriterNode;
 public class TruffleBinaryWriter {
 
   public static ProgramStatementNode getBinaryWriterNode(
-          SnapiBinaryType type, SnapiLanguage lang, FrameDescriptor frameDescriptor) {
+      SnapiBinaryType type, SnapiLanguage lang, FrameDescriptor frameDescriptor) {
     if (type.props().isEmpty()) {
       return new ProgramStatementNode(lang, frameDescriptor, new BinaryBytesWriterNode());
     } else if (type.props().contains(SnapiIsTryableTypeProperty.apply())) {
@@ -47,7 +47,7 @@ public class TruffleBinaryWriter {
   }
 
   public static ProgramStatementNode getBinaryWriterNode(
-          SnapiStringType type, SnapiLanguage lang, FrameDescriptor frameDescriptor) {
+      SnapiStringType type, SnapiLanguage lang, FrameDescriptor frameDescriptor) {
     if (type.props().isEmpty()) {
       return new ProgramStatementNode(lang, frameDescriptor, new BinaryBytesWriterNode());
     } else if (type.props().contains(SnapiIsTryableTypeProperty.apply())) {

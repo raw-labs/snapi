@@ -51,11 +51,11 @@ public class KryoNodes {
     @Specialization(guards = {"isTryable(t)"})
     @CompilerDirectives.TruffleBoundary
     static Object doTryable(
-            Node node,
-            Input input,
-            SnapiTypeWithProperties t,
-            @Bind("$node") Node thisNode,
-            @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
+        Node node,
+        Input input,
+        SnapiTypeWithProperties t,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
       boolean isSuccess = input.readBoolean();
       if (isSuccess) {
         SnapiTypeWithProperties successType =
@@ -70,11 +70,11 @@ public class KryoNodes {
     @Specialization(guards = {"isNullable(t)"})
     @CompilerDirectives.TruffleBoundary
     static Object doNullable(
-            Node node,
-            Input input,
-            SnapiTypeWithProperties t,
-            @Bind("$node") Node thisNode,
-            @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
+        Node node,
+        Input input,
+        SnapiTypeWithProperties t,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
       boolean isDefined = input.readBoolean();
       if (isDefined) {
         SnapiTypeWithProperties innerType =
@@ -88,11 +88,11 @@ public class KryoNodes {
     @Specialization(guards = {"isListKind(t)"})
     @CompilerDirectives.TruffleBoundary
     static ObjectList doList(
-            Node node,
-            Input input,
-            SnapiTypeWithProperties t,
-            @Bind("$node") Node thisNode,
-            @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
+        Node node,
+        Input input,
+        SnapiTypeWithProperties t,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
       SnapiListType listType = (SnapiListType) t;
       SnapiTypeWithProperties innerType = (SnapiTypeWithProperties) listType.innerType();
       int size = input.readInt();
@@ -106,11 +106,11 @@ public class KryoNodes {
     @Specialization(guards = {"isIterableKind(t)"})
     @CompilerDirectives.TruffleBoundary
     static Object doIterable(
-            Node node,
-            Input input,
-            SnapiTypeWithProperties t,
-            @Bind("$node") Node thisNode,
-            @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
+        Node node,
+        Input input,
+        SnapiTypeWithProperties t,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
       SnapiIterableType iterableType = (SnapiIterableType) t;
       SnapiTypeWithProperties innerType = (SnapiTypeWithProperties) iterableType.innerType();
       int size = input.readInt();
@@ -153,16 +153,16 @@ public class KryoNodes {
     @Specialization(guards = {"isRecordKind(t)"})
     @ExplodeLoop
     static Object doRecord(
-            Node node,
-            Input input,
-            SnapiRecordType t,
-            @Bind("$node") Node thisNode,
-            @Cached(value = "hasDuplicateKeys(t)", allowUncached = true) boolean hasDuplicateKeys,
-            @Cached(value = "getSnapiLanguage(thisNode)", allowUncached = true) SnapiLanguage language,
-            @Cached(value = "createAddProps(t.atts().size())", allowUncached = true)
+        Node node,
+        Input input,
+        SnapiRecordType t,
+        @Bind("$node") Node thisNode,
+        @Cached(value = "hasDuplicateKeys(t)", allowUncached = true) boolean hasDuplicateKeys,
+        @Cached(value = "getSnapiLanguage(thisNode)", allowUncached = true) SnapiLanguage language,
+        @Cached(value = "createAddProps(t.atts().size())", allowUncached = true)
             RecordNodes.AddPropNode[] addPropNode,
-            @Cached(value = "addPropNode.length", allowUncached = true) int size,
-            @Cached(value = "createKryoRead(size)", allowUncached = true) KryoReadNode[] kryo) {
+        @Cached(value = "addPropNode.length", allowUncached = true) int size,
+        @Cached(value = "createKryoRead(size)", allowUncached = true) KryoReadNode[] kryo) {
       Object record = language.createPureRecord();
       for (int i = 0; i < size; i++) {
         SnapiTypeWithProperties attType = getTipe(t, i);
@@ -302,18 +302,18 @@ public class KryoNodes {
     private static final SnapiTypeProperty isNullable = new SnapiIsNullableTypeProperty();
 
     public abstract void execute(
-            Node node, Output output, SnapiTypeWithProperties type, Object maybeTryable);
+        Node node, Output output, SnapiTypeWithProperties type, Object maybeTryable);
 
     @Specialization(guards = "isTryable(type)")
     @CompilerDirectives.TruffleBoundary
     static void doTryable(
-            Node node,
-            Output output,
-            SnapiTypeWithProperties type,
-            Object maybeTryable,
-            @Bind("$node") Node thisNode,
-            @Cached TryableNullableNodes.IsErrorNode isErrorNode,
-            @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
+        Node node,
+        Output output,
+        SnapiTypeWithProperties type,
+        Object maybeTryable,
+        @Bind("$node") Node thisNode,
+        @Cached TryableNullableNodes.IsErrorNode isErrorNode,
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
       boolean isSuccess = !isErrorNode.execute(thisNode, maybeTryable);
       output.writeBoolean(isSuccess);
       if (isSuccess) {
@@ -331,13 +331,13 @@ public class KryoNodes {
     @Specialization(guards = "isNullable(type)")
     @CompilerDirectives.TruffleBoundary
     static void doNullable(
-            Node node,
-            Output output,
-            SnapiTypeWithProperties type,
-            Object maybeOption,
-            @Bind("$node") Node thisNode,
-            @Cached TryableNullableNodes.IsNullNode isNullNode,
-            @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
+        Node node,
+        Output output,
+        SnapiTypeWithProperties type,
+        Object maybeOption,
+        @Bind("$node") Node thisNode,
+        @Cached TryableNullableNodes.IsNullNode isNullNode,
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
       boolean isDefined = !isNullNode.execute(thisNode, maybeOption);
       output.writeBoolean(isDefined);
       if (isDefined) {
@@ -352,14 +352,14 @@ public class KryoNodes {
     @Specialization(guards = "isListKind(type)")
     @CompilerDirectives.TruffleBoundary
     static void doList(
-            Node node,
-            Output output,
-            SnapiTypeWithProperties type,
-            Object o,
-            @Bind("$node") Node thisNode,
-            @Cached ListNodes.SizeNode sizeNode,
-            @Cached ListNodes.GetNode getNode,
-            @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
+        Node node,
+        Output output,
+        SnapiTypeWithProperties type,
+        Object o,
+        @Bind("$node") Node thisNode,
+        @Cached ListNodes.SizeNode sizeNode,
+        @Cached ListNodes.GetNode getNode,
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
       int size = (int) sizeNode.execute(thisNode, o);
       output.writeInt(size);
       SnapiTypeWithProperties elementType =
@@ -373,17 +373,17 @@ public class KryoNodes {
     @Specialization(guards = "isIterableKind(type)")
     @CompilerDirectives.TruffleBoundary
     static void doIterable(
-            Node node,
-            Output output,
-            SnapiTypeWithProperties type,
-            Object o,
-            @Bind("$node") Node thisNode,
-            @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-            @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-            @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-            @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-            @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo,
-            @Cached(inline = false) IterableNodes.GetGeneratorNode getGeneratorNode) {
+        Node node,
+        Output output,
+        SnapiTypeWithProperties type,
+        Object o,
+        @Bind("$node") Node thisNode,
+        @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
+        @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo,
+        @Cached(inline = false) IterableNodes.GetGeneratorNode getGeneratorNode) {
       SnapiTypeWithProperties elementType =
           (SnapiTypeWithProperties) ((SnapiIterableType) type).innerType();
       Object generator = getGeneratorNode.execute(thisNode, o);
@@ -422,17 +422,17 @@ public class KryoNodes {
     @Specialization(guards = {"isRecordKind(type)"})
     @ExplodeLoop
     static void doRecord(
-            Node node,
-            Output output,
-            SnapiRecordType type,
-            Object o,
-            @Bind("$node") Node thisNode,
-            @Cached RecordNodes.GetKeysNode getKeysNode,
-            @Cached(value = "getKeysNode.execute(thisNode, o)", dimensions = 1, allowUncached = true)
+        Node node,
+        Output output,
+        SnapiRecordType type,
+        Object o,
+        @Bind("$node") Node thisNode,
+        @Cached RecordNodes.GetKeysNode getKeysNode,
+        @Cached(value = "getKeysNode.execute(thisNode, o)", dimensions = 1, allowUncached = true)
             Object[] keys,
-            @Cached("keys.length") int size,
-            @Cached(value = "createKryoWrite(size)", allowUncached = true) KryoWriteNode[] kryo,
-            @Cached(value = "createGetValue(size)", allowUncached = true)
+        @Cached("keys.length") int size,
+        @Cached(value = "createKryoWrite(size)", allowUncached = true) KryoWriteNode[] kryo,
+        @Cached(value = "createGetValue(size)", allowUncached = true)
             RecordNodes.GetValueNode[] getValueNode) {
       for (int i = 0; i < size; i++) {
         Object field = getValueNode[i].execute(thisNode, o, keys[i]);
@@ -467,7 +467,7 @@ public class KryoNodes {
     @Specialization(guards = {"isTimestampKind(type)"})
     @CompilerDirectives.TruffleBoundary
     static void doTimestamp(
-            Node node, Output output, SnapiTypeWithProperties type, TimestampObject o) {
+        Node node, Output output, SnapiTypeWithProperties type, TimestampObject o) {
       LocalDateTime timestamp = o.getTimestamp();
       output.writeInt(timestamp.getYear());
       output.writeInt(timestamp.getMonthValue());
@@ -481,7 +481,7 @@ public class KryoNodes {
     @Specialization(guards = {"isIntervalKind(type)"})
     @CompilerDirectives.TruffleBoundary
     static void doInterval(
-            Node node, Output output, SnapiTypeWithProperties type, IntervalObject o) {
+        Node node, Output output, SnapiTypeWithProperties type, IntervalObject o) {
       output.writeInt(o.getYears());
       output.writeInt(o.getMonths());
       output.writeInt(o.getWeeks());

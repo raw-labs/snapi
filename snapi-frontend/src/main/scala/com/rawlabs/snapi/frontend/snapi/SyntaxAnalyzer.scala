@@ -101,7 +101,9 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   // Program vs Package
   ///////////////////////////////////////////////////////////////////////////
 
-  override lazy val program: Parser[BaseProgram] = rep(snapiMethod) ~ opt(exp) ^^ { case ms ~ me => SnapiProgram(ms, me) }
+  override lazy val program: Parser[BaseProgram] = rep(snapiMethod) ~ opt(exp) ^^ {
+    case ms ~ me => SnapiProgram(ms, me)
+  }
 
   final protected lazy val snapiMethod: Parser[SnapiMethod] = idnDef ~ funProto ^^ { case i ~ p => SnapiMethod(p, i) }
 

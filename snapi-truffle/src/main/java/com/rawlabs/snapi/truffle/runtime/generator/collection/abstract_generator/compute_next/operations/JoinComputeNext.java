@@ -41,19 +41,19 @@ public class JoinComputeNext {
   private final int outputBufferSlot;
 
   public JoinComputeNext(
-          Object leftIterable,
-          Object rightIterable,
-          Object remap,
-          Object predicate,
-          Boolean reshapeBeforePredicate,
-          SnapiTypeWithProperties rightRowType,
-          int kryoOutputBufferSize,
-          MaterializedFrame frame,
-          int computeNextSlot,
-          int shouldContinueSlot,
-          int resultSlot,
-          int generatorSlot,
-          int outputBufferSlot) {
+      Object leftIterable,
+      Object rightIterable,
+      Object remap,
+      Object predicate,
+      Boolean reshapeBeforePredicate,
+      SnapiTypeWithProperties rightRowType,
+      int kryoOutputBufferSize,
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int resultSlot,
+      int generatorSlot,
+      int outputBufferSlot) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;

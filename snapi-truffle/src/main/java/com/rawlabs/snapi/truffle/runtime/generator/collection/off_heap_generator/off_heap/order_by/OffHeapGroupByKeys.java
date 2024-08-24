@@ -44,12 +44,12 @@ public class OffHeapGroupByKeys {
   }
 
   public OffHeapGroupByKeys(
-          SnapiTypeWithProperties[] kTypes,
-          SnapiTypeWithProperties rowType,
-          int[] keyOrderings,
-          long maxSize,
-          int kryoOutputBufferSize,
-          int kryoInputBufferSize) {
+      SnapiTypeWithProperties[] kTypes,
+      SnapiTypeWithProperties rowType,
+      int[] keyOrderings,
+      long maxSize,
+      int kryoOutputBufferSize,
+      int kryoInputBufferSize) {
     this.memMap = new TreeMapObject();
     this.keyTypes = kTypes;
     this.rowType = rowType;

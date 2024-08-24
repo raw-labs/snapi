@@ -50,8 +50,8 @@ class ProgramContext(
   }
 
   def getOrAddStagedCompilation(
-                                 program: SnapiProgram,
-                                 f: => Either[ErrorCompilerMessage, SnapiValue]
+      program: SnapiProgram,
+      f: => Either[ErrorCompilerMessage, SnapiValue]
   ): Either[ErrorCompilerMessage, SnapiValue] = {
     stageCompilerCache.getOrElseUpdate(program, f)
   }

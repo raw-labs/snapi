@@ -37,19 +37,19 @@ public class CollectionEquiJoinNode extends ExpressionNode {
   private final int mapSlot;
 
   public CollectionEquiJoinNode(
-          ExpressionNode left,
-          ExpressionNode right,
-          ExpressionNode leftKeyFun,
-          ExpressionNode rightKeyFun,
-          SnapiTypeWithProperties keyType,
-          SnapiTypeWithProperties leftValueType,
-          SnapiTypeWithProperties rightValueType,
-          ExpressionNode remapFun,
-          int computeNextSlot,
-          int shouldContinueSlot,
-          int generatorSlot,
-          int keyFunctionSlot,
-          int mapSlot) {
+      ExpressionNode left,
+      ExpressionNode right,
+      ExpressionNode leftKeyFun,
+      ExpressionNode rightKeyFun,
+      SnapiTypeWithProperties keyType,
+      SnapiTypeWithProperties leftValueType,
+      SnapiTypeWithProperties rightValueType,
+      ExpressionNode remapFun,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.remapFun = remapFun;
     this.keyType = keyType;
     // left

@@ -282,8 +282,9 @@ class StrictArgsTestEntry extends EntryExtension {
   override def optionalParams: Option[Set[String]] = Some(Set("r"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = idn match {
-    case "r" =>
-      Right(ExpParam(SnapiRecordType(Vector(SnapiAttrType("a", SnapiLongType()), SnapiAttrType("b", SnapiFloatType())))))
+    case "r" => Right(
+        ExpParam(SnapiRecordType(Vector(SnapiAttrType("a", SnapiLongType()), SnapiAttrType("b", SnapiFloatType()))))
+      )
   }
 
   override def returnType(

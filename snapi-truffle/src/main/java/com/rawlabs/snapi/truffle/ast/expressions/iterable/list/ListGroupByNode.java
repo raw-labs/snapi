@@ -76,14 +76,14 @@ public class ListGroupByNode extends ExpressionNode {
   private final int kryoInputBufferSize;
 
   public ListGroupByNode(
-          ExpressionNode inputNode,
-          ExpressionNode keyFunNode,
-          SnapiTypeWithProperties rowType,
-          SnapiTypeWithProperties keyType,
-          int generatorSlot,
-          int keyFunctionSlot,
-          int mapSlot,
-          int listSlot) {
+      ExpressionNode inputNode,
+      ExpressionNode keyFunNode,
+      SnapiTypeWithProperties rowType,
+      SnapiTypeWithProperties keyType,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot,
+      int listSlot) {
     this.inputNode = inputNode;
     this.keyFunNode = keyFunNode;
     this.rowType = rowType;

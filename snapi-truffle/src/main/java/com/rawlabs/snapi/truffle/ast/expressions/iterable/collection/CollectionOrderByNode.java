@@ -33,14 +33,14 @@ public class CollectionOrderByNode extends ExpressionNode {
   private final int offHeapGroupByKeysSlot;
 
   public CollectionOrderByNode(
-          ExpressionNode input,
-          ExpressionNode[] keyFuns,
-          ExpressionNode[] orderings,
-          SnapiTypeWithProperties[] keyTypes,
-          SnapiTypeWithProperties valueType,
-          int generatorSlot,
-          int collectionSlot,
-          int offHeapGroupByKeysSlot) {
+      ExpressionNode input,
+      ExpressionNode[] keyFuns,
+      ExpressionNode[] orderings,
+      SnapiTypeWithProperties[] keyTypes,
+      SnapiTypeWithProperties valueType,
+      int generatorSlot,
+      int collectionSlot,
+      int offHeapGroupByKeysSlot) {
     this.input = input;
     this.keyFuns = keyFuns;
     this.orderings = orderings;

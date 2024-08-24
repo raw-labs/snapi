@@ -1353,7 +1353,9 @@ class SnapiVisitor(
                     .getOrElse(snapiTypeWithProperties)
                   Option(nullableTryable.TRYABLE_TOKEN())
                     .map(_ =>
-                      withoutNullable.cloneAndAddProp(SnapiIsTryableTypeProperty()).asInstanceOf[SnapiTypeWithProperties]
+                      withoutNullable
+                        .cloneAndAddProp(SnapiIsTryableTypeProperty())
+                        .asInstanceOf[SnapiTypeWithProperties]
                     )
                     .getOrElse(withoutNullable)
                 }

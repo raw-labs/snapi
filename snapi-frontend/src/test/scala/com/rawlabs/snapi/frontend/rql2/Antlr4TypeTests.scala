@@ -19,7 +19,8 @@ import com.rawlabs.utils.core.RawTestSuite
 
 class Antlr4TypeTests extends RawTestSuite {
 
-  def props: Set[SnapiTypeProperty] = Set[SnapiTypeProperty](SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty())
+  def props: Set[SnapiTypeProperty] =
+    Set[SnapiTypeProperty](SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty())
 
   def parseType(s: String): Type = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
@@ -161,7 +162,10 @@ class Antlr4TypeTests extends RawTestSuite {
   test("""Or type with function alternative test""") { _ =>
     assert(
       parseType("int or (string -> float)") == SnapiOrType(
-        Vector(SnapiIntType(props), FunType(Vector(SnapiStringType(props)), Vector.empty, SnapiFloatType(props), props)),
+        Vector(
+          SnapiIntType(props),
+          FunType(Vector(SnapiStringType(props)), Vector.empty, SnapiFloatType(props), props)
+        ),
         props
       )
     )

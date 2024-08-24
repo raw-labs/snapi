@@ -73,15 +73,15 @@ public class ListFilterNode extends ExpressionNode {
   private final int resultSlot;
 
   public ListFilterNode(
-          ExpressionNode listNode,
-          ExpressionNode functionNode,
-          SnapiType resultType,
-          int generatorSlot,
-          int functionSlot,
-          int listSlot,
-          int currentIdxSlot,
-          int listSizeSlot,
-          int resultSlot) {
+      ExpressionNode listNode,
+      ExpressionNode functionNode,
+      SnapiType resultType,
+      int generatorSlot,
+      int functionSlot,
+      int listSlot,
+      int currentIdxSlot,
+      int listSizeSlot,
+      int resultSlot) {
     this.resultType = resultType;
     this.listNode = listNode;
     this.functionNode = functionNode;

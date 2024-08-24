@@ -43,19 +43,19 @@ public class JoinCollection implements TruffleObject {
   private final int outputBufferSlot;
 
   public JoinCollection(
-          Object leftIterable,
-          Object rightIterable,
-          Object remap,
-          Object predicate,
-          SnapiTypeWithProperties rightType,
-          Boolean reshapeBeforePredicate,
-          int kryoOutputBufferSize,
-          MaterializedFrame frame,
-          int computeNextSlot,
-          int shouldContinueSlot,
-          int resultSlot,
-          int generatorSlot,
-          int outputBufferSlot) {
+      Object leftIterable,
+      Object rightIterable,
+      Object remap,
+      Object predicate,
+      SnapiTypeWithProperties rightType,
+      Boolean reshapeBeforePredicate,
+      int kryoOutputBufferSize,
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int resultSlot,
+      int generatorSlot,
+      int outputBufferSlot) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;

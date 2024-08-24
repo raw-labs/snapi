@@ -40,20 +40,20 @@ public class EquiJoinCollection implements TruffleObject {
   private final int mapSlot;
 
   public EquiJoinCollection(
-          Object leftIterable,
-          Object leftKeyF,
-          SnapiTypeWithProperties leftRowType,
-          Object rightIterable,
-          Object rightKeyF,
-          SnapiTypeWithProperties rightRowType,
-          SnapiTypeWithProperties keyType,
-          Object reshapeFun,
-          MaterializedFrame frame,
-          int computeNextSlot,
-          int shouldContinueSlot,
-          int generatorSlot,
-          int keyFunctionSlot,
-          int mapSlot) {
+      Object leftIterable,
+      Object leftKeyF,
+      SnapiTypeWithProperties leftRowType,
+      Object rightIterable,
+      Object rightKeyF,
+      SnapiTypeWithProperties rightRowType,
+      SnapiTypeWithProperties keyType,
+      Object reshapeFun,
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;

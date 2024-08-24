@@ -70,13 +70,13 @@ public class ListFromNode extends ExpressionNode {
   private final int resultSlot;
 
   public ListFromNode(
-          ExpressionNode iterableNode,
-          SnapiType resultType,
-          int generatorSlot,
-          int listSlot,
-          int currentIdxSlot,
-          int listSizeSlot,
-          int resultSlot) {
+      ExpressionNode iterableNode,
+      SnapiType resultType,
+      int generatorSlot,
+      int listSlot,
+      int currentIdxSlot,
+      int listSizeSlot,
+      int resultSlot) {
     this.resultType = resultType;
     this.iterableNode = iterableNode;
     this.generatorSlot = generatorSlot;

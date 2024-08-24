@@ -36,14 +36,14 @@ public class GroupByCollection implements TruffleObject {
   private final int mapSlot;
 
   public GroupByCollection(
-          Object iterable,
-          Object keyFun,
-          SnapiTypeWithProperties kType,
-          SnapiTypeWithProperties rowType,
-          MaterializedFrame frame,
-          int generatorSlot,
-          int keyFunctionSlot,
-          int mapSlot) {
+      Object iterable,
+      Object keyFun,
+      SnapiTypeWithProperties kType,
+      SnapiTypeWithProperties rowType,
+      MaterializedFrame frame,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.iterable = iterable;
     this.keyFun = keyFun;
     this.keyType = kType;

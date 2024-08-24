@@ -29,5 +29,5 @@ module raw.snapi.client {
   uses CompilerServiceBuilder;
 
   provides CompilerServiceBuilder with
-          SnapiCompilerServiceBuilder;
+      SnapiCompilerServiceBuilder;
 }

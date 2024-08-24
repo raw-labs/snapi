@@ -25,7 +25,7 @@ public final class ProgramStatementNode extends RootNode {
   @Child protected StatementNode bodyNode;
 
   public ProgramStatementNode(
-          SnapiLanguage language, FrameDescriptor frameDescriptor, StatementNode body) {
+      SnapiLanguage language, FrameDescriptor frameDescriptor, StatementNode body) {
     super(language, frameDescriptor);
     this.bodyNode = body;
     this.bodyNode.addRootTag();

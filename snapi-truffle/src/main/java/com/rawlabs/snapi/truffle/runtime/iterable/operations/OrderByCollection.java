@@ -37,15 +37,15 @@ public class OrderByCollection implements TruffleObject {
   private final int offHeapGroupByKeysSlot;
 
   public OrderByCollection(
-          Object iterable,
-          Object[] keyFunctions,
-          int[] keyOrderings,
-          SnapiTypeWithProperties[] keyTypes,
-          SnapiTypeWithProperties rowType,
-          MaterializedFrame frame,
-          int generatorSlot,
-          int collectionSlot,
-          int offHeapGroupByKeysSlot) {
+      Object iterable,
+      Object[] keyFunctions,
+      int[] keyOrderings,
+      SnapiTypeWithProperties[] keyTypes,
+      SnapiTypeWithProperties rowType,
+      MaterializedFrame frame,
+      int generatorSlot,
+      int collectionSlot,
+      int offHeapGroupByKeysSlot) {
     this.parentIterable = iterable;
     this.keyFunctions = keyFunctions;
     this.keyOrderings = keyOrderings;

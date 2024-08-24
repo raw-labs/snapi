@@ -33,11 +33,11 @@ public class DistinctCollection implements TruffleObject {
   private final int offHeapDistinctSlot;
 
   public DistinctCollection(
-          Object iterable,
-          SnapiTypeWithProperties vType,
-          MaterializedFrame frame,
-          int generatorSlot,
-          int offHeapDistinctSlot) {
+      Object iterable,
+      SnapiTypeWithProperties vType,
+      MaterializedFrame frame,
+      int generatorSlot,
+      int offHeapDistinctSlot) {
     this.iterable = iterable;
     this.rowType = vType;
     this.frame = frame;

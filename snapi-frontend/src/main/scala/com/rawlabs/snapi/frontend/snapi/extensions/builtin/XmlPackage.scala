@@ -190,7 +190,8 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
 
   protected def validateAttributeType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
     case _: SnapiPrimitiveType => Right(t)
-    case SnapiListType(primitive: SnapiPrimitiveType, _) => Right(SnapiListType(primitive)) // strip the tryable/nullable
+    case SnapiListType(primitive: SnapiPrimitiveType, _) =>
+      Right(SnapiListType(primitive)) // strip the tryable/nullable
     case SnapiIterableType(primitive: SnapiPrimitiveType, _) =>
       Right(SnapiIterableType(primitive)) // strip the tryable/nullable
     case _ => Left(Seq(UnsupportedType(t, t, None)))

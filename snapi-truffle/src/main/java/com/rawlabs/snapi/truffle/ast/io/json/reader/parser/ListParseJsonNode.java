@@ -66,13 +66,13 @@ public class ListParseJsonNode extends ExpressionNode {
   private final int parserSlot;
 
   public ListParseJsonNode(
-          SnapiType resultType,
-          RootCallTarget childCallTarget,
-          int parserSlot,
-          int llistSlot,
-          int currentIdxSlot,
-          int listSizeSlot,
-          int resultSlot) {
+      SnapiType resultType,
+      RootCallTarget childCallTarget,
+      int parserSlot,
+      int llistSlot,
+      int currentIdxSlot,
+      int listSizeSlot,
+      int resultSlot) {
     this.parserSlot = parserSlot;
     this.resultType = resultType;
     this.listSizeSlot = listSizeSlot;

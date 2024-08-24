@@ -34,20 +34,20 @@ public class EquiJoinComputeNext {
   private final int mapSlot;
 
   public EquiJoinComputeNext(
-          Object leftIterable,
-          Object leftKeyF,
-          SnapiTypeWithProperties leftRowType,
-          Object rightIterable,
-          Object rightKeyF,
-          SnapiTypeWithProperties rightRowType,
-          SnapiTypeWithProperties keyType,
-          Object mkJoinedRecord,
-          MaterializedFrame frame,
-          int computeNextSlot,
-          int shouldContinueSlot,
-          int generatorSlot,
-          int keyFunctionSlot,
-          int mapSlot) {
+      Object leftIterable,
+      Object leftKeyF,
+      SnapiTypeWithProperties leftRowType,
+      Object rightIterable,
+      Object rightKeyF,
+      SnapiTypeWithProperties rightRowType,
+      SnapiTypeWithProperties keyType,
+      Object mkJoinedRecord,
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;

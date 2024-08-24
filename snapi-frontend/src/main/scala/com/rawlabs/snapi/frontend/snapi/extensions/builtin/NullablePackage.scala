@@ -197,7 +197,9 @@ class NullableTransformEntry extends EntryExtension {
       val ExpArg(_, t) = prevMandatoryArgs(0)
       val innerType = removeProp(t, SnapiIsNullableTypeProperty())
       Right(
-        ExpParam(FunType(Vector(innerType), Vector.empty, DoesNotHaveTypeProperties(Set(SnapiIsNullableTypeProperty()))))
+        ExpParam(
+          FunType(Vector(innerType), Vector.empty, DoesNotHaveTypeProperties(Set(SnapiIsNullableTypeProperty())))
+        )
       )
   }
 

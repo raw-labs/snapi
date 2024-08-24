@@ -71,7 +71,10 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
     )
     assert(
       parseType("int or (string -> float)") == SnapiOrType(
-        Vector(SnapiIntType(props), FunType(Vector(SnapiStringType(props)), Vector.empty, SnapiFloatType(props), props)),
+        Vector(
+          SnapiIntType(props),
+          FunType(Vector(SnapiStringType(props)), Vector.empty, SnapiFloatType(props), props)
+        ),
         props
       )
     )
@@ -242,7 +245,9 @@ class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
                                 Vector(
                                   FunParam(
                                     IdnDef("x"),
-                                    Some(SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))),
+                                    Some(
+                                      SnapiIntType(Set(SnapiIsTryableTypeProperty(), SnapiIsNullableTypeProperty()))
+                                    ),
                                     None
                                   )
                                 ),

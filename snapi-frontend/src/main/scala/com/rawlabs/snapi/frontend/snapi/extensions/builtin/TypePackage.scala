@@ -130,7 +130,8 @@ class TypeProtectCastEntry extends EntryExtension {
   private def extraProps(target: Type, source: Type) = {
 
     def recurse(target: Type, source: Type): Set[SnapiTypeProperty] = (target, source) match {
-      case (SnapiListType(inner1, props1), SnapiListType(inner2, props2)) => recurse(inner1, inner2) ++ (props2 &~ props1)
+      case (SnapiListType(inner1, props1), SnapiListType(inner2, props2)) =>
+        recurse(inner1, inner2) ++ (props2 &~ props1)
       case (SnapiIterableType(_, props1), SnapiIterableType(_, props2)) =>
         // inner types aren't checked because iterables aren't consumed in the moment they're passed to
         // the function. No exception will be raised under ProtectCast regarding an iterable's items.

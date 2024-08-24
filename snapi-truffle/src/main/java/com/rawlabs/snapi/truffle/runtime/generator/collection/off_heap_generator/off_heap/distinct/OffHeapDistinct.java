@@ -38,11 +38,11 @@ public class OffHeapDistinct {
   private final MaterializedFrame frame;
 
   public OffHeapDistinct(
-          SnapiTypeWithProperties vType,
-          MaterializedFrame frame,
-          long blockSize,
-          int kryoOutputBufferSize,
-          int kryoInputBufferSize) {
+      SnapiTypeWithProperties vType,
+      MaterializedFrame frame,
+      long blockSize,
+      int kryoOutputBufferSize,
+      int kryoInputBufferSize) {
     this.index = new TreeMapObject();
     this.itemType = vType;
     this.itemSize = KryoFootPrint.of(vType);

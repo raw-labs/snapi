@@ -28,7 +28,8 @@ public class OSRToArrayBodyNode extends ExpressionNode {
 
   private final int resultSlot;
 
-  public OSRToArrayBodyNode(SnapiType resultType, int listSlot, int currentIdxSlot, int resultSlot) {
+  public OSRToArrayBodyNode(
+      SnapiType resultType, int listSlot, int currentIdxSlot, int resultSlot) {
     this.resultType = resultType;
     this.currentIdxSlot = currentIdxSlot;
     this.resultSlot = resultSlot;

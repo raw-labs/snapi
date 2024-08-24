@@ -72,10 +72,10 @@ public class RecordParseJsonNode extends ExpressionNode {
   private final boolean hasDuplicateKeys;
 
   public RecordParseJsonNode(
-          ProgramExpressionNode[] childProgramExpressionNode,
-          LinkedHashMap<String, Integer> fieldNamesMap,
-          SnapiTypeWithProperties[] fieldTypes,
-          boolean hasDuplicateKeys) {
+      ProgramExpressionNode[] childProgramExpressionNode,
+      LinkedHashMap<String, Integer> fieldNamesMap,
+      SnapiTypeWithProperties[] fieldTypes,
+      boolean hasDuplicateKeys) {
     this.fieldTypes = fieldTypes;
     this.fieldNamesMap = fieldNamesMap;
     this.fieldsSize = childProgramExpressionNode.length;

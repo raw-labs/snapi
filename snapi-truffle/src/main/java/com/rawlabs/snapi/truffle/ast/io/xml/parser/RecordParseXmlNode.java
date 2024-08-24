@@ -52,9 +52,9 @@ public class RecordParseXmlNode extends ExpressionNode {
   private final SnapiLanguage language = SnapiLanguage.get(this);
 
   public RecordParseXmlNode(
-          ProgramExpressionNode[] childProgramExpressionNode,
-          String[] fieldNames,
-          SnapiTypeWithProperties[] fieldTypes) {
+      ProgramExpressionNode[] childProgramExpressionNode,
+      String[] fieldNames,
+      SnapiTypeWithProperties[] fieldTypes) {
     this.fieldTypes = fieldTypes;
     this.fields = fieldNames;
     this.fieldsSize = childProgramExpressionNode.length;

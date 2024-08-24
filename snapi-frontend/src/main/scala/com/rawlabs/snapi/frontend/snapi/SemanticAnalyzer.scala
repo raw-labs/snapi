@@ -77,7 +77,8 @@ final case class CompatibilityReport(t: Type, effective: Type) {
   def extraProps: Set[SnapiTypeProperty] = {
 
     def recurse(target: Type, effective: Type): Set[SnapiTypeProperty] = (target, effective) match {
-      case (SnapiListType(inner1, props1), SnapiListType(inner2, props2)) => recurse(inner1, inner2) ++ (props2 &~ props1)
+      case (SnapiListType(inner1, props1), SnapiListType(inner2, props2)) =>
+        recurse(inner1, inner2) ++ (props2 &~ props1)
       case (SnapiIterableType(inner1, props1), SnapiIterableType(inner2, props2)) => (props2 &~ props1)
       case (SnapiRecordType(atts1, props1), SnapiRecordType(atts2, props2)) =>
         val tipes1 = atts1.map(_.tipe)
@@ -431,7 +432,8 @@ class TypesMerger extends SnapiTypeUtils with StrictLogging {
     case (SnapiRecordType(as, _), ExpectedRecordType(idns)) if idns.subsetOf(as.map(_.idn).toSet) => actual
     case (r: SnapiRecordType, e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
     // Projection on lists or collections: collection.name same as Collection.Transform(collection, x -> x.name)
-    case (SnapiIterableType(r: SnapiRecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
+    case (SnapiIterableType(r: SnapiRecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) =>
+      actual
     case (SnapiListType(r: SnapiRecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
     case (_, _: AnythingType) => actual
     //
@@ -559,7 +561,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   private def idnIsAmbiguous(idn: String, e: Exp): Boolean = {
     actualType(e) match {
       case SnapiRecordType(atts, _) => atts.collect { case att if att.idn == idn => att }.length > 1
-      case SnapiIterableType(SnapiRecordType(atts, _), _) => atts.collect { case att if att.idn == idn => att }.length > 1
+      case SnapiIterableType(SnapiRecordType(atts, _), _) =>
+        atts.collect { case att if att.idn == idn => att }.length > 1
       case SnapiListType(SnapiRecordType(atts, _), _) => atts.collect { case att if att.idn == idn => att }.length > 1
       case _ => false
     }
@@ -1788,7 +1791,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   private val snapidouble = SnapiDoubleType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
   private val snapidecimal = SnapiDecimalType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
   private val snapibool = SnapiBoolType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
-  private val snapinumerics = OneOfType(snapibyte, snapishort, snapiint, snapilong, snapifloat, snapidouble, snapidecimal)
+  private val snapinumerics =
+    OneOfType(snapibyte, snapishort, snapiint, snapilong, snapifloat, snapidouble, snapidecimal)
   private val snapistring = SnapiStringType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
   private val snapitime = SnapiTimeType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))
   private val snapiinterval = SnapiIntervalType(Set(SnapiIsNullableTypeProperty(), SnapiIsTryableTypeProperty()))

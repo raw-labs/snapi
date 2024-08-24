@@ -37,12 +37,12 @@ public class OffHeapGroupByKey {
   private final RecordShaper reshape;
 
   public OffHeapGroupByKey(
-          SnapiTypeWithProperties kType,
-          SnapiTypeWithProperties rowType,
-          RecordShaper reshape,
-          long maxSize,
-          int kryoOutputBufferSize,
-          int kryoInputBufferSize) {
+      SnapiTypeWithProperties kType,
+      SnapiTypeWithProperties rowType,
+      RecordShaper reshape,
+      long maxSize,
+      int kryoOutputBufferSize,
+      int kryoInputBufferSize) {
     this.memMap = new TreeMapObject();
     this.keyType = kType;
     this.rowType = rowType;

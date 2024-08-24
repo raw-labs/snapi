@@ -339,9 +339,9 @@ class PropagationPhase(protected val parent: Phase[SourceProgram], protected val
 private case class TypeAndValue(t: Type, value: Option[SnapiValue])
 
 private case class ExpProps(
-                             ne: Exp,
-                             t: Type,
-                             castNeeded: Boolean,
-                             props: Set[SnapiTypeProperty],
-                             value: Option[SnapiValue] = None
+    ne: Exp,
+    t: Type,
+    castNeeded: Boolean,
+    props: Set[SnapiTypeProperty],
+    value: Option[SnapiValue] = None
 )
