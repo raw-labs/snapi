@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.snapi.frontend.rql2.errors.CannotDetermineTypeOfParameter
+import com.rawlabs.snapi.frontend.snapi.errors.CannotDetermineTypeOfParameter
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class RD5393Test extends SnapiTestContext {

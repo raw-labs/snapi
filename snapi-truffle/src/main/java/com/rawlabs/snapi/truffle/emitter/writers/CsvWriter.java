@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.emitter.writers;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import java.util.Arrays;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;

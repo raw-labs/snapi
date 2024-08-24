@@ -30,7 +30,7 @@ public abstract class EnvironmentSecretNode extends ExpressionNode {
   protected static Object doSecret(
       String key,
       @Bind("$node") Node thisNode,
-      @Cached(value = "getRql2Context(thisNode)", neverDefault = true) SnapiContext context) {
+      @Cached(value = "getSnapiContext(thisNode)", neverDefault = true) SnapiContext context) {
     try {
       return context.getSecret(key);
     } catch (TruffleRuntimeException e) {

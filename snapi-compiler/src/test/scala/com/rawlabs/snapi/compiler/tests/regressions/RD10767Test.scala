@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.compiler.{GetProgramDescriptionSuccess, ProgramEnvironment}
-import com.rawlabs.snapi.frontend.rql2.SnapiInterpolator
+import com.rawlabs.snapi.frontend.snapi.SnapiInterpolator
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class RD10767Test extends SnapiTestContext {

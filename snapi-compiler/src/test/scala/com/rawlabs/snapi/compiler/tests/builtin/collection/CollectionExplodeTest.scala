@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.collection
 
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.frontend.snapi._
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
 

@@ -14,7 +14,7 @@ package com.rawlabs.snapi.compiler.tests.output
 
 import com.rawlabs.utils.core.RawUtils
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.frontend.snapi._
 import com.rawlabs.utils.core._
 
 import java.nio.file.Files
@@ -119,7 +119,7 @@ class CsvOutputTest extends SnapiTestContext {
     val path = Files.createTempFile("", "")
     try {
       it should saveToInFormat(path, "csv")
-      if (compilerService.language.contains("rql2-truffle")) {
+      if (compilerService.language.contains("snapi")) {
         path should contain(
           snapi"""byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,nullBoolCol,dateCol,timeCol,timestampCol
             |"failed to parse CSV (location: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte","failed to parse CSV (location: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short","failed to parse CSV (location: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int","failed to parse CSV (location: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long","failed to parse CSV (location: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float","failed to parse CSV (location: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double","failed to parse CSV (location: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal","failed to parse CSV (location: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool","failed to parse CSV (location: $csvWithAllTypes: line 1, col 71), cannot parse 'nullBoolCol' as a bool","failed to parse CSV (location: $csvWithAllTypes: line 1, col 83), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (location: $csvWithAllTypes: line 1, col 91), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (location: $csvWithAllTypes: line 1, col 99), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'"

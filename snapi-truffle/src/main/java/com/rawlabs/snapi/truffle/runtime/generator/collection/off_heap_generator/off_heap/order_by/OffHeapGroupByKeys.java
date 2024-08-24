@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.data_structures.treemap.TreeMapObject;
 import com.rawlabs.snapi.truffle.runtime.utils.KryoFootPrint;
 import java.io.File;

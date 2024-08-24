@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.environment_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.EnvironmentSecretEntry;
-import com.rawlabs.snapi.frontend.rql2.source.Exp;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.EnvironmentSecretEntry;
+import com.rawlabs.snapi.frontend.snapi.source.Exp;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.environment_package.EnvironmentSecretNodeGen;
 import com.rawlabs.snapi.truffle.emitter.TruffleShortEntryExtension;

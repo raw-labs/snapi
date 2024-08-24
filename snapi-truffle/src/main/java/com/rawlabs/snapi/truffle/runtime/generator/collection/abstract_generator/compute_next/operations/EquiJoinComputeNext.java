@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 
 public class EquiJoinComputeNext {
 

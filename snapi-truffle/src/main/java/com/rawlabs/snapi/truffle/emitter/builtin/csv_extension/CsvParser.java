@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter.builtin.csv_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
@@ -88,20 +88,20 @@ public class CsvParser {
 
   private RecordParseCsvNode getRecordParser(
           SnapiTypeWithProperties t, SnapiLanguage lang) {
-    SnapiIterableType rql2IterableType = (SnapiIterableType) t;
-    SnapiRecordType rql2RecordType = (SnapiRecordType) rql2IterableType.innerType();
-    assert rql2RecordType.props().isEmpty();
-    assert rql2IterableType.props().isEmpty();
+    SnapiIterableType snapiIterableType = (SnapiIterableType) t;
+    SnapiRecordType snapiRecordType = (SnapiRecordType) snapiIterableType.innerType();
+    assert snapiRecordType.props().isEmpty();
+    assert snapiIterableType.props().isEmpty();
 
     ProgramExpressionNode[] columnParsers =
-        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (SnapiAttrType) a)
+        JavaConverters.seqAsJavaList(snapiRecordType.atts()).stream().map(a -> (SnapiAttrType) a)
             .map(col -> columnParser(col.tipe(), lang))
             .map(parser -> new ProgramExpressionNode(lang, new FrameDescriptor(), parser))
             .toArray(ProgramExpressionNode[]::new);
 
     return new RecordParseCsvNode(
         columnParsers,
-        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (SnapiAttrType) a).toArray(SnapiAttrType[]::new));
+        JavaConverters.seqAsJavaList(snapiRecordType.atts()).stream().map(a -> (SnapiAttrType) a).toArray(SnapiAttrType[]::new));
   }
 
   public ExpressionNode stringParser(

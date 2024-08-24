@@ -14,8 +14,8 @@ package com.rawlabs.snapi.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import com.rawlabs.compiler.utils.RecordFieldsNaming
-import com.rawlabs.snapi.frontend.rql2.SnapiTypeUtils
-import com.rawlabs.snapi.frontend.rql2.source._
+import com.rawlabs.snapi.frontend.snapi.SnapiTypeUtils
+import com.rawlabs.snapi.frontend.snapi.source._
 import org.graalvm.polyglot.Value
 
 import java.io.{Closeable, IOException, OutputStream}

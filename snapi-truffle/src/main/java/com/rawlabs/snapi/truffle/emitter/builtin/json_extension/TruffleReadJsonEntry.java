@@ -15,9 +15,9 @@ package com.rawlabs.snapi.truffle.emitter.builtin.json_extension;
 import java.util.List;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ReadJsonEntry;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiIterableType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.ReadJsonEntry;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIterableType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;

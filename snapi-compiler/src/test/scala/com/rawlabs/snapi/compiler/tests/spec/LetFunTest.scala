@@ -248,7 +248,7 @@ class LetFunTest extends SnapiTestContext {
     |    functions = List.Transform(numbers, n -> let f(x: int, v: int = n) = x * v in f)
     |in List.Transform(functions, f -> f(10))
     |""".stripMargin) { it =>
-    assume(compilerService.language.contains("rql2-truffle")) // The scala executor fails to turn this code to L0
+    assume(compilerService.language.contains("snapi")) // The scala executor fails to turn this code to L0
     it should evaluateTo("[10, 20, 30, 40]")
   }
 

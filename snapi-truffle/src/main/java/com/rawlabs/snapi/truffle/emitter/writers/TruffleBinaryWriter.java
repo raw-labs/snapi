@@ -13,10 +13,10 @@
 package com.rawlabs.snapi.truffle.emitter.writers;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiBinaryType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiIsNullableTypeProperty;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiIsTryableTypeProperty;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiStringType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiBinaryType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIsNullableTypeProperty;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIsTryableTypeProperty;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiStringType;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ProgramStatementNode;
 import com.rawlabs.snapi.truffle.ast.io.binary.BinaryBytesWriterNode;

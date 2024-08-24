@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.record_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.RecordGetFieldByIndexEntry;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.RecordGetFieldByIndexEntry;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.record.RecordProjNodeGen;

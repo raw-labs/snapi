@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import java.util.List;
@@ -25,10 +25,10 @@ public interface TruffleEntryExtension {
   }
 
   default ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
-    return toTruffle(type, rql2argsToTruffleArgs(args, emitter), emitter.getLanguage());
+    return toTruffle(type, snapiargsToTruffleArgs(args, emitter), emitter.getLanguage());
   }
 
-  default List<TruffleArg> rql2argsToTruffleArgs(List<SnapiArg> args, TruffleEmitter emitter) {
+  default List<TruffleArg> snapiargsToTruffleArgs(List<SnapiArg> args, TruffleEmitter emitter) {
     return args.stream()
         .map(
             a ->

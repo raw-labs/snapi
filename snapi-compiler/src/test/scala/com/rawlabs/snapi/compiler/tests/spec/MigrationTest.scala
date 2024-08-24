@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.frontend.rql2.source.{
+import com.rawlabs.snapi.frontend.snapi.source.{
   SnapiIntType,
   SnapiIsNullableTypeProperty,
   SnapiIsTryableTypeProperty,

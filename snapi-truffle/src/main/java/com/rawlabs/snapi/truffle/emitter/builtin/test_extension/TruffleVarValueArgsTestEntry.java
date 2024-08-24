@@ -12,6 +12,6 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.VarValueArgsTestEntry;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.VarValueArgsTestEntry;
 
 public class TruffleVarValueArgsTestEntry extends VarValueArgsTestEntry implements TruffleVarArgs {}

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.{JsonEncoding, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import com.rawlabs.compiler.utils.RecordFieldsNaming
-import com.rawlabs.snapi.frontend.rql2.source._
+import com.rawlabs.snapi.frontend.snapi.source._
 import org.graalvm.polyglot.Value
 
 import java.io.{Closeable, IOException, OutputStream}

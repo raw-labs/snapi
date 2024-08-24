@@ -16,12 +16,12 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.List;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ReadXmlEntry;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiIterableType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiListType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.ReadXmlEntry;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIterableType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiListType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.emitter.TruffleEmitter;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
@@ -52,7 +52,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
 
   @Override
   public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
-    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    List<TruffleArg> truffleArgs = snapiargsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
 
     List<TruffleArg> unnamedArgs =

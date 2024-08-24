@@ -15,8 +15,8 @@ package com.rawlabs.snapi.compiler.tests.regressions
 import com.rawlabs.utils.core.TestData
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.scalatest.matchers.{MatchResult, Matcher}
-import com.rawlabs.snapi.frontend.rql2.FrontendSyntaxAnalyzer
-import com.rawlabs.snapi.frontend.rql2.source.SourcePrettyPrinter
+import com.rawlabs.snapi.frontend.snapi.FrontendSyntaxAnalyzer
+import com.rawlabs.snapi.frontend.snapi.source.SourcePrettyPrinter
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class RD5365Test extends SnapiTestContext {

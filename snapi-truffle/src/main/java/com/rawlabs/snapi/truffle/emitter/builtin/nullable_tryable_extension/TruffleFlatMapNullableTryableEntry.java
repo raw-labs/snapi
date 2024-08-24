@@ -15,10 +15,10 @@ package com.rawlabs.snapi.truffle.emitter.builtin.nullable_tryable_extension;
 import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.*;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.FlatMapNullableTryableEntry;
-import com.rawlabs.snapi.frontend.rql2.source.FunType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.FlatMapNullableTryableEntry;
+import com.rawlabs.snapi.frontend.snapi.source.FunType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.option.OptionFlatMapNodeGen;
 import com.rawlabs.snapi.truffle.ast.expressions.option.OptionGetOrElseNodeGen;

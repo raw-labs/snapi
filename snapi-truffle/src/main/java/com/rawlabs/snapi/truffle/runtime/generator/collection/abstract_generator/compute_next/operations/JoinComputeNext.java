@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.generator.collection.abstract_generato
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import java.io.File;
 
 public class JoinComputeNext {

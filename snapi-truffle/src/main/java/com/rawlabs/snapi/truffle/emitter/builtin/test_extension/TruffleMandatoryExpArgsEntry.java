@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin.test_extension;
 
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.MandatoryExpArgsEntry;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.MandatoryExpArgsEntry;
 
 public class TruffleMandatoryExpArgsEntry extends MandatoryExpArgsEntry
     implements TruffleMandatoryArgs {}

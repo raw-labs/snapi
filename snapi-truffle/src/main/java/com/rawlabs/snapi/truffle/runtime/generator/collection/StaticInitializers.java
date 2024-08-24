@@ -101,7 +101,7 @@ public class StaticInitializers {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public static SnapiContext getRql2Context(Node node) {
+  public static SnapiContext getSnapiContext(Node node) {
     return SnapiContext.get(node);
   }
 

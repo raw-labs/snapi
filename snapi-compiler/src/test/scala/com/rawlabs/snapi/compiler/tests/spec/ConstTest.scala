@@ -14,7 +14,7 @@ package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.utils.core.TestData
 import org.scalatest.prop.TableDrivenPropertyChecks
-import com.rawlabs.snapi.frontend.rql2.source.{SnapiBoolType, SnapiIntType, SnapiStringType}
+import com.rawlabs.snapi.frontend.snapi.source.{SnapiBoolType, SnapiIntType, SnapiStringType}
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class ConstTest extends SnapiTestContext with TableDrivenPropertyChecks {

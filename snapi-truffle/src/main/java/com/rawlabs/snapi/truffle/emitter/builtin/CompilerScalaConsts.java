@@ -12,8 +12,8 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin;
 
-import com.rawlabs.snapi.frontend.rql2.source.SnapiIsNullableTypeProperty;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiIsTryableTypeProperty;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIsNullableTypeProperty;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIsTryableTypeProperty;
 
 public class CompilerScalaConsts {
   public static final SnapiIsTryableTypeProperty tryable = SnapiIsTryableTypeProperty.apply();

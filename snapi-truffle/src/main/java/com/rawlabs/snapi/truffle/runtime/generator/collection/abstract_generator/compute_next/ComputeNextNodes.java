@@ -357,7 +357,7 @@ public class ComputeNextNodes {
       return next;
     }
 
-    public static SnapiLanguage getRql2Language(Node node) {
+    public static SnapiLanguage getSnapiLanguage(Node node) {
       return SnapiLanguage.get(node);
     }
 
@@ -366,7 +366,7 @@ public class ComputeNextNodes {
         Node node,
         ZipComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) SnapiLanguage language,
+        @Cached(value = "getSnapiLanguage(thisNode)", allowUncached = true) SnapiLanguage language,
         @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode1,
         @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode2,
         @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode1,

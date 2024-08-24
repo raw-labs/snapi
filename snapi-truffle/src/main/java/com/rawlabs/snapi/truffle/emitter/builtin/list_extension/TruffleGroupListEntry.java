@@ -15,9 +15,9 @@ package com.rawlabs.snapi.truffle.emitter.builtin.list_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.GroupListEntry;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.GroupListEntry;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListGroupByNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -32,7 +32,7 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
   @Override
   public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
 
-    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    List<TruffleArg> truffleArgs = snapiargsToTruffleArgs(args, emitter);
 
     SnapiListType listType = (SnapiListType) type;
     SnapiRecordType record = (SnapiRecordType) listType.innerType();

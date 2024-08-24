@@ -15,7 +15,7 @@ package com.rawlabs.snapi.truffle.runtime.generator.collection.off_heap_generato
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.runtime.kryo.KryoNodes;
 
 public class InputBufferNodes {

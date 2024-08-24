@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.frontend.snapi._
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class CsvPackageTest extends SnapiTestContext {
@@ -590,5 +590,5 @@ class CsvPackageTest extends SnapiTestContext {
     |{a: 1, b: 10, c: "N"}
     |]""".stripMargin))
 
-  private def isTruffle = compilerService.language.contains("rql2-truffle")
+  private def isTruffle = compilerService.language.contains("snapi")
 }

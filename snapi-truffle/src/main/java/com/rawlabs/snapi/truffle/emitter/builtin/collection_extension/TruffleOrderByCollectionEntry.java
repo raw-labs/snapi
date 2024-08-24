@@ -15,11 +15,11 @@ package com.rawlabs.snapi.truffle.emitter.builtin.collection_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.OrderByCollectionEntry;
-import com.rawlabs.snapi.frontend.rql2.source.FunType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiIterableType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.OrderByCollectionEntry;
+import com.rawlabs.snapi.frontend.snapi.source.FunType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIterableType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.collection.CollectionOrderByNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -32,7 +32,7 @@ public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
-    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    List<TruffleArg> truffleArgs = snapiargsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
 
     int generatorSlot =

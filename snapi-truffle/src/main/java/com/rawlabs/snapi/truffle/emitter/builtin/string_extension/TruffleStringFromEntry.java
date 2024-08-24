@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.string_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.StringFromEntry;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.StringFromEntry;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.string_package.StringFromNodeGen;

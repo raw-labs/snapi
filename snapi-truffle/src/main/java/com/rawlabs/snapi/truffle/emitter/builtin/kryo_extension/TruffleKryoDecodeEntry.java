@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.kryo_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.KryoDecodeEntry;
-import com.rawlabs.snapi.frontend.rql2.source.ExpType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.KryoDecodeEntry;
+import com.rawlabs.snapi.frontend.snapi.source.ExpType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.io.kryo.KryoFromNode;

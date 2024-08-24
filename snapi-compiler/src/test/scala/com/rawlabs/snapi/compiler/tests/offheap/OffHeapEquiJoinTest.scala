@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.compiler.tests.offheap
 
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.frontend.snapi._
 
 class OffHeapEquiJoinTest extends SnapiTestContext with OffHeapDatasets {
 

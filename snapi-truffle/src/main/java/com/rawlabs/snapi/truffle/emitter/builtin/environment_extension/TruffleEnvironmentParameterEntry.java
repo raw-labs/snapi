@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.environment_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.EnvironmentParameterEntry;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiType;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.EnvironmentParameterEntry;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiType;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.environment_package.EnvironmentParameterNodeGen;

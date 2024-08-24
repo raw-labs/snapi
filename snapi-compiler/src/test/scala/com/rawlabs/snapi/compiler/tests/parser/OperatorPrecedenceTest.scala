@@ -12,8 +12,8 @@
 
 package com.rawlabs.snapi.compiler.tests.parser
 
-import com.rawlabs.snapi.frontend.rql2.source._
-import com.rawlabs.snapi.frontend.rql2.source._
+import com.rawlabs.snapi.frontend.snapi.source._
+import com.rawlabs.snapi.frontend.snapi.source._
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class OperatorPrecedenceTest extends SnapiTestContext {

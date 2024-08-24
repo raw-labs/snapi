@@ -10,11 +10,11 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.rql2
+package com.rawlabs.snapi.frontend.snapi
 
 import com.rawlabs.snapi.frontend.base.source.Type
-import com.rawlabs.snapi.frontend.rql2.antlr4.Antlr4SyntaxAnalyzer
-import com.rawlabs.snapi.frontend.rql2.source._
+import com.rawlabs.snapi.frontend.snapi.antlr4.Antlr4SyntaxAnalyzer
+import com.rawlabs.snapi.frontend.snapi.source._
 import com.rawlabs.utils.core.RawTestSuite
 
 class Antlr4TypeTests extends RawTestSuite {

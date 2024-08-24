@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.truffle.emitter.builtin;
 
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import java.util.List;

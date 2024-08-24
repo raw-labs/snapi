@@ -13,9 +13,9 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.timestamp_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.TimestampTimeBucketEntry;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiIntervalType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiStringType;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.TimestampTimeBucketEntry;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiIntervalType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiStringType;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;

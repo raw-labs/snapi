@@ -18,8 +18,8 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.inferrer.api.*;
-import com.rawlabs.snapi.frontend.rql2.SnapiTypeUtils$;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.SnapiTypeUtils$;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
@@ -137,17 +137,17 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       }
 
       SnapiType snapiType =
-          (SnapiType) SnapiTypeUtils$.MODULE$.inferTypeToRql2Type(tipe, sampled, sampled);
+          (SnapiType) SnapiTypeUtils$.MODULE$.inferTypeToSnapiType(tipe, sampled, sampled);
       SnapiType flatten = snapiType;
       boolean isCollection = false;
 
       if (snapiType instanceof SnapiIterableType) {
-        SnapiIterableType rql2IterableType = (SnapiIterableType) snapiType;
-        flatten = (SnapiType) rql2IterableType.innerType();
+        SnapiIterableType snapiIterableType = (SnapiIterableType) snapiType;
+        flatten = (SnapiType) snapiIterableType.innerType();
         isCollection = true;
       } else if (snapiType instanceof SnapiListType) {
-        SnapiListType rql2IterableType = (SnapiListType) snapiType;
-        flatten = (SnapiType) rql2IterableType.innerType();
+        SnapiListType snapiIterableType = (SnapiListType) snapiType;
+        flatten = (SnapiType) snapiIterableType.innerType();
         isCollection = true;
       }
 
@@ -179,19 +179,19 @@ public abstract class LocationDescribeNode extends ExpressionNode {
 
       // columns
       if (flatten instanceof SnapiRecordType) {
-        SnapiRecordType rql2RecordType = (SnapiRecordType) flatten;
-        Object[] columnRecords = new Object[rql2RecordType.atts().length()];
-        for (int i = 0; i < rql2RecordType.atts().length(); i++) {
+        SnapiRecordType snapiRecordType = (SnapiRecordType) flatten;
+        Object[] columnRecords = new Object[snapiRecordType.atts().length()];
+        for (int i = 0; i < snapiRecordType.atts().length(); i++) {
           String typeStr;
           boolean isNullable;
           SnapiTypeWithProperties fieldType =
-              (SnapiTypeWithProperties) rql2RecordType.atts().apply(i).tipe();
+              (SnapiTypeWithProperties) snapiRecordType.atts().apply(i).tipe();
           typeStr = SourcePrettyPrinter$.MODULE$.format(fieldType);
           isNullable = fieldType.props().contains(SnapiIsNullableTypeProperty.apply());
           Object column = SnapiLanguage.get(this).createPureRecord();
 
           addPropNode.execute(
-              this, column, "col_name", rql2RecordType.atts().apply(i).idn(), false);
+              this, column, "col_name", snapiRecordType.atts().apply(i).idn(), false);
           addPropNode.execute(this, column, "col_type", typeStr, false);
           addPropNode.execute(this, column, "nullable", isNullable, false);
           columnRecords[i] = column;

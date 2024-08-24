@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.compiler.tests.regressions
 
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.frontend.snapi._
 
 class RD5697Test extends SnapiTestContext {
 

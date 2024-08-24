@@ -19,14 +19,14 @@ import org.graalvm.polyglot.Engine
 trait SnapiCompilerServiceTestContext extends CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>
 
-  var rql2TruffleCompilerService: SnapiCompilerService = _
+  var snapiTruffleCompilerService: SnapiCompilerService = _
 
   var engine: Engine = _
 
   override def beforeAll(): Unit = {
     super.beforeAll()
 
-    property("raw.compiler.impl", "rql2-truffle")
+    property("raw.compiler.impl", "snapi")
 
     // Create an isolated Truffle Engine
     val options = new java.util.HashMap[String, String]()
@@ -75,14 +75,14 @@ trait SnapiCompilerServiceTestContext extends CompilerServiceTestContext {
       .options(options)
       .build()
 
-    rql2TruffleCompilerService = new SnapiCompilerService((engine, false))
-    setCompilerService(rql2TruffleCompilerService)
+    snapiTruffleCompilerService = new SnapiCompilerService((engine, false))
+    setCompilerService(snapiTruffleCompilerService)
   }
 
   override def afterAll(): Unit = {
-    if (rql2TruffleCompilerService != null) {
-      RawUtils.withSuppressNonFatalException(rql2TruffleCompilerService.stop())
-      rql2TruffleCompilerService = null
+    if (snapiTruffleCompilerService != null) {
+      RawUtils.withSuppressNonFatalException(snapiTruffleCompilerService.stop())
+      snapiTruffleCompilerService = null
     }
     if (engine != null) {
       RawUtils.withSuppressNonFatalException(engine.close())

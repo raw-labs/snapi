@@ -15,11 +15,11 @@ package com.rawlabs.snapi.truffle.emitter;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.rawlabs.compiler.Entrypoint;
-import com.rawlabs.snapi.frontend.rql2.ProgramContext;
-import com.rawlabs.snapi.frontend.rql2.Tree;
-import com.rawlabs.snapi.frontend.rql2.source.*;
-import com.rawlabs.snapi.frontend.rql2.source.Exp;
-import com.rawlabs.snapi.frontend.rql2.source.SourceProgram;
+import com.rawlabs.snapi.frontend.snapi.ProgramContext;
+import com.rawlabs.snapi.frontend.snapi.Tree;
+import com.rawlabs.snapi.frontend.snapi.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.Exp;
+import com.rawlabs.snapi.frontend.snapi.source.SourceProgram;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
@@ -32,7 +32,7 @@ public class TruffleEmit {
       SourceProgram program,
       SnapiLanguage language,
       com.rawlabs.snapi.frontend.base.ProgramContext programContext) {
-    ProgramContext ctx = (com.rawlabs.snapi.frontend.rql2.ProgramContext) programContext;
+    ProgramContext ctx = (com.rawlabs.snapi.frontend.snapi.ProgramContext) programContext;
     Tree tree = new Tree(program, true, ctx);
     SnapiTruffleEmitter emitter = new SnapiTruffleEmitter(tree, language, ctx);
     SnapiProgram prog = (SnapiProgram) tree.root();

@@ -17,7 +17,7 @@ import com.rawlabs.utils.core.RawUtils
 import org.bitbucket.inkytonik.kiama.util.Positions
 import com.rawlabs.snapi.frontend.base.errors.CompilationMessageMapper
 import com.rawlabs.snapi.frontend.base.source._
-import com.rawlabs.snapi.frontend.rql2.antlr4.ParseProgramResult
+import com.rawlabs.snapi.frontend.snapi.antlr4.ParseProgramResult
 import com.rawlabs.utils.core._
 
 abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](

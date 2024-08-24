@@ -15,10 +15,10 @@ package com.rawlabs.snapi.truffle.emitter.builtin.list_extension;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.SnapiArg;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.FilterListEntry;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiListType;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiType;
+import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.FilterListEntry;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiListType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiType;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListFilterNode;
 import com.rawlabs.snapi.truffle.emitter.TruffleArg;
@@ -30,7 +30,7 @@ public class TruffleFilterListEntry extends FilterListEntry implements TruffleEn
   @Override
   public ExpressionNode toTruffle(Type type, List<SnapiArg> args, TruffleEmitter emitter) {
     SnapiListType listType = (SnapiListType) type;
-    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    List<TruffleArg> truffleArgs = snapiargsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
     int generatorSlot =
         builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");

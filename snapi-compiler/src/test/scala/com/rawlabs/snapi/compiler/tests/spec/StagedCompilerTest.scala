@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.spec
 
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.frontend.snapi._
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class StagedCompilerTest extends SnapiTestContext {

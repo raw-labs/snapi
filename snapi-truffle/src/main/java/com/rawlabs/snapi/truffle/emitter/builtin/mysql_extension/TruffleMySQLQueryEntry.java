@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.emitter.builtin.mysql_extension;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.MySQLQueryEntry;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.MySQLQueryEntry;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package.LocationFromMySQLCredentialNode;

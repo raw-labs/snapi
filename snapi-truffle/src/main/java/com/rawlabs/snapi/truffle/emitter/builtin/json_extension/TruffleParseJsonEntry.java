@@ -15,8 +15,8 @@ package com.rawlabs.snapi.truffle.emitter.builtin.json_extension;
 import static com.rawlabs.snapi.truffle.emitter.builtin.CompilerScalaConsts.tryable;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.ParseJsonEntry;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiTypeWithProperties;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.ParseJsonEntry;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiTypeWithProperties;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.io.json.reader.JsonParseNode;

@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin.list
 
-import com.rawlabs.snapi.frontend.rql2.errors.ItemsNotComparable
+import com.rawlabs.snapi.frontend.snapi.errors.ItemsNotComparable
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class ListMinMaxTest extends SnapiTestContext {

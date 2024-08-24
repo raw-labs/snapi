@@ -14,7 +14,7 @@ package com.rawlabs.snapi.compiler.tests.spec
 
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.utils.sources.filesystem.local.LocalLocationsTestContext
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.frontend.snapi._
 
 class JoinWithTryRowsTest extends SnapiTestContext with LocalLocationsTestContext {
 

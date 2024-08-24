@@ -27,7 +27,7 @@ public class RecordShaperNodes {
 
     public abstract Object execute(Node node, Object shaper, Object key, Object[] values);
 
-    public static SnapiLanguage getRql2Language(Node node) {
+    public static SnapiLanguage getSnapiLanguage(Node node) {
       return SnapiLanguage.get(node);
     }
 
@@ -38,7 +38,7 @@ public class RecordShaperNodes {
         Object key,
         Object[] values,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) SnapiLanguage language,
+        @Cached(value = "getSnapiLanguage(thisNode)", allowUncached = true) SnapiLanguage language,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
       Object record = language.createPureRecord();
@@ -55,7 +55,7 @@ public class RecordShaperNodes {
         Object key,
         Object[] values,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getRql2Language(thisNode)", allowUncached = true) SnapiLanguage language,
+        @Cached(value = "getSnapiLanguage(thisNode)", allowUncached = true) SnapiLanguage language,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
       Object record = language.createPureRecord();

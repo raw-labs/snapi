@@ -16,7 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.extensions.LocationDescription$;
+import com.rawlabs.snapi.frontend.snapi.extensions.LocationDescription$;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.list.StringList;
 import com.rawlabs.snapi.truffle.runtime.primitives.ErrorObject;

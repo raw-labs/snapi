@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiType;
 import com.rawlabs.snapi.truffle.ast.TypeGuards;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
 import com.rawlabs.snapi.truffle.runtime.list.*;

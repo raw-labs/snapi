@@ -19,7 +19,7 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.TypeGuards;
 import com.rawlabs.snapi.truffle.ast.tryable_nullable.TryableNullableNodes;
@@ -146,7 +146,7 @@ public class KryoNodes {
       return list.size() != list.stream().distinct().count();
     }
 
-    public static SnapiLanguage getRql2Language(Node node) {
+    public static SnapiLanguage getSnapiLanguage(Node node) {
       return SnapiLanguage.get(node);
     }
 
@@ -158,7 +158,7 @@ public class KryoNodes {
             SnapiRecordType t,
             @Bind("$node") Node thisNode,
             @Cached(value = "hasDuplicateKeys(t)", allowUncached = true) boolean hasDuplicateKeys,
-            @Cached(value = "getRql2Language(thisNode)", allowUncached = true) SnapiLanguage language,
+            @Cached(value = "getSnapiLanguage(thisNode)", allowUncached = true) SnapiLanguage language,
             @Cached(value = "createAddProps(t.atts().size())", allowUncached = true)
             RecordNodes.AddPropNode[] addPropNode,
             @Cached(value = "addPropNode.length", allowUncached = true) int size,

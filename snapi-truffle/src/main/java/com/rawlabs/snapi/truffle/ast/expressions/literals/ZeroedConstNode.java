@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.truffle.ast.expressions.literals;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 
 public class ZeroedConstNode extends ExpressionNode {
@@ -27,13 +27,13 @@ public class ZeroedConstNode extends ExpressionNode {
   @Override
   public final Object executeGeneric(VirtualFrame virtualFrame) {
       return switch (this.type) {
-          case SnapiByteType rql2ByteType -> (byte) 0;
-          case SnapiShortType rql2ShortType -> (short) 0;
-          case SnapiIntType rql2IntType -> 0;
-          case SnapiLongType rql2LongType -> (long) 0;
-          case SnapiFloatType rql2FloatType -> (float) 0;
-          case SnapiDoubleType rql2DoubleType -> (double) 0;
-          case SnapiBoolType rql2BoolType -> false;
+          case SnapiByteType snapiByteType -> (byte) 0;
+          case SnapiShortType snapiShortType -> (short) 0;
+          case SnapiIntType snapiIntType -> 0;
+          case SnapiLongType snapiLongType -> (long) 0;
+          case SnapiFloatType snapiFloatType -> (float) 0;
+          case SnapiDoubleType snapiDoubleType -> (double) 0;
+          case SnapiBoolType snapiBoolType -> false;
           case null, default -> null;
       };
   }

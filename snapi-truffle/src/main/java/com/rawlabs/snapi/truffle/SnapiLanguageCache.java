@@ -56,7 +56,7 @@ public class SnapiLanguageCache {
         k -> {
           InferrerService inferrer = InferrerServiceProvider.apply(rawSettings);
           CompilerContext compilerContext =
-              new CompilerContext("rql2-truffle", user, inferrer, rawSettings);
+              new CompilerContext("snapi", user, inferrer, rawSettings);
           return new Value(compilerContext, inferrer);
         });
   }

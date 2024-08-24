@@ -69,7 +69,7 @@ final case class ExampleDoc(
     result: Option[String] = None
 ) {
   if (example.contains("```")) throw new AssertionError(
-    "Example code contains ``` and this isn't supported. Must only contain RQL2 code."
+    "Example code contains ``` and this isn't supported. Must only contain Snapi code."
   )
 //  if (
 //    !example.contains("s3://") && !example.contains("https://") && !example

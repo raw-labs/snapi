@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.builtin
 
-import com.rawlabs.snapi.frontend.rql2._
+import com.rawlabs.snapi.frontend.snapi._
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class JsonPackageTest extends SnapiTestContext {
@@ -711,6 +711,6 @@ class JsonPackageTest extends SnapiTestContext {
   test("""Json.Parse("[10, 9, 8]", type string)""")(_ should runErrorAs("unexpected token: START_ARRAY"))
   test("""Json.Parse("{\"a\": 12}", type string)""")(_ should runErrorAs("unexpected token: START_OBJECT"))
 
-  private def isTruffle = compilerService.language.contains("rql2-truffle")
+  private def isTruffle = compilerService.language.contains("snapi")
 
 }

@@ -49,13 +49,13 @@ class RD3084Test extends SnapiTestContext {
   }
 
   test("""Oracle.InferAndQuery("oracle-test", "select * from rawtest.test_types")""") { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should run
   }
 
   test("""Oracle.Query("oracle-test", "select * from rawtest.test_types",
     |       type collection(record(integer1: int, char1: string)))""".stripMargin) { it =>
-    assume(!compilerService.language.contains("rql2-truffle"))
+    assume(!compilerService.language.contains("snapi"))
     it should run
   }
 

@@ -63,20 +63,20 @@ import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.base.errors._
 import com.rawlabs.snapi.frontend.base.source.{BaseNode, Type}
 import com.rawlabs.snapi.frontend.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
-import com.rawlabs.snapi.frontend.rql2.source.{SourceNode, SourceProgram}
-import com.rawlabs.snapi.frontend.rql2._
-import com.rawlabs.snapi.frontend.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
-import com.rawlabs.snapi.frontend.rql2.errors._
-import com.rawlabs.snapi.frontend.rql2.source._
+import com.rawlabs.snapi.frontend.snapi.source.{SourceNode, SourceProgram}
+import com.rawlabs.snapi.frontend.snapi._
+import com.rawlabs.snapi.frontend.snapi.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
+import com.rawlabs.snapi.frontend.snapi.errors._
+import com.rawlabs.snapi.frontend.snapi.source._
 import com.rawlabs.snapi.frontend.inferrer.api.InferrerServiceProvider
-import com.rawlabs.snapi.frontend.rql2.extensions.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
 object SnapiCompilerService {
-  val LANGUAGE: Set[String] = Set("rql2", "rql2-truffle", "snapi")
+  val LANGUAGE: Set[String] = Set("snapi")
 
   val JARS_PATH = "raw.snapi.compiler.jars-path"
 }
@@ -101,7 +101,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   // This is actually the "default constructor" which obtains a new engine or reuses an existing one.
   // Note that the engine will be released when the service is stopped only IF this auxiliary constructor created it.
   // Otherwise, we expect the external party - e.g. the test framework - to close it.
-  // Refer to Rql2TruffleCompilerServiceTestContext to see the engine being created and released from the test
+  // Refer to SnapiTruffleCompilerServiceTestContext to see the engine being created and released from the test
   // framework, so that every test suite instance has a fresh engine.
   def this()(implicit settings: RawSettings) = {
     this(CompilerService.getEngine)
@@ -115,7 +115,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
 
   private def getCompilerContext(user: RawUid): CompilerContext = {
     compilerContextCachesLock.synchronized {
-      compilerContextCaches.getOrElseUpdate(user, createCompilerContext(user, "rql2-truffle"))
+      compilerContextCaches.getOrElseUpdate(user, createCompilerContext(user, "snapi"))
     }
   }
 
@@ -199,19 +199,19 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
               case (idn, programDecls) =>
                 val formattedDecls = programDecls.map {
                   case TreeDeclDescription(None, outType, comment) =>
-                    DeclDescription(None, rql2TypeToRawType(outType), comment)
+                    DeclDescription(None, snapiTypeToRawType(outType), comment)
                   case TreeDeclDescription(Some(params), outType, comment) =>
                     val formattedParams = params.map {
                       case TreeParamDescription(idn, tipe, required) =>
-                        ParamDescription(idn, rql2TypeToRawType(tipe), defaultValue = None, comment = None, required)
+                        ParamDescription(idn, snapiTypeToRawType(tipe), defaultValue = None, comment = None, required)
                     }
-                    DeclDescription(Some(formattedParams), rql2TypeToRawType(outType), comment)
+                    DeclDescription(Some(formattedParams), snapiTypeToRawType(outType), comment)
                 }
                 (idn, formattedDecls)
             }
             val programDescription = ProgramDescription(
               formattedDecls,
-              maybeType.map(t => DeclDescription(None, rql2TypeToRawType(t), None)),
+              maybeType.map(t => DeclDescription(None, snapiTypeToRawType(t), None)),
               comment
             )
             GetProgramDescriptionSuccess(programDescription)

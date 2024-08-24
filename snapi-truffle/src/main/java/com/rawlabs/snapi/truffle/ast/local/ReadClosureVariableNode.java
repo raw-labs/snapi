@@ -20,7 +20,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.TypeGuards;
@@ -29,7 +29,7 @@ import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 @ImportStatic(TypeGuards.class)
 @NodeField(name = "depth", type = Integer.class)
 @NodeField(name = "index", type = Integer.class)
-@NodeField(name = "rql2Type", type = SnapiType.class)
+@NodeField(name = "snapiType", type = SnapiType.class)
 public abstract class ReadClosureVariableNode extends ExpressionNode {
 
   private static final TruffleLogger LOG =
@@ -42,39 +42,39 @@ public abstract class ReadClosureVariableNode extends ExpressionNode {
   protected abstract Integer getIndex();
 
   @Idempotent
-  protected abstract SnapiType getRql2Type();
+  protected abstract SnapiType getSnapiType();
 
-  @Specialization(guards = "isBooleanKind(getRql2Type())")
+  @Specialization(guards = "isBooleanKind(getSnapiType())")
   protected final boolean doBoolean(VirtualFrame frame) {
     return findActualFrame(frame).getBoolean(getIndex());
   }
 
-  @Specialization(guards = "isByteKind(getRql2Type())")
+  @Specialization(guards = "isByteKind(getSnapiType())")
   protected final byte doByte(VirtualFrame frame) {
     return findActualFrame(frame).getByte(getIndex());
   }
 
-  @Specialization(guards = "isShortKind(getRql2Type())")
+  @Specialization(guards = "isShortKind(getSnapiType())")
   protected final short doShort(VirtualFrame frame) {
     return (short) findActualFrame(frame).getInt(getIndex());
   }
 
-  @Specialization(guards = "isIntKind(getRql2Type())")
+  @Specialization(guards = "isIntKind(getSnapiType())")
   protected final int doInt(VirtualFrame frame) {
     return findActualFrame(frame).getInt(getIndex());
   }
 
-  @Specialization(guards = "isLongKind(getRql2Type())")
+  @Specialization(guards = "isLongKind(getSnapiType())")
   protected final long doLong(VirtualFrame frame) {
     return findActualFrame(frame).getLong(getIndex());
   }
 
-  @Specialization(guards = "isFloatKind(getRql2Type())")
+  @Specialization(guards = "isFloatKind(getSnapiType())")
   protected final float doFloat(VirtualFrame frame) {
     return findActualFrame(frame).getFloat(getIndex());
   }
 
-  @Specialization(guards = "isDoubleKind(getRql2Type())")
+  @Specialization(guards = "isDoubleKind(getSnapiType())")
   protected final double doDouble(VirtualFrame frame) {
     return findActualFrame(frame).getDouble(getIndex());
   }

@@ -13,8 +13,8 @@
 package com.rawlabs.snapi.truffle.emitter;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.rawlabs.snapi.frontend.rql2.source.Exp;
-import com.rawlabs.snapi.frontend.rql2.source.SnapiMethod;
+import com.rawlabs.snapi.frontend.snapi.source.Exp;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiMethod;
 import com.rawlabs.snapi.truffle.SnapiLanguage;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.StatementNode;

@@ -13,7 +13,7 @@
 package com.rawlabs.snapi.compiler.tests.lsp
 
 import com.rawlabs.compiler.ValidateResponse
-import com.rawlabs.snapi.frontend.rql2.errors.OutputTypeRequiredForRecursiveFunction
+import com.rawlabs.snapi.frontend.snapi.errors.OutputTypeRequiredForRecursiveFunction
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class LspAiValidateTest extends SnapiTestContext {

@@ -15,30 +15,30 @@ package com.rawlabs.snapi.truffle.ast.local;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.rawlabs.snapi.frontend.rql2.source.*;
+import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.TypeGuards;
 
 @ImportStatic(TypeGuards.class)
 @NodeChild("value")
 @NodeField(name = "slot", type = int.class)
-@NodeField(name = "rql2Type", type = SnapiType.class)
+@NodeField(name = "snapiType", type = SnapiType.class)
 public abstract class WriteLocalVariableNode extends ExpressionNode {
 
   @Idempotent
   protected abstract int getSlot();
 
   @Idempotent
-  protected abstract SnapiType getRql2Type();
+  protected abstract SnapiType getSnapiType();
 
-  @Specialization(guards = "isBooleanKind(getRql2Type())")
+  @Specialization(guards = "isBooleanKind(getSnapiType())")
   protected final boolean doBoolean(VirtualFrame frame, boolean value) {
     frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Boolean);
     frame.setBoolean(getSlot(), value);
     return value;
   }
 
-  @Specialization(guards = "isByteKind(getRql2Type())")
+  @Specialization(guards = "isByteKind(getSnapiType())")
   protected final byte doByte(VirtualFrame frame, byte value) {
     frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Byte);
 
@@ -46,7 +46,7 @@ public abstract class WriteLocalVariableNode extends ExpressionNode {
     return value;
   }
 
-  @Specialization(guards = "isShortKind(getRql2Type())")
+  @Specialization(guards = "isShortKind(getSnapiType())")
   protected final short doShort(VirtualFrame frame, short value) {
     frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Int);
 
@@ -54,7 +54,7 @@ public abstract class WriteLocalVariableNode extends ExpressionNode {
     return value;
   }
 
-  @Specialization(guards = "isIntKind(getRql2Type())")
+  @Specialization(guards = "isIntKind(getSnapiType())")
   protected final int doInt(VirtualFrame frame, int value) {
     frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Int);
 
@@ -62,7 +62,7 @@ public abstract class WriteLocalVariableNode extends ExpressionNode {
     return value;
   }
 
-  @Specialization(guards = "isLongKind(getRql2Type())")
+  @Specialization(guards = "isLongKind(getSnapiType())")
   protected final long doLong(VirtualFrame frame, long value) {
     frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Long);
 
@@ -70,7 +70,7 @@ public abstract class WriteLocalVariableNode extends ExpressionNode {
     return value;
   }
 
-  @Specialization(guards = "isFloatKind(getRql2Type())")
+  @Specialization(guards = "isFloatKind(getSnapiType())")
   protected final float doFloat(VirtualFrame frame, float value) {
     frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Float);
 
@@ -78,7 +78,7 @@ public abstract class WriteLocalVariableNode extends ExpressionNode {
     return value;
   }
 
-  @Specialization(guards = "isDoubleKind(getRql2Type())")
+  @Specialization(guards = "isDoubleKind(getSnapiType())")
   protected final double doDouble(VirtualFrame frame, double value) {
     frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Double);
 

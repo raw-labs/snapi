@@ -152,7 +152,7 @@ class RD9255Test extends SnapiTestContext with EitherValues {
     exec("byte_func", "tralala", "byte").left.value should include("expected byte but got string")
   )
   test("missing mandatory arguments") { _ =>
-    assume(compilerService.language.contains("rql2-truffle"))
+    assume(compilerService.language.contains("snapi"))
     callDecl(declarations, "three_param_func", Array(("x", RawString("U"))), "string").left.value should include(
       "missing mandatory arguments"
     )
