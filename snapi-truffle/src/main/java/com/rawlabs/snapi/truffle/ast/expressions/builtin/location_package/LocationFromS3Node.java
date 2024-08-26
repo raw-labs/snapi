@@ -18,7 +18,6 @@ import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.protocol.compiler.S3Config;
 import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.primitives.*;
 import com.rawlabs.utils.sources.filesystem.s3.S3Path;
 import scala.None$;
