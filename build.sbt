@@ -1,19 +1,12 @@
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import sbt.Keys._
 import sbt._
-
-import java.time.Year
 
 import raw.build.Dependencies._
 import raw.build.BuildSettings._
 
-import java.io.IOException
-import java.nio.file.{Files, Paths}
-import java.nio.charset.StandardCharsets
-
 import scala.sys.process._
 
-import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
+import com.jsuereth.sbtpgp.PgpKeys.publishSigned
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
@@ -43,15 +36,17 @@ writeVersionToFile := {
 
 lazy val root = (project in file("."))
   .aggregate(
-    utils,
-    sources,
-    client,
+    protocolRaw,
+    protocolCompiler,
+    utilsCore,
+    utilsSources,
+    compiler,
     snapiParser,
     snapiFrontend,
     snapiTruffle,
-    snapiClient,
+    snapiCompiler,
     sqlParser,
-    sqlClient
+    sqlCompiler
   )
   .settings(
     commonSettings,
@@ -63,7 +58,7 @@ lazy val root = (project in file("."))
     publishLocal / skip := true
   )
 
-lazy val utils = (project in file("utils"))
+lazy val utilsCore = (project in file("utils-core"))
   .settings(
     commonSettings,
     scalaCompileSettings,
@@ -83,9 +78,9 @@ lazy val utils = (project in file("utils"))
       jacksonDeps
   )
 
-lazy val sources = (project in file("sources"))
+lazy val utilsSources = (project in file("utils-sources"))
   .dependsOn(
-    utils % "compile->compile;test->test"
+    utilsCore % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -108,9 +103,36 @@ lazy val sources = (project in file("sources"))
     )
   )
 
-lazy val client = (project in file("client"))
+lazy val protocolRaw = (project in file("protocol-raw"))
+  .enablePlugins(ProtobufPlugin)
+  .settings(
+    commonSettings,
+    commonCompileSettings,
+    testSettings,
+    ProtobufConfig / version := "3.25.4",
+    // Include the protobuf files in the JAR
+    Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
+  )
+
+lazy val protocolCompiler = (project in file("protocol-compiler"))
   .dependsOn(
-    utils % "compile->compile;test->test"
+    protocolRaw % "compile->compile;test->test;protobuf->protobuf"
+  )
+  .enablePlugins(ProtobufPlugin)
+  .settings(
+    commonSettings,
+    commonCompileSettings,
+    testSettings,
+    ProtobufConfig / version := "3.25.4",
+    ProtobufConfig / protobufIncludePaths += (protocolRaw / ProtobufConfig / sourceDirectory).value,
+    // Include the protobuf files in the JAR
+    Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
+  )
+
+lazy val compiler = (project in file("compiler"))
+  .dependsOn(
+    utilsCore % "compile->compile;test->test",
+    protocolCompiler % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
@@ -124,27 +146,23 @@ lazy val snapiParser = (project in file("snapi-parser"))
   .settings(
     commonSettings,
     commonCompileSettings,
-    javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
       (
-        s"${javaSrcBasePath.value}/raw/compiler/rql2/generated",
-        "raw.compiler.rql2.generated",
-        s"${javaSrcBasePath.value}/raw/snapi/grammar",
+        s"${(Compile / sourceManaged).value}/java/com/rawlabs/snapi/parser/generated",
+        "com.rawlabs.snapi.parser.generated",
+        s"${(Compile / sourceDirectory).value}/java/com/rawlabs/snapi/parser/grammar",
         "Snapi"
       )
     ),
     Compile / doc := { file("/dev/null") },
-    compileOrder := CompileOrder.JavaThenScala,
-    libraryDependencies ++= Seq(
-      antlr4Runtime
-    )
+    libraryDependencies += antlr4Runtime
   )
 
 lazy val snapiFrontend = (project in file("snapi-frontend"))
   .dependsOn(
-    utils % "compile->compile;test->test",
-    client % "compile->compile;test->test",
-    sources % "compile->compile;test->test",
+    utilsCore % "compile->compile;test->test",
+    compiler % "compile->compile;test->test",
+    utilsSources % "compile->compile;test->test",
     snapiParser % "compile->compile;test->test"
   )
   .settings(
@@ -178,7 +196,7 @@ val annotationProcessors = Seq(
 
 lazy val snapiTruffle = (project in file("snapi-truffle"))
   .dependsOn(
-    utils % "compile->compile;test->test",
+    utilsCore % "compile->compile;test->test",
     snapiFrontend % "compile->compile;test->test"
   )
   .enablePlugins(JavaAnnotationProcessorPlugin)
@@ -239,9 +257,9 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     publishSigned := (publishSigned dependsOn runJavaAnnotationProcessor).value
   )
 
-lazy val snapiClient = (project in file("snapi-client"))
+lazy val snapiCompiler = (project in file("snapi-compiler"))
   .dependsOn(
-    client % "compile->compile;test->test",
+    compiler % "compile->compile;test->test",
     snapiFrontend % "compile->compile;test->test",
     snapiTruffle % "compile->compile;test->test"
   )
@@ -256,25 +274,21 @@ lazy val sqlParser = (project in file("sql-parser"))
   .settings(
     commonSettings,
     commonCompileSettings,
-    javaSrcBasePath := s"${baseDirectory.value}/src/main/java",
     parserDefinitions := List(
       (
-        s"${javaSrcBasePath.value}/raw/client/sql/generated",
-        "raw.client.sql.generated",
-        s"${javaSrcBasePath.value}/raw/psql/grammar",
+        s"${(Compile / sourceManaged).value}/java/com/rawlabs/sql/parser/generated",
+        "com.rawlabs.sql.parser.generated",
+        s"${(Compile / sourceDirectory).value}/java/com/rawlabs/sql/parser/grammar",
         "Psql"
       )
     ),
     Compile / doc := { file("/dev/null") },
-    compileOrder := CompileOrder.JavaThenScala,
-    libraryDependencies ++= Seq(
-      antlr4Runtime
-    )
+    libraryDependencies += antlr4Runtime
   )
 
-lazy val sqlClient = (project in file("sql-client"))
+lazy val sqlCompiler = (project in file("sql-compiler"))
   .dependsOn(
-    client % "compile->compile;test->test",
+    compiler % "compile->compile;test->test",
     sqlParser % "compile->compile;test->test"
   )
   .settings(
@@ -290,9 +304,9 @@ lazy val sqlClient = (project in file("sql-client"))
     )
   )
 
-lazy val pythonClient = (project in file("python-client"))
+lazy val pythonCompiler = (project in file("python-compiler"))
   .dependsOn(
-    client % "compile->compile;test->test"
+    compiler % "compile->compile;test->test"
   )
   .settings(
     commonSettings,

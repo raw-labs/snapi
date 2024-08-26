@@ -37,29 +37,28 @@ module raw.snapi.frontend {
   requires com.google.common;
   requires jul.to.slf4j;
   requires org.graalvm.polyglot;
-  requires raw.utils;
-  requires raw.client;
-  requires raw.sources;
+  requires raw.utils.core;
+  requires raw.protocol.raw;
+  requires raw.protocol.compiler;
+  requires raw.compiler;
+  requires raw.utils.sources;
   requires raw.snapi.parser;
 
-  exports raw.compiler.base;
-  exports raw.compiler.base.errors;
-  exports raw.compiler.base.source;
-  exports raw.compiler.common;
-  exports raw.compiler.common.source;
-  exports raw.compiler.rql2;
-  exports raw.compiler.rql2.api;
-  exports raw.compiler.rql2.builtin;
-  exports raw.compiler.rql2.errors;
-  exports raw.compiler.rql2.lsp;
-  exports raw.compiler.rql2.source;
-  exports raw.compiler.rql2.antlr4;
-  exports raw.compiler.utils;
-  exports raw.inferrer.api;
-  exports raw.inferrer.local;
+  exports com.rawlabs.snapi.frontend.base;
+  exports com.rawlabs.snapi.frontend.base.errors;
+  exports com.rawlabs.snapi.frontend.base.source;
+  exports com.rawlabs.snapi.frontend.snapi;
+  exports com.rawlabs.snapi.frontend.snapi.source;
+  exports com.rawlabs.snapi.frontend.snapi.phases;
+  exports com.rawlabs.snapi.frontend.snapi.errors;
+  exports com.rawlabs.snapi.frontend.snapi.antlr4;
+  exports com.rawlabs.snapi.frontend.snapi.extensions;
+  exports com.rawlabs.snapi.frontend.snapi.extensions.builtin;
+  exports com.rawlabs.snapi.frontend.inferrer.api;
+  exports com.rawlabs.snapi.frontend.inferrer.local;
 
-  opens raw.inferrer.api to
+  opens com.rawlabs.snapi.frontend.inferrer.api to
       com.fasterxml.jackson.databind;
-  opens raw.compiler.rql2.api to
+  opens com.rawlabs.snapi.frontend.snapi.extensions to
       com.fasterxml.jackson.databind;
 }

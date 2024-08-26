@@ -9,7 +9,7 @@ import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
 object BuildSettings {
   lazy val commonSettings = Seq(
-    name := "raw-" + baseDirectory.value.getName,
+    name := baseDirectory.value.getName,
     homepage := Some(url("https://www.raw-labs.com/")),
     organization := "com.raw-labs",
     organizationName := "RAW Labs SA",

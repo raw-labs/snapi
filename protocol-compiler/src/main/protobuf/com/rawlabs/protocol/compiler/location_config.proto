@@ -1,0 +1,165 @@
+/*
+ * Copyright 2024 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+syntax = "proto3";
+
+option java_package = "com.rawlabs.protocol.compiler";
+option java_multiple_files = true;
+
+package com.rawlabs.protocol.compiler;
+
+message LocationConfig {
+  oneof config {
+    S3Config s3 = 1;
+    MySqlConfig mysql = 2;
+    OracleConfig oracle = 3;
+    PostgreSQLConfig postgresql = 4;
+    SQLServerConfig sqlserver = 5;
+    SnowflakeConfig snowflake = 6;
+    SqliteConfig sqlite = 7;
+    TeradataConfig teradata = 8;
+    GitHubConfig github = 9;
+    JiraConfig jira = 10;
+    ConfluenceConfig confluence = 11;
+    SalesforceConfig salesforce = 12;
+    DropboxAccessTokenConfig dropboxAccessToken = 13;
+    DropboxUsernamePasswordConfig dropboxUsernamePassword = 14;
+    HttpHeadersConfig httpHeaders = 15;
+    SecretConfig secret = 99;
+    ErrorConfig error = 9999;
+  }
+}
+
+message S3Config {
+  optional S3AccessSecretKey accessSecretKey = 1;
+  optional string region = 2;
+}
+
+message S3AccessSecretKey {
+  string accessKey = 1;
+  string secretKey = 2;
+}
+
+message MySqlConfig {
+  string host = 1;
+  int32 port = 2;
+  string database = 3;
+  string user = 4;
+  string password = 5;
+}
+
+message OracleConfig {
+  string host = 1;
+  int32 port = 2;
+  string database = 3;
+  string user = 4;
+  string password = 5;
+  optional string schema = 6;
+}
+
+message PostgreSQLConfig {
+  string host = 1;
+  int32 port = 2;
+  string database = 3;
+  string user = 4;
+  string password = 5;
+  optional string schema = 6;
+}
+
+message SQLServerConfig {
+  string host = 1;
+  int32 port = 2;
+  string database = 3;
+  string user = 4;
+  string password = 5;
+  optional string schema = 6;
+}
+
+message SnowflakeConfig {
+  string database = 1;
+  string user = 2;
+  string password = 3;
+  string accountIdentifier = 4;
+  map<string, string> parameters = 5;
+  optional string schema = 6;
+}
+
+message SqliteConfig {
+  string path = 1;
+  optional string schema = 2;
+}
+
+message TeradataConfig {
+  string host = 1;
+  int32 port = 2;
+  string database = 3;
+  string user = 4;
+  string password = 5;
+  map<string, string> parameters = 6;
+  optional string schema = 7;
+}
+
+message GitHubConfig {
+  string token = 1;
+  optional string baseUrl = 2;
+}
+
+message JiraConfig {
+  string baseUrl = 1;
+  string username = 2;
+  string token = 3;
+  JiraTokenType tokenType = 4;
+
+  enum JiraTokenType {
+    STANDARD_ACCESS_TOKEN = 0;
+    PERSONAL_ACCESS_TOKEN = 1;
+  }
+}
+
+message ConfluenceConfig {
+  string baseUrl = 1;
+  string username = 2;
+  string token = 3;
+}
+
+message SalesforceConfig {
+  string url = 1;
+  string username = 2;
+  string password = 3;
+  string securityToken = 4;
+  string clientId = 5;
+  string apiVersion = 6;
+  repeated string customObjects = 7;
+}
+
+message DropboxAccessTokenConfig {
+  string accessToken = 1;
+}
+
+message DropboxUsernamePasswordConfig {
+  string username = 1;
+  string password = 2;
+}
+
+message HttpHeadersConfig {
+  map<string, string> headers = 1;
+}
+
+// This is not used in practice but is kept for compatibility with FDW interface.
+message SecretConfig {
+  string name = 1;
+  string value = 2;
+}
+
+message ErrorConfig {
+  string message = 1;
+}

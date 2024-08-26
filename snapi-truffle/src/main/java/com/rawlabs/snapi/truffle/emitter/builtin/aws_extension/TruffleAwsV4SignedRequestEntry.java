@@ -1,0 +1,134 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+package com.rawlabs.snapi.truffle.emitter.builtin.aws_extension;
+
+import com.rawlabs.snapi.frontend.base.source.Type;
+import com.rawlabs.snapi.frontend.snapi.extensions.builtin.AwsV4SignedRequest;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiAttrType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiListType;
+import com.rawlabs.snapi.frontend.snapi.source.SnapiRecordType;
+import com.rawlabs.snapi.truffle.SnapiLanguage;
+import com.rawlabs.snapi.truffle.ast.ExpressionNode;
+import com.rawlabs.snapi.truffle.ast.expressions.binary.PlusNode;
+import com.rawlabs.snapi.truffle.ast.expressions.builtin.aws_package.AwsV4SignedRequestNodeGen;
+import com.rawlabs.snapi.truffle.ast.expressions.iterable.list.ListBuildNode;
+import com.rawlabs.snapi.truffle.ast.expressions.literals.StringNode;
+import com.rawlabs.snapi.truffle.emitter.TruffleArg;
+import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
+import java.util.List;
+import java.util.Optional;
+import scala.collection.immutable.HashSet;
+import scala.collection.immutable.Vector;
+
+public class TruffleAwsV4SignedRequestEntry extends AwsV4SignedRequest
+    implements TruffleEntryExtension {
+  @Override
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
+    ExpressionNode key = args.get(0).exprNode();
+    ExpressionNode secretKey = args.get(1).exprNode();
+    ExpressionNode service = args.get(2).exprNode();
+
+    Optional<ExpressionNode> maybeRegion =
+        args.stream()
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("region"))
+            .map(TruffleArg::exprNode)
+            .findFirst();
+
+    Optional<ExpressionNode> maybeSessionToken =
+        args.stream()
+            .filter(
+                (TruffleArg a) -> a.identifier() != null && a.identifier().equals("sessionToken"))
+            .map(TruffleArg::exprNode)
+            .findFirst();
+
+    Optional<ExpressionNode> maybeMethod =
+        args.stream()
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("method"))
+            .map(TruffleArg::exprNode)
+            .findFirst();
+
+    ExpressionNode method = maybeMethod.orElse(new StringNode("GET"));
+
+    Optional<ExpressionNode> maybeHost =
+        args.stream()
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("host"))
+            .map(TruffleArg::exprNode)
+            .findFirst();
+
+    ExpressionNode host =
+        maybeHost.orElse(
+            maybeRegion
+                .map(
+                    expressionNode ->
+                        new PlusNode(
+                            new PlusNode(
+                                new PlusNode(service, new StringNode(".")), expressionNode),
+                            new StringNode(".amazonaws.com")))
+                .orElse(new PlusNode(service, new StringNode(".amazonaws.com"))));
+
+    ExpressionNode path =
+        args.stream()
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("path"))
+            .map(TruffleArg::exprNode)
+            .findFirst()
+            .orElse(new StringNode("/"));
+
+    ExpressionNode body =
+        args.stream()
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("bodyString"))
+            .map(TruffleArg::exprNode)
+            .findFirst()
+            .orElse(new StringNode(""));
+
+    ExpressionNode urlParams =
+        args.stream()
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("args"))
+            .map(TruffleArg::exprNode)
+            .findFirst()
+            .orElse(
+                new ListBuildNode(
+                    SnapiListType.apply(
+                        SnapiRecordType.apply(new Vector<SnapiAttrType>(0, 0, 0), new HashSet<>()),
+                        new HashSet<>()),
+                    new ExpressionNode[] {}));
+
+    ExpressionNode headers =
+        args.stream()
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("headers"))
+            .map(TruffleArg::exprNode)
+            .findFirst()
+            .orElse(
+                new ListBuildNode(
+                    SnapiListType.apply(
+                        SnapiRecordType.apply(new Vector<SnapiAttrType>(0, 0, 0), new HashSet<>()),
+                        new HashSet<>()),
+                    new ExpressionNode[] {}));
+
+    ExpressionNode sessionToken = maybeSessionToken.orElse(new StringNode(""));
+
+    ExpressionNode region = maybeRegion.orElse(new StringNode("us-east-1"));
+
+    return AwsV4SignedRequestNodeGen.create(
+        key,
+        secretKey,
+        service,
+        region,
+        sessionToken,
+        path,
+        method,
+        host,
+        body,
+        urlParams,
+        headers);
+  }
+}

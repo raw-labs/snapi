@@ -1,0 +1,62 @@
+/*
+ * Copyright 2024 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+syntax = "proto3";
+
+option java_package = "com.rawlabs.protocol.compiler";
+option java_multiple_files = true;
+
+package com.rawlabs.protocol.compiler;
+
+message PackageDoc {
+  string description = 1;
+  optional string info = 2;
+  optional string warning = 3;
+  optional string danger = 4;
+}
+
+message EntryDoc {
+  string summary = 1;
+  optional string description = 2;
+  repeated ExampleDoc examples = 3;
+  repeated ParamDoc params = 4;
+  optional ReturnDoc ret = 5;
+  optional string info = 6;
+  optional string warning = 7;
+  optional string danger = 8;
+}
+
+message ExampleDoc {
+  string example = 1;
+  optional string result = 2;
+}
+
+message ParamDoc {
+  string name = 1;
+  TypeDoc typeDoc = 2;
+  string description = 3;
+  bool isOptional = 4;
+  bool isVarArg = 5;
+  optional string info = 6;
+  optional string warning = 7;
+  optional string danger = 8;
+  optional string customSyntax = 9;
+}
+
+message ReturnDoc {
+  string description = 1;
+  optional TypeDoc retType = 2;
+}
+
+message TypeDoc {
+  repeated string possibleTypes = 1;
+}
