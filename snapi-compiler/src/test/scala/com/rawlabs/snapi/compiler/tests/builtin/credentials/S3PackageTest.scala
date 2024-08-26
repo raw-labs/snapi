@@ -25,7 +25,8 @@ class S3PackageTest extends SnapiTestContext {
   test(s"""let
     |  data = Csv.InferAndRead(
     |    S3.Build(
-    |      "s3://rawlabs-private-test-data/students.csv",
+    |      "$UnitTestPrivateBucket",
+    |      "/students.csv",
     |      region = "${UnitTestPrivateBucketCred.getRegion}",
     |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
     |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
@@ -36,14 +37,15 @@ class S3PackageTest extends SnapiTestContext {
     |""".stripMargin)(it => it should evaluateTo("7"))
 
   // using a private bucket registered in the credentials server
-  test(s"""String.Read(S3.Build("s3://$UnitTestPrivateBucket2/file1.csv"))
+  test(s"""String.Read(S3.Build("$UnitTestPrivateBucket2", "/file1.csv"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
   // listing a s3 bucket from us-east-1 (non default region)
   test(s"""let
     |  data = Location.Ls(
     |    S3.Build(
-    |      "s3://$unitTestPrivateBucketUsEast1/csvs/01",
+    |      "$unitTestPrivateBucketUsEast1",
+    |      "/csvs/01",
     |      region = "${unitTestPrivateBucketUsEast1Cred.getRegion}",
     |      accessKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getAccessKey}",
     |      secretKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getSecretKey}"
@@ -60,7 +62,8 @@ class S3PackageTest extends SnapiTestContext {
   test(s"""let
     |  data = Location.Ls(
     |    S3.Build(
-    |      "s3://$unitTestPrivateBucketUsEast1/csvs/01",
+    |      "$unitTestPrivateBucketUsEast1",
+    |      "/csvs/01",
     |      accessKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getAccessKey}",
     |      secretKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getSecretKey}"
     |    )

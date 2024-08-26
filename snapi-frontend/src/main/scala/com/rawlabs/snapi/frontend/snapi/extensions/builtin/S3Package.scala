@@ -40,7 +40,8 @@ class S3BuildEntry extends EntryExtension {
   override def docs: EntryDoc = EntryDoc(
     "Builds a S3 location from an url.",
     params = List(
-      ParamDoc("url", TypeDoc(List("string")), "The url to the s3 location."),
+      ParamDoc("bucket", TypeDoc(List("string")), "The name of the bucket."),
+      ParamDoc("path", TypeDoc(List("string")), "The path to the file in the bucket."),
       ParamDoc("region", TypeDoc(List("string")), "The region of the bucket, e.g. 'eu-west-1'.", isOptional = true),
       ParamDoc("accessKey", TypeDoc(List("string")), "The AWS access key.", isOptional = true),
       ParamDoc("secretKey", TypeDoc(List("string")), "The AWS secret key.", isOptional = true)
@@ -48,14 +49,14 @@ class S3BuildEntry extends EntryExtension {
     info = Some(
       "If the S3 bucket is not registered in the credentials storage, then the region, accessKey and secretKey must be provided as arguments."
     ),
-    examples = List(ExampleDoc("""S3.Build("S3://my-bucket/folder/sub-folder/file")""")),
+    examples = List(ExampleDoc("""S3.Build("my-bucket", "/folder/sub-folder/file")""")),
     ret = Some(ReturnDoc("The S3 location.", retType = Some(TypeDoc(List("location")))))
   )
 
-  override def nrMandatoryParams: Int = 1
+  override def nrMandatoryParams: Int = 2
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    assert(idx == 0)
+    assert(idx == 0 || idx == 1)
     Right(ExpParam(SnapiStringType()))
   }
 
