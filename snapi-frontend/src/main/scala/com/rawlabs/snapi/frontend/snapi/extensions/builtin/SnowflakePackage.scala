@@ -97,11 +97,12 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension {
       ParamDoc(
         "options",
         typeDoc = TypeDoc(List("list")),
-        description = """Extra connection options.""".stripMargin,
+        description = """Extra connection options, e.g. `[{"timezone", "UTC"}]`.""".stripMargin,
         isOptional = true
       )
     ),
-    examples = List(ExampleDoc("""Snowflake.InferAndRead("database", "schema", "table")""")),
+    examples =
+      List(ExampleDoc("""Snowflake.InferAndRead("database", "schema", "table", options=[{"timezone", "UTC"}])""")),
     ret = Some(
       ReturnDoc("A table with the data read from the Snowflake table.", retType = Some(TypeDoc(List("collection"))))
     )
@@ -282,7 +283,7 @@ class SnowflakeReadEntry extends SugarEntryExtension {
       ParamDoc(
         "options",
         typeDoc = TypeDoc(List("list")),
-        description = """Extra connection options.""".stripMargin,
+        description = """Extra connection options, e.g. `[{"timezone", "UTC"}]`.""".stripMargin,
         isOptional = true
       )
     ),
@@ -426,11 +427,13 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension {
       ParamDoc(
         "options",
         typeDoc = TypeDoc(List("list")),
-        description = """Extra connection options.""".stripMargin,
+        description = """Extra connection options, e.g. `[{"timezone", "UTC"}]`.""".stripMargin,
         isOptional = true
       )
     ),
-    examples = List(ExampleDoc("""Snowflake.InferAndQuery("database", "SELECT * FROM schema.table")""")),
+    examples = List(
+      ExampleDoc("""Snowflake.InferAndQuery("database", "SELECT * FROM schema.table", options=[{"timezone", "UTC"}])""")
+    ),
     ret = Some(
       ReturnDoc("A table with the data read from the Snowflake table.", retType = Some(TypeDoc(List("collection"))))
     )
@@ -601,7 +604,7 @@ class SnowflakeQueryEntry extends EntryExtension {
       ParamDoc(
         "options",
         typeDoc = TypeDoc(List("list")),
-        description = """Extra connection options.""".stripMargin,
+        description = """Extra connection options, e.g. `[{"timezone", "UTC"}]`.""".stripMargin,
         isOptional = true
       )
     ),
