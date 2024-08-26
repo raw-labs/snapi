@@ -1,0 +1,73 @@
+/*
+ * Copyright 2024 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+syntax = "proto3";
+
+option java_package = "com.rawlabs.protocol.compiler";
+option java_multiple_files = true;
+
+import "com/rawlabs/protocol/compiler/docs.proto";
+
+package com.rawlabs.protocol.compiler;
+
+message Completion {
+  oneof completion {
+    TypeCompletion type = 1;
+    FieldCompletion field = 2;
+    LetBindCompletion letBind = 3;
+    LetFunCompletion letFun = 4;
+    LetFunRecCompletion letFunRec = 5;
+    FunParamCompletion funParam = 6;
+    PackageCompletion package = 7;
+    EntryCompletion entry = 8;
+  }
+}
+
+message TypeCompletion {
+  string name = 1;
+  string type = 2;
+}
+
+message FieldCompletion {
+  string name = 1;
+  string type = 2;
+}
+
+message LetBindCompletion {
+  string name = 1;
+  string type = 2;
+}
+
+message LetFunCompletion {
+  string name = 1;
+  string type = 2;
+}
+
+message LetFunRecCompletion {
+  string name = 1;
+  string type = 2;
+}
+
+message FunParamCompletion {
+  string name = 1;
+  string type = 2;
+}
+
+message PackageCompletion {
+  string name = 1;
+  PackageDoc doc = 2;
+}
+
+message EntryCompletion {
+  string name = 1;
+  EntryDoc doc = 2;
+}

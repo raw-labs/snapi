@@ -1,16 +1,13 @@
 package raw.build
 
-import sbt.Keys._
-import sbt.{Def, _}
+import sbt.Keys.*
+import sbt.*
 import sbt.plugins.JvmPlugin
 
-import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 import java.io.{File, FileInputStream, IOException}
-import java.net.URL
 import java.security.MessageDigest
-import scala.util.control.Breaks._
-
-import scala.sys.process._
+import scala.util.control.Breaks.*
+import scala.sys.process.*
 
 object GenParserPlugin extends AutoPlugin {
   override def requires = JvmPlugin
@@ -18,26 +15,25 @@ object GenParserPlugin extends AutoPlugin {
 
   // Task keys
   object autoImport {
-    val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
-    val parserDefinitions = settingKey[List[(String, String, String, String)]]("List of parser definitions with output path first followed by the name of the generated package")
-    val javaSrcBasePath = settingKey[String]("Java src relative path")
+    val generateParser = taskKey[Seq[File]]("Generated antlr4 base parser and lexer")
+    val parserDefinitions = settingKey[List[(String, String, String, String)]](
+      "List of parser definitions with output path first followed by the name of the generated package"
+    )
   }
 
   import autoImport._
 
   // Provide default settings
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
-
     generateParser := {
       val s: TaskStreams = streams.value
 
-      val basePath: String = javaSrcBasePath.value
       val parsers = parserDefinitions.value
 
       // Ensure antlr jar is available
       val antlrJarPath = (ThisBuild / baseDirectory).value / "antlr-4.12.0-complete.jar"
       val antlrJarChecksum = "88f18a2bfac0dde1009eda5c7dce358a52877faef7868f56223a5bcc15329e43"
-      ensureAntlrJarAvailable(antlrJarPath.toString(), antlrJarChecksum, s)
+      ensureAntlrJarAvailable(antlrJarPath, antlrJarChecksum, s)
 
       def deleteRecursively(file: File): Unit = {
         if (file.isDirectory) {
@@ -59,14 +55,14 @@ object GenParserPlugin extends AutoPlugin {
         sys.error(s"Java binary not found at $javaBin")
       }
 
-      parsers.foreach(parser => {
-        val outputPath = parser._1
+      val generatedFiles = parsers.flatMap { parser =>
+        val outputPath: String = parser._1
         val file = new File(outputPath)
         if (file.exists()) {
           deleteRecursively(file)
         }
         val packageName: String = parser._2
-        val command: String = s"$javaBin -jar ${antlrJarPath} -visitor -package $packageName -o $outputPath"
+        val command: String = s"$javaBin -jar $antlrJarPath -visitor -package $packageName -o $outputPath"
         val output = new StringBuilder
         val logger = ProcessLogger(
           (o: String) => output.append(o + "\n"), // for standard output
@@ -74,7 +70,7 @@ object GenParserPlugin extends AutoPlugin {
         )
         val grammarPath = parser._3
         val grammarName = parser._4
-        val lexerResult = s"$command  $grammarPath/${grammarName}Lexer.g4".!(logger)
+        val lexerResult = s"$command $grammarPath/${grammarName}Lexer.g4".!(logger)
         if (lexerResult == 0) {
           s.log.info("Lexer code generated successfully")
         } else {
@@ -90,19 +86,22 @@ object GenParserPlugin extends AutoPlugin {
           s.log.error("Output:\n" + output.toString)
           throw new RuntimeException("Parser code generation failed.")
         }
-      })
+        new File(outputPath).listFiles.filter(_.isFile).filter(_.getName.endsWith(".java"))
+      }
+
+      generatedFiles
     },
     parserDefinitions := List(),
-    javaSrcBasePath := "",
-    Compile / compile := (Compile / compile).dependsOn(generateParser).value,
-    Test / test := (Test / test).dependsOn(generateParser).value,
-    publish := publish.dependsOn(generateParser).value,
-    publishSigned := publishSigned.dependsOn(generateParser).value
+    Compile / sourceGenerators += generateParser.taskValue
   )
 
-  //Ensure ANTLR JAR is downloaded if not present
-  def ensureAntlrJarAvailable(jarPath: String, expectedChecksum: String, s: TaskStreams, maxRetries: Int = 3): Unit = {
-    val jarFile = new File(jarPath)
+  // Ensure ANTLR JAR is downloaded if not present
+  private def ensureAntlrJarAvailable(
+      jarFile: File,
+      expectedChecksum: String,
+      s: TaskStreams,
+      maxRetries: Int = 3
+  ): Unit = {
     if (!jarFile.exists() || !verifyChecksum(jarFile, expectedChecksum)) {
       val jarName = jarFile.getName
       val url = s"https://github.com/antlr/website-antlr4/raw/gh-pages/download/$jarName"
@@ -133,17 +132,15 @@ object GenParserPlugin extends AutoPlugin {
     }
   }
 
-    def verifyChecksum(file: File, expectedChecksum: String): Boolean = {
-      val buffer = new Array[Byte](64)
-      val sha256 = MessageDigest.getInstance("SHA-256")
-      val fis = new FileInputStream(file)
+  private def verifyChecksum(file: File, expectedChecksum: String): Boolean = {
+    val buffer = new Array[Byte](64)
+    val sha256 = MessageDigest.getInstance("SHA-256")
+    val fis = new FileInputStream(file)
 
-      Stream.continually(fis.read(buffer)).takeWhile(_ != -1).foreach { read =>
-        sha256.update(buffer, 0, read)
-      }
-      fis.close()
+    Stream.continually(fis.read(buffer)).takeWhile(_ != -1).foreach(read => sha256.update(buffer, 0, read))
+    fis.close()
 
-      val fileChecksum = sha256.digest().map("%02x".format(_)).mkString
-      fileChecksum.equalsIgnoreCase(expectedChecksum)
-    }
+    val fileChecksum = sha256.digest().map("%02x".format(_)).mkString
+    fileChecksum.equalsIgnoreCase(expectedChecksum)
+  }
 }
