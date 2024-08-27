@@ -161,19 +161,12 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
       // No connection available...
 
       // Check if we must release connections to make space.
-      var retries = 10
-      while (getTotalActiveConnections() >= maxConnections && retries >= 0) {
-        if (!releaseOldestConnection()) {
-          logger.warn(s"Could not release oldest connection; retry #$retries")
-        }
-        retries -= 1
-        // (msb) Why do I do this? I don't know; I'm assuming by sleeping we increase the change of successful release.
-        Thread.sleep(10)
-      }
-
-      // We could not successfully release any connection, so bail out.
       if (getTotalActiveConnections() >= maxConnections) {
-        throw new SQLException("no connections available", "08000")
+        if (!releaseOldestConnection()) {
+          // We could not successfully release any connection, so bail out.
+          logger.warn(s"Could not release oldest connection")
+          throw new SQLException("no connections available", "08000")
+        }
       }
 
       // Create a new connection.
@@ -298,8 +291,7 @@ class SqlConnectionPool()(implicit settings: RawSettings) extends RawService wit
           if (retries > 0) {
             Thread.sleep(retryInterval)
             retryConnection(retries - 1)
-          }
-          else {
+          } else {
             throw t
           }
       }
