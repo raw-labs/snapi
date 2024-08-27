@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.temporal.ChronoField;
 
 public class JdbcQuery {
 
@@ -184,7 +185,7 @@ public class JdbcQuery {
       // Extract the actual milliseconds.
       long millis = asMillis % 1000;
       // Fix the LocalTime milliseconds.
-      LocalTime localTime = withoutMilliseconds.with(ChronoField.MILLI_OF_SECOND, millis);
+      java.time.LocalTime localTime = withoutMilliseconds.with(ChronoField.MILLI_OF_SECOND, millis);
       return new TimeObject(localTime);
     } catch (SQLException e) {
       throw exceptionHandler.columnParseError(e, colName, node);
