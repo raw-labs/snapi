@@ -299,9 +299,9 @@ lazy val sqlCompiler = (project in file("sql-compiler"))
       kiama,
       postgresqlDeps,
       hikariCP,
-      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.41.3" % Test,
-      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.41.3" % Test,
-      "org.testcontainers" % "toxiproxy" % "1.19.8" % Test
+      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.41.4" % Test,
+      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.41.4" % Test,
+      "org.testcontainers" % "toxiproxy" % "1.20.1" % Test
     )
   )
 
