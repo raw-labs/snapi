@@ -76,12 +76,11 @@ multiline_word_or_star: ML_WORD | ML_STAR;
 
 stmt: L_PAREN stmt R_PAREN   #parenStmt
     | L_SQ_BRACKET stmt R_SQ_BRACKET   #parenStmtSqureBr
-    | (stmt_items)+          #stmtItems
+    | (COMMA? stmt_items)+          #stmtItems
     ;
 
 stmt_items: L_PAREN stmt R_PAREN                                                #nestedStmt
           | L_SQ_BRACKET stmt R_SQ_BRACKET                                      #nestedStmtSqureBr
-          | stmt_items (COMMA stmt_items)+                                      #commaSeparated
           | proj                                                                #projStmt
           | literal                                                             #literalStmt
           | (reserved_keyword | idnt) L_PAREN (stmt_items)? R_PAREN             #funCallStmt
