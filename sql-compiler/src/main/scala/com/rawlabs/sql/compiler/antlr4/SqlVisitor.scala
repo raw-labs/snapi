@@ -630,27 +630,6 @@ class SqlVisitor(
       .getOrElse(SqlErrorNode())
   }
 
-  override def visitCommaSeparated(ctx: PsqlParser.CommaSeparatedContext): SqlBaseNode = {
-    Option(ctx)
-      .map { context =>
-        val statements = Option(context.stmt_items())
-          .map(s =>
-            s.asScala.map(st =>
-              Option(st)
-                .flatMap(mdContext => Option(visit(mdContext)))
-                .getOrElse(SqlErrorNode())
-                .asInstanceOf[SqlBaseNode]
-            )
-          )
-          .getOrElse(Vector.empty)
-          .toVector
-        val withComaSeparator = SqlWithComaSeparatorNode(statements)
-        positionsWrapper.setPosition(ctx, withComaSeparator)
-        withComaSeparator
-      }
-      .getOrElse(SqlErrorNode())
-  }
-
   override def visitTypeCast(ctx: PsqlParser.TypeCastContext): SqlBaseNode = {
     Option(ctx)
       .flatMap { context =>

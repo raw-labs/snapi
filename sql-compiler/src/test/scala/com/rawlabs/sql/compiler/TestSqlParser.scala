@@ -21,8 +21,7 @@ import com.rawlabs.sql.compiler.antlr4.{
   SqlProjNode,
   SqlStatementNode,
   SqlStringLiteralNode,
-  SqlSyntaxAnalyzer,
-  SqlWithComaSeparatorNode
+  SqlSyntaxAnalyzer
 }
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.scalatest.funsuite.AnyFunSuite
@@ -223,9 +222,8 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.isSuccess)
     val SqlProgramNode(statement) = result.tree
     val SqlStatementNode(statementItems) = statement
-    assert(statementItems.size == 4)
-    val SqlWithComaSeparatorNode(inStatements) = statementItems(1)
-    inStatements(1) match {
+    assert(statementItems.size == 5)
+    statementItems(2) match {
       case SqlFunctionCall(name, arguments) =>
         assert(name == "NOW")
         assert(arguments.isEmpty)
@@ -624,6 +622,40 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.positions.getFinish(stmt).isDefined)
     assert(result.positions.getStart(stmt).flatMap(_.optOffset).isDefined)
     assert(result.positions.getFinish(stmt).flatMap(_.optOffset).isDefined)
+  }
+
+  test("large query 1") {
+    val largeQ = getClass.getClassLoader.getResourceAsStream("large-query-that-generates.sql")
+    try {
+      val content = io.Source.fromInputStream(largeQ)
+      try {
+        val code = content.mkString
+        for (i <- 0 to 10) {
+          val result = doTest(code)
+          checkStartEnd(result)
+        }
+      } finally {
+        content.close()
+      }
+    } finally {
+      largeQ.close()
+    }
+  }
+
+  test("large query 2") {
+    val largeQ = getClass.getClassLoader.getResourceAsStream("large-query-with-list.sql")
+    try {
+      val content = io.Source.fromInputStream(largeQ)
+      try {
+        val code = content.mkString
+        val result = doTest(code)
+        checkStartEnd(result)
+      } finally {
+        content.close()
+      }
+    } finally {
+      largeQ.close()
+    }
   }
 
 }
