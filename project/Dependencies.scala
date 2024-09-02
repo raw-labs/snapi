@@ -59,7 +59,7 @@ object Dependencies {
   val apacheHttpClient = "org.apache.httpcomponents.client5" % "httpclient5" % "5.2.1"
   val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.5-rawlabs"
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
-  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0-rawlabs"
+  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0-rawlabs" exclude("com.google.protobuf", "protobuf-java")
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
   val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33-rawlabs"
   val oracleDeps = "com.oracle.database.jdbc" % "ojdbc10" % "19.23.0.0-rawlabs"
