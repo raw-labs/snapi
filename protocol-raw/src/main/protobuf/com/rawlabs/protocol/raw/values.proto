@@ -20,6 +20,7 @@ package com.rawlabs.protocol.raw;
 message Value {
   oneof value {
     ValueNull null = 2;
+    ValueError error = 3;
     ValueByte byte = 4;
     ValueShort short = 5;
     ValueInt int = 6;
@@ -34,10 +35,16 @@ message Value {
     ValueTime time = 16;
     ValueTimestamp timestamp = 17;
     ValueInterval interval = 18;
+    ValueRecord record = 19;
+    ValueList list = 20;
   }
 }
 
 message ValueNull {}
+
+message ValueError {
+  string message = 1;
+}
 
 message ValueByte {
   int32 v = 1;
@@ -111,4 +118,17 @@ message ValueInterval {
   int32 minutes = 6;
   int32 seconds = 7;
   int32 millis = 8;
+}
+
+message ValueRecord {
+  repeated ValueRecordField fields = 1;
+}
+
+message ValueRecordField {
+  string name = 1;
+  Value value = 2;
+}
+
+message ValueList {
+  repeated Value values = 1;
 }
