@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 @JsonSubTypes(
   Array(
     new JsonType(value = classOf[RawNull], name = "null"),
+    new JsonType(value = classOf[RawError], name = "error"),
     new JsonType(value = classOf[RawByte], name = "byte"),
     new JsonType(value = classOf[RawShort], name = "short"),
     new JsonType(value = classOf[RawInt], name = "int"),
@@ -32,12 +33,14 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
     new JsonType(value = classOf[RawDate], name = "date"),
     new JsonType(value = classOf[RawTime], name = "time"),
     new JsonType(value = classOf[RawTimestamp], name = "timestamp"),
-    new JsonType(value = classOf[RawInterval], name = "interval")
+    new JsonType(value = classOf[RawInterval], name = "interval"),
+    new JsonType(value = classOf[RawRecord], name = "record"),
+    new JsonType(value = classOf[RawList], name = "list")
   )
 )
 sealed trait RawValue
-final case class RawAny(v: Any) extends RawValue
-final case class RawNull() extends RawValue
+final case class RawNull() extends RawValue // Can be used whenever Type.nullable = true
+final case class RawError(v: String) extends RawValue // Can be used whenever Type.triable = true
 final case class RawByte(v: java.lang.Byte) extends RawValue
 final case class RawShort(v: java.lang.Short) extends RawValue
 final case class RawInt(v: java.lang.Integer) extends RawValue
@@ -61,3 +64,5 @@ final case class RawInterval(
     seconds: Int,
     millis: Int
 ) extends RawValue
+final case class RawRecord(fields: Map[String, RawValue]) extends RawValue
+final case class RawList(values: List[RawValue]) extends RawValue
