@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.temporal.ChronoField;
 
 public class JdbcQuery {
 
@@ -172,8 +173,20 @@ public class JdbcQuery {
   @TruffleBoundary
   TimeObject getTime(String colName, Node node) {
     try {
+      // Extract the SQL time (a JDBC object) from the result set.
       java.sql.Time sqlTime = rs.getTime(colName);
-      return new TimeObject(sqlTime.toLocalTime());
+      // Turn it into LocalTime. It does something proper with potential timezone conversion, but
+      // doesn't have the milliseconds (toLocalTime's doc says it sets the LocalTime nanoseconds
+      // field to zero).
+      java.time.LocalTime withoutMilliseconds = sqlTime.toLocalTime();
+      // Get the value as milliseconds (possibly shifted by a certain timezone) but we have the
+      // milliseconds.
+      long asMillis = sqlTime.getTime();
+      // Extract the actual milliseconds.
+      long millis = asMillis % 1000;
+      // Fix the LocalTime milliseconds.
+      java.time.LocalTime localTime = withoutMilliseconds.with(ChronoField.MILLI_OF_SECOND, millis);
+      return new TimeObject(localTime);
     } catch (SQLException e) {
       throw exceptionHandler.columnParseError(e, colName, node);
     }

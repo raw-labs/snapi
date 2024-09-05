@@ -36,9 +36,9 @@ class SQLServerPackageTest extends SnapiTestContext {
     |       CAST('3.14' AS DOUBLE PRECISION) AS doublecol,
     |       CAST('12000000' AS DECIMAL) AS decimalcol,
     |       CAST('120' AS VARCHAR) AS stringcol,
-    |       CAST('12:23:34' AS TIME) AS timecol,
+    |       CAST('12:23:34.123' AS TIME) AS timecol,
     |       CAST('2020-01-01' AS DATE) AS datecol,
-    |       CAST('2020-01-01 12:23:34' AS DATETIME) AS timestampcol,
+    |       CAST('2020-01-01 12:23:34.123' AS DATETIME) AS timestampcol,
     |       CAST('Olala!' AS VARBINARY(MAX)) AS binarycol $ttt)""".stripMargin) { it =>
     it should typeAs("""collection(
       |    record(
@@ -65,9 +65,9 @@ class SQLServerPackageTest extends SnapiTestContext {
       |  doublecol: 3.14,
       |  decimalcol: Decimal.From(12000000),
       |  stringcol: "120",
-      |  timecol: Time.Build(12, 23, seconds=34),
+      |  timecol: Time.Build(12, 23, seconds=34, millis=123),
       |  datecol: Date.Build(2020, 1, 1),
-      |  timestampcol: Timestamp.Build(2020, 1, 1, 12, 23, seconds=34),
+      |  timestampcol: Timestamp.Build(2020, 1, 1, 12, 23, seconds=34, millis=123),
       |  binarycol: Binary.FromString("Olala!")
       |}]""".stripMargin)
   }

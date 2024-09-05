@@ -36,9 +36,9 @@ class MySQLPackageTest extends SnapiTestContext {
     |       CAST(3.14 AS DOUBLE) AS doublecol,
     |       CAST(1200000000 AS DECIMAL) AS decimalcol,
     |       '120' AS stringcol,
-    |       CAST('12:23:34' AS TIME) AS timecol,
+    |       TIME('12:23:34.123') AS timecol,
     |       CAST('2020-01-01' AS DATE) AS datecol,
-    |       CAST('2020-01-01 12:23:34' AS DATETIME) AS timestampcol,
+    |       TIMESTAMP('2020-01-01 12:23:34.123') AS timestampcol,
     |       1 = 0 AS boolcol,
     |       convert('Olala!' using utf8) AS binarycol$ttt, type collection(
     |    record(
@@ -66,9 +66,9 @@ class MySQLPackageTest extends SnapiTestContext {
       |  doublecol: 3.14,
       |  decimalcol: Decimal.From(1200000000),
       |  stringcol: "120",
-      |  timecol: Time.Build(12, 23, seconds=34),
+      |  timecol: Time.Build(12, 23, seconds=34, millis=123),
       |  datecol: Date.Build(2020, 1, 1),
-      |  timestampcol: Timestamp.Build(2020, 1, 1, 12, 23, seconds=34),
+      |  timestampcol: Timestamp.Build(2020, 1, 1, 12, 23, seconds=34, millis=123),
       |  boolcol: false,
       |  binarycol: Binary.FromString("Olala!")
       |}]""".stripMargin)
