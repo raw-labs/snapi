@@ -18,6 +18,7 @@ module raw.snapi.truffle {
   requires java.logging;
   requires jdk.unsupported;
   requires org.graalvm.truffle;
+  requires org.graalvm.truffle.runtime;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.dataformat.csv;

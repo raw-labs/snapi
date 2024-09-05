@@ -25,6 +25,7 @@ import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.ast.ProgramExpressionNode;
 import com.rawlabs.snapi.truffle.ast.StatementNode;
 import com.rawlabs.snapi.truffle.ast.controlflow.ExpBlockNode;
+import com.rawlabs.snapi.truffle.lineage.SnapiLineageGenerator;
 import scala.collection.JavaConverters;
 
 public class TruffleEmit {
@@ -34,6 +35,12 @@ public class TruffleEmit {
       com.rawlabs.snapi.frontend.base.ProgramContext programContext) {
     ProgramContext ctx = (com.rawlabs.snapi.frontend.snapi.ProgramContext) programContext;
     Tree tree = new Tree(program, true, ctx);
+
+    String result = testLineageEmitter(tree, ctx);
+    System.out.println("=======================================");
+    System.out.println(result);
+    System.out.println("=======================================");
+
     SnapiTruffleEmitter emitter = new SnapiTruffleEmitter(tree, language, ctx);
     SnapiProgram prog = (SnapiProgram) tree.root();
 
@@ -51,5 +58,18 @@ public class TruffleEmit {
     RootNode rootNode;
     rootNode = new ProgramExpressionNode(language, frameDescriptor, bodyExpNode);
     return new TruffleEntrypoint(rootNode, frameDescriptor);
+  }
+
+  private static String testLineageEmitter(Tree tree, ProgramContext ctx) {
+    try {
+      SnapiLineageGenerator generator = new SnapiLineageGenerator(tree, ctx);
+      SnapiProgram prog = (SnapiProgram) tree.root();
+      Exp bodyExp = (prog.me().isDefined()) ? prog.me().get() : new IntConst("0");
+      JavaConverters.asJavaCollection(prog.methods()).forEach(generator::emitMethod);
+      generator.recurseExp(bodyExp);
+      return generator.getResult();
+    } catch (Exception e) {
+      return e.getMessage();
+    }
   }
 }
