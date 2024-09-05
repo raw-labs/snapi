@@ -111,7 +111,7 @@ class TestSqlCompilerServiceAirports
       jdbcUrl = Some(jdbcUrl)
     )
   }
-  private def asCsv(params: Map[String, RawValue], scopes: Set[String] = Set.empty): ProgramEnvironment = {
+  private def asCsv(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): ProgramEnvironment = {
     ProgramEnvironment(
       user,
       if (params.isEmpty) None else Some(params.toArray),
@@ -1026,11 +1026,22 @@ class TestSqlCompilerServiceAirports
     assert(errors.isEmpty)
     val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
-    for (fmt <- Seq("json", "csv")) {
+    for (env <- Seq(asJson(), asCsv())) {
       baos.reset()
-      assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
-      assert(baos.toString().contains("14.567"))
+      assert(compilerService.execute(t.q, env, None, baos) == ExecutionSuccess(true))
+      assert(baos.toString().contains("12:13:14.567"))
     }
+  }
+
+  test("""SELECT TIMESTAMP '2001-07-01 12:13:14' AS t""".stripMargin) { t =>
+    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    assert(errors.isEmpty)
+    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    assert(compilerService.execute(t.q, asCsv(), None, baos) == ExecutionSuccess(true))
+    assert(baos.toString().contains("12:13:14"))
+    assert(!baos.toString().contains("12:13:14.000"))
   }
 
   test("""SELECT TIME '12:13:14.567' AS t""".stripMargin) { t =>
@@ -1038,12 +1049,22 @@ class TestSqlCompilerServiceAirports
     assert(errors.isEmpty)
     val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
-    baos.reset()
-    for (fmt <- Seq("json", "csv")) {
+    for (env <- Seq(asJson(), asCsv())) {
       baos.reset()
-      assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
-      assert(baos.toString().contains("14.567"))
+      assert(compilerService.execute(t.q, env, None, baos) == ExecutionSuccess(true))
+      assert(baos.toString().contains("12:13:14.567"))
     }
+  }
+
+  test("""SELECT TIME '12:13:14' AS t""".stripMargin) { t =>
+    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    assert(errors.isEmpty)
+    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    assert(compilerService.execute(t.q, asCsv(), None, baos) == ExecutionSuccess(true))
+    assert(baos.toString().contains("12:13:14"))
+    assert(!baos.toString().contains("12:13:14.000"))
   }
 
   test("""-- @default t TIME '12:13:14.567'
@@ -1053,10 +1074,10 @@ class TestSqlCompilerServiceAirports
     val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    for (fmt <- Seq("json", "csv")) {
+    for (env <- Seq(asJson(), asCsv())) {
       baos.reset()
-      assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
-      assert(baos.toString().contains("14.567"))
+      assert(compilerService.execute(t.q, env, None, baos) == ExecutionSuccess(true))
+      assert(baos.toString().contains("12:13:14.567"))
     }
   }
 
