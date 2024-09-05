@@ -609,11 +609,10 @@ public final class JsonParserNodes {
         @Cached @Cached.Shared("currentToken")
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
         @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-      if (currentToken.execute(thisNode, parser) != JsonToken.START_ARRAY) {
+      JsonToken token = currentToken.execute(thisNode, parser);
+      if (token != JsonToken.START_ARRAY) {
         throw new JsonUnexpectedTokenException(
-            JsonToken.START_ARRAY.asString(),
-            currentToken.execute(thisNode, parser).toString(),
-            thisNode);
+            JsonToken.START_ARRAY.asString(), String.valueOf(token), thisNode);
       }
       nextToken.execute(thisNode, parser);
 
@@ -640,11 +639,10 @@ public final class JsonParserNodes {
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
         @Cached JsonParserNodes.CurrentFieldJsonParserNode currentField,
         @Cached RecordNodes.AddPropNode addPropNode) {
-      if (currentToken.execute(thisNode, parser) != JsonToken.START_OBJECT) {
+      JsonToken token = currentToken.execute(thisNode, parser);
+      if (token != JsonToken.START_OBJECT) {
         throw new JsonUnexpectedTokenException(
-            JsonToken.START_OBJECT.asString(),
-            currentToken.execute(thisNode, parser).toString(),
-            thisNode);
+            JsonToken.START_OBJECT.asString(), String.valueOf(token), thisNode);
       }
 
       nextToken.execute(thisNode, parser);

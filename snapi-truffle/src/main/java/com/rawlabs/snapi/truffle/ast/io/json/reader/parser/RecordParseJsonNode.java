@@ -119,11 +119,10 @@ public class RecordParseJsonNode extends ExpressionNode {
     JsonParser parser = (JsonParser) args[0];
     BitSet currentBitSet = new BitSet(this.fieldsSize);
 
-    if (currentTokenNode.execute(this, parser) != JsonToken.START_OBJECT) {
+    JsonToken token = currentTokenNode.execute(this, parser);
+    if (token != JsonToken.START_OBJECT) {
       throw new JsonUnexpectedTokenException(
-          JsonToken.START_OBJECT.asString(),
-          currentTokenNode.execute(this, parser).toString(),
-          this);
+          JsonToken.START_OBJECT.asString(), String.valueOf(token), this);
     }
     nextTokenNode.execute(this, parser);
 
