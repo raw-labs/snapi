@@ -101,10 +101,10 @@ public class ListParseJsonNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
+    JsonToken token = currentToken.execute(this, parser);
+    if (token != JsonToken.START_ARRAY) {
       throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
+          JsonToken.START_ARRAY.asString(), String.valueOf(token), this);
     }
     nextToken.execute(this, parser);
 
