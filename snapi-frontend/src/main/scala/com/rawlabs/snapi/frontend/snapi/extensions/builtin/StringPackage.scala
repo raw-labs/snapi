@@ -79,6 +79,7 @@ class StringFromEntry extends EntryExtension {
           SnapiDoubleType(),
           SnapiDecimalType(),
           SnapiBoolType(),
+          SnapiStringType(),
           SnapiDateType(),
           SnapiTimeType(),
           SnapiTimestampType(),

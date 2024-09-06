@@ -74,6 +74,12 @@ public abstract class StringFromNode extends ExpressionNode {
 
   @Specialization
   @TruffleBoundary
+  protected String fromString(String value) {
+    return value;
+  }
+
+  @Specialization
+  @TruffleBoundary
   protected String fromDate(DateObject value) {
     return value.getDate().format(DATE_FORMATTER);
   }
