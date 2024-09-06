@@ -10,38 +10,31 @@
  * licenses/APL.txt.
  */
 
-/*
- * Copyright 2024 RAW Labs S.A.
- *
- * Use of this software is governed by the Business Source License
- * included in the file licenses/BSL.txt.
- *
- * As of the Change Date specified in that file, in accordance with
- * the Business Source License, use of this software will be governed
- * by the Apache License, Version 2.0, included in the file
- * licenses/APL.txt.
- */
-
 package com.rawlabs.snapi.truffle.lineage;
 
 import com.rawlabs.snapi.frontend.base.source.Type;
 import com.rawlabs.snapi.frontend.snapi.*;
 import com.rawlabs.snapi.frontend.snapi.extensions.EntryExtension;
-import com.rawlabs.snapi.frontend.snapi.extensions.SnapiArg;
 import com.rawlabs.snapi.frontend.snapi.source.*;
 import com.rawlabs.snapi.truffle.ast.expressions.literals.*;
 import com.rawlabs.snapi.truffle.ast.expressions.option.OptionNoneNode;
 import com.rawlabs.snapi.truffle.emitter.SnapiExtension;
 import com.rawlabs.snapi.truffle.emitter.TruffleEntryExtension;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
+import io.openlineage.client.OpenLineage;
+import io.openlineage.client.OpenLineageClient;
+import io.openlineage.client.OpenLineageClientUtils;
+import io.openlineage.client.transports.HttpConfig;
+import io.openlineage.client.transports.HttpTransport;
+import io.openlineage.client.transports.Transport;
 import org.bitbucket.inkytonik.kiama.relation.TreeRelation;
 import org.bitbucket.inkytonik.kiama.util.Entity;
 import scala.collection.JavaConverters;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 public class SnapiLineageGenerator {
 
@@ -56,8 +49,6 @@ public class SnapiLineageGenerator {
   private final HashMap<Entity, String> funcMap = new HashMap<>();
   private final HashMap<Entity, Integer> entityDepth = new HashMap<>();
 
-  private SnapiLineageJson json = new SnapiLineageJson();
-
   private static TruffleEntryExtension getEntry(String pkgName, String entName) {
     for (EntryExtension entry : SnapiExtension.entries) {
       if (entry.packageName().equals(pkgName) && entry.entryName().equals(entName)) {
@@ -71,6 +62,9 @@ public class SnapiLineageGenerator {
     this.tree = tree;
     this.analyzer = tree.analyzer();
     this.programContext = programContext;
+
+    SnapiOpenLineageManager olm = new SnapiOpenLineageManager();
+    olm.addRun();
   }
 
   private Type tipe(Exp e) {
@@ -233,9 +227,9 @@ public class SnapiLineageGenerator {
         Type t = tipe(fa);
         PackageEntryType pet = (PackageEntryType) tipe(fa.f());
         TruffleEntryExtension e = getEntry(pet.pkgName(), pet.entName());
-        json.add("Package", pet.pkgName());
-        JavaConverters.asJavaCollection(fa.args())
-            .forEach(a -> json.add(a.idn().get(), tipe(a.e()).toString()));
+        //        json.add("Package", pet.pkgName());
+        //        JavaConverters.asJavaCollection(fa.args())
+        //            .forEach(a -> json.add(a.idn().get(), tipe(a.e()).toString()));
       }
       case FunApp fa -> {
         String[] argNames =
@@ -248,6 +242,7 @@ public class SnapiLineageGenerator {
   }
 
   public String getResult() {
-    return json.toString();
+    //    return json.toString();
+    return "";
   }
 }

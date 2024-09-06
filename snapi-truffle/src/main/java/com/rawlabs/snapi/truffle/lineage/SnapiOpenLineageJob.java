@@ -12,19 +12,8 @@
 
 package com.rawlabs.snapi.truffle.lineage;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+public class SnapiOpenLineageJob {
 
-public class SnapiLineageJson {
-  private final ObjectMapper mapper = new ObjectMapper();
-  private final ObjectNode rootNode = mapper.createObjectNode();
-
-  @Override
-  public String toString() {
-    return rootNode.toString();
-  }
-
-  public void add(String key, String value) {
-    rootNode.put(key, value);
-  }
+    public SnapiOpenLineageJob() {
+    }
 }

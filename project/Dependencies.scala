@@ -77,6 +77,7 @@ object Dependencies {
     "org.graalvm.truffle" % "truffle-nfi-libffi" % "23.1.0",
     "org.graalvm.truffle" % "truffle-runtime" % "23.1.0"
   )
+  val openLineage = "io.openlineage" % "openlineage-java" % "1.22.0"
 
   // from sql-client
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.1.0"

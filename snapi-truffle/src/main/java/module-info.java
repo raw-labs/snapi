@@ -53,7 +53,8 @@ module raw.snapi.truffle {
   requires ch.qos.logback.classic;
   requires com.google.common;
   requires jul.to.slf4j;
+    requires openlineage.java;
 
-  provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
+    provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       SnapiLanguageProvider;
 }

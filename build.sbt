@@ -214,6 +214,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     snapiTruffleCompileSettings,
     testSettings,
     libraryDependencies ++= truffleCompiler,
+    libraryDependencies += openLineage,
     calculateClasspath := {
       val dependencyFiles = (Compile / dependencyClasspath).value.files
       val unmanagedFiles = (Compile / unmanagedClasspath).value.files
