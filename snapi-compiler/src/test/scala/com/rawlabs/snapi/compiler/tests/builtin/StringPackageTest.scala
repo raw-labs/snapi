@@ -48,6 +48,8 @@ class StringPackageTest extends SnapiTestContext with FailAfterNServer {
 
   test("String.From(true)")(it => it should evaluateTo(""" "true" """))
 
+  test("String.From(\"tralala\")")(it => it should evaluateTo(""" "tralala" """))
+
   test("String.From(Date.Build(1975, 6, 23))")(it => it should evaluateTo(""" "1975-06-23" """))
 
   test("String.From(Timestamp.Build(1975, 6, 23, 9, 30))")(it =>
