@@ -39,7 +39,7 @@ class LocationPackageTest extends SnapiTestContext {
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))
 
-  test(s"""Location.Ls("s3://$UnitTestPublicBucket/publications/")""") { it =>
+  test(s"""Location.Ll("s3://$UnitTestPublicBucket/publications/").url""") { it =>
     it should evaluateTo("""Collection.Build(
       |  "s3://rawlabs-public-test-data/publications/authors.parquet",
       |  "s3://rawlabs-public-test-data/publications/authors.hjson",

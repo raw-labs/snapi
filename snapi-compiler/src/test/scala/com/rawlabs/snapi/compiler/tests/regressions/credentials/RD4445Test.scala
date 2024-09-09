@@ -27,12 +27,12 @@ class RD4445Test extends SnapiTestContext {
     _ should evaluateTo("""["Hello", "World", "Again!"]""")
   )
 
-  test("""Location.Ls("dropbox://rawlabs-dropbox/New Folder")""")(
+  test("""Location.Ll("dropbox://rawlabs-dropbox/New Folder").url""")(
     _ should evaluateTo("""["dropbox:/New Folder/New Document"]""")
   )
 
   // Listing same folder but with trailing '/'
-  test("""Location.Ls("dropbox://rawlabs-dropbox/New Folder/")""")(
+  test("""Location.Ll("dropbox://rawlabs-dropbox/New Folder/").url""")(
     _ should evaluateTo("""["dropbox:/New Folder/New Document"]""")
   )
 
