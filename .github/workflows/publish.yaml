@@ -12,7 +12,7 @@ env:
 
 jobs:
   publish-snapi-components:
-    runs-on: self-hosted
+    runs-on: [self-hosted,snapi]
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001 --cpus 6 --memory 32g -e HOME=/home/sbtuser

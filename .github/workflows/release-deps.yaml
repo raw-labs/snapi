@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: self-hosted
+    runs-on: [self-hosted,snapi]
     container:
       image: ghcr.io/raw-labs/raw-ci-runner:latest
       options: --user 1001
