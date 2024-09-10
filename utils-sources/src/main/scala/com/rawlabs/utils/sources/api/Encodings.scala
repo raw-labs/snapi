@@ -13,25 +13,10 @@
 package com.rawlabs.utils.sources.api
 
 import java.nio.charset.Charset
-import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
-import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 
 /**
  * Encodings
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "encoding")
-@JsonSubTypes(
-  Array(
-    new JsonType(value = classOf[UTF_8], name = "utf-8"),
-    new JsonType(value = classOf[UTF_16], name = "utf-16"),
-    new JsonType(value = classOf[UTF_16BE], name = "utf-16be"),
-    new JsonType(value = classOf[UTF_16LE], name = "utf-16le"),
-    new JsonType(value = classOf[ISO_8859_1], name = "iso-8859-1"),
-    new JsonType(value = classOf[ISO_8859_2], name = "iso-8859-2"),
-    new JsonType(value = classOf[ISO_8859_9], name = "iso-8859-9"),
-    new JsonType(value = classOf[WINDOWS_1252], name = "windows-1252")
-  )
-)
 sealed trait Encoding {
   def rawEncoding: String
   def charset: Charset = Charset.forName(rawEncoding)

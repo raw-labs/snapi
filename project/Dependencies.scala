@@ -14,7 +14,9 @@ object Dependencies {
     "org.slf4j" % "jul-to-slf4j" % "2.0.5"
   )
 
-  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5-rawlabs"
+  val utilsCore = "com.raw-labs" %% "utils-core" % "0.50.0"
+
+  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
 
   val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.12"
 
@@ -36,7 +38,7 @@ object Dependencies {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.15.2",
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.15.2",
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.15.2",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2-rawlabs"
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2"
   )
 
   // Required while we are on Scala 2.12. It's built into Scala 2.13.
@@ -57,17 +59,17 @@ object Dependencies {
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
   val commonsLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
   val apacheHttpClient = "org.apache.httpcomponents.client5" % "httpclient5" % "5.2.1"
-  val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.5-rawlabs"
+  val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.5"
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
-  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0-rawlabs" exclude("com.google.protobuf", "protobuf-java")
+  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0" exclude("com.google.protobuf", "protobuf-java")
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
-  val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33-rawlabs"
-  val oracleDeps = "com.oracle.database.jdbc" % "ojdbc10" % "19.23.0.0-rawlabs"
+  val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33"
+  val oracleDeps = "com.oracle.database.jdbc" % "ojdbc10" % "19.23.0.0"
   val teradataDeps = "com.teradata.jdbc" % "terajdbc" % "20.00.00.24"
   val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
   val jwtApi = "io.jsonwebtoken" % "jjwt-api" % "0.11.5"
   val jwtImpl = "io.jsonwebtoken" % "jjwt-impl" % "0.11.5"
-  val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4-rawlabs"
+  val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4"
   val springCore =
     "org.springframework" % "spring-core" % "5.3.13" exclude ("org.springframework", "spring-jcl") // we use jcl-over-slf4j
   val truffleCompiler = Seq(
