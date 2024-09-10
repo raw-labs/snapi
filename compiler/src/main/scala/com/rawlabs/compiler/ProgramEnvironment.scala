@@ -45,7 +45,7 @@ object ProgramEnvironment {
     registerModule(DefaultScalaModule)
     registerModule(new JavaTimeModule())
     registerModule(new Jdk8Module())
-    mapper.configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, false)
+    configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, false)
 
     // Register custom serializer and deserializer for LocationConfig
     val customModule = new SimpleModule()
