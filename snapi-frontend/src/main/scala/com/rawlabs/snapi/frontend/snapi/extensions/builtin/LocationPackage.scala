@@ -190,11 +190,11 @@ class LocationLsEntry extends EntryExtension {
 
   override def entryName: String = "Ls"
 
-  override def docs = EntryDoc(
+  override def docs: EntryDoc = EntryDoc(
     summary = "Lists a location. The location must be a file system or an S3 bucket.",
     params = List(ParamDoc("value", TypeDoc(List("location")), "The location to list.")),
     examples = List(ExampleDoc("""Location.Ls("s3://my-bucket/folder/")""", None)),
-    ret = Some(ReturnDoc("The list of files in the location.", retType = Some(TypeDoc(List("list(string)"))))),
+    ret = Some(ReturnDoc("The list of files in the location.", retType = Some(TypeDoc(List("list(location)"))))),
     description = Some(
       "Urls with wildcards are also supported. For information about the use of wildcards see the [Locations with wildcards documentation](/snapi/wildcards)."
     )
@@ -211,7 +211,7 @@ class LocationLsEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] =
-    Right(SnapiListType(SnapiStringType(), Set(SnapiIsTryableTypeProperty())))
+    Right(SnapiListType(SnapiLocationType(), Set(SnapiIsTryableTypeProperty())))
 
 }
 

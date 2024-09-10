@@ -18,14 +18,14 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.rawlabs.snapi.frontend.snapi.extensions.LocationDescription$;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.list.StringList;
+import com.rawlabs.snapi.truffle.runtime.list.ObjectList;
 import com.rawlabs.snapi.truffle.runtime.primitives.ErrorObject;
 import com.rawlabs.snapi.truffle.runtime.primitives.LocationObject;
 import com.rawlabs.utils.core.RawException;
 import com.rawlabs.utils.sources.filesystem.api.FileSystemLocation;
 import scala.collection.IndexedSeq;
 
-@NodeInfo(shortName = "String.Read")
+@NodeInfo(shortName = "Location.Ls")
 @NodeChild("location")
 public abstract class LocationLsNode extends ExpressionNode {
   @Specialization
@@ -33,16 +33,18 @@ public abstract class LocationLsNode extends ExpressionNode {
   protected Object doLs(LocationObject locationObject) {
     try {
       FileSystemLocation fs = locationObject.getFileSystemLocation();
-      IndexedSeq<String> values =
-          fs.ls().map(LocationDescription$.MODULE$::locationToPublicUrl).toIndexedSeq();
+      IndexedSeq<LocationObject> values =
+          fs.ls()
+              .map(l -> new LocationObject(l, LocationDescription$.MODULE$.locationToPublicUrl(l)))
+              .toIndexedSeq();
       int size = values.size();
-      String[] result = new String[size];
+      Object[] result = new LocationObject[size];
 
       for (int i = 0; i < size; i++) {
         result[i] = values.apply(i);
       }
 
-      return new StringList(result);
+      return new ObjectList(result);
     } catch (RawException e) {
       return new ErrorObject(e.getMessage());
     }

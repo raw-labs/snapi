@@ -91,4 +91,18 @@ class LocationPackageTest extends SnapiTestContext with LocalLocationsTestContex
         |Error.Build("file system error: path not found: /not/found"))""".stripMargin
     )
   )
+
+  test(s"""
+    |let url = "$authorsJsonLocalDirectory",
+    |    people = List.Unnest(Location.Ls(url), loc -> Json.Read(loc, type list(record(name: string, title: string))))
+    |in List.Transform(List.GroupBy(people.title, job -> job), row -> {job: row.key, n: List.Count(row.group)})
+    |""".stripMargin) { it =>
+    it should evaluateTo("""[
+      | {job: "professor", n:18},
+      | {job: "engineer", n: 5},
+      | {job: "assistant professor", n: 11},
+      | {job: "PhD", n: 16}
+      |]""".stripMargin)
+  }
+
 }

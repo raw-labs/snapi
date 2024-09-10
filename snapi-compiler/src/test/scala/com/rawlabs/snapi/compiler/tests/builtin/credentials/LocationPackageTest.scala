@@ -39,7 +39,7 @@ class LocationPackageTest extends SnapiTestContext {
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))
 
-  test(s"""Location.Ls("s3://$UnitTestPublicBucket/publications/")""") { it =>
+  test(s"""List.Transform(Location.Ls("s3://$UnitTestPublicBucket/publications/"), x -> String.From(x))""") { it =>
     it should evaluateTo("""Collection.Build(
       |  "s3://rawlabs-public-test-data/publications/authors.parquet",
       |  "s3://rawlabs-public-test-data/publications/authors.hjson",
@@ -98,5 +98,17 @@ class LocationPackageTest extends SnapiTestContext {
   // using a private bucket registered in the credentials server
   test(s"""String.Read(S3.Build("$UnitTestPrivateBucket2", "/file1.csv"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
+
+  test(s"""let dir = S3.Build(
+    |      "$UnitTestPrivateBucket", "/publications/publications-hjson/*.json",
+    |      region = "${UnitTestPrivateBucketCred.getRegion}",
+    |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
+    |    ),
+    |    files = Location.Ls(dir),
+    |    lines = List.Unnest(files, f -> List.From(String.ReadLines(f)))
+    |in
+    |  List.Count(lines)
+    |""".stripMargin)(it => it should evaluateTo("1000"))
 
 }

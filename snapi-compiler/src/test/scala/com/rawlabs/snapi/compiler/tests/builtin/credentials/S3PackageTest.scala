@@ -42,7 +42,7 @@ class S3PackageTest extends SnapiTestContext {
 
   // listing a s3 bucket from us-east-1 (non default region)
   test(s"""let
-    |  data = Location.Ls(
+    |  data = Location.Ll(
     |    S3.Build(
     |      "$unitTestPrivateBucketUsEast1",
     |      "/csvs/01",
@@ -52,7 +52,7 @@ class S3PackageTest extends SnapiTestContext {
     |    )
     |  )
     |in
-    |  data
+    |  data.url
     |""".stripMargin)(it => it should evaluateTo("""[
     |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
     |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
@@ -60,7 +60,7 @@ class S3PackageTest extends SnapiTestContext {
 
   // listing a s3 bucket from us-east-1 without passing the region
   test(s"""let
-    |  data = Location.Ls(
+    |  data = Location.Ll(
     |    S3.Build(
     |      "$unitTestPrivateBucketUsEast1",
     |      "/csvs/01",
@@ -69,7 +69,7 @@ class S3PackageTest extends SnapiTestContext {
     |    )
     |  )
     |in
-    |  data
+    |  data.url
     |""".stripMargin)(it => it should evaluateTo("""[
     |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
     |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
