@@ -6,8 +6,6 @@ on:
       - build.sbt
       - project/**
       - deps/**
-      - utils-core/**
-      - utils-sources/**
       - compiler/**
       - snapi-frontend/**
       - snapi-truffle/**
@@ -45,7 +43,6 @@ jobs:
       fail-fast: false
       matrix:
         component:
-          - utils-sources
           - snapi-frontend
           - snapi-compiler
           - sql-compiler

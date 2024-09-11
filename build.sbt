@@ -39,7 +39,6 @@ lazy val root = (project in file("."))
   .aggregate(
     protocolRaw,
     protocolCompiler,
-    utilsSources,
     compiler,
     snapiParser,
     snapiFrontend,
@@ -56,30 +55,6 @@ lazy val root = (project in file("."))
     publish / skip := true,
     publishSigned / skip := true,
     publishLocal / skip := true
-  )
-
-lazy val utilsSources = (project in file("utils-sources"))
-  .doPatchDependencies()
-  .settings(
-    commonSettings,
-    nonStrictScalaCompileSettings,
-    testSettings,
-    libraryDependencies ++= Seq(
-      utilsCore % "compile->compile;test->test",
-      apacheHttpClient,
-      jwtApi,
-      jwtImpl,
-      jwtCore,
-      springCore,
-      dropboxSDK,
-      aws,
-      postgresqlDeps,
-      mysqlDeps,
-      mssqlDeps,
-      snowflakeDeps,
-      oracleDeps,
-      teradataDeps
-    )
   )
 
 lazy val protocolRaw = (project in file("protocol-raw"))
@@ -158,7 +133,6 @@ lazy val snapiFrontend = (project in file("snapi-frontend"))
   .doPatchDependencies()
   .dependsOn(
     compiler % "compile->compile;test->test",
-    utilsSources % "compile->compile;test->test",
     snapiParser % "compile->compile;test->test"
   )
   .settings(
@@ -167,6 +141,7 @@ lazy val snapiFrontend = (project in file("snapi-frontend"))
     testSettings,
     libraryDependencies ++= Seq(
       utilsCore % "compile->compile;test->test",
+      utilsSources % "compile->compile;test->test",
       commonsLang,
       commonsText,
       icuDeps,
