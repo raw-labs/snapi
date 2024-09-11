@@ -18,6 +18,8 @@ object Dependencies {
 
   val utilsSources = "com.raw-labs" %% "utils-sources" % "0.50.0"
 
+  val protocolRaw = "com.raw-labs" %% "protocol-raw" % "0.50.0"
+
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
 
   val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.12"
@@ -63,7 +65,7 @@ object Dependencies {
   val apacheHttpClient = "org.apache.httpcomponents.client5" % "httpclient5" % "5.2.1"
   val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.5"
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
-  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0" exclude("com.google.protobuf", "protobuf-java")
+  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0" exclude ("com.google.protobuf", "protobuf-java")
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
   val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33"
   val oracleDeps = "com.oracle.database.jdbc" % "ojdbc10" % "19.23.0.0"

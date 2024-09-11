@@ -37,7 +37,6 @@ writeVersionToFile := {
 lazy val root = (project in file("."))
   .doPatchDependencies()
   .aggregate(
-    protocolRaw,
     protocolCompiler,
     compiler,
     snapiParser,
@@ -57,37 +56,19 @@ lazy val root = (project in file("."))
     publishLocal / skip := true
   )
 
-lazy val protocolRaw = (project in file("protocol-raw"))
-  .doPatchDependencies()
-  .enablePlugins(ProtobufPlugin)
-  .settings(
-    commonSettings,
-    commonCompileSettings,
-    testSettings,
-    // Set fixed versions
-    ProtobufConfig / version := "3.25.4",
-    ProtobufConfig / protobufGrpcVersion := "1.62.2",
-    // Forcing the dependency so that 'requires' annotation in module-info.java works properly.
-    libraryDependencies += "com.google.protobuf" % "protobuf-java" % ((ProtobufConfig / version).value),
-    // Include the protobuf files in the JAR
-    Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
-  )
-
 lazy val protocolCompiler = (project in file("protocol-compiler"))
   .doPatchDependencies()
-  .dependsOn(
-    protocolRaw % "compile->compile;test->test;protobuf->protobuf"
-  )
   .enablePlugins(ProtobufPlugin)
   .settings(
     commonSettings,
     commonCompileSettings,
     testSettings,
+    libraryDependencies ++= Seq(
+      protocolRaw % "compile->compile;test->test;protobuf->protobuf"
+    ),
     // Set fixed versions
     ProtobufConfig / version := "3.25.4",
     ProtobufConfig / protobufGrpcVersion := "1.62.2",
-    // Include the protobuf files from the raw package
-    ProtobufConfig / protobufIncludePaths += (protocolRaw / ProtobufConfig / sourceDirectory).value,
     // Forcing the dependency so that 'requires' annotation in module-info.java works properly.
     libraryDependencies += "com.google.protobuf" % "protobuf-java" % ((ProtobufConfig / version).value),
     // Include the protobuf files in the JAR
