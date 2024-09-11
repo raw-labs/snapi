@@ -70,7 +70,7 @@ lazy val protocolCompiler = (project in file("protocol-compiler"))
     ProtobufConfig / version := "3.25.4",
     ProtobufConfig / protobufGrpcVersion := "1.62.2",
     // Forcing the dependency so that 'requires' annotation in module-info.java works properly.
-    libraryDependencies ++= "com.google.protobuf" % "protobuf-java" % ((ProtobufConfig / version).value),
+    libraryDependencies += "com.google.protobuf" % "protobuf-java" % ((ProtobufConfig / version).value),
     // Include the protobuf files in the JAR
     Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
   )
