@@ -40,8 +40,7 @@ object CompilerService {
   private val enginesLock = new Object
   private val enginesCache = mutable.HashMap[RawSettings, Engine]()
 
-  // Return engine and a flag indicating if the engine was created.
-  def getEngine()(implicit settings: RawSettings): (Engine, Boolean) = {
+  def getEngine(maybeClassLoader: Option[ClassLoader])(implicit settings: RawSettings): (Engine, Boolean) = {
     enginesLock.synchronized {
       enginesCache.get(settings) match {
         case Some(engine) =>
@@ -60,11 +59,29 @@ object CompilerService {
             //          options.put("engine.CompilationFailureAction", "Diagnose")
             //          options.put("compiler.LogInlinedTargets", "true")
           }
-          val engine = Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
+          val engine = maybeClassLoader match {
+            case Some(classLoader) =>
+              // If a class loader is provided, use it to create the engine.
+              val currentClassLoader = Thread.currentThread().getContextClassLoader
+              Thread.currentThread().setContextClassLoader(classLoader)
+              try {
+                Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
+              } finally {
+                Thread.currentThread().setContextClassLoader(currentClassLoader)
+              }
+            case None =>
+              // If no class loader is provided, create the engine without it.
+              Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
+          }
           enginesCache.put(settings, engine)
           (engine, true)
       }
     }
+  }
+
+  // Return engine and a flag indicating if the engine was created.
+  def getEngine()(implicit settings: RawSettings): (Engine, Boolean) = {
+    getEngine(None)
   }
 
   def releaseEngine()(implicit settings: RawSettings): Unit = {

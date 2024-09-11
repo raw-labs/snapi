@@ -54,6 +54,7 @@ import com.rawlabs.compiler.{
   ValidateResponse
 }
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
+import com.rawlabs.snapi.compiler.SnapiCompilerService.getTruffleClassLoader
 import com.rawlabs.snapi.compiler.writers.{SnapiCsvWriter, SnapiJsonWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
@@ -75,24 +76,33 @@ import java.io.{IOException, OutputStream}
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
-object SnapiCompilerService {
+object SnapiCompilerService extends CustomClassAndModuleLoader {
   val LANGUAGE: Set[String] = Set("snapi")
 
-  val JARS_PATH = "raw.snapi.compiler.jars-path"
+  private val JARS_PATH = "raw.snapi.compiler.jars-path"
+
+  private var maybeTruffleClassLoader: Option[ClassLoader] = _
+  private val maybeTruffleClassLoaderLock = new Object
+
+  def getTruffleClassLoader(implicit settings: RawSettings): Option[ClassLoader] = {
+    maybeTruffleClassLoaderLock.synchronized {
+      if (maybeTruffleClassLoader == null) {
+        // If defined, contains the path used to create a classloader for the Truffle language runtime.
+        val maybeJarsPath = settings.getStringOpt(JARS_PATH)
+        maybeJarsPath match {
+          case Some(jarsPath) => maybeTruffleClassLoader = Some(createCustomClassAndModuleLoader(jarsPath))
+          case None => maybeTruffleClassLoader = None
+        }
+      }
+      maybeTruffleClassLoader
+    }
+  }
+
 }
 
 class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
     extends CompilerService
-    with CustomClassAndModuleLoader
     with SnapiTypeUtils {
-
-  private val maybeTruffleClassLoader: Option[ClassLoader] = {
-    // If defined, contains the path used to create a classloader for the Truffle language runtime.
-    val maybeJarsPath = settings.getStringOpt(SnapiCompilerService.JARS_PATH)
-
-    // If the jars path is defined, create a custom class loader.
-    maybeJarsPath.map(jarsPath => createCustomClassAndModuleLoader(jarsPath))
-  }
 
   private val (engine, initedEngine) = engineDefinition
 
@@ -104,7 +114,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   // Refer to SnapiTruffleCompilerServiceTestContext to see the engine being created and released from the test
   // framework, so that every test suite instance has a fresh engine.
   def this()(implicit settings: RawSettings) = {
-    this(CompilerService.getEngine)
+    this(CompilerService.getEngine(SnapiCompilerService.getTruffleClassLoader))
   }
 
   override def language: Set[String] = SnapiCompilerService.LANGUAGE
@@ -683,7 +693,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     }
     ctxBuilder.option("snapi.settings", settings.renderAsString)
     // If the jars path is defined, create a custom class loader and set it as the host class loader.
-    maybeTruffleClassLoader.map { classLoader =>
+    getTruffleClassLoader.map { classLoader =>
       // Set the module class loader as the Truffle runtime classloader.
       // This enables the Truffle language runtime to be fully isolated from the rest of the application.
       ctxBuilder.hostClassLoader(classLoader)
