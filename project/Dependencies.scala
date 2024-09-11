@@ -20,6 +20,8 @@ object Dependencies {
 
   val protocolRaw = "com.raw-labs" %% "protocol-raw" % "0.50.0"
 
+  val protocolCompiler = "com.raw-labs" %% "protocol-compiler" % "0.50.0"
+
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
 
   val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.12"
