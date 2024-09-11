@@ -37,7 +37,6 @@ writeVersionToFile := {
 lazy val root = (project in file("."))
   .doPatchDependencies()
   .aggregate(
-    protocolCompiler,
     compiler,
     snapiParser,
     snapiFrontend,
@@ -56,30 +55,8 @@ lazy val root = (project in file("."))
     publishLocal / skip := true
   )
 
-lazy val protocolCompiler = (project in file("protocol-compiler"))
-  .doPatchDependencies()
-  .enablePlugins(ProtobufPlugin)
-  .settings(
-    commonSettings,
-    commonCompileSettings,
-    testSettings,
-    libraryDependencies ++= Seq(
-      protocolRaw % "compile->compile;test->test;protobuf->protobuf"
-    ),
-    // Set fixed versions
-    ProtobufConfig / version := "3.25.4",
-    ProtobufConfig / protobufGrpcVersion := "1.62.2",
-    // Forcing the dependency so that 'requires' annotation in module-info.java works properly.
-    libraryDependencies += "com.google.protobuf" % "protobuf-java" % ((ProtobufConfig / version).value),
-    // Include the protobuf files in the JAR
-    Compile / unmanagedResourceDirectories += (ProtobufConfig / sourceDirectory).value
-  )
-
 lazy val compiler = (project in file("compiler"))
   .doPatchDependencies()
-  .dependsOn(
-    protocolCompiler % "compile->compile;test->test"
-  )
   .settings(
     commonSettings,
     // Ignore deprecation warnings in the compiler. Needed for a Jackson feature we require.
@@ -88,6 +65,7 @@ lazy val compiler = (project in file("compiler"))
     testSettings,
     libraryDependencies ++= Seq(
       utilsCore % "compile->compile;test->test",
+      protocolCompiler % "compile->compile;test->test",
       trufflePolyglot
     ) ++ jacksonDeps
   )
