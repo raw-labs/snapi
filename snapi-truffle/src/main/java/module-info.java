@@ -34,7 +34,7 @@ module raw.snapi.truffle {
 
   // Indirect dependencies
   requires kiama;
-  requires com.fasterxml.jackson.scala;
+  requires jackson.module.scala;
   requires org.apache.commons.io;
   requires org.apache.commons.lang3;
   requires org.apache.commons.text;
@@ -47,7 +47,7 @@ module raw.snapi.truffle {
   requires com.esotericsoftware.minlog;
   requires com.esotericsoftware.reflectasm;
   requires typesafe.config;
-  requires typesafe.scalalogging;
+  requires scala.logging;
   requires org.slf4j;
   requires ch.qos.logback.classic;
   requires com.google.common;

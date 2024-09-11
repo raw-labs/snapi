@@ -13,10 +13,6 @@
 module raw.utils.sources {
   requires scala.library;
   requires org.slf4j;
-  requires com.fasterxml.jackson.core;
-  requires com.fasterxml.jackson.databind;
-  requires com.fasterxml.jackson.dataformat.csv;
-  requires com.fasterxml.jackson.scala;
   requires java.xml;
   requires java.sql;
   requires org.apache.commons.io;
@@ -27,12 +23,10 @@ module raw.utils.sources {
   requires java.net.http;
   requires spring.core;
   requires typesafe.config;
-  requires typesafe.scalalogging;
+  requires scala.logging;
   requires ch.qos.logback.classic;
   requires com.google.common;
   requires jul.to.slf4j;
-  requires com.fasterxml.jackson.datatype.jsr310;
-  requires com.fasterxml.jackson.datatype.jdk8;
   requires software.amazon.awssdk.annotations;
   requires software.amazon.awssdk.http.apache;
   requires software.amazon.awssdk.arns;

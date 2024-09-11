@@ -17,7 +17,7 @@ ThisBuild / credentials += Credentials(
   "raw-labs",
   sys.env.getOrElse("GITHUB_TOKEN", "")
 )
-ThisBuild / resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/raw-labs/raw"
+ThisBuild / resolvers += "Github RAW main repo" at "https://maven.pkg.github.com/raw-labs/snapi"
 
 ThisBuild / javaHome := {
   val javaHomePath = sys.env.getOrElse("JAVA_HOME", sys.props("java.home"))
@@ -35,10 +35,10 @@ writeVersionToFile := {
 }
 
 lazy val root = (project in file("."))
+  .doPatchDependencies()
   .aggregate(
     protocolRaw,
     protocolCompiler,
-    utilsCore,
     utilsSources,
     compiler,
     snapiParser,
@@ -58,35 +58,14 @@ lazy val root = (project in file("."))
     publishLocal / skip := true
   )
 
-lazy val utilsCore = (project in file("utils-core"))
-  .settings(
-    commonSettings,
-    scalaCompileSettings,
-    testSettings,
-    libraryDependencies ++= Seq(
-      scalaLogging,
-      logbackClassic,
-      guava,
-      scalaJava8Compat,
-      typesafeConfig,
-      loki4jAppender,
-      commonsIO,
-      commonsText,
-      scalatest % Test
-    ) ++
-      slf4j ++
-      jacksonDeps
-  )
-
 lazy val utilsSources = (project in file("utils-sources"))
-  .dependsOn(
-    utilsCore % "compile->compile;test->test"
-  )
+  .doPatchDependencies()
   .settings(
     commonSettings,
     nonStrictScalaCompileSettings,
     testSettings,
     libraryDependencies ++= Seq(
+      utilsCore % "compile->compile;test->test",
       apacheHttpClient,
       jwtApi,
       jwtImpl,
@@ -104,6 +83,7 @@ lazy val utilsSources = (project in file("utils-sources"))
   )
 
 lazy val protocolRaw = (project in file("protocol-raw"))
+  .doPatchDependencies()
   .enablePlugins(ProtobufPlugin)
   .settings(
     commonSettings,
@@ -119,6 +99,7 @@ lazy val protocolRaw = (project in file("protocol-raw"))
   )
 
 lazy val protocolCompiler = (project in file("protocol-compiler"))
+  .doPatchDependencies()
   .dependsOn(
     protocolRaw % "compile->compile;test->test;protobuf->protobuf"
   )
@@ -139,18 +120,24 @@ lazy val protocolCompiler = (project in file("protocol-compiler"))
   )
 
 lazy val compiler = (project in file("compiler"))
+  .doPatchDependencies()
   .dependsOn(
-    utilsCore % "compile->compile;test->test",
     protocolCompiler % "compile->compile;test->test"
   )
   .settings(
     commonSettings,
-    scalaCompileSettings,
+    // Ignore deprecation warnings in the compiler. Needed for a Jackson feature we require.
+    // TODO (msb): When in Scala 2.13, use @nowarn annotation instead in the exact code location.
+    nonStrictScalaCompileSettings,
     testSettings,
-    libraryDependencies += trufflePolyglot
+    libraryDependencies ++= Seq(
+      utilsCore % "compile->compile;test->test",
+      trufflePolyglot
+    ) ++ jacksonDeps
   )
 
 lazy val snapiParser = (project in file("snapi-parser"))
+  .doPatchDependencies()
   .enablePlugins(GenParserPlugin)
   .settings(
     commonSettings,
@@ -168,8 +155,8 @@ lazy val snapiParser = (project in file("snapi-parser"))
   )
 
 lazy val snapiFrontend = (project in file("snapi-frontend"))
+  .doPatchDependencies()
   .dependsOn(
-    utilsCore % "compile->compile;test->test",
     compiler % "compile->compile;test->test",
     utilsSources % "compile->compile;test->test",
     snapiParser % "compile->compile;test->test"
@@ -179,6 +166,7 @@ lazy val snapiFrontend = (project in file("snapi-frontend"))
     nonStrictScalaCompileSettings,
     testSettings,
     libraryDependencies ++= Seq(
+      utilsCore % "compile->compile;test->test",
       commonsLang,
       commonsText,
       icuDeps,
@@ -204,8 +192,8 @@ val annotationProcessors = Seq(
 ).mkString(",")
 
 lazy val snapiTruffle = (project in file("snapi-truffle"))
+  .doPatchDependencies()
   .dependsOn(
-    utilsCore % "compile->compile;test->test",
     snapiFrontend % "compile->compile;test->test"
   )
   .enablePlugins(JavaAnnotationProcessorPlugin)
@@ -213,7 +201,9 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     commonSettings,
     snapiTruffleCompileSettings,
     testSettings,
-    libraryDependencies ++= truffleCompiler,
+    libraryDependencies ++= truffleCompiler ++ Seq(
+      utilsCore % "compile->compile;test->test"
+    ),
     calculateClasspath := {
       val dependencyFiles = (Compile / dependencyClasspath).value.files
       val unmanagedFiles = (Compile / unmanagedClasspath).value.files
@@ -267,6 +257,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
   )
 
 lazy val snapiCompiler = (project in file("snapi-compiler"))
+  .doPatchDependencies()
   .dependsOn(
     compiler % "compile->compile;test->test",
     snapiFrontend % "compile->compile;test->test",
@@ -279,6 +270,7 @@ lazy val snapiCompiler = (project in file("snapi-compiler"))
   )
 
 lazy val sqlParser = (project in file("sql-parser"))
+  .doPatchDependencies()
   .enablePlugins(GenParserPlugin)
   .settings(
     commonSettings,
@@ -296,6 +288,7 @@ lazy val sqlParser = (project in file("sql-parser"))
   )
 
 lazy val sqlCompiler = (project in file("sql-compiler"))
+  .doPatchDependencies()
   .dependsOn(
     compiler % "compile->compile;test->test",
     sqlParser % "compile->compile;test->test"
@@ -314,6 +307,7 @@ lazy val sqlCompiler = (project in file("sql-compiler"))
   )
 
 lazy val pythonCompiler = (project in file("python-compiler"))
+  .doPatchDependencies()
   .dependsOn(
     compiler % "compile->compile;test->test"
   )

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.{
   DeserializationContext,
   JsonDeserializer,
   JsonSerializer,
+  MapperFeature,
   ObjectMapper,
   SerializerProvider
 }
@@ -44,6 +45,7 @@ object ProgramEnvironment {
     registerModule(DefaultScalaModule)
     registerModule(new JavaTimeModule())
     registerModule(new Jdk8Module())
+    configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, false)
 
     // Register custom serializer and deserializer for LocationConfig
     val customModule = new SimpleModule()

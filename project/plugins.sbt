@@ -21,3 +21,15 @@ libraryDependencies += "commons-io" % "commons-io" % "2.11.0"
 addSbtPlugin("com.lightbend.sbt" % "sbt-java-formatter" % "0.8.0")
 
 addSbtPlugin("com.github.sbt" % "sbt-protobuf" % "0.8.0")
+
+resolvers += "RAW Labs GitHub Packages" at "https://maven.pkg.github.com/raw-labs/sbt-module-patcher"
+
+ThisBuild / credentials += Credentials(
+  "GitHub Package Registry",
+  "maven.pkg.github.com",
+  "raw-labs",
+  sys.env.getOrElse("GITHUB_TOKEN", "")
+)
+
+addSbtPlugin("com.raw-labs" % "sbt-module-patcher" % "0.1.1")
+

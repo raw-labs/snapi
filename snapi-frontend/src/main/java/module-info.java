@@ -16,7 +16,7 @@ module raw.snapi.frontend {
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.dataformat.csv;
-  requires com.fasterxml.jackson.scala;
+  requires jackson.module.scala;
   requires com.fasterxml.jackson.datatype.jsr310;
   requires com.fasterxml.jackson.datatype.jdk8;
   requires java.xml;
@@ -32,7 +32,7 @@ module raw.snapi.frontend {
   requires com.esotericsoftware.minlog;
   requires com.esotericsoftware.reflectasm;
   requires typesafe.config;
-  requires typesafe.scalalogging;
+  requires scala.logging;
   requires ch.qos.logback.classic;
   requires com.google.common;
   requires jul.to.slf4j;
