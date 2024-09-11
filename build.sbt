@@ -195,7 +195,7 @@ lazy val snapiCompiler = (project in file("snapi-compiler"))
   .dependsOn(
     compiler % "compile->compile;test->test",
     snapiFrontend % "compile->compile;test->test",
-    snapiTruffle % "compile->compile;test->test"
+    snapiTruffle % "test->test"
   )
   .settings(
     commonSettings,
