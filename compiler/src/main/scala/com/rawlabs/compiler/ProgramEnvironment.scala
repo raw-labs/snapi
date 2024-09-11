@@ -14,14 +14,7 @@ package com.rawlabs.compiler
 
 import com.fasterxml.jackson.core.{JsonGenerator, JsonParser}
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.databind.{
-  DeserializationContext,
-  JsonDeserializer,
-  JsonSerializer,
-  ObjectMapper,
-  SerializerProvider,
-  MapperFeature
-}
+import com.fasterxml.jackson.databind.{DeserializationContext, JsonDeserializer, JsonSerializer, MapperFeature, ObjectMapper, SerializerProvider}
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}

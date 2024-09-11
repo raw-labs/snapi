@@ -126,7 +126,9 @@ lazy val compiler = (project in file("compiler"))
   )
   .settings(
     commonSettings,
-    scalaCompileSettings,
+    // Ignore deprecation warnings in the compiler. Needed for a Jackson feature we require.
+    // TODO (msb): When in Scala 2.13, use @nowarn annotation instead in the exact code location.
+    nonStrictScalaCompileSettings,
     testSettings,
     libraryDependencies ++= Seq(
       utilsCore % "compile->compile;test->test",
