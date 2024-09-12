@@ -1,8 +1,0 @@
-MODULE aname;
-
-PROCEDURE aproc;
-
-END anotherproc;
-
-END aname.
-

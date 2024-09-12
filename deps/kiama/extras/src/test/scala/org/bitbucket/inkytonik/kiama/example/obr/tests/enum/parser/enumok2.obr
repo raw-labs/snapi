@@ -1,9 +1,0 @@
-(* Enumeration with two constants *)
-
-PROGRAM EnumOk2 (i : INTEGER) : INTEGER;
-
-VAR
-   Binary : (One, TheOther);
-
-BEGIN
-END EnumOk2.

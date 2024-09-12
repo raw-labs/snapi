@@ -1,6 +1,0 @@
-MODULE aname;
-
-VAR
-    i : INTEGER;
-
-END i.

@@ -42,6 +42,7 @@ jobs:
         yes n | sdk install java 21.0.1-graalce || true
         sdk use java 21.0.1-graalce
         echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
+        sbt update
         sbt clean publish
     - name: evaluate produced version
       shell: bash

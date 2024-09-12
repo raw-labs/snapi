@@ -5,7 +5,6 @@ on:
       - .sbtopts
       - build.sbt
       - project/**
-      - deps/**
       - compiler/**
       - snapi-frontend/**
       - snapi-truffle/**
