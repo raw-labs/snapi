@@ -1,9 +1,0 @@
-(* Enumeration with three constants *)
-
-PROGRAM EnumOk3 (i : INTEGER) : INTEGER;
-
-VAR
-   CarColour : (Red, Blue, Green);
-
-BEGIN
-END EnumOk3.

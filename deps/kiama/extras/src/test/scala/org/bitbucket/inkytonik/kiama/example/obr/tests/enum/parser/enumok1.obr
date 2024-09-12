@@ -1,9 +1,0 @@
-(* Enumeration with single constant *)
-
-PROGRAM EnumOk1 (i : INTEGER) : INTEGER;
-
-VAR
-    Single : (Harold);
-
-BEGIN
-END EnumOk1.

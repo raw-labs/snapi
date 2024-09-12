@@ -1,8 +1,0 @@
-MODULE redeftrue;
-
-VAR
-    TRUE : INTEGER;
-
-BEGIN
-    TRUE := 1
-END redeftrue.

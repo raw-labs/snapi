@@ -1,4 +1,0 @@
-* errors
-src/test/scala/org/bitbucket/inkytonik/kiama/example/oberon0/base/tests/commentnoend.ob:5:1:error: '*)' expected but end of source found
-
-^

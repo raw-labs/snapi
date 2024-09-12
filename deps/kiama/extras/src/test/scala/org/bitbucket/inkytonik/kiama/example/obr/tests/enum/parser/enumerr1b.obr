@@ -1,9 +1,0 @@
-(* Integer instead of enumeration constant identifier *)
-
-PROGRAM Err801b (i : INTEGER) : INTEGER;
-
-VAR
-    x : ( 10 );
-
-BEGIN
-END Err801b.

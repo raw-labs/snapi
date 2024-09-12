@@ -1,8 +1,0 @@
-PROGRAM X (x : INTEGER) : INTEGER;
-
-CONST
-    Test = -1234;
-
-BEGIN
-    RETURN Test;
-END X.
