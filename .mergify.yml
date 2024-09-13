@@ -1,0 +1,13 @@
+pull_request_rules:
+  - name: Automatic merge for Scala Steward patch updates from com.raw-labs
+    conditions:
+      - author=scala-steward
+      - label=semver-patch
+      - label=com.raw-labs
+      - check-success=code-checks
+      - check-success=doc
+      - check-success=tests (*)
+      - label!=do not merge
+    actions:
+      merge:
+        method: squash
