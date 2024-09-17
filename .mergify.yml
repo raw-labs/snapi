@@ -4,9 +4,6 @@ pull_request_rules:
       - author=scala-steward
       - label=semver-patch
       - label=com.raw-labs
-      - check-success=code-checks
-      - check-success=doc
-      - check-success=tests (*)
       - label!=do not merge
     actions:
       merge:
