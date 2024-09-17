@@ -394,6 +394,22 @@ class HttpPackageTest extends SnapiTestContext {
     |)
     |""".stripMargin)(_ should evaluateTo("\"a=12&b=13\""))
 
+  // Arguments in the URL are correctly handled.
+  test(s"""String.Read("http://localhost:$testPort/return-args?a=12&b=13")
+    |""".stripMargin)(_ should evaluateTo("\"a=12&b=13\""))
+
+  // Arguments in the URL + passed as an array to Http.Get, are correctly handled.
+  test(s"""String.Read(Http.Get("http://localhost:$testPort/return-args?a=12", args=[{"b", "13"}]))
+    |""".stripMargin)(_ should evaluateTo("\"a=12&b=13\""))
+
+  // Syntax error.
+  test(s"""String.Read("http//localhost:$testPort/return-args?a=&b=13")
+    |""".stripMargin)(_ should runErrorAs("unsupported protocol: http//localhost"))
+
+  // Syntax error.
+  test(s"""String.Read("htp://localhost:$testPort/return-args?a=&b=13")
+    |""".stripMargin)(_ should runErrorAs("unsupported protocol: htp"))
+
   test(s"""String.Read(Http.Get(
     |  "http://localhost:$testPort/return-args",
     |  args=[{"a", "12"}, {"b", null}, {"c", "14"}])

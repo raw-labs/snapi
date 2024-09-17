@@ -551,9 +551,7 @@ object LocationDescription {
 
     // Parse the URL based on the protocol.
     protocol match {
-      case "http" | "https" =>
-        // FIXME: This is ignoring query parameters!!!
-        Right(
+      case "http" | "https" => Right(
           HttpByteStreamLocationDescription(
             url,
             method = "GET",
