@@ -27,6 +27,7 @@ import com.rawlabs.compiler.{
   Pos,
   ProgramEnvironment,
   RawAttrType,
+  RawDate,
   RawDateType,
   RawDecimalType,
   RawInt,
@@ -46,6 +47,7 @@ import com.rawlabs.utils.core._
 
 import java.io.ByteArrayOutputStream
 import java.sql.DriverManager
+import java.time.LocalDate
 import scala.io.Source
 
 class TestSqlCompilerServiceAirports
@@ -1079,6 +1081,47 @@ class TestSqlCompilerServiceAirports
       assert(compilerService.execute(t.q, env, None, baos) == ExecutionSuccess(true))
       assert(baos.toString().contains("12:13:14.567"))
     }
+  }
+
+  test("""-- @type x integer
+    |-- @default x null
+    |SELECT :x AS x""".stripMargin) { t =>
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(baos.toString() === """[{"x":null}]""")
+    baos.reset()
+    assert(compilerService.execute(t.q, asJson(Map("x" -> RawInt(12))), None, baos) == ExecutionSuccess(true))
+    assert(baos.toString() === """[{"x":12}]""")
+  }
+
+  test("""-- @type x varchar
+    |-- @default x null
+    |SELECT :x AS x""".stripMargin) { t =>
+    val baos = new ByteArrayOutputStream()
+    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(baos.toString() === """[{"x":null}]""")
+    baos.reset()
+    assert(compilerService.execute(t.q, asJson(Map("x" -> RawString("tralala"))), None, baos) == ExecutionSuccess(true))
+    assert(baos.toString() === """[{"x":"tralala"}]""")
+  }
+
+  test("""-- @type x date
+    |-- @default x null
+    |SELECT :x AS x""".stripMargin) { t =>
+    val baos = new ByteArrayOutputStream()
+    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(baos.toString() === """[{"x":null}]""")
+    baos.reset()
+    assert(
+      compilerService.execute(
+        t.q,
+        asJson(Map("x" -> RawDate(LocalDate.of(2008, 9, 29)))),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(baos.toString() === """[{"x":"2008-09-29"}]""")
   }
 
 }
