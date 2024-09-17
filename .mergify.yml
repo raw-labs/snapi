@@ -2,7 +2,7 @@ pull_request_rules:
   - name: Automatic merge for Scala Steward patch updates from com.raw-labs
     conditions:
       - author=scala-steward
-      - label=semver-patch
+      - label=semver-spec-patch
       - label=com.raw-labs
       - label!=do not merge
     actions:
