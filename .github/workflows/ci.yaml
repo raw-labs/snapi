@@ -12,6 +12,7 @@ on:
       - python-compiler/**
       - sql-compiler/**
       - .github/workflows/ci.yaml
+      - ci/**
   workflow_dispatch:
 
 defaults:
