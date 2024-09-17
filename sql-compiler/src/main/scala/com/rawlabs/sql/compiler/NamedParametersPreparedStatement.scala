@@ -617,25 +617,41 @@ class NamedParametersPreparedStatement(
 
   private def getDefaultValue(rs: ResultSet, postgresType: PostgresType): DefaultValue = {
     assert(rs.next(), "rs.next() was false")
-    val attempt = postgresType.jdbcType match {
-      case java.sql.Types.SMALLINT => RawShort(rs.getShort(1))
-      case java.sql.Types.INTEGER => RawInt(rs.getInt(1))
-      case java.sql.Types.BIGINT => RawLong(rs.getLong(1))
-      case java.sql.Types.DECIMAL => RawDecimal(rs.getBigDecimal(1))
-      case java.sql.Types.FLOAT => RawFloat(rs.getFloat(1))
-      case java.sql.Types.DOUBLE => RawDouble(rs.getDouble(1))
-      case java.sql.Types.DATE => RawDate(rs.getDate(1).toLocalDate)
-      case java.sql.Types.TIME => RawTime(LocalTime.ofNanoOfDay(rs.getTime(1).getTime * 1000000))
-      case java.sql.Types.TIMESTAMP => RawTimestamp(rs.getTimestamp(1).toLocalDateTime)
-      case java.sql.Types.BOOLEAN => RawBool(rs.getBoolean(1))
-      case java.sql.Types.VARCHAR => RawString(rs.getString(1))
+    val value = postgresType.jdbcType match {
+      case java.sql.Types.SMALLINT =>
+        val sqlValue = rs.getShort(1)
+        if (rs.wasNull()) RawNull() else RawShort(sqlValue)
+      case java.sql.Types.INTEGER =>
+        val sqlValue = rs.getInt(1)
+        if (rs.wasNull()) RawNull() else RawInt(sqlValue)
+      case java.sql.Types.BIGINT =>
+        val sqlValue = rs.getLong(1)
+        if (rs.wasNull()) RawNull() else RawLong(sqlValue)
+      case java.sql.Types.DECIMAL =>
+        val sqlValue = rs.getBigDecimal(1)
+        if (rs.wasNull()) RawNull() else RawDecimal(sqlValue)
+      case java.sql.Types.FLOAT =>
+        val sqlValue = rs.getFloat(1)
+        if (rs.wasNull()) RawNull() else RawFloat(sqlValue)
+      case java.sql.Types.DOUBLE =>
+        val sqlValue = rs.getDouble(1)
+        if (rs.wasNull()) RawNull() else RawDouble(sqlValue)
+      case java.sql.Types.DATE =>
+        val sqlValue = rs.getDate(1)
+        if (rs.wasNull()) RawNull() else RawDate(sqlValue.toLocalDate)
+      case java.sql.Types.TIME =>
+        val sqlValue = rs.getTime(1)
+        if (rs.wasNull()) RawNull() else RawTime(LocalTime.ofNanoOfDay(sqlValue.getTime * 1000000))
+      case java.sql.Types.TIMESTAMP =>
+        val sqlValue = rs.getTimestamp(1)
+        if (rs.wasNull()) RawNull() else RawTimestamp(sqlValue.toLocalDateTime)
+      case java.sql.Types.BOOLEAN =>
+        val sqlValue = rs.getBoolean(1)
+        if (rs.wasNull()) RawNull() else RawBool(sqlValue)
+      case java.sql.Types.VARCHAR =>
+        val sqlValue = rs.getString(1)
+        if (rs.wasNull()) RawNull() else RawString(sqlValue)
     }
-    val value =
-      if (rs.wasNull()) {
-        RawNull()
-      } else {
-        attempt
-      }
     DefaultValue(value, postgresType)
   }
 
