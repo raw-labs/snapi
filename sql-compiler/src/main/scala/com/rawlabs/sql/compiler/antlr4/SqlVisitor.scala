@@ -689,7 +689,10 @@ class SqlVisitor(
         val param = SqlParamUseNode(name)
 
         param match {
-          case use: SqlParamUseNode => params.get(use.name) match {
+          // The first statement is the only one that will be provided and later considered when running/validating
+          // in Postgres. Therefore, we ignore parameters when they don't belong that first statement.
+          case use: SqlParamUseNode if isFirstStatement =>
+            params.get(use.name) match {
               case Some(value) => params.update(use.name, value.copy(occurrences = value.occurrences :+ use))
               case None => params += (use.name -> SqlParam(use.name, None, None, None, Vector.empty, Vector(use)))
             }
