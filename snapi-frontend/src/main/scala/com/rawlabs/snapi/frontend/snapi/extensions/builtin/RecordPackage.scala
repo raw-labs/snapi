@@ -244,8 +244,14 @@ class RecordAddFieldEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val SnapiRecordType(atts, _) = mandatoryArgs.head.t
-    Right(SnapiRecordType(atts ++ optionalArgs.map(a => SnapiAttrType(a._1, a._2.t))))
+    if (optionalArgs.isEmpty) {
+      Left("new field name and value must be provided")
+    } else if (optionalArgs.size > 1) {
+      Left("only one field can be added")
+    } else {
+      val SnapiRecordType(atts, _) = mandatoryArgs.head.t
+      Right(SnapiRecordType(atts ++ optionalArgs.map(a => SnapiAttrType(a._1, a._2.t))))
+    }
   }
 
 }
