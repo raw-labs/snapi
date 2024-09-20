@@ -1124,4 +1124,33 @@ class TestSqlCompilerServiceAirports
     assert(baos.toString() === """[{"x":"2008-09-29"}]""")
   }
 
+  test("""RD-14898""".stripMargin) { _ =>
+    {
+      // A query with a single statement spread over two lines.
+      val t = TestData("""
+        |SELECT airport_id FROM example.airports WHERE city = :location
+        |                                    AND airport_id = :iata
+        |""".stripMargin)
+      // hover ':location' returns the type of location (varchar)
+      val v1 = compilerService.hover(t.q, asJson(), Pos(2, 57))
+      assert(v1.completion.contains(TypeCompletion("location", "varchar")))
+      // hover ':iata' returns the type of iata (integer)
+      val v2 = compilerService.hover(t.q, asJson(), Pos(3, 57))
+      assert(v2.completion.contains(TypeCompletion("iata", "integer")))
+    }
+    {
+      // ALMOST THE SAME code as before, there's a typo: a semicolon in the end of the first line.
+      val t = TestData("""
+        |SELECT airport_id FROM example.airports WHERE city = :location;
+        |                                    AND airport_id = :iata
+        |""".stripMargin)
+      // hover ':location' still returns the type of location (varchar)
+      val v1 = compilerService.hover(t.q, asJson(), Pos(2, 57))
+      assert(v1.completion.contains(TypeCompletion("location", "varchar")))
+      // hover ':iata' doesn't return anything since it's ignored.
+      val v2 = compilerService.hover(t.q, asJson(), Pos(3, 57))
+      assert(v2.completion.isEmpty)
+    }
+  }
+
 }
