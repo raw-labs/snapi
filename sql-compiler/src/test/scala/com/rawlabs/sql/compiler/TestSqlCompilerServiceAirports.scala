@@ -1153,4 +1153,61 @@ class TestSqlCompilerServiceAirports
     }
   }
 
+  test("SELECT 'a=>1,b=>tralala'::hstore AS r -- JSON") { t =>
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        asJson(),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(baos.toString() === """[{"r":{"a":"1","b":"tralala"}}]""")
+  }
+
+  test("SELECT NULL::hstore AS r -- JSON") { t =>
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        asJson(),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(baos.toString() === """[{"r":null}]""")
+  }
+
+  // TODO What do we do in CSV?
+  ignore("SELECT 'a=>1,b=>tralala'::hstore AS r -- CSV") { t =>
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        asCsv(),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(
+      baos.toString() ===
+        """r
+          |{"a":"1","b":"tralala"}
+          |""".stripMargin
+    )
+  }
+
+  ignore("SELECT NULL::hstore AS r -- CSV") { t =>
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        asCsv(),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(baos.toString() === """[{"r":{"a":"1","b":"tralala"}}]""")
+  }
 }

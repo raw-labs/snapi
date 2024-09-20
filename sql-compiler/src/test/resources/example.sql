@@ -1,5 +1,7 @@
 CREATE SCHEMA example;
 
+CREATE EXTENSION hstore;
+
 CREATE TABLE example.airports (
     airport_id integer,
     name character varying(256),

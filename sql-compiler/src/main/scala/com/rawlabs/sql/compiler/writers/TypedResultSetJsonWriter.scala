@@ -13,6 +13,7 @@
 package com.rawlabs.sql.compiler.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.rawlabs.compiler.{
   RawAnyType,
@@ -127,6 +128,14 @@ class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
             if (v.wasNull()) gen.writeNull()
             else {
               val json = mapper.readTree(data)
+              writeRawJson(json)
+            }
+          case "hstore" =>
+            val hstoreMap = v.getObject(i).asInstanceOf[java.util.Map[String, String]]
+            if (v.wasNull()) gen.writeNull()
+            else {
+              // Convert hstore to JSON-like structure
+              val json = mapper.valueToTree[ObjectNode](hstoreMap)
               writeRawJson(json)
             }
           case _ => throw new IOException("unsupported type")

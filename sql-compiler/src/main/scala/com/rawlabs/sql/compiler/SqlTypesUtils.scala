@@ -138,7 +138,8 @@ object SqlTypesUtils {
         val otherTypeMap: Map[String, RawType] = Map(
           "interval" -> RawIntervalType(false, false),
           "json" -> RawAnyType(),
-          "jsonb" -> RawAnyType()
+          "jsonb" -> RawAnyType(),
+          "hstore" -> RawAnyType()
         )
         otherTypeMap.get(pgTypeName) match {
           case Some(t) => Right(t)
