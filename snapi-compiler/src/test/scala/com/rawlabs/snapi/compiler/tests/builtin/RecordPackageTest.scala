@@ -104,6 +104,9 @@ class RecordPackageTest extends SnapiTestContext {
     it should evaluateTo("""Record.Build(b = "Hello", c = "World")""")
   }
 
+  test("""Record.AddField({a: 1})""")(_ should runErrorAs("new field name and value must be provided"))
+  test("""Record.AddField({a: 1}, b = 2, c = 3)""")(_ should runErrorAs("only one field can be added"))
+
   test("""
     |let r = Record.Build(a = 1, b = "Hello")
     |in Record.GetFieldByIndex(r, 1)
