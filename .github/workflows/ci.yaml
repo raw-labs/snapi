@@ -25,7 +25,7 @@ env:
 
 jobs:
   code-checks:
-    runs-on: [self-hosted,snapi]
+    runs-on: [self-hosted,snapi,red]
     steps:
       - uses: actions/checkout@v4
       - run: ./ci/check headerCheckAll
@@ -47,7 +47,7 @@ jobs:
           - snapi-compiler
           - sql-compiler
           - python-compiler
-    runs-on: [self-hosted,snapi]
+    runs-on: [self-hosted,snapi,red]
     steps:
       - uses: actions/checkout@v4
       - uses: oNaiPs/secrets-to-env-action@v1.5
