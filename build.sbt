@@ -160,7 +160,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
       val projectClasspath = calculateClasspath.value.mkString(":")
 
       val javacOptions = Seq(
-        javacExecutable.absolutePath,
+        "javac",
         "-source",
         "21",
         "-target",
