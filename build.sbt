@@ -10,6 +10,11 @@ import scala.sys.process._
 
 import com.jsuereth.sbtpgp.PgpKeys.publishSigned
 
+javaHome := sys.env.get("JAVA_HOME") match {
+  case Some(path) => Some(file(path))
+  case None       => sys.error("JAVA_HOME is not set. Please set JAVA_HOME to your Java installation directory.")
+}
+
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 ThisBuild / sonatypeProfileName := "com.raw-labs"
