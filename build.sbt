@@ -1,6 +1,8 @@
 import sbt.Keys._
 import sbt._
 
+import SbtModulePatcher.autoImport._
+
 import raw.build.Dependencies._
 import raw.build.BuildSettings._
 
