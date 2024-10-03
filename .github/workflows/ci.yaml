@@ -53,7 +53,9 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1.5
         with:
           secrets: ${{ toJSON(secrets) }}
-      - run: env > .env
+      - run: |
+          export JAVA_HOME="/opt/graalvm-community-java21"
+          env > .env
       - name: Ensure ANTLR JAR is present
         uses: ./.github/actions/get-antlr4
       - run: ./ci/test ${{ matrix.component }}
