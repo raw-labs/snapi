@@ -17,8 +17,7 @@ ThisBuild / credentials += Credentials(
   "raw-labs",
   sys.env.getOrElse("GITHUB_TOKEN", "")
 )
-ThisBuild / resolvers += "Github RAW snapi repo" at "https://maven.pkg.github.com/raw-labs/snapi"
-ThisBuild / resolvers += "Github RAW kiama repo" at "https://maven.pkg.github.com/raw-labs/kiama"
+ThisBuild / resolvers += "RAW Labs GitHub Packages" at "https://maven.pkg.github.com/raw-labs/_"
 
 ThisBuild / javaHome := {
   val javaHomePath = sys.env.getOrElse("JAVA_HOME", sys.props("java.home"))
