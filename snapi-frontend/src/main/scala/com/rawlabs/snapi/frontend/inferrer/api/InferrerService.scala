@@ -16,7 +16,7 @@ import com.google.common.base.Stopwatch
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.rawlabs.utils.core.{RawException, RawService, RawSettings, RawUtils}
 
-import java.util.concurrent.{ExecutionException, Executors, TimeUnit, TimeoutException}
+import java.util.concurrent.{ExecutionException, LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit, TimeoutException}
 
 object InferrerService {
   private val INFERRER_TIMEOUT = "raw.snapi.frontend.inferrer.timeout"
@@ -37,9 +37,19 @@ abstract class InferrerService(implicit settings: RawSettings) extends RawServic
   private val inferrerCacheSize = settings.getInt(INFERRER_CACHE_SIZE)
 
   private val inferrerThreadPoolSize = settings.getInt(INFERRER_THREAD_POOL_SIZE)
-  private val inferrerThreadPool =
-    Executors.newFixedThreadPool(inferrerThreadPoolSize, RawUtils.newThreadFactory("inferrer-service"))
 
+  // That thread pool is the one that holds threads running inference. It remains alive for the lifetime of the service.
+  // After 1 minute of inactivity, threads are shutdown.
+  private val inferrerThreadPool = new ThreadPoolExecutor(
+    inferrerThreadPoolSize,
+    inferrerThreadPoolSize,
+    1L,
+    TimeUnit.MINUTES,
+    new LinkedBlockingQueue[Runnable], // Queue is unbounded to not reject tasks
+    RawUtils.newThreadFactory("inferrer-service")
+  )
+  // Applies the idle timeout to core threads too.
+  inferrerThreadPool.allowCoreThreadTimeOut(true)
   // The main entrypoint for the inferrer.
   // Using an exception for inference is reasonable because we often want inference to exit early.
   @throws[RawException]
