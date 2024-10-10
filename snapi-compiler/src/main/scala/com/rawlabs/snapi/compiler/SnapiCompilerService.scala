@@ -106,6 +106,8 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
 
   private val (engine, initedEngine) = engineDefinition
 
+  private val inferrer = InferrerServiceProvider()
+
   // The default constructor allows an Engine to be specified, plus a flag to indicate whether it was created here
   // or externally. That's necessary for the test framework.
   // This is actually the "default constructor" which obtains a new engine or reuses an existing one.
@@ -125,16 +127,8 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
 
   private def getCompilerContext(user: RawUid): CompilerContext = {
     compilerContextCachesLock.synchronized {
-      compilerContextCaches.getOrElseUpdate(user, createCompilerContext(user, "snapi"))
+      compilerContextCaches.getOrElseUpdate(user, new CompilerContext(user, inferrer))
     }
-  }
-
-  private def createCompilerContext(user: RawUid, language: String): CompilerContext = {
-    // Initialize inferrer
-    val inferrer = InferrerServiceProvider()
-
-    // Initialize compiler context
-    new CompilerContext(language, user, inferrer)
   }
 
   private def getProgramContext(user: RawUid, environment: ProgramEnvironment): ProgramContext = {
@@ -646,7 +640,10 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   }
 
   override def doStop(): Unit = {
-    compilerContextCaches.values.foreach(compilerContext => compilerContext.inferrer.stop())
+    compilerContextCachesLock.synchronized {
+      compilerContextCaches.values.foreach(_.stop())
+      compilerContextCaches.clear()
+    }
     if (initedEngine) {
       CompilerService.releaseEngine
     }

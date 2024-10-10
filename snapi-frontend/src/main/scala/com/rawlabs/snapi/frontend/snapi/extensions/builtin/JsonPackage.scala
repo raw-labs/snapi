@@ -128,7 +128,7 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
     val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
     val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InferrerOutput] =
       getJsonInferrerProperties(mandatoryArgs, optionalArgs)
-        .flatMap(programContext.infer)
+        .flatMap(i => programContext.infer(i, mandatoryArgs, optionalArgs, varArgs))
         .left
         .map(error => Seq(InvalidSemantic(node, error)))
     for (
@@ -155,7 +155,7 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
   )(implicit programContext: ProgramContext): Exp = {
     val inputFormatDescriptor = for (
       inferrerProperties <- getJsonInferrerProperties(mandatoryArgs, optionalArgs);
-      inputFormatDescriptor <- programContext.infer(inferrerProperties)
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs)
     ) yield {
       inputFormatDescriptor
     }
@@ -366,7 +366,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       Seq(ValueArg(SnapiLocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), SnapiLocationType())),
       optionalArgs
     )
-      .flatMap(programContext.infer)
+      .flatMap(i => programContext.infer(i, mandatoryArgs, optionalArgs, varArgs))
       .left
       .map(error => Seq(InvalidSemantic(node, error)))
     for (
@@ -398,7 +398,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
         Seq(ValueArg(SnapiLocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), SnapiLocationType())),
         optionalArgs
       );
-      inputFormatDescriptor <- programContext.infer(inferrerProperties)
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs)
     ) yield {
       inputFormatDescriptor
     }

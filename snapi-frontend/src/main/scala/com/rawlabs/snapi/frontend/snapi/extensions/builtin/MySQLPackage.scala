@@ -165,7 +165,7 @@ class MySQLInferAndReadEntry extends SugarEntryExtension {
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
       inferrerProperties <- getTableInferrerProperties(mandatoryArgs, optionalArgs);
-      inputFormatDescriptor <- programContext.infer(inferrerProperties);
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs);
       SqlTableInferrerOutput(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToSnapiType(tipe, false, false)
@@ -410,7 +410,7 @@ class MySQLInferAndQueryEntry extends SugarEntryExtension {
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     for (
       inferrerProperties <- getQueryInferrerProperties(mandatoryArgs, optionalArgs);
-      inputFormatDescriptor <- programContext.infer(inferrerProperties);
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs);
       SqlQueryInferrerOutput(tipe) = inputFormatDescriptor
     ) yield {
       inferTypeToSnapiType(tipe, false, false)

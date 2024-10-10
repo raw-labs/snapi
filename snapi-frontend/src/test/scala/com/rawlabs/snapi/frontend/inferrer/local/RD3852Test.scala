@@ -27,14 +27,8 @@ class RD3852Test extends RawTestSuite with SettingsTestContext with StrictLoggin
     val inferrer = new LocalInferrerService
     val p = RawUtils.getResource("data/students/students.csv")
     val l1 = new LocalPath(p)
-    try {
-
-      val TextInputStreamInferrerOutput(_, _, format) = inferrer.infer(AutoInferrerInput(l1, None))
-      assert(format.isInstanceOf[CsvFormatDescriptor])
-
-    } finally {
-      RawUtils.withSuppressNonFatalException(inferrer.stop())
-    }
+    val TextInputStreamInferrerOutput(_, _, format) = inferrer.infer(AutoInferrerInput(l1, None))
+    assert(format.isInstanceOf[CsvFormatDescriptor])
   }
 
 }

@@ -107,7 +107,7 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val inferenceDiagnostic = getXmlInferrerProperties(mandatoryArgs, optionalArgs)
-      .flatMap(programContext.infer)
+      .flatMap(i => programContext.infer(i, mandatoryArgs, optionalArgs, varArgs))
       .left
       .map(error => Seq(InvalidSemantic(node, error)))
     val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue);
@@ -138,7 +138,7 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
     val inputFormatDescriptor = for (
       inferrerProperties <- getXmlInferrerProperties(mandatoryArgs, optionalArgs);
 
-      inputFormatDescriptor <- programContext.infer(inferrerProperties)
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs)
     ) yield {
       inputFormatDescriptor
     }
