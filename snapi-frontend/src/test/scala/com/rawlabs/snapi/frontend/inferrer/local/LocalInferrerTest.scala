@@ -48,7 +48,6 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
           inferrer.infer(AutoInferrerInput(l1, None))
         assert(detectedEncoding == encoding)
       } finally {
-        RawUtils.withSuppressNonFatalException(inferrer.stop())
         RawUtils.withSuppressNonFatalException(f.delete())
       }
     }
@@ -76,7 +75,6 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
         })
       }
     } finally {
-      RawUtils.withSuppressNonFatalException(inferrer.stop())
       RawUtils.withSuppressNonFatalException(ex.shutdownNow())
     }
   }

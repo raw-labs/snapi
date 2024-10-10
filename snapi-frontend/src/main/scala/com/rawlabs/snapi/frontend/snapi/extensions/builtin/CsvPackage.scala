@@ -216,7 +216,7 @@ class CsvInferAndReadEntry extends SugarEntryExtension with CsvEntryExtensionHel
 
     for (
       inferrerProperties <- getCsvInferrerProperties(mandatoryArgs, optionalArgs);
-      inputFormatDescriptor <- programContext.infer(inferrerProperties);
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs);
       TextInputStreamInferrerOutput(
         _,
         _,
@@ -259,7 +259,7 @@ class CsvInferAndReadEntry extends SugarEntryExtension with CsvEntryExtensionHel
 
     val r = for (
       inferrerProperties <- getCsvInferrerProperties(mandatoryArgs, optionalArgs);
-      inputFormatDescriptor <- programContext.infer(inferrerProperties)
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs)
     ) yield {
       inputFormatDescriptor
     }
@@ -590,7 +590,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
         Seq(ValueArg(SnapiLocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), SnapiLocationType())),
         optionalArgs
       );
-      inputFormatDescriptor <- programContext.infer(inferrerProperties);
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs);
       TextInputStreamInferrerOutput(
         _,
         _,
@@ -637,7 +637,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
         Seq(ValueArg(SnapiLocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), SnapiLocationType())),
         optionalArgs
       );
-      inputFormatDescriptor <- programContext.infer(inferrerProperties)
+      inputFormatDescriptor <- programContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs)
     ) yield {
       inputFormatDescriptor
     }

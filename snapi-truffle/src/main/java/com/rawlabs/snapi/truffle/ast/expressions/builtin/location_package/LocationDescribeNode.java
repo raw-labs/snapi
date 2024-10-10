@@ -221,8 +221,6 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       return record;
     } catch (RawException ex) {
       return new ErrorObject(ex.getMessage());
-    } finally {
-      inferrer.stop();
     }
   }
 }

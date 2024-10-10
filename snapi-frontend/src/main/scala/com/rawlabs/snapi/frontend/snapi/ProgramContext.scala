@@ -15,7 +15,7 @@ package com.rawlabs.snapi.frontend.snapi
 import com.rawlabs.compiler.ProgramEnvironment
 import com.rawlabs.snapi.frontend.base.CompilerContext
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
-import com.rawlabs.snapi.frontend.snapi.extensions.{PackageExtension, PackageExtensionProvider}
+import com.rawlabs.snapi.frontend.snapi.extensions.{Arg, PackageExtension, PackageExtensionProvider}
 import com.rawlabs.snapi.frontend.snapi.source.SnapiProgram
 import com.rawlabs.snapi.frontend.inferrer.api.{InferrerInput, InferrerOutput}
 
@@ -33,11 +33,14 @@ class ProgramContext(
   private val stageCompilerCache = new mutable.HashMap[SnapiProgram, Either[ErrorCompilerMessage, SnapiValue]]
 
   def infer(
-      inferrerProperties: InferrerInput
+      inferrerProperties: InferrerInput,
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
   ): Either[String, InferrerOutput] = {
     inferCache.getOrElseUpdate(
       inferrerProperties,
-      compilerContext.infer(inferrerProperties)
+      compilerContext.infer(inferrerProperties, mandatoryArgs, optionalArgs, varArgs)
     )
   }
 

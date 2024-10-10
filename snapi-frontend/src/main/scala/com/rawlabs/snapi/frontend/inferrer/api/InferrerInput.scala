@@ -104,4 +104,6 @@ final case class ManyAutoInferrerInput(
     location: FileSystemLocation,
     maybeSampleSize: Option[Int],
     maybeSampleFiles: Option[Int]
-) extends InferrerInput
+) extends InferrerInput {
+
+}

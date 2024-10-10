@@ -18,55 +18,27 @@ import com.rawlabs.snapi.frontend.inferrer.api.InferrerService;
 import com.rawlabs.snapi.frontend.inferrer.api.InferrerServiceProvider;
 import com.rawlabs.utils.core.RawSettings;
 import com.rawlabs.utils.core.RawUid;
-import com.rawlabs.utils.core.RawUtils;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import scala.runtime.BoxedUnit;
 
 public class SnapiLanguageCache {
 
   private final Object activeContextsLock = new Object();
   private final Set<SnapiContext> activeContexts = new HashSet<SnapiContext>();
 
-  private final ConcurrentHashMap<RawUid, Value> map = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<RawUid, InferrerService> inferrerServiceCache = new ConcurrentHashMap<>();
 
-  private static class Value {
-    private final CompilerContext compilerContext;
-    private final InferrerService inferrer;
+  private final ConcurrentHashMap<RawUid, CompilerContext> compilerContextsCache = new ConcurrentHashMap<>();
 
-    Value(CompilerContext compilerContext, InferrerService inferrer) {
-      this.compilerContext = compilerContext;
-      this.inferrer = inferrer;
-    }
-
-    public CompilerContext getCompilerContext() {
-      return compilerContext;
-    }
-
-    public InferrerService getInferrer() {
-      return inferrer;
-    }
+  @CompilerDirectives.TruffleBoundary
+  public InferrerService getInferrer(RawUid user, RawSettings rawSettings) {
+    return inferrerServiceCache.computeIfAbsent(user, k -> InferrerServiceProvider.apply(rawSettings));
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Value get(RawUid user, RawSettings rawSettings) {
-    return map.computeIfAbsent(
-        user,
-        k -> {
-          InferrerService inferrer = InferrerServiceProvider.apply(rawSettings);
-          CompilerContext compilerContext =
-              new CompilerContext("snapi", user, inferrer, rawSettings);
-          return new Value(compilerContext, inferrer);
-        });
-  }
-
   public CompilerContext getCompilerContext(RawUid user, RawSettings rawSettings) {
-    return get(user, rawSettings).getCompilerContext();
-  }
-
-  public InferrerService getInferrer(RawUid user, RawSettings rawSettings) {
-    return get(user, rawSettings).getInferrer();
+    return compilerContextsCache.computeIfAbsent(user, k -> new CompilerContext(user, getInferrer(user, rawSettings), rawSettings));
   }
 
   @CompilerDirectives.TruffleBoundary
@@ -81,18 +53,9 @@ public class SnapiLanguageCache {
     synchronized (activeContextsLock) {
       activeContexts.remove(context);
       if (activeContexts.isEmpty()) {
-        // Close all inferrer services.
-        map.values()
-            .forEach(
-                v -> {
-                  RawUtils.withSuppressNonFatalException(
-                      () -> {
-                        v.getInferrer().stop();
-                        return BoxedUnit.UNIT;
-                      },
-                      true);
-                });
-        map.clear();
+        // Close all compiler contexts.
+        compilerContextsCache.values().forEach(CompilerContext::stop);
+        compilerContextsCache.clear();
       }
     }
   }
