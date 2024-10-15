@@ -1210,4 +1210,20 @@ class TestSqlCompilerServiceAirports
     )
     assert(baos.toString() === """[{"r":{"a":"1","b":"tralala"}}]""")
   }
+
+  test("SELECT a.* FROM example.airports a ORDER BY airport_id LIMIT 1") { t =>
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        asCsv(),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(baos.toString() === """airport_id,name,city,country,iata_faa,icao,latitude,longitude,altitude,timezone,dst,tz
+      |1,Goroka,Goroka,Papua New Guinea,GKA,AYGA,-6.081689,145.391881,5282.000,10,U,Pacific/Port_Moresby
+      |""".stripMargin)
+
+  }
 }
