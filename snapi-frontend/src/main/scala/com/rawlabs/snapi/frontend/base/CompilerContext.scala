@@ -17,7 +17,6 @@ import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.rawlabs.utils.core.{RawSettings, RawUid}
 import com.typesafe.scalalogging.StrictLogging
 import com.rawlabs.snapi.frontend.inferrer.api.{InferrerException, InferrerInput, InferrerOutput, InferrerService}
-import com.rawlabs.snapi.frontend.snapi.extensions.Arg
 import com.rawlabs.utils.core._
 
 import java.util.concurrent.{ExecutionException, Executors, TimeUnit, TimeoutException}
@@ -49,15 +48,15 @@ class CompilerContext(
 
   private val inferrerThreadPool = Executors.newCachedThreadPool(RawUtils.newThreadFactory("inferrer-thread"))
 
-  private val inferCache: LoadingCache[CompilerContextInferrerKey, Either[String, InferrerOutput]] = CacheBuilder
+  private val inferCache: LoadingCache[InferrerInput, Either[String, InferrerOutput]] = CacheBuilder
     .newBuilder()
     .maximumSize(inferrerCacheSize)
     .expireAfterAccess(inferrerExpirySeconds, TimeUnit.SECONDS)
-    .build(new CacheLoader[CompilerContextInferrerKey, Either[String, InferrerOutput]] {
-      def load(key: CompilerContextInferrerKey): Either[String, InferrerOutput] = {
+    .build(new CacheLoader[InferrerInput, Either[String, InferrerOutput]] {
+      def load(inferrerInput: InferrerInput): Either[String, InferrerOutput] = {
         val inferrerFuture = inferrerThreadPool.submit(() => {
           try {
-            Right(inferrer.infer(key.inferrerInput))
+            Right(inferrer.infer(inferrerInput))
           } catch {
             case ex: InferrerException => Left(ex.getMessage)
           }
@@ -80,13 +79,8 @@ class CompilerContext(
       }
     })
 
-  def infer(
-      inferrerInput: InferrerInput,
-      mandatoryArgs: Seq[Arg],
-      optionalArgs: Seq[(String, Arg)],
-      varArgs: Seq[Arg]
-  ): Either[String, InferrerOutput] = {
-    inferCache.get(CompilerContextInferrerKey(mandatoryArgs, optionalArgs, varArgs, inferrerInput))
+  def infer(inferrerInput: InferrerInput): Either[String, InferrerOutput] = {
+    inferCache.get(inferrerInput)
   }
 
   final override def doStop(): Unit = {
@@ -96,34 +90,4 @@ class CompilerContext(
     }
   }
 
-}
-
-/**
- * Key for the inferrer cache.
- * The key is based on the arguments and properties passed to the inferrer.
- * The properties are not considered in the equals and hashCode methods but only used to actually infer the output.
- *
- * @param mandatoryArgs the mandatory arguments
- * @param optionalArgs the optional arguments
- * @param varArgs the varargs
- * @param inferrerInput the inferrer input
- */
-private case class CompilerContextInferrerKey(
-    mandatoryArgs: Seq[Arg],
-    optionalArgs: Seq[(String, Arg)],
-    varArgs: Seq[Arg],
-    inferrerInput: InferrerInput
-) {
-  // Override equals and hashCode to consider only the arguments, not the properties
-  override def equals(other: Any): Boolean = other match {
-    case that: CompilerContextInferrerKey => this.mandatoryArgs == that.mandatoryArgs &&
-        this.optionalArgs == that.optionalArgs &&
-        this.varArgs == that.varArgs
-    case _ => false
-  }
-
-  override def hashCode(): Int = {
-    val state = Seq(mandatoryArgs, optionalArgs, varArgs)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
 }
