@@ -128,7 +128,7 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
     val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
     val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InferrerOutput] =
       getJsonInferrerProperties(mandatoryArgs, optionalArgs)
-        .flatMap(i => programContext.infer(i))
+        .flatMap(programContext.infer)
         .left
         .map(error => Seq(InvalidSemantic(node, error)))
     for (
@@ -366,7 +366,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       Seq(ValueArg(SnapiLocationValue(new InMemoryByteStreamLocation(codeData), "<value>"), SnapiLocationType())),
       optionalArgs
     )
-      .flatMap(i => programContext.infer(i))
+      .flatMap(programContext.infer)
       .left
       .map(error => Seq(InvalidSemantic(node, error)))
     for (
