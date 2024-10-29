@@ -644,6 +644,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       compilerContextCaches.values.foreach(_.stop())
       compilerContextCaches.clear()
     }
+    inferrer.stop()
     if (initedEngine) {
       CompilerService.releaseEngine
     }
