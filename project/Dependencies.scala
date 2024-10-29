@@ -16,7 +16,7 @@ object Dependencies {
 
   val utilsCore = "com.raw-labs" %% "utils-core" % "0.50.0"
 
-  val utilsSources = "com.raw-labs" %% "utils-sources" % "0.50.0"
+  val utilsSources = "com.raw-labs" %% "utils-sources" % "0.51.0"
 
   val protocolRaw = "com.raw-labs" %% "protocol-raw" % "0.50.0"
 
