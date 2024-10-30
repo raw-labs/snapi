@@ -15,14 +15,6 @@ package com.rawlabs.snapi.compiler.tests.regressions
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class RD5775Test extends SnapiTestContext {
-  test("""let data = Http.Get("https://jira.atlassian.com/rest/api/latest/search", args=[{"jql", "fixVersion=9.0.0"}]),
-    |    r = Json.InferAndRead(data),
-    |    issues = Collection.Transform(r.issues, i -> {
-    |        i.key, i.fields.summary, i.fields.status.name, i.fields.created, i.fields.resolutiondate
-    |    })
-    |in Collection.OrderBy(issues, i -> i.resolutiondate, "DESC")
-    |""".stripMargin)(_ should run)
-
   test("Collection")(_ should (tipe and runErrorAs("unsupported type")))
   test("Collection.GroupBy")(_ should (tipe and runErrorAs("unsupported type")))
   test("""Http.Get("http://www.raw-labs.com/not-found")""")(_ should (tipe and runErrorAs("unsupported type")))
