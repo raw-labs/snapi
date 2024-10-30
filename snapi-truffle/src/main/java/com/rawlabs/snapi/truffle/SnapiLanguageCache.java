@@ -27,18 +27,22 @@ public class SnapiLanguageCache {
   private final Object activeContextsLock = new Object();
   private final Set<SnapiContext> activeContexts = new HashSet<SnapiContext>();
 
-  private final ConcurrentHashMap<RawUid, InferrerService> inferrerServiceCache = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<RawUid, InferrerService> inferrerServiceCache =
+      new ConcurrentHashMap<>();
 
-  private final ConcurrentHashMap<RawUid, CompilerContext> compilerContextsCache = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<RawUid, CompilerContext> compilerContextsCache =
+      new ConcurrentHashMap<>();
 
   @CompilerDirectives.TruffleBoundary
   public InferrerService getInferrer(RawUid user, RawSettings rawSettings) {
-    return inferrerServiceCache.computeIfAbsent(user, k -> InferrerServiceProvider.apply(rawSettings));
+    return inferrerServiceCache.computeIfAbsent(
+        user, k -> InferrerServiceProvider.apply(rawSettings));
   }
 
   @CompilerDirectives.TruffleBoundary
   public CompilerContext getCompilerContext(RawUid user, RawSettings rawSettings) {
-    return compilerContextsCache.computeIfAbsent(user, k -> new CompilerContext(user, getInferrer(user, rawSettings), rawSettings));
+    return compilerContextsCache.computeIfAbsent(
+        user, k -> new CompilerContext(user, getInferrer(user, rawSettings), rawSettings));
   }
 
   @CompilerDirectives.TruffleBoundary
