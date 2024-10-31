@@ -191,7 +191,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       source: String,
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse = {
-    assert(!stopped.get())
     withTruffleContext(
       environment,
       _ => {
@@ -237,7 +236,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       outputStream: OutputStream,
       maxRows: Option[Long]
   ): ExecutionResponse = {
-    assert(!stopped.get())
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
     ctx.initialize("snapi")
     ctx.enter()
@@ -545,7 +543,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    assert(!stopped.get())
     withTruffleContext(
       environment,
       _ => {
@@ -566,7 +563,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   }
 
   override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    assert(!stopped.get())
     withTruffleContext(
       environment,
       _ => {
@@ -613,7 +609,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   private def withLspTree[T](source: String, f: LspAnalyzer => T)(
       implicit programContext: base.ProgramContext
   ): Either[(String, Position), T] = {
-    assert(!stopped.get())
     val positions = new Positions()
     val parser = new Antlr4SyntaxAnalyzer(positions, true)
     val ParseProgramResult(errors, program) = parser.parse(source)

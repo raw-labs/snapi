@@ -29,9 +29,6 @@ abstract class InferrerService(implicit settings: RawSettings) extends RawServic
 
   import InferrerService._
 
-  // Print stack trace when the inferrer starts
-  logger.warn(s"INFER: $this: InferrerService started.", new Throwable())
-
   private val inferrerTimeoutMillis = settings.getDuration(INFERRER_TIMEOUT).toMillis
   private val inferrerExpirySeconds = settings.getDuration(INFERRER_EXPIRY).toSeconds
 
@@ -88,7 +85,6 @@ abstract class InferrerService(implicit settings: RawSettings) extends RawServic
 
   final override def doStop(): Unit = {
     RawUtils.withSuppressNonFatalException {
-      logger.warn(s"INFER: $this: InferrerService stopped.", new Throwable())
       inferrerThreadPool.shutdownNow()
       inferrerThreadPool.awaitTermination(5, TimeUnit.SECONDS)
     }
