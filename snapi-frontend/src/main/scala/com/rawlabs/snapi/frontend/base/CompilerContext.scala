@@ -12,24 +12,22 @@
 
 package com.rawlabs.snapi.frontend.base
 
-import com.rawlabs.utils.core.{RawSettings, RawUid}
+import com.rawlabs.utils.core.{RawService, RawSettings, RawUid}
 import com.typesafe.scalalogging.StrictLogging
 import com.rawlabs.snapi.frontend.inferrer.api.{InferrerInput, InferrerOutput, InferrerService}
-import com.rawlabs.utils.core._
 
 /**
  * Contains state that is shared between different programs.
  */
-class CompilerContext(
-    val language: String,
-    val user: RawUid,
-    val inferrer: InferrerService
-)(
+class CompilerContext(val user: RawUid, val inferrer: InferrerService)(
     implicit val settings: RawSettings
-) extends StrictLogging {
+) extends RawService
+    with StrictLogging {
 
-  def infer(properties: InferrerInput): Either[String, InferrerOutput] = {
-    inferrer.inferWithExpiry(properties)
+  def infer(inferrerInput: InferrerInput): Either[String, InferrerOutput] = {
+    inferrer.inferWithCache(inferrerInput)
   }
+
+  override protected def doStop(): Unit = {}
 
 }

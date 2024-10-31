@@ -16,8 +16,6 @@ import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class RD9485Test extends SnapiTestContext {
 
-  property("raw.snapi.frontend.inferrer.local.xml.sample-size", "2")
-
   val xmlList = tempFile("""<?xml version="1.0" encoding="UTF-8"?>
     |<top>
     |   <a>1</a>
@@ -26,7 +24,7 @@ class RD9485Test extends SnapiTestContext {
     |   <a/>
     |</top>""".stripMargin)
 
-  test(s"""Xml.InferAndRead("file://$xmlList")""") { it =>
+  test(s"""Xml.InferAndRead("file://$xmlList", sampleSize = 2)""") { it =>
     it should evaluateTo(s"""Xml.Read("file://$xmlList", type record(a: collection(double)))""")
     it should evaluateTo("""{
       |  a: [
@@ -39,7 +37,7 @@ class RD9485Test extends SnapiTestContext {
       |""".stripMargin)
   }
 
-  test(s"""Xml.InferAndRead("file://$xmlList", preferNulls=false)""") { it =>
+  test(s"""Xml.InferAndRead("file://$xmlList", sampleSize = 2, preferNulls=false)""") { it =>
     it should evaluateTo("""{
       |  a: [
       |      1.0,
@@ -68,7 +66,7 @@ class RD9485Test extends SnapiTestContext {
     |   <a arg1="where is the other one?"></a>
     |</top>""".stripMargin)
 
-  test(s"""Xml.InferAndRead("file://$xmlRecords")""") { it =>
+  test(s"""Xml.InferAndRead("file://$xmlRecords", sampleSize = 2)""") { it =>
     it should evaluateTo("""{
       |  a: [
       |     {
@@ -100,7 +98,7 @@ class RD9485Test extends SnapiTestContext {
       |""".stripMargin)
   }
 
-  test(s"""Xml.InferAndRead("file://$xmlRecords", preferNulls=false)""") { it =>
+  test(s"""Xml.InferAndRead("file://$xmlRecords", sampleSize = 2, preferNulls=false)""") { it =>
     it should evaluateTo("""{
       |  a: [
       |     {

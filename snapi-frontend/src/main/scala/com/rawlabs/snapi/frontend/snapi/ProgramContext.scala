@@ -32,13 +32,8 @@ class ProgramContext(
 
   private val stageCompilerCache = new mutable.HashMap[SnapiProgram, Either[ErrorCompilerMessage, SnapiValue]]
 
-  def infer(
-      inferrerProperties: InferrerInput
-  ): Either[String, InferrerOutput] = {
-    inferCache.getOrElseUpdate(
-      inferrerProperties,
-      compilerContext.infer(inferrerProperties)
-    )
+  def infer(inferrerProperties: InferrerInput): Either[String, InferrerOutput] = {
+    inferCache.getOrElseUpdate(inferrerProperties, compilerContext.infer(inferrerProperties))
   }
 
   def getPackage(name: String): Option[PackageExtension] = {
