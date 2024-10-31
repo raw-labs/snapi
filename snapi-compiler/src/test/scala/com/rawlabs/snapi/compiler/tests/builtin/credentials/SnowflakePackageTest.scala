@@ -284,7 +284,7 @@ class SnowflakePackageTest extends SnapiTestContext {
       |)""".stripMargin
   ) { it =>
     it should runErrorAs(
-      """IO error connecting to does-not-exist: JDBC driver encountered communication error. Message: HTTP status=513.""".stripMargin
+      """IO error connecting to does-not-exist: JDBC driver encountered communication error. Message: HTTP status=404.""".stripMargin
     )
   }
 
