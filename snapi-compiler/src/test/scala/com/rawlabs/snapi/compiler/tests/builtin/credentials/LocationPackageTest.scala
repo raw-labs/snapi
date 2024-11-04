@@ -19,8 +19,7 @@ class LocationPackageTest extends SnapiTestContext {
   import com.rawlabs.snapi.compiler.tests.TestCredentials._
 
   httpHeaders("dropbox-token", Map("Authorization" -> ("Bearer " + dropboxLongLivedAccessToken)))
-
-  s3Bucket(UnitTestPrivateBucket2, UnitTestPrivateBucket2Cred)
+  awsCreds("raw-aws", rawAwsCredentials)
 
   property("raw.utils.sources.dropbox.clientId", dropboxClientId)
 
@@ -31,6 +30,22 @@ class LocationPackageTest extends SnapiTestContext {
     |        authCredentialName = "dropbox-token"
     |    )
     |)""".stripMargin)(it => it should run)
+
+  test("""
+    |String.Read(
+    |    Http.Post(
+    |        "https://api.dropboxapi.com/2/users/get_space_usage",
+    |        authCredentialName = "dropboxToken" // wrong: doesn't exist
+    |    )
+    |)""".stripMargin)(it => it should runErrorAs("unknown credential: dropboxToken"))
+
+  test("""
+    |String.Read(
+    |    Http.Post(
+    |        "https://api.dropboxapi.com/2/users/get_space_usage",
+    |        authCredentialName = "raw-aws" // wrong: AWS credential
+    |    )
+    |)""".stripMargin)(it => it should runErrorAs("credential is not an HTTP headers"))
 
   // reading a public s3 bucket without registering or passing credentials
   test(s"""let
@@ -86,9 +101,9 @@ class LocationPackageTest extends SnapiTestContext {
     |    S3.Build(
     |      "$UnitTestPrivateBucket",
     |      "students.csv",
-    |      region = "${UnitTestPrivateBucketCred.getRegion}",
-    |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
-    |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
+    |      region = "eu-west-1",
+    |      accessKey = "${rawAwsCredentials.getAccessKey}",
+    |      secretKey = "${rawAwsCredentials.getSecretKey}"
     |    )
     |  )
     |in
@@ -96,14 +111,14 @@ class LocationPackageTest extends SnapiTestContext {
     |""".stripMargin)(it => it should evaluateTo("7"))
 
   // using a private bucket registered in the credentials server
-  test(s"""String.Read(S3.Build("$UnitTestPrivateBucket2", "/file1.csv"))
+  test(s"""String.Read(S3.Build("$UnitTestPrivateBucket2", "/file1.csv", awsCredential = "raw-aws"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
   test(s"""let dir = S3.Build(
     |      "$UnitTestPrivateBucket", "/publications/publications-hjson/*.json",
-    |      region = "${UnitTestPrivateBucketCred.getRegion}",
-    |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
-    |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
+    |      region = "eu-west-1",
+    |      accessKey = "${rawAwsCredentials.getAccessKey}",
+    |      secretKey = "${rawAwsCredentials.getSecretKey}"
     |    ),
     |    files = Location.Ls(dir),
     |    lines = List.Unnest(files, f -> List.From(String.ReadLines(f)))
