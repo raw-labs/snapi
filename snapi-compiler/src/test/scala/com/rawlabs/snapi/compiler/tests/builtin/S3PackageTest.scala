@@ -18,7 +18,7 @@ class S3PackageTest extends SnapiTestContext {
 
   import com.rawlabs.snapi.compiler.tests.TestCredentials._
 
-  s3Bucket(UnitTestPrivateBucket, UnitTestPrivateBucketCred)
+  awsCreds("raw-aws", rawAwsCredentials)
   // Reading a public bucket without credentials
   test(s"""let
     |  data = Csv.InferAndRead(
@@ -50,16 +50,16 @@ class S3PackageTest extends SnapiTestContext {
     |    S3.Build(
     |      "$UnitTestPrivateBucket",
     |      "/students.csv",
-    |      region = "${UnitTestPrivateBucketCred.getRegion}",
-    |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
-    |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
+    |      region = "eu-west-1",
+    |      accessKey = "${rawAwsCredentials.getAccessKey}",
+    |      secretKey = "${rawAwsCredentials.getSecretKey}"
     |    )
     |  )
     |in
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))
 
-  // Reading a private bucket using a registered credential
+  // Reading a private bucket without credential
   test(s"""let
     |  data = Csv.InferAndRead(
     |    S3.Build(
@@ -69,11 +69,17 @@ class S3PackageTest extends SnapiTestContext {
     |  )
     |in
     |  Collection.Count(data)
-    |""".stripMargin)(it => it should evaluateTo("7"))
+    |""".stripMargin)(it => it should runErrorAs("path not authorized"))
 
-  // Using the automatic casting from url to S3Location using credentials
+  // Reading a private bucket using a registered credential
   test(s"""let
-    |  data = Csv.InferAndRead("s3://$UnitTestPrivateBucket/students.csv")
+    |  data = Csv.InferAndRead(
+    |    S3.Build(
+    |      "$UnitTestPrivateBucket",
+    |      "/students.csv",
+    |      awsCredential = "raw-aws"
+    |    )
+    |  )
     |in
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))

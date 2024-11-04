@@ -44,14 +44,13 @@ import com.rawlabs.snapi.compiler._
 import com.rawlabs.snapi.frontend.base.source.{BaseProgram, Type}
 import com.rawlabs.snapi.frontend.inferrer.local.LocalInferrerTestContext
 import com.rawlabs.protocol.compiler.{
+  AwsConfig,
   DropboxAccessTokenConfig,
   HttpHeadersConfig,
   LocationConfig,
   MySqlConfig,
   OracleConfig,
   PostgreSQLConfig,
-  S3AccessSecretKey,
-  S3Config,
   SQLServerConfig,
   SnowflakeConfig
 }
@@ -86,42 +85,17 @@ object TestCredentials {
 
   // Bucket with public access
   val UnitTestPublicBucket = "rawlabs-public-test-data"
-  val UnitTestPublicBucketCred = S3Config.newBuilder().setRegion("eu-west-1").build()
-
   // IAM user 'unit-test-private-bucket', which only has permissions only to access bucket 'rawlabs-private-test-data'
   val UnitTestPrivateBucket = "rawlabs-private-test-data"
-  val UnitTestPrivateBucketCred = S3Config
-    .newBuilder()
-    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
-    .setRegion("eu-west-1")
-    .build()
-
   val UnitTestPrivateBucket2 = "rawlabs-unit-tests"
-  val UnitTestPrivateBucket2Cred = S3Config
-    .newBuilder()
-    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
-    .setRegion("eu-west-1")
-    .build()
-
   val UnitTestEmptyBucketPrivateBucket = "rawlabs-unit-test-empty-bucket"
-  val UnitTestEmptyBucketPrivateBucketCred = S3Config
-    .newBuilder()
-    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
-    .setRegion("eu-west-1")
-    .build()
-
   val UnitTestListRootPrivateBucket = "rawlabs-unit-test-list-root"
-  val UnitTestListRootPrivateBucketCred = S3Config
-    .newBuilder()
-    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
-    .setRegion("eu-west-1")
-    .build()
-
   val unitTestPrivateBucketUsEast1 = "rawlabs-unit-tests-us-east-1"
-  val unitTestPrivateBucketUsEast1Cred = S3Config
+
+  val rawAwsCredentials = AwsConfig
     .newBuilder()
-    .setAccessSecretKey(S3AccessSecretKey.newBuilder().setAccessKey(accessKeyId).setSecretKey(secretKeyId))
-    .setRegion("us-east-1")
+    .setAccessKey(accessKeyId)
+    .setSecretKey(secretKeyId)
     .build()
 
   ///////////////////////////////////////////////////////////////////////////
@@ -233,8 +207,8 @@ trait SnapiTestContext
     locationConfigs.put(name, locationConfig)
   }
 
-  def s3Bucket(name: String, bucket: S3Config): Unit = {
-    locationConfig(name, LocationConfig.newBuilder().setS3(bucket).build())
+  def awsCreds(name: String, awsConfig: AwsConfig): Unit = {
+    locationConfig(name, LocationConfig.newBuilder().setAws(awsConfig).build())
   }
 
   def rdbms(name: String, db: MySqlConfig): Unit = {
