@@ -98,7 +98,8 @@ public class RecordParseJsonNode extends ExpressionNode {
 
   @CompilerDirectives.TruffleBoundary
   private void executeWhileLoop(JsonParser parser, BitSet currentBitSet, Object record) {
-    while (currentTokenNode.execute(this, parser) != JsonToken.END_OBJECT) {
+    while (currentTokenNode.execute(this, parser) != JsonToken.END_OBJECT
+        && currentTokenNode.execute(this, parser) != null) {
       String fieldName = currentFieldNode.execute(this, parser);
       Integer index = this.getFieldNameIndex(fieldName);
       nextTokenNode.execute(this, parser); // skip the field name

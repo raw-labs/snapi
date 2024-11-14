@@ -35,7 +35,8 @@ public class OSRListParseJsonConditionNode extends ExpressionNode {
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     JsonParser parser = (JsonParser) frame.getObject(parserSlot);
-    return currentToken.execute(this, parser) != JsonToken.END_ARRAY;
+    JsonToken token = currentToken.execute(this, parser);
+    return token != JsonToken.END_ARRAY && token != null;
   }
 
   @Override
