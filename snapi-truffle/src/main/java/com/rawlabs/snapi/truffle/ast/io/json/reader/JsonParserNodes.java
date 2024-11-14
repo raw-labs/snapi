@@ -441,8 +441,7 @@ public final class JsonParserNodes {
       try {
         JsonToken token = parser.currentToken();
         if (!token.isScalarValue()) {
-          throw new JsonParserTruffleException(
-              "unexpected token: " + token, thisNode);
+          throw new JsonParserTruffleException("unexpected token: " + token, thisNode);
         }
         String v = parser.getText();
         parser.nextToken();
