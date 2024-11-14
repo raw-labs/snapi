@@ -24,6 +24,7 @@ import com.rawlabs.compiler.{
   RawDoubleType,
   RawFloatType,
   RawIntType,
+  RawInterval,
   RawIntervalType,
   RawIterableType,
   RawListType,
@@ -37,6 +38,7 @@ import com.rawlabs.compiler.{
 }
 import com.rawlabs.sql.compiler.SqlIntervals.{intervalToString, stringToInterval}
 import com.rawlabs.compiler.utils.RecordFieldsNaming
+import org.postgresql.util.{PGInterval, PGobject}
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet
@@ -120,6 +122,73 @@ class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
       case _: RawDoubleType => gen.writeNumber(v.getDouble(i))
       case _: RawDecimalType => gen.writeNumber(v.getBigDecimal(i))
       case _: RawStringType => gen.writeString(v.getString(i))
+      case RawListType(innerType, _, _) =>
+        val array = v.getArray(i)
+        if (v.wasNull()) gen.writeNull()
+        else {
+          val values = array.getArray.asInstanceOf[Array[AnyRef]]
+          gen.writeStartArray()
+          values.foreach { value =>
+            if (value == null) gen.writeNull()
+            else {
+              innerType match {
+                case _: RawBoolType => gen.writeBoolean(value.asInstanceOf[Boolean])
+                case _: RawByteType => gen.writeNumber(value.asInstanceOf[Byte].toInt)
+                case _: RawShortType => gen.writeNumber(value.asInstanceOf[Short].toInt)
+                case _: RawIntType => gen.writeNumber(value.asInstanceOf[Int])
+                case _: RawLongType => gen.writeNumber(value.asInstanceOf[Long])
+                case _: RawStringType => gen.writeString(value.asInstanceOf[String])
+                case _: RawFloatType => gen.writeNumber(value.asInstanceOf[Float])
+                case _: RawDoubleType => gen.writeNumber(value.asInstanceOf[Double])
+                case _: RawDecimalType => gen.writeNumber(value.asInstanceOf[java.math.BigDecimal])
+                case _: RawIntervalType =>
+                  val interval = value.asInstanceOf[PGInterval]
+                  val rawInterval = RawInterval(
+                    interval.getYears,
+                    interval.getMonths,
+                    0,
+                    interval.getDays,
+                    interval.getHours,
+                    interval.getMinutes,
+                    interval.getWholeSeconds,
+                    interval.getMicroSeconds
+                  )
+                  gen.writeString(intervalToString(rawInterval))
+                case _: RawDateType =>
+                  val date = value.asInstanceOf[java.sql.Date].toLocalDate
+                  gen.writeString(dateFormatter.format(date))
+                case _: RawTimeType =>
+                  val time = value.asInstanceOf[java.sql.Time].toLocalTime
+                  gen.writeString(timeFormatter.format(time))
+                case _: RawTimestampType =>
+                  val dateTime = value.asInstanceOf[java.sql.Timestamp].toLocalDateTime
+                  gen.writeString(timestampFormatter.format(dateTime))
+                case _: RawAnyType => v.getMetaData.getColumnTypeName(i) match {
+                    case "_jsonb" | "_json" =>
+                      val data = value.asInstanceOf[String]
+                      val json = mapper.readTree(data)
+                      writeRawJson(json)
+                    case "_hstore" =>
+                      val item = value.asInstanceOf[PGobject]
+                      val str = item.getValue
+                      // Parse the hstore string into a map
+                      val hstoreMap = new java.util.HashMap[String, String]()
+                      str
+                        .split(",")
+                        .foreach { pair =>
+                          val Array(k, v) = pair.split("=>")
+                          hstoreMap.put(k.strip.replaceAll("\"", ""), v.strip.replaceAll("\"", ""))
+                        }
+                      // Convert hstore to JSON-like structure
+                      val json = mapper.valueToTree[ObjectNode](hstoreMap)
+                      writeRawJson(json)
+                  }
+                case _ => throw new IOException("unsupported type")
+              }
+            }
+          }
+          gen.writeEndArray()
+        }
       case _: RawAnyType => v.getMetaData.getColumnTypeName(i) match {
           case "jsonb" | "json" =>
             val data = v.getString(i)

@@ -145,6 +145,23 @@ object SqlTypesUtils {
           case Some(t) => Right(t)
           case None => Left(s"unsupported type: $pgTypeName")
         }
+      case java.sql.Types.ARRAY => tipe.typeName match {
+          case "_int2" => Right(RawListType(RawShortType(true, false), false, false))
+          case "_int4" => Right(RawListType(RawIntType(true, false), false, false))
+          case "_int8" => Right(RawListType(RawLongType(true, false), false, false))
+          case "_float4" => Right(RawListType(RawFloatType(true, false), false, false))
+          case "_float8" => Right(RawListType(RawDoubleType(true, false), false, false))
+          case "_numeric" => Right(RawListType(RawDecimalType(true, false), false, false))
+          case "_bool" => Right(RawListType(RawBoolType(true, false), false, false))
+          case "_varchar" => Right(RawListType(RawStringType(true, false), false, false))
+          case "_text" => Right(RawListType(RawStringType(true, false), false, false))
+          case "_interval" => Right(RawListType(RawIntervalType(true, false), false, false))
+          case "_date" => Right(RawListType(RawDateType(true, false), false, false))
+          case "_time" => Right(RawListType(RawTimeType(true, false), false, false))
+          case "_timestamp" => Right(RawListType(RawTimestampType(true, false), false, false))
+          case "_jsonb" | "_json" => Right(RawListType(RawAnyType(), false, false))
+          case "_hstore" => Right(RawListType(RawAnyType(), false, false))
+        }
       case _ => jdbcToRawType.get(jdbcType) match {
           case Some(rawType) => Right(rawType)
           case None => Left(s"unsupported type: $pgTypeName")
