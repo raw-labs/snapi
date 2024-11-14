@@ -280,31 +280,33 @@ class NamedParametersPreparedStatement(
     val jdbc = StringBuilder.newBuilder
     var index = 0
     var pgCodeSize = 0
-    for (use <- orderedParameterUses) {
-      // for each argument 'use', we copy/paste the code chunk up to its location. It's a portion of code
-      // that doesn't contain any argument.
-      val offset = getStartOffset(use)
-      val chunk = code.substring(index, offset) // argument-free code chunk
-      jdbc.append(chunk) // copy/paste it untouched
-      pgCodeSize += chunk.length // postgres code length increases by the code chunk's size
-      // now we need to replace the argument (by '?' or '?::<type>')
-      // do we have declared type for that parameter
-      val specifiedType = userSpecifiedTypes.get(use.name).flatMap(_.toOption)
-      val specifiedValueType = userSpecifiedDefaultValues.get(use.name).flatMap(_.toOption.map(_.tipe))
-      val knownType = (specifiedType ++ specifiedValueType).map(_.typeName).headOption
-      val argToken = knownType match {
-        // if so, force the type by wrapping the question mark in a cast (validate it first)
-        case Some(typeName) => s"(?::$typeName)"
-        case None => "?"
-      }
-      jdbc.append(argToken) // that's the '?' replacing the argument
-      // we saw ? is eventually sent to postgres as $X. The arg size is different
-      val pgArgSize = argToken.length + 1
-      pgCodeSize += pgArgSize
-      // shift that would permit to compute the user offset from the postgres offset
-      shift += (1 + use.name.length) /* size of ':' + variable name */ - pgArgSize
-      offsets.append((pgCodeSize, shift)) // starting at `pgCodeSize`, offsets should be shifted by `shift`
-      index = getFinishOffset(use)
+    orderedParameterUses.zipWithIndex.foreach {
+      case (use, idx) =>
+        // for each argument 'use', we copy/paste the code chunk up to its location. It's a portion of code
+        // that doesn't contain any argument.
+        val offset = getStartOffset(use)
+        val chunk = code.substring(index, offset) // argument-free code chunk
+        jdbc.append(chunk) // copy/paste it untouched
+        pgCodeSize += chunk.length // postgres code length increases by the code chunk's size
+        // now we need to replace the argument (by '?' or '?::<type>')
+        // do we have declared type for that parameter
+        val specifiedType = userSpecifiedTypes.get(use.name).flatMap(_.toOption)
+        val specifiedValueType = userSpecifiedDefaultValues.get(use.name).flatMap(_.toOption.map(_.tipe))
+        val knownType = (specifiedType ++ specifiedValueType).map(_.typeName).headOption
+        val argToken = knownType match {
+          // if so, force the type by wrapping the question mark in a cast (validate it first)
+          case Some(typeName) => s"(?::$typeName)"
+          case None => "?"
+        }
+        jdbc.append(argToken) // that's the '?' replacing the argument
+        // We saw ? is eventually sent to postgres as $X. The arg size is different, and grows with the number of digits.
+        // Internally, postgres starts numbering parameters at 1, so we need to shift idx by 1.
+        val pgArgSize = argToken.length + (idx + 1).toString.length
+        pgCodeSize += pgArgSize
+        // shift that would permit to compute the user offset from the postgres offset
+        shift += (1 + use.name.length) /* size of ':' + variable name */ - pgArgSize
+        offsets.append((pgCodeSize, shift)) // starting at `pgCodeSize`, offsets should be shifted by `shift`
+        index = getFinishOffset(use)
     }
     // paste the end of the code
     jdbc.append(code.substring(index))
@@ -339,7 +341,7 @@ class NamedParametersPreparedStatement(
         }
     }
 
-  // In that moment, paramMetaData could be collected, it means there are neither syntax nor *type errors*.
+  // At that moment, paramMetaData could be collected, it means there are neither syntax nor *type errors*.
   // - Arguments that had a valid `@type` and/or `@default` were cast to that type. Since the SQL code is valid, they
   //   are correct
   // - Those that don't have any user provided information, get now some type inference from JDBC.
@@ -569,12 +571,16 @@ class NamedParametersPreparedStatement(
     asErrorString(ex).map { message =>
       val maybeError = Option(ex.getServerErrorMessage)
       val codeLocation = for (psqlError <- maybeError) yield {
-        val position = psqlError.getPosition
-        logger.info(position.toString)
-        val codeOffset = fromPgsqlOffset(position);
-        val start = kiamaSource.offsetToPosition(codeOffset);
-        val end = kiamaSource.offsetToPosition(codeOffset + 1)
-        errorRange(start, end)
+        // .getPosition returns 0 when no position is provided in the Exception
+        if (psqlError.getPosition > 0) {
+          val position = psqlError.getPosition
+          val codeOffset = fromPgsqlOffset(position);
+          val start = kiamaSource.offsetToPosition(codeOffset);
+          val end = kiamaSource.offsetToPosition(codeOffset + 1)
+          errorRange(start, end)
+        } else {
+          errorRange(parsedTree.tree) // no position, use the whole query
+        }
       }
       val range = codeLocation.getOrElse(errorRange(parsedTree.tree))
       ErrorMessage(message, List(range), "sqlError")
@@ -588,11 +594,14 @@ class NamedParametersPreparedStatement(
       val wasInvestigated = declaredTypeInfo.keySet.contains(_)
       val unspecifiedParamTypes = parsedTree.params
         .filterNot { case (p, _) => wasInvestigated(p) }
-        .mapValues(info => Left(List(highlightError(info.nodes)("cannot guess parameter type"))))
+        .mapValues(info => Left(List(highlightError(info.nodes ++ info.occurrences)("cannot guess parameter type"))))
         .toMap
       val paramErrors =
         (unspecifiedParamTypes ++ declaredTypeInfo).values.collect { case Left(errors) => errors }.flatten.toList
-      new NamedParametersPreparedStatementException(sqlError +: paramErrors)
+      if (ex.getSQLState == "42P18") {
+        // undefined parameter. Ignore the postgres error since we've flagged the parameters with the same error.
+        new NamedParametersPreparedStatementException(paramErrors)
+      } else new NamedParametersPreparedStatementException(sqlError +: paramErrors)
     }
   }
 

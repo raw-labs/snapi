@@ -125,6 +125,34 @@ class TestSqlCompilerServiceAirports
     )
   }
 
+  // To be sure our offset checks aren't fooled by internal postgres parameters called $1, $2, ..., $10 (with several digits)
+  test("""-- @type n integer
+    |SELECT :n + 1
+    |WHERE :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0,
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0
+    |AND :n > 0""".stripMargin) { t =>
+    val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, asJson())
+    assert(errors.size == 1)
+    val error = errors.head
+    assert(error.message.contains("syntax error at or near \",\""))
+    assert(error.positions.head.begin.line == 13)
+    assert(error.positions.head.begin.column == 11)
+    assert(error.positions.head.end.line == 13)
+    assert(error.positions.head.end.column == 12)
+  }
+
   test("""SELECT COUNT(*) FROM example.airports
     |WHERE :city::json IS NULL
     |   OR :city::integer != 3
