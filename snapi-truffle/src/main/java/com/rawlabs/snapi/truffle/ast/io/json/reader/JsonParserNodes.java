@@ -439,9 +439,10 @@ public final class JsonParserNodes {
     @TruffleBoundary
     static String doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
-        if (!parser.currentToken().isScalarValue()) {
+        JsonToken token = parser.currentToken();
+        if (!token.isScalarValue()) {
           throw new JsonParserTruffleException(
-              "unexpected token: " + parser.currentToken(), thisNode);
+              "unexpected token: " + token, thisNode);
         }
         String v = parser.getText();
         parser.nextToken();
