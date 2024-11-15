@@ -125,6 +125,150 @@ class TestSqlCompilerServiceAirports
     )
   }
 
+  // ARRAY types
+  test("""SELECT
+    |    INTERVAL '1 day' AS interval,
+    |    ARRAY[CAST(1 AS SMALLINT), CAST(2 AS SMALLINT), CAST(3 AS SMALLINT), CAST(4 AS SMALLINT)] AS short_array,
+    |    ARRAY[1, 2, 3, 4] AS integer_array,
+    |    ARRAY[CAST(1.1 AS REAL), CAST(2.2 AS REAL), CAST(3.3 AS REAL), CAST(4.4 AS REAL)] AS float_array,
+    |    ARRAY[CAST(1.1 AS DOUBLE PRECISION), CAST(2.2 AS DOUBLE PRECISION), CAST(3.3 AS DOUBLE PRECISION), CAST(4.4 AS DOUBLE PRECISION)] AS double_array,
+    |    ARRAY[1.1::numeric, 2.2::numeric, 3.3::numeric, 4.4::numeric] AS decimal_array,
+    |    ARRAY[true, false, true, false] AS boolean_array,
+    |    ARRAY[DATE '2021-01-01', DATE '2021-01-02', DATE '2021-01-03', DATE '2021-01-04'] AS date_array,
+    |    ARRAY[TIME '12:00:00', TIME '13:00:00', TIME '14:00:00', TIME '15:00:00'] AS time_array,
+    |    ARRAY[TIMESTAMP '2021-01-01 12:00:00', TIMESTAMP '2021-01-02 13:00:00', TIMESTAMP '2021-01-03 14:00:00', TIMESTAMP '2021-01-04 15:00:00'] AS timestamp_array,
+    |    ARRAY[INTERVAL '1 day', INTERVAL '2 days', INTERVAL '3 days', INTERVAL '4 days'] AS interval_array,
+    |    ARRAY['{"a": 2}'::json, '{"b": 3}'::json, '{"c": 4}'::json, '{"d": 5}'::json] AS json_array,
+    |    ARRAY['{"a": 2}'::jsonb, '{"b": 3}'::jsonb, '{"c": 4}'::jsonb, '{"d": 5}'::jsonb] AS jsonb_array,
+    |    ARRAY['"a" => "2", "b" => "3"'::hstore, '"c" => "4", "d" => "5"'::hstore] AS hstore_array,
+    |    ARRAY['apple', 'banana', 'cherry'] AS text_array;""".stripMargin) { t =>
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.isEmpty)
+    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Some(main) = description.maybeRunnable
+    assert(main.params.contains(Vector.empty))
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        asJson(),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(
+      baos.toString() ==
+        """[
+          |  {
+          |    "interval": "P1D",
+          |    "short_array": [
+          |      1,
+          |      2,
+          |      3,
+          |      4
+          |    ],
+          |    "integer_array": [
+          |      1,
+          |      2,
+          |      3,
+          |      4
+          |    ],
+          |    "float_array": [
+          |      1.1,
+          |      2.2,
+          |      3.3,
+          |      4.4
+          |    ],
+          |    "double_array": [
+          |      1.1,
+          |      2.2,
+          |      3.3,
+          |      4.4
+          |    ],
+          |    "decimal_array": [
+          |      1.1,
+          |      2.2,
+          |      3.3,
+          |      4.4
+          |    ],
+          |    "boolean_array": [
+          |      true,
+          |      false,
+          |      true,
+          |      false
+          |    ],
+          |    "date_array": [
+          |      "2021-01-01",
+          |      "2021-01-02",
+          |      "2021-01-03",
+          |      "2021-01-04"
+          |    ],
+          |    "time_array": [
+          |      "12:00:00.000",
+          |      "13:00:00.000",
+          |      "14:00:00.000",
+          |      "15:00:00.000"
+          |    ],
+          |    "timestamp_array": [
+          |      "2021-01-01T12:00:00.000",
+          |      "2021-01-02T13:00:00.000",
+          |      "2021-01-03T14:00:00.000",
+          |      "2021-01-04T15:00:00.000"
+          |    ],
+          |    "interval_array": [
+          |      "P1D",
+          |      "P2D",
+          |      "P3D",
+          |      "P4D"
+          |    ],
+          |    "json_array": [
+          |      {
+          |        "a": 2.0
+          |      },
+          |      {
+          |        "b": 3.0
+          |      },
+          |      {
+          |        "c": 4.0
+          |      },
+          |      {
+          |        "d": 5.0
+          |      }
+          |    ],
+          |    "jsonb_array": [
+          |      {
+          |        "a": 2.0
+          |      },
+          |      {
+          |        "b": 3.0
+          |      },
+          |      {
+          |        "c": 4.0
+          |      },
+          |      {
+          |        "d": 5.0
+          |      }
+          |    ],
+          |    "hstore_array": [
+          |      {
+          |        "a": "2",
+          |        "b": "3"
+          |      },
+          |      {
+          |        "c": "4",
+          |        "d": "5"
+          |      }
+          |    ],
+          |    "text_array": [
+          |      "apple",
+          |      "banana",
+          |      "cherry"
+          |    ]
+          |  }
+          |]""".stripMargin.replaceAll("\\s+", "")
+    )
+  }
+
   // To be sure our offset checks aren't fooled by internal postgres parameters called $1, $2, ..., $10 (with several digits)
   test("""-- @type n integer
     |SELECT :n + 1
