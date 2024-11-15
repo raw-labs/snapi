@@ -23,7 +23,6 @@ import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
 import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleInternalErrorException;
-import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.list.ListNodes;
 import com.rawlabs.snapi.truffle.runtime.list.ListNodesFactory;
 import com.rawlabs.snapi.truffle.runtime.primitives.*;
@@ -180,7 +179,7 @@ public class LocationFromHttpNode extends ExpressionNode {
                     headersBuilder.$plus$eq(Tuple2.apply(entry.getKey(), entry.getValue()));
           }
         } else {
-          throw new TruffleRuntimeException("credential is not an HTTP headers");
+          throw new TruffleInternalErrorException("credential is not an HTTP headers");
         }
       }
 

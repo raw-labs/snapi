@@ -42,12 +42,6 @@ class S3BuildEntry extends EntryExtension {
     params = List(
       ParamDoc("bucket", TypeDoc(List("string")), "The name of the bucket."),
       ParamDoc("path", TypeDoc(List("string")), "The path to the file in the bucket."),
-      ParamDoc(
-        "awsCredential",
-        TypeDoc(List("string")),
-        "The name of the AWS credential registered in the credentials storage.",
-        isOptional = true
-      ),
       ParamDoc("region", TypeDoc(List("string")), "The region of the bucket, e.g. 'eu-west-1'.", isOptional = true),
       ParamDoc("accessKey", TypeDoc(List("string")), "The AWS access key.", isOptional = true),
       ParamDoc("secretKey", TypeDoc(List("string")), "The AWS secret key.", isOptional = true)
@@ -66,10 +60,9 @@ class S3BuildEntry extends EntryExtension {
     Right(ExpParam(SnapiStringType()))
   }
 
-  override def optionalParams: Option[Set[String]] = Some(Set("region", "accessKey", "secretKey", "awsCredential"))
+  override def optionalParams: Option[Set[String]] = Some(Set("region", "accessKey", "secretKey"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = idn match {
-    case "awsCredential" => Right(ExpParam(SnapiStringType()))
     case "region" => Right(ExpParam(SnapiStringType()))
     case "accessKey" => Right(ExpParam(SnapiStringType()))
     case "secretKey" => Right(ExpParam(SnapiStringType()))

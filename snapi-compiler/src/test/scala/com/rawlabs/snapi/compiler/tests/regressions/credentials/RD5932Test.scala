@@ -17,11 +17,9 @@ import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
 class RD5932Test extends SnapiTestContext {
 
-  awsCreds("private-creds", TestCredentials.rawAwsCredentials)
+  s3Bucket(TestCredentials.UnitTestPrivateBucket, TestCredentials.UnitTestPrivateBucketCred)
 
-  test(
-    """Json.InferAndRead(S3.Build("rawlabs-private-test-data", "rd-5932.json", awsCredential = "private-creds"))"""
-  ) {
+  test("""Json.InferAndRead("s3://rawlabs-private-test-data/rd-5932.json")""") {
     _ should run
   }
 
