@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.protocol.compiler.AwsConfig;
+import com.rawlabs.protocol.compiler.AWSAccessKeysConfig;
 import com.rawlabs.protocol.compiler.LocationConfig;
 import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
@@ -64,10 +64,14 @@ public class LocationFromS3Node extends ExpressionNode {
       String credName = (String) this.awsCredential.executeGeneric(frame);
       // getLocationConfig throws if the credential isn't found.
       LocationConfig locationConfig = context.getLocationConfig(credName);
-      if (!locationConfig.hasAws()) {
+      if (locationConfig.hasError()) {
+        String message = locationConfig.getError().getMessage();
+        throw new TruffleRuntimeException(message);
+      }
+      if (!locationConfig.hasAwsAccessKeys()) {
         throw new TruffleRuntimeException("credential is not an AWS credential");
       }
-      AwsConfig awsConfig = locationConfig.getAws();
+      AWSAccessKeysConfig awsConfig = locationConfig.getAwsAccessKeys();
       maybeAccessKey = new Some(awsConfig.getAccessKey());
       maybeSecretKey = new Some(awsConfig.getSecretKey());
     }

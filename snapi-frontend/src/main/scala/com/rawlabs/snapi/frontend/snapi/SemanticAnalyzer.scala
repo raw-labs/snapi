@@ -536,8 +536,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   // we check for errors in errorDef, if there are no errors, we are interested in nonErrors(hints, warnings, infos)
   override protected def nonErrorDef: SourceNode ==> Seq[CompilerMessage] = {
     val snapiNonErrors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
-      case e @ FunApp(Proj(exp, "Secret"), parameters)
-          if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
+      case e @ FunApp(Proj(exp, "Secret"), _) if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
         tipe(exp) match {
           case PackageType("Environment") =>
             // Use getValue to confirm Environment.Secret succeeds. The getValue function also handles potentially unexpected nullables and tryables.
@@ -550,6 +549,22 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
               // We return a warning that the secret is missing.
               case Right(SnapiTryValue(Left(error))) => Seq(MissingSecretWarning(e))
               // In case of Right(TryValue(Right())) that <secret_name> in "Environment.Secret(<secret_name>)" is a free variable, we don't report that as a warning
+              case _ => Seq.empty
+            }
+          case _ => Seq.empty
+        }
+      case e @ FunApp(Proj(exp, "Build"), _) if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
+        tipe(exp) match {
+          case PackageType("S3") =>
+            // Use getValue to confirm it succeeds. The getValue function also handles potentially unexpected nullables and tryables.
+            // We give it a dummy report which states the expected type is the actual type, so that is skips these checks
+            val report = CompatibilityReport(tipe(e), tipe(e))
+            // Try execute "Environment.Secret(<secret_name>)"
+            val v = getValue(report, e)
+            v match {
+              // If getValue returns an error which means the staged compiler failed to execute "Environment.Secret(<secret_name>)" code
+              // We return a warning that the secret is missing.
+              case Right(SnapiTryValue(Left(error))) => Seq(S3BucketWarning(e))
               case _ => Seq.empty
             }
           case _ => Seq.empty
