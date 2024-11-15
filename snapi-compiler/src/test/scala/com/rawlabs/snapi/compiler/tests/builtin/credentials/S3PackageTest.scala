@@ -19,7 +19,7 @@ class S3PackageTest extends SnapiTestContext {
 
   import TestCredentials._
 
-  awsCreds("raw-aws", rawAwsCredentials)
+  s3Bucket(UnitTestPrivateBucket2, UnitTestPrivateBucket2Cred)
 
   // reading a non public s3 bucket passing credentials in the location settings
   test(s"""let
@@ -27,9 +27,9 @@ class S3PackageTest extends SnapiTestContext {
     |    S3.Build(
     |      "$UnitTestPrivateBucket",
     |      "/students.csv",
-    |      region = "eu-west-1",
-    |      accessKey = "${rawAwsCredentials.getAccessKey}",
-    |      secretKey = "${rawAwsCredentials.getSecretKey}"
+    |      region = "${UnitTestPrivateBucketCred.getRegion}",
+    |      accessKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${UnitTestPrivateBucketCred.getAccessSecretKey.getSecretKey}"
     |    )
     |  )
     |in
@@ -37,7 +37,7 @@ class S3PackageTest extends SnapiTestContext {
     |""".stripMargin)(it => it should evaluateTo("7"))
 
   // using a private bucket registered in the credentials server
-  test(s"""String.Read(S3.Build("$UnitTestPrivateBucket2", "/file1.csv", awsCredential = "raw-aws"))
+  test(s"""String.Read(S3.Build("$UnitTestPrivateBucket2", "/file1.csv"))
     |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
   // listing a s3 bucket from us-east-1 (non default region)
@@ -46,26 +46,9 @@ class S3PackageTest extends SnapiTestContext {
     |    S3.Build(
     |      "$unitTestPrivateBucketUsEast1",
     |      "/csvs/01",
-    |      region = "us-east-1",
-    |      accessKey = "${rawAwsCredentials.getAccessKey}",
-    |      secretKey = "${rawAwsCredentials.getSecretKey}"
-    |    )
-    |  )
-    |in
-    |  data.url
-    |""".stripMargin)(it => it should evaluateTo("""[
-    |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
-    |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
-    |]""".stripMargin))
-
-  // listing a s3 bucket from us-east-1 (non default region, using the credentials name)
-  test(s"""let
-    |  data = Location.Ll(
-    |    S3.Build(
-    |      "$unitTestPrivateBucketUsEast1",
-    |      "/csvs/01",
-    |      region = "us-east-1",
-    |      awsCredential = "raw-aws"
+    |      region = "${unitTestPrivateBucketUsEast1Cred.getRegion}",
+    |      accessKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getSecretKey}"
     |    )
     |  )
     |in
@@ -81,8 +64,8 @@ class S3PackageTest extends SnapiTestContext {
     |    S3.Build(
     |      "$unitTestPrivateBucketUsEast1",
     |      "/csvs/01",
-    |      accessKey = "${rawAwsCredentials.getAccessKey}",
-    |      secretKey = "${rawAwsCredentials.getSecretKey}"
+    |      accessKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getAccessKey}",
+    |      secretKey = "${unitTestPrivateBucketUsEast1Cred.getAccessSecretKey.getSecretKey}"
     |    )
     |  )
     |in
@@ -91,34 +74,5 @@ class S3PackageTest extends SnapiTestContext {
     |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
     |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
     |]""".stripMargin))
-
-  // listing a s3 bucket from us-east-1 without passing the region (using the credentials name)
-  test(s"""let
-    |  data = Location.Ll(
-    |    S3.Build(
-    |      "$unitTestPrivateBucketUsEast1",
-    |      "/csvs/01",
-    |      awsCredential = "raw-aws"
-    |    )
-    |  )
-    |in
-    |  data.url
-    |""".stripMargin)(it => it should evaluateTo("""[
-    |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
-    |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
-    |]""".stripMargin))
-
-  // error with wrong credential name
-  test(s"""let
-    |  data = Location.Ll(
-    |    S3.Build(
-    |      "$unitTestPrivateBucketUsEast1",
-    |      "/csvs/01",
-    |      awsCredential = "private.data.us" // a typo
-    |    )
-    |  )
-    |in
-    |  data.url
-    |""".stripMargin)(it => it should runErrorAs("unknown credential: private.data.us"))
 
 }

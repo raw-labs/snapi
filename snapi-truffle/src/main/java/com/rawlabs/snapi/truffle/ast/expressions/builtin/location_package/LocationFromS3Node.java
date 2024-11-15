@@ -14,11 +14,10 @@ package com.rawlabs.snapi.truffle.ast.expressions.builtin.location_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.rawlabs.protocol.compiler.AwsConfig;
 import com.rawlabs.protocol.compiler.LocationConfig;
+import com.rawlabs.protocol.compiler.S3Config;
 import com.rawlabs.snapi.truffle.SnapiContext;
 import com.rawlabs.snapi.truffle.ast.ExpressionNode;
-import com.rawlabs.snapi.truffle.runtime.exceptions.TruffleRuntimeException;
 import com.rawlabs.snapi.truffle.runtime.primitives.*;
 import com.rawlabs.utils.sources.filesystem.s3.S3Path;
 import scala.None$;
@@ -30,7 +29,6 @@ public class LocationFromS3Node extends ExpressionNode {
 
   @Child private ExpressionNode bucket;
   @Child private ExpressionNode path;
-  @Child private ExpressionNode awsCredential;
   @Child private ExpressionNode accessKey;
   @Child private ExpressionNode secretKey;
   @Child private ExpressionNode region;
@@ -38,13 +36,11 @@ public class LocationFromS3Node extends ExpressionNode {
   public LocationFromS3Node(
       ExpressionNode bucket,
       ExpressionNode path,
-      ExpressionNode awsCredential,
       ExpressionNode accessKey,
       ExpressionNode secretKey,
       ExpressionNode region) {
     this.bucket = bucket;
     this.path = path;
-    this.awsCredential = awsCredential;
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.region = region;
@@ -55,36 +51,44 @@ public class LocationFromS3Node extends ExpressionNode {
     String bucket = (String) this.bucket.executeGeneric(frame);
     String path = (String) this.path.executeGeneric(frame);
 
+    // The docs say:
+    // "If the S3 bucket is not registered in the credentials storage, then the region, accessKey
+    // and secretKey must be provided as arguments."
+    // However, if the access key/secret key are passed, they should be used.
     SnapiContext context = SnapiContext.get(this);
-
-    Option<String> maybeAccessKey = None$.empty();
-    Option<String> maybeSecretKey = None$.empty();
-    Option<String> maybeRegion = None$.empty();
-    if (this.awsCredential != null) {
-      String credName = (String) this.awsCredential.executeGeneric(frame);
-      // getLocationConfig throws if the credential isn't found.
-      LocationConfig locationConfig = context.getLocationConfig(credName);
-      if (!locationConfig.hasAws()) {
-        throw new TruffleRuntimeException("credential is not an AWS credential");
-      }
-      AwsConfig awsConfig = locationConfig.getAws();
-      maybeAccessKey = new Some(awsConfig.getAccessKey());
-      maybeSecretKey = new Some(awsConfig.getSecretKey());
+    S3Path location;
+    if (this.accessKey == null
+        && this.secretKey == null
+        && context.existsLocationConfig(bucket)
+        && context.getLocationConfig(bucket).hasS3()) {
+      LocationConfig l = context.getLocationConfig(bucket);
+      S3Config s3Config = l.getS3();
+      Option<String> maybeAccessKey =
+          (s3Config.hasAccessSecretKey())
+              ? new Some(s3Config.getAccessSecretKey().getAccessKey())
+              : None$.empty();
+      Option<String> maybeSecretKey =
+          (s3Config.hasAccessSecretKey())
+              ? new Some(s3Config.getAccessSecretKey().getSecretKey())
+              : None$.empty();
+      Option<String> maybeRegion =
+          (s3Config.hasRegion()) ? new Some(s3Config.getRegion()) : None$.empty();
+      location =
+          new S3Path(
+              bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
+    } else {
+      // We actually do NOT throw an exception if the accessKey is not passed.
+      // Instead, we go without it, which triggers anonymous access to the S3 bucket.
+      Option<String> maybeAccessKey =
+          (this.accessKey != null) ? new Some(this.accessKey.executeGeneric(frame)) : None$.empty();
+      Option<String> maybeSecretKey =
+          (this.secretKey != null) ? new Some(this.secretKey.executeGeneric(frame)) : None$.empty();
+      Option<String> maybeRegion =
+          (this.region != null) ? new Some(this.region.executeGeneric(frame)) : None$.empty();
+      location =
+          new S3Path(
+              bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
     }
-
-    if (this.accessKey != null) {
-      maybeAccessKey = new Some(this.accessKey.executeGeneric(frame));
-    }
-    if (this.secretKey != null) {
-      maybeSecretKey = new Some(this.secretKey.executeGeneric(frame));
-    }
-    if (this.region != null) {
-      maybeRegion = new Some(this.region.executeGeneric(frame));
-    }
-
-    S3Path location =
-        new S3Path(
-            bucket, maybeRegion, maybeAccessKey, maybeSecretKey, path, context.getSettings());
 
     StringBuilder url = new StringBuilder();
     url.append("s3://");

@@ -604,19 +604,42 @@ object LocationDescription {
           val userInfoParts = uriUserInfo.split(":")
           maybeAccessKey = Some(userInfoParts(0))
           if (maybeAccessKey.get.isEmpty) {
-            return Left("missing AWS access key")
+            return Left("missing S3 access key")
           }
           if (userInfoParts.length > 1) {
             maybeSecretKey = Some(userInfoParts(1))
             if (maybeSecretKey.get.isEmpty) {
-              return Left("missing AWS secret key")
+              return Left("missing S3 secret key")
             }
           } else {
-            return Left("missing AWS secret key")
+            return Left("missing S3 secret key")
           }
         }
-        // TODO (msb): There is no way to specify the region when using a direct URL...
-        Right(S3PathLocationDescription(bucketName, None, maybeAccessKey, maybeSecretKey, objectKey))
+
+        if (maybeAccessKey.isEmpty) {
+          // If the access key/secret key are not defined, check if credential exists.
+          programEnvironment.locationConfigs.get(bucketName) match {
+            case Some(l) if l.hasS3 =>
+              val s3Credential = l.getS3
+              Right(
+                S3PathLocationDescription(
+                  bucketName,
+                  if (s3Credential.hasRegion) Some(s3Credential.getRegion) else None,
+                  if (s3Credential.hasAccessSecretKey) Some(s3Credential.getAccessSecretKey.getAccessKey) else None,
+                  if (s3Credential.hasAccessSecretKey) Some(s3Credential.getAccessSecretKey.getSecretKey) else None,
+                  objectKey
+                )
+              )
+            case Some(l) if l.hasError => Left(l.getError.getMessage)
+            case Some(_) => Left("not a S3 credential")
+            case None =>
+              // Anonymous access.
+              Right(S3PathLocationDescription(bucketName, None, None, None, objectKey))
+          }
+        } else {
+          // TODO (msb): There is no way to specify the region when using a direct URL...
+          Right(S3PathLocationDescription(bucketName, None, maybeAccessKey, maybeSecretKey, objectKey))
+        }
       case "dropbox" =>
         // In Dropbox, the host is the name of the credential
         val DROPBOX_REGEX(name, path) = url

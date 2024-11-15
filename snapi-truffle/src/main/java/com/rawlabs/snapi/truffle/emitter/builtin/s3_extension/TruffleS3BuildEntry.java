@@ -27,11 +27,10 @@ public class TruffleS3BuildEntry extends S3BuildEntry implements TruffleEntryExt
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, SnapiLanguage rawLanguage) {
     ExpressionNode bucket = args.get(0).exprNode();
     ExpressionNode path = args.get(1).exprNode();
-    ExpressionNode awsCredential = arg(args, "awsCredential").orElse(null);
     ExpressionNode accessKey = arg(args, "accessKey").orElse(null);
     ExpressionNode secretKey = arg(args, "secretKey").orElse(null);
     ExpressionNode region = arg(args, "region").orElse(null);
 
-    return new LocationFromS3Node(bucket, path, awsCredential, accessKey, secretKey, region);
+    return new LocationFromS3Node(bucket, path, accessKey, secretKey, region);
   }
 }
