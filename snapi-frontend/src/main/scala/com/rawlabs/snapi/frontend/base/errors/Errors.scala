@@ -54,6 +54,17 @@ object MissingSecretWarning {
   val message: String = "secret is not defined"
 }
 
+final case class S3BucketWarning(
+    node: BaseNode,
+    reason: String = S3BucketWarning.message
+) extends WarningCompilerMessage {
+  val code: String = S3BucketWarning.code
+}
+object S3BucketWarning {
+  val code: String = "s3Bucket"
+  val message: String = "S3 bucket credentials are deprecated. Use AWS keys instead."
+}
+
 trait InfoCompilerMessage extends CompilerMessage
 trait HintCompilerMessage extends CompilerMessage
 trait ErrorCompilerMessage extends CompilerMessage
