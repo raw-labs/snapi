@@ -16,7 +16,12 @@ import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.rawlabs.compiler._
 import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, SqlIdnNode, SqlParamUseNode, SqlSyntaxAnalyzer}
 import com.rawlabs.sql.compiler.metadata.UserMetadataCache
-import com.rawlabs.sql.compiler.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
+import com.rawlabs.sql.compiler.writers.{
+  StatusCsvWriter,
+  StatusJsonWriter,
+  TypedResultSetCsvWriter,
+  TypedResultSetJsonWriter
+}
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.bitbucket.inkytonik.kiama.util.Positions
 
@@ -185,7 +190,12 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                     case Right(tipe) =>
                       val arguments = environment.maybeArguments.getOrElse(Array.empty)
                       pstmt.executeWith(arguments) match {
-                        case Right(r) => render(environment, tipe, r, outputStream, maxRows)
+                        case Right(r) =>
+                          if (r != null) resultSetRendering(environment, tipe, r, outputStream, maxRows)
+                          else {
+                            // No ResultSet, it was an update. Return a status in the expected format.
+                            updateResultRendering(environment, outputStream, maxRows)
+                          }
                         case Left(error) => ExecutionRuntimeFailure(error)
                       }
                     case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
@@ -209,7 +219,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     }
   }
 
-  private def render(
+  private def resultSetRendering(
       environment: ProgramEnvironment,
       tipe: RawType,
       v: ResultSet,
@@ -253,6 +263,43 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       case _ => ExecutionRuntimeFailure("unknown output format")
     }
 
+  }
+
+  private def updateResultRendering(
+      environment: ProgramEnvironment,
+      stream: OutputStream,
+      maybeLong: Option[Long]
+  ) = {
+    environment.options
+      .get("output-format")
+      .map(_.toLowerCase) match {
+      case Some("csv") =>
+        val windowsLineEnding = environment.options.get("windows-line-ending") match {
+          case Some("true") => true
+          case _ => false //settings.config.getBoolean("raw.compiler.windows-line-ending")
+        }
+        val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
+        val writer = new StatusCsvWriter(stream, lineSeparator)
+        try {
+          writer.write(true)
+        } catch {
+          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+        } finally {
+          RawUtils.withSuppressNonFatalException(writer.close())
+        }
+      case Some("json") =>
+        val w = new StatusJsonWriter(stream)
+        try {
+          w.write(true)
+          ExecutionSuccess(true)
+        } catch {
+          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+        } finally {
+          RawUtils.withSuppressNonFatalException(w.close())
+        }
+      case _ => ExecutionRuntimeFailure("unknown output format")
+    }
+    ExecutionSuccess(true)
   }
 
   override def formatCode(

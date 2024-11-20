@@ -402,8 +402,14 @@ class NamedParametersPreparedStatement(
   // The query output type is obtained using JDBC's `metadata`
   private val queryOutputType: Either[String, PostgresRowType] = {
     val metadata = stmt.getMetaData // SQLException at that point would be a bug.
-    if (metadata == null) Left("non-executable code")
-    else {
+    if (metadata == null) {
+      // an UPDATE/INSERT. We'll return a single row with a status column
+      Right(
+        PostgresRowType(
+          Seq(PostgresColumn("status", PostgresType(java.sql.Types.BOOLEAN, nullable = false, "boolean")))
+        )
+      )
+    } else {
       val columns = (1 to metadata.getColumnCount).map { i =>
         val name = metadata.getColumnName(i)
         val tipe = metadata.getColumnType(i)
@@ -468,7 +474,9 @@ class NamedParametersPreparedStatement(
     if (mandatoryParameters.nonEmpty) Left(s"no value was specified for ${mandatoryParameters.mkString(", ")}")
     else
       try {
-        Right(stmt.executeQuery())
+        val isResultSet = stmt.execute()
+        if (isResultSet) Right(stmt.getResultSet)
+        else Right(null) // successful execution of an UPDATE/INSERT or nothing
       } catch {
         // We'd catch here user-visible PSQL runtime errors (e.g. schema not found, table not found,
         // wrong credentials) hit _at runtime_ because the user FDW schema.table maps to a datasource
