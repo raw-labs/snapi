@@ -51,6 +51,11 @@ import scala.collection.mutable
 
 class NamedParametersPreparedStatementException(val errors: List[ErrorMessage]) extends Exception
 
+abstract class NamedParametersPreparedStatementExecutionResult
+case class NamedParametersPreparedStatementResultSet(rs: ResultSet)
+    extends NamedParametersPreparedStatementExecutionResult
+case class NamedParametersPreparedStatementUpdate(count: Int) extends NamedParametersPreparedStatementExecutionResult
+
 // A postgres type, described by its JDBC enum type + the regular postgres type name.
 // The postgres type is a string among the many types that exist in postgres.
 case class PostgresType(jdbcType: Int, nullable: Boolean, typeName: String)
@@ -402,8 +407,14 @@ class NamedParametersPreparedStatement(
   // The query output type is obtained using JDBC's `metadata`
   private val queryOutputType: Either[String, PostgresRowType] = {
     val metadata = stmt.getMetaData // SQLException at that point would be a bug.
-    if (metadata == null) Left("non-executable code")
-    else {
+    if (metadata == null) {
+      // an UPDATE/INSERT. We'll return a single row with a count column
+      Right(
+        PostgresRowType(
+          Seq(PostgresColumn("update_count", PostgresType(java.sql.Types.INTEGER, nullable = false, "integer")))
+        )
+      )
+    } else {
       val columns = (1 to metadata.getColumnCount).map { i =>
         val name = metadata.getColumnName(i)
         val tipe = metadata.getColumnType(i)
@@ -452,7 +463,9 @@ class NamedParametersPreparedStatement(
     def errorPosition(p: Position): ErrorPosition = ErrorPosition(p.line, p.column)
     ErrorRange(errorPosition(position), errorPosition(position1))
   }
-  def executeWith(parameters: Seq[(String, RawValue)]): Either[String, ResultSet] = {
+  def executeWith(
+      parameters: Seq[(String, RawValue)]
+  ): Either[String, NamedParametersPreparedStatementExecutionResult] = {
     val mandatoryParameters = {
       for (
         (name, diagnostic) <- declaredTypeInfo
@@ -468,7 +481,14 @@ class NamedParametersPreparedStatement(
     if (mandatoryParameters.nonEmpty) Left(s"no value was specified for ${mandatoryParameters.mkString(", ")}")
     else
       try {
-        Right(stmt.executeQuery())
+        val isResultSet = stmt.execute()
+        if (isResultSet) Right(NamedParametersPreparedStatementResultSet(stmt.getResultSet))
+        else {
+          // successful execution of an UPDATE/INSERT (empty queries also get there)
+          Right(
+            NamedParametersPreparedStatementUpdate(stmt.getUpdateCount)
+          )
+        }
       } catch {
         // We'd catch here user-visible PSQL runtime errors (e.g. schema not found, table not found,
         // wrong credentials) hit _at runtime_ because the user FDW schema.table maps to a datasource

@@ -1137,20 +1137,21 @@ class TestSqlCompilerServiceAirports
     |-- SELECT :p + 10;
     |""".stripMargin) { t =>
     val v = compilerService.validate(t.q, asJson())
-    assert(v.messages.size == 1)
-    assert(v.messages(0).message == "non-executable code")
-  }
-
-  test("""CREATE TABLE Persons (
-    |    ID int NOT NULL,
-    |    LastName varchar(255) NOT NULL,
-    |    FirstName varchar(255),
-    |    Age int,
-    |    PRIMARY KEY (ID)
-    |);""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
-    assert(v.messages.size == 1)
-    assert(v.messages(0).message == "non-executable code")
+    assert(v.messages.isEmpty)
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        asJson(Map("p" -> RawInt(5))),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    // The code does nothing, but we don't get an error when running it in Postgres.
+    assert(
+      baos.toString() ===
+        """[{"update_count":0}]""".stripMargin
+    )
   }
 
   test("""select
@@ -1397,5 +1398,108 @@ class TestSqlCompilerServiceAirports
       |1,Goroka,Goroka,Papua New Guinea,GKA,AYGA,-6.081689,145.391881,5282.000,10,U,Pacific/Port_Moresby
       |""".stripMargin)
 
+  }
+
+  test("INSERT") { _ =>
+    // An SQL INSERT statement adding a fake city to the airports table.
+    val q =
+      """INSERT INTO example.airports (airport_id, name, city, country, iata_faa, icao, latitude, longitude, altitude, timezone, dst, tz)
+        |VALUES (8108, :airport, :city, :country, 'FC', 'FC', 0.0, 0.0, 0.0, 0, 'U', 'UTC')
+        |""".stripMargin
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        q,
+        asCsv(params =
+          Map("airport" -> RawString("FAKE"), "city" -> RawString("Fake City"), "country" -> RawString("Fake Country"))
+        ),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(
+      baos.toString() ===
+        """update_count
+          |1
+          |""".stripMargin
+    )
+    baos.reset()
+    assert(
+      compilerService.execute(
+        "SELECT city, country FROM example.airports WHERE name = :a",
+        asCsv(params = Map("a" -> RawString("FAKE"))),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(
+      baos.toString() ===
+        """city,country
+          |Fake City,Fake Country
+          |""".stripMargin
+    )
+
+  }
+
+  test("UPDATE (CSV output)") { _ =>
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        "UPDATE example.airports SET city = :newName WHERE country = :c",
+        asCsv(params = Map("newName" -> RawString("La Roche sur Foron"), "c" -> RawString("Portugal"))),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(
+      baos.toString() ===
+        """update_count
+          |39
+          |""".stripMargin
+    )
+    baos.reset()
+    assert(
+      compilerService.execute(
+        "SELECT DISTINCT city FROM example.airports WHERE country = :c",
+        asCsv(params = Map("c" -> RawString("Portugal"))),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(
+      baos.toString() ===
+        """city
+          |La Roche sur Foron
+          |""".stripMargin
+    )
+  }
+
+  test("UPDATE (Json output)") { _ =>
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        "UPDATE example.airports SET city = :newName WHERE country = :c",
+        asJson(params = Map("newName" -> RawString("Lausanne"), "c" -> RawString("Portugal"))),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(
+      baos.toString() ===
+        """[{"update_count":39}]""".stripMargin
+    )
+    baos.reset()
+    assert(
+      compilerService.execute(
+        "SELECT DISTINCT city FROM example.airports WHERE country = :c",
+        asJson(params = Map("c" -> RawString("Portugal"))),
+        None,
+        baos
+      ) == ExecutionSuccess(true)
+    )
+    assert(
+      baos.toString() ===
+        """[{"city":"Lausanne"}]"""
+    )
   }
 }
