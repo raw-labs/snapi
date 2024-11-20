@@ -411,7 +411,7 @@ class NamedParametersPreparedStatement(
       // an UPDATE/INSERT. We'll return a single row with a count column
       Right(
         PostgresRowType(
-          Seq(PostgresColumn("count", PostgresType(java.sql.Types.INTEGER, nullable = false, "integer")))
+          Seq(PostgresColumn("update_count", PostgresType(java.sql.Types.INTEGER, nullable = false, "integer")))
         )
       )
     } else {
@@ -483,10 +483,12 @@ class NamedParametersPreparedStatement(
       try {
         val isResultSet = stmt.execute()
         if (isResultSet) Right(NamedParametersPreparedStatementResultSet(stmt.getResultSet))
-        else
+        else {
+          // successful execution of an UPDATE/INSERT (empty queries also get there)
           Right(
             NamedParametersPreparedStatementUpdate(stmt.getUpdateCount)
-          ) // successful execution of an UPDATE/INSERT or nothing
+          )
+        }
       } catch {
         // We'd catch here user-visible PSQL runtime errors (e.g. schema not found, table not found,
         // wrong credentials) hit _at runtime_ because the user FDW schema.table maps to a datasource

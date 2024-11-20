@@ -1150,7 +1150,7 @@ class TestSqlCompilerServiceAirports
     // The code does nothing, but we don't get an error when running it in Postgres.
     assert(
       baos.toString() ===
-        """[{"count":0}]""".stripMargin
+        """[{"update_count":0}]""".stripMargin
     )
   }
 
@@ -1419,7 +1419,7 @@ class TestSqlCompilerServiceAirports
     )
     assert(
       baos.toString() ===
-        """count
+        """update_count
           |1
           |""".stripMargin
     )
@@ -1453,7 +1453,7 @@ class TestSqlCompilerServiceAirports
     )
     assert(
       baos.toString() ===
-        """count
+        """update_count
           |39
           |""".stripMargin
     )
@@ -1486,7 +1486,7 @@ class TestSqlCompilerServiceAirports
     )
     assert(
       baos.toString() ===
-        """[{"count":39}]""".stripMargin
+        """[{"update_count":39}]""".stripMargin
     )
     baos.reset()
     assert(

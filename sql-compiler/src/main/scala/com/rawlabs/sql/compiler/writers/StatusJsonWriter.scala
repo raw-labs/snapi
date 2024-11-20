@@ -31,7 +31,7 @@ class StatusJsonWriter(os: OutputStream) {
   def write(count: Int): Unit = {
     gen.writeStartArray()
     gen.writeStartObject()
-    gen.writeFieldName("count")
+    gen.writeFieldName("update_count")
     gen.writeNumber(count)
     gen.writeEndObject()
     gen.writeEndArray()
