@@ -51,6 +51,11 @@ import scala.collection.mutable
 
 class NamedParametersPreparedStatementException(val errors: List[ErrorMessage]) extends Exception
 
+abstract class NamedParametersPreparedStatementExecutionResult
+case class NamedParametersPreparedStatementResultSet(rs: ResultSet)
+    extends NamedParametersPreparedStatementExecutionResult
+case class NamedParametersPreparedStatementUpdate(count: Int) extends NamedParametersPreparedStatementExecutionResult
+
 // A postgres type, described by its JDBC enum type + the regular postgres type name.
 // The postgres type is a string among the many types that exist in postgres.
 case class PostgresType(jdbcType: Int, nullable: Boolean, typeName: String)
@@ -403,10 +408,10 @@ class NamedParametersPreparedStatement(
   private val queryOutputType: Either[String, PostgresRowType] = {
     val metadata = stmt.getMetaData // SQLException at that point would be a bug.
     if (metadata == null) {
-      // an UPDATE/INSERT. We'll return a single row with a status column
+      // an UPDATE/INSERT. We'll return a single row with a count column
       Right(
         PostgresRowType(
-          Seq(PostgresColumn("status", PostgresType(java.sql.Types.BOOLEAN, nullable = false, "boolean")))
+          Seq(PostgresColumn("count", PostgresType(java.sql.Types.INTEGER, nullable = false, "integer")))
         )
       )
     } else {
@@ -458,7 +463,9 @@ class NamedParametersPreparedStatement(
     def errorPosition(p: Position): ErrorPosition = ErrorPosition(p.line, p.column)
     ErrorRange(errorPosition(position), errorPosition(position1))
   }
-  def executeWith(parameters: Seq[(String, RawValue)]): Either[String, ResultSet] = {
+  def executeWith(
+      parameters: Seq[(String, RawValue)]
+  ): Either[String, NamedParametersPreparedStatementExecutionResult] = {
     val mandatoryParameters = {
       for (
         (name, diagnostic) <- declaredTypeInfo
@@ -475,8 +482,11 @@ class NamedParametersPreparedStatement(
     else
       try {
         val isResultSet = stmt.execute()
-        if (isResultSet) Right(stmt.getResultSet)
-        else Right(null) // successful execution of an UPDATE/INSERT or nothing
+        if (isResultSet) Right(NamedParametersPreparedStatementResultSet(stmt.getResultSet))
+        else
+          Right(
+            NamedParametersPreparedStatementUpdate(stmt.getUpdateCount)
+          ) // successful execution of an UPDATE/INSERT or nothing
       } catch {
         // We'd catch here user-visible PSQL runtime errors (e.g. schema not found, table not found,
         // wrong credentials) hit _at runtime_ because the user FDW schema.table maps to a datasource

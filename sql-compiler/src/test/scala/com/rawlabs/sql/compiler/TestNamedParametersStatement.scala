@@ -60,7 +60,12 @@ class TestNamedParametersStatement
     var rs: ResultSet = null
     try {
       statement = mkPreparedStatement(conn, code)
-      rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
+      rs = statement
+        .executeWith(Seq("v1" -> RawString("Hello!")))
+        .right
+        .get
+        .asInstanceOf[NamedParametersPreparedStatementResultSet]
+        .rs
       rs.next()
       assert(rs.getString("arg") == "Hello!")
     } finally {
@@ -77,7 +82,12 @@ class TestNamedParametersStatement
     var rs: ResultSet = null
     try {
       statement = mkPreparedStatement(conn, code)
-      rs = statement.executeWith(Seq("v" -> RawString("Hello!"))).right.get
+      rs = statement
+        .executeWith(Seq("v" -> RawString("Hello!")))
+        .right
+        .get
+        .asInstanceOf[NamedParametersPreparedStatementResultSet]
+        .rs
 
       rs.next()
       assert(rs.getString("greeting") == "Hello!")
@@ -98,7 +108,12 @@ class TestNamedParametersStatement
       val metadata = statement.queryMetadata.right.get
       assert(metadata.parameters.keys == Set("v1", "v2"))
 
-      rs = statement.executeWith(Seq("v1" -> RawString("Lisbon"), "v2" -> RawInt(1))).right.get
+      rs = statement
+        .executeWith(Seq("v1" -> RawString("Lisbon"), "v2" -> RawInt(1)))
+        .right
+        .get
+        .asInstanceOf[NamedParametersPreparedStatementResultSet]
+        .rs
       rs.next()
       assert(rs.getString(1) == "Lisbon")
       assert(rs.getInt(2) == 1)
@@ -120,7 +135,12 @@ class TestNamedParametersStatement
     var rs: ResultSet = null
     try {
       statement = mkPreparedStatement(conn, code)
-      rs = statement.executeWith(Seq("v1" -> RawString("Hello!"))).right.get
+      rs = statement
+        .executeWith(Seq("v1" -> RawString("Hello!")))
+        .right
+        .get
+        .asInstanceOf[NamedParametersPreparedStatementResultSet]
+        .rs
       rs.next()
       assert(rs.getString("arg") == "Hello!")
     } finally {
@@ -139,7 +159,12 @@ class TestNamedParametersStatement
       statement = mkPreparedStatement(conn, code)
       val metadata = statement.queryMetadata.right.get
       assert(metadata.parameters.keys == Set("bar"))
-      rs = statement.executeWith(Seq("bar" -> RawString("Hello!"))).right.get
+      rs = statement
+        .executeWith(Seq("bar" -> RawString("Hello!")))
+        .right
+        .get
+        .asInstanceOf[NamedParametersPreparedStatementResultSet]
+        .rs
 
       rs.next()
       assert(rs.getString("v1") == ":foo")
@@ -161,7 +186,7 @@ class TestNamedParametersStatement
       val metadata = statement.queryMetadata
       assert(metadata.isRight)
       assert(metadata.right.get.parameters.isEmpty)
-      rs = statement.executeWith(Seq.empty).right.get
+      rs = statement.executeWith(Seq.empty).right.get.asInstanceOf[NamedParametersPreparedStatementResultSet].rs
 
       rs.next()
       assert(rs.getString("arg") == """[1, 2, "3", {"a": "Hello"}]""")

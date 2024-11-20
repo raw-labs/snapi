@@ -35,15 +35,15 @@ class StatusCsvWriter(os: OutputStream, lineSeparator: String) extends Closeable
   schemaBuilder.setLineSeparator(lineSeparator)
   schemaBuilder.setQuoteChar('"')
   schemaBuilder.setNullValue("")
-  schemaBuilder.addColumn("status")
+  schemaBuilder.addColumn("count")
   gen.setSchema(schemaBuilder.build)
   gen.enable(STRICT_CHECK_FOR_QUOTING)
 
   @throws[IOException]
-  def write(v: Boolean): Unit = {
+  def write(count: Int): Unit = {
     gen.writeStartObject()
-    gen.writeFieldName("status")
-    gen.writeBoolean(v)
+    gen.writeFieldName("count")
+    gen.writeNumber(count)
     gen.writeEndObject()
   }
 

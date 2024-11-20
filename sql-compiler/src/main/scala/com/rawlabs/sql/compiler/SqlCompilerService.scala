@@ -190,11 +190,12 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                     case Right(tipe) =>
                       val arguments = environment.maybeArguments.getOrElse(Array.empty)
                       pstmt.executeWith(arguments) match {
-                        case Right(r) =>
-                          if (r != null) resultSetRendering(environment, tipe, r, outputStream, maxRows)
-                          else {
-                            // No ResultSet, it was an update. Return a status in the expected format.
-                            updateResultRendering(environment, outputStream, maxRows)
+                        case Right(result) => result match {
+                            case NamedParametersPreparedStatementResultSet(rs) =>
+                              resultSetRendering(environment, tipe, rs, outputStream, maxRows)
+                            case NamedParametersPreparedStatementUpdate(count) =>
+                              // No ResultSet, it was an update. Return a status in the expected format.
+                              updateResultRendering(environment, outputStream, count, maxRows)
                           }
                         case Left(error) => ExecutionRuntimeFailure(error)
                       }
@@ -268,6 +269,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   private def updateResultRendering(
       environment: ProgramEnvironment,
       stream: OutputStream,
+      count: Int,
       maybeLong: Option[Long]
   ) = {
     environment.options
@@ -281,7 +283,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
         val writer = new StatusCsvWriter(stream, lineSeparator)
         try {
-          writer.write(true)
+          writer.write(count)
         } catch {
           case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
         } finally {
@@ -290,7 +292,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       case Some("json") =>
         val w = new StatusJsonWriter(stream)
         try {
-          w.write(true)
+          w.write(count)
           ExecutionSuccess(true)
         } catch {
           case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)

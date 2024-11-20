@@ -28,11 +28,11 @@ class StatusJsonWriter(os: OutputStream) {
     }
 
   @throws[IOException]
-  def write(v: Boolean): Unit = {
+  def write(count: Int): Unit = {
     gen.writeStartArray()
     gen.writeStartObject()
-    gen.writeFieldName("status")
-    gen.writeBoolean(v)
+    gen.writeFieldName("count")
+    gen.writeNumber(count)
     gen.writeEndObject()
     gen.writeEndArray()
   }
