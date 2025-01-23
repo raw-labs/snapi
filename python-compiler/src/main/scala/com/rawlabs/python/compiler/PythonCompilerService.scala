@@ -12,7 +12,7 @@
 
 package com.rawlabs.python.compiler
 
-import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, CompilerServiceException, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, FormatCodeResponse, GetProgramDescriptionResponse, GoToDefinitionResponse, HoverResponse, Pos, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue, RenameResponse, ValidateResponse}
+import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, CompilerServiceException, EvalResponse, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, FormatCodeResponse, GetProgramDescriptionResponse, GoToDefinitionResponse, HoverResponse, Pos, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue, RenameResponse, ValidateResponse}
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
@@ -209,6 +209,8 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
     val value = ctx.eval("python", code)
     ctx.asValue(value)
   }
+
+  override def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): EvalResponse = ???
 
   override def formatCode(
       source: String,

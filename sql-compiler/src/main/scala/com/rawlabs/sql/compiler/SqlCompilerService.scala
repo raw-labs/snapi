@@ -16,12 +16,7 @@ import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.rawlabs.compiler._
 import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, SqlIdnNode, SqlParamUseNode, SqlSyntaxAnalyzer}
 import com.rawlabs.sql.compiler.metadata.UserMetadataCache
-import com.rawlabs.sql.compiler.writers.{
-  StatusCsvWriter,
-  StatusJsonWriter,
-  TypedResultSetCsvWriter,
-  TypedResultSetJsonWriter
-}
+import com.rawlabs.sql.compiler.writers.{StatusCsvWriter, StatusJsonWriter, TypedResultSetCsvWriter, TypedResultSetJsonWriter, TypedResultSetRawValueIterator}
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.bitbucket.inkytonik.kiama.util.Positions
 
@@ -263,7 +258,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         }
       case _ => ExecutionRuntimeFailure("unknown output format")
     }
-
   }
 
   private def updateResultRendering(
@@ -302,6 +296,52 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       case _ => ExecutionRuntimeFailure("unknown output format")
     }
     ExecutionSuccess(true)
+  }
+
+  override def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): EvalResponse = {
+    try {
+      logger.debug(s"Evaluating: $source")
+      safeParse(source) match {
+        case Left(errors) => EvalValidationFailure(errors)
+        case Right(parsedTree) =>
+          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+          try {
+            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
+            try {
+              pstmt.queryMetadata match {
+                case Right(info) => pgRowTypeToIterableType(info.outputType) match {
+                  case Right(tipe) =>
+                    val RawIterableType(innerType @ RawRecordType(atts, false, false), false, false) = tipe
+                    val arguments = environment.maybeArguments.getOrElse(Array.empty)
+                    pstmt.executeWith(arguments) match {
+                      case Right(result) =>
+                        result match {
+                        case NamedParametersPreparedStatementResultSet(rs) =>
+        EvalSuccessIterator( innerType, new TypedResultSetRawValueIterator(rs, tipe))
+                        case NamedParametersPreparedStatementUpdate(count) =>
+                          EvalSuccessValue(innerType, RawInt(count))
+                      }
+                      case Left(error) => EvalRuntimeFailure(error)
+                    }
+                  case Left(errors) => EvalRuntimeFailure(errors.mkString(", "))
+                }
+                case Left(errors) => EvalValidationFailure(errors)
+              }
+            } finally {
+              RawUtils.withSuppressNonFatalException(pstmt.close())
+            }
+          } catch {
+            case e: NamedParametersPreparedStatementException => EvalValidationFailure(e.errors)
+          } finally {
+            RawUtils.withSuppressNonFatalException(conn.close())
+          }
+      }
+    } catch {
+      case ex: SQLException if isConnectionFailure(ex) =>
+        logger.warn("SqlConnectionPool connection failure", ex)
+        EvalRuntimeFailure(ex.getMessage)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+    }
   }
 
   override def formatCode(

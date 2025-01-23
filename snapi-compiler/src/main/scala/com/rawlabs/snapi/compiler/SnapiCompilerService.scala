@@ -12,47 +12,7 @@
 
 package com.rawlabs.snapi.compiler
 
-import com.rawlabs.compiler.{
-  AutoCompleteResponse,
-  CompilerService,
-  CompilerServiceException,
-  DeclDescription,
-  ErrorMessage,
-  ErrorPosition,
-  ErrorRange,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  ExecutionValidationFailure,
-  FormatCodeResponse,
-  GetProgramDescriptionFailure,
-  GetProgramDescriptionResponse,
-  GetProgramDescriptionSuccess,
-  GoToDefinitionResponse,
-  HoverResponse,
-  Message,
-  ParamDescription,
-  Pos,
-  ProgramDescription,
-  ProgramEnvironment,
-  RawBool,
-  RawByte,
-  RawDate,
-  RawDecimal,
-  RawDouble,
-  RawFloat,
-  RawInt,
-  RawInterval,
-  RawLong,
-  RawNull,
-  RawShort,
-  RawString,
-  RawTime,
-  RawTimestamp,
-  RawValue,
-  RenameResponse,
-  ValidateResponse
-}
+import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, CompilerServiceException, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, EvalResponse, EvalRuntimeFailure, EvalSuccessIterator, EvalSuccessValue, EvalValidationFailure, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, FormatCodeResponse, GetProgramDescriptionFailure, GetProgramDescriptionResponse, GetProgramDescriptionSuccess, GoToDefinitionResponse, HoverResponse, Message, ParamDescription, Pos, ProgramDescription, ProgramEnvironment, RawBinary, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawError, RawFloat, RawInt, RawInterval, RawList, RawLong, RawNull, RawRecord, RawRecordAttr, RawShort, RawString, RawTime, RawTimestamp, RawType, RawValue, RenameResponse, ValidateResponse}
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import com.rawlabs.snapi.compiler.SnapiCompilerService.getTruffleClassLoader
 import com.rawlabs.snapi.compiler.writers.{SnapiCsvWriter, SnapiJsonWriter}
@@ -240,128 +200,69 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     ctx.initialize("snapi")
     ctx.enter()
     try {
-      val (v, tipe) = maybeDecl match {
-        case Some(decl) =>
-          // Eval the code and extract the function referred to by 'decl'
-          val truffleSource = Source
-            .newBuilder("snapi", source, "unnamed")
-            .cached(false) // Disable code caching because of the inferrer.
-            .build()
-          ctx.eval(truffleSource)
-          // 'decl' is found in the context bindings (by its name)
-          val bindings = ctx.getBindings("snapi")
-          val f = bindings.getMember(decl)
-          // its type is found in the polyglot bindings as '@type:<name>'
-          val funType = {
-            val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
-            val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.uid, internal = true)
-            tipe
+      getValueAndType(source, environment, maybeDecl, ctx) match {
+        case Left(err) => ExecutionRuntimeFailure(err)
+        case Right((v, tipe)) =>
+          environment.options
+            .get("output-format")
+            .map(_.toLowerCase) match {
+            case Some("csv") =>
+              if (!CsvPackage.outputWriteSupport(tipe)) {
+                return ExecutionRuntimeFailure("unsupported type")
+              }
+              val windowsLineEnding = environment.options.get("windows-line-ending") match {
+                case Some("true") => true
+                case _ => false
+              }
+              val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
+              val w = new SnapiCsvWriter(outputStream, lineSeparator, maxRows)
+              try {
+                w.write(v, tipe.asInstanceOf[SnapiTypeWithProperties])
+                w.flush()
+                ExecutionSuccess(w.complete)
+              } catch {
+                case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+              } finally {
+                RawUtils.withSuppressNonFatalException(w.close())
+              }
+            case Some("json") =>
+              if (!JsonPackage.outputWriteSupport(tipe)) {
+                return ExecutionRuntimeFailure("unsupported type")
+              }
+              val w = new SnapiJsonWriter(outputStream, maxRows)
+              try {
+                w.write(v, tipe.asInstanceOf[SnapiTypeWithProperties])
+                w.flush()
+                ExecutionSuccess(w.complete)
+              } catch {
+                case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+              } finally {
+                RawUtils.withSuppressNonFatalException(w.close())
+              }
+            case Some("text") =>
+              if (!StringPackage.outputWriteSupport(tipe)) {
+                return ExecutionRuntimeFailure("unsupported type")
+              }
+              val w = new PolyglotTextWriter(outputStream)
+              try {
+                w.writeAndFlush(v)
+                ExecutionSuccess(complete = true)
+              } catch {
+                case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+              }
+            case Some("binary") =>
+              if (!BinaryPackage.outputWriteSupport(tipe)) {
+                return ExecutionRuntimeFailure("unsupported type")
+              }
+              val w = new PolyglotBinaryWriter(outputStream)
+              try {
+                w.writeAndFlush(v)
+                ExecutionSuccess(complete = true)
+              } catch {
+                case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+              }
+            case _ => ExecutionRuntimeFailure("unknown output format")
           }
-          // Prior to .execute, some checks on parameters since we may have
-          // to fill optional parameters with their default value
-
-          // Mandatory arguments are those that don't have a matching 'name' in optional parameters
-          val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
-
-          // Split the provided parameters in two (mandatory/optional)
-          val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
-            case Some(args) =>
-              val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
-              (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
-            case None => (Map.empty[String, RawValue], Array.empty[RawValue])
-          }
-
-          // Mandatory args have to be all provided
-          if (mandatoryArgs.length != funType.ms.size) {
-            return ExecutionRuntimeFailure("missing mandatory arguments")
-          }
-          val mandatoryPolyglotArguments = mandatoryArgs.map(arg => rawValueToPolyglotValue(arg, ctx))
-          // Optional arguments can be missing from the provided arguments.
-          // We replace the missing ones by their default value.
-          val optionalPolyglotArguments = funType.os.map { arg =>
-            optionalArgs.get(arg.i) match {
-              // if the argument is provided, use it
-              case Some(paramValue) => rawValueToPolyglotValue(paramValue, ctx)
-              // else, the argument has a default value that can be obtained from `f`.
-              case None => f.invokeMember("default_" + arg.i)
-            }
-          }
-          // All arguments are there. Call .execute.
-          val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
-          val tipe = funType.r
-          // Return the result and its type.
-          (result, tipe)
-        case None =>
-          val truffleSource = Source
-            .newBuilder("snapi", source, "unnamed")
-            .cached(false) // Disable code caching because of the inferrer.
-            .build()
-          val result = ctx.eval(truffleSource)
-          // The value type is found in polyglot bindings after calling eval().
-          val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
-          val ParseTypeSuccess(tipe) = parseType(rawType, environment.uid, internal = true)
-          (result, tipe)
-      }
-
-      environment.options
-        .get("output-format")
-        .map(_.toLowerCase) match {
-        case Some("csv") =>
-          if (!CsvPackage.outputWriteSupport(tipe)) {
-            return ExecutionRuntimeFailure("unsupported type")
-          }
-          val windowsLineEnding = environment.options.get("windows-line-ending") match {
-            case Some("true") => true
-            case _ => false
-          }
-          val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-          val w = new SnapiCsvWriter(outputStream, lineSeparator, maxRows)
-          try {
-            w.write(v, tipe.asInstanceOf[SnapiTypeWithProperties])
-            w.flush()
-            ExecutionSuccess(w.complete)
-          } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
-          } finally {
-            RawUtils.withSuppressNonFatalException(w.close())
-          }
-        case Some("json") =>
-          if (!JsonPackage.outputWriteSupport(tipe)) {
-            return ExecutionRuntimeFailure("unsupported type")
-          }
-          val w = new SnapiJsonWriter(outputStream, maxRows)
-          try {
-            w.write(v, tipe.asInstanceOf[SnapiTypeWithProperties])
-            w.flush()
-            ExecutionSuccess(w.complete)
-          } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
-          } finally {
-            RawUtils.withSuppressNonFatalException(w.close())
-          }
-        case Some("text") =>
-          if (!StringPackage.outputWriteSupport(tipe)) {
-            return ExecutionRuntimeFailure("unsupported type")
-          }
-          val w = new PolyglotTextWriter(outputStream)
-          try {
-            w.writeAndFlush(v)
-            ExecutionSuccess(complete = true)
-          } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
-          }
-        case Some("binary") =>
-          if (!BinaryPackage.outputWriteSupport(tipe)) {
-            return ExecutionRuntimeFailure("unsupported type")
-          }
-          val w = new PolyglotBinaryWriter(outputStream)
-          try {
-            w.writeAndFlush(v)
-            ExecutionSuccess(complete = true)
-          } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
-          }
-        case _ => ExecutionRuntimeFailure("unknown output format")
       }
     } catch {
       case ex: PolyglotException =>
@@ -417,6 +318,359 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     } finally {
       ctx.leave()
       ctx.close()
+    }
+  }
+
+  private def getValueAndType(source: String, environment: ProgramEnvironment, maybeDecl: Option[String], ctx: Context): Either[String, (Value, Type)] = {
+    maybeDecl match {
+      case Some(decl) =>
+        // Eval the code and extract the function referred to by 'decl'
+        val truffleSource = Source
+          .newBuilder("snapi", source, "unnamed")
+          .cached(false) // Disable code caching because of the inferrer.
+          .build()
+        ctx.eval(truffleSource)
+        // 'decl' is found in the context bindings (by its name)
+        val bindings = ctx.getBindings("snapi")
+        val f = bindings.getMember(decl)
+        // its type is found in the polyglot bindings as '@type:<name>'
+        val funType = {
+          val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
+          val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.uid, internal = true)
+          tipe
+        }
+        // Prior to .execute, some checks on parameters since we may have
+        // to fill optional parameters with their default value
+
+        // Mandatory arguments are those that don't have a matching 'name' in optional parameters
+        val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
+
+        // Split the provided parameters in two (mandatory/optional)
+        val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
+          case Some(args) =>
+            val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
+            (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
+          case None => (Map.empty[String, RawValue], Array.empty[RawValue])
+        }
+
+        // Mandatory args have to be all provided
+        if (mandatoryArgs.length != funType.ms.size) {
+          return Left("missing mandatory arguments")
+        }
+        val mandatoryPolyglotArguments = mandatoryArgs.map(arg => rawValueToPolyglotValue(arg, ctx))
+        // Optional arguments can be missing from the provided arguments.
+        // We replace the missing ones by their default value.
+        val optionalPolyglotArguments = funType.os.map { arg =>
+          optionalArgs.get(arg.i) match {
+            // if the argument is provided, use it
+            case Some(paramValue) => rawValueToPolyglotValue(paramValue, ctx)
+            // else, the argument has a default value that can be obtained from `f`.
+            case None => f.invokeMember("default_" + arg.i)
+          }
+        }
+        // All arguments are there. Call .execute.
+        val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
+        val tipe = funType.r
+        // Return the result and its type.
+        Right((result, tipe))
+      case None =>
+        val truffleSource = Source
+          .newBuilder("snapi", source, "unnamed")
+          .cached(false) // Disable code caching because of the inferrer.
+          .build()
+        val result = ctx.eval(truffleSource)
+        // The value type is found in polyglot bindings after calling eval().
+        val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
+        val ParseTypeSuccess(tipe) = parseType(rawType, environment.uid, internal = true)
+        Right((result, tipe))
+    }
+  }
+
+  override def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): EvalResponse = {
+    val ctx = buildTruffleContext(environment, maybeOutputStream = None)
+    ctx.initialize("snapi")
+    ctx.enter()
+    try {
+      // 1) Get the value+type from your language
+      getValueAndType(source, environment, maybeDecl, ctx) match {
+        case Left(err) =>
+          // Something went wrong at "compilation" or retrieval time
+          EvalRuntimeFailure(err)
+
+        case Right((v, t)) =>
+          // 2) Convert to either a single RawValue or an Iterator[RawValue]
+          //    If there's a "tryable" error at the top level, we handle it, etc.
+          val snapiT = t.asInstanceOf[SnapiTypeWithProperties]
+
+          try {
+            val (rawType, eitherValueOrIter) = fromTruffleValueOrIterator(v, snapiT)
+            eitherValueOrIter match {
+              case Left(singleVal) =>
+                EvalSuccessValue(rawType, singleVal)
+              case Right(iter) =>
+                EvalSuccessIterator(rawType, iter)
+            }
+          } catch {
+            case NonFatal(e) =>
+              // E.g. we tried to convert a top-level triable and it had an exception,
+              // or some other runtime error. We'll produce a failure message:
+              EvalRuntimeFailure(e.getMessage)
+          }
+      }
+    } catch {
+      case ex: PolyglotException =>
+        // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
+        // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
+        // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
+        // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
+        // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
+        // and which must handle interruption as well.
+        if (ex.isInterrupted) {
+          throw new InterruptedException()
+        } else if (ex.getCause.isInstanceOf[InterruptedException]) {
+          throw ex.getCause
+        } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
+          throw new InterruptedException()
+        } else if (ex.isGuestException) {
+          if (ex.isInternalError) {
+            // An internal error. It means a regular Exception thrown from the language (e.g. a Java Exception,
+            // or a RawTruffleInternalErrorException, which isn't an AbstractTruffleException)
+            val programContext = getProgramContext(environment.uid, environment)
+            throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
+          } else {
+            val err = ex.getGuestObject
+            if (err != null && err.hasMembers && err.hasMember("errors")) {
+              // A validation exception, semantic or syntax error (both come as the same kind of error)
+              // that has a list of errors and their positions.
+              val errorsValue = err.getMember("errors")
+              val errors = (0L until errorsValue.getArraySize).map { i =>
+                val errorValue = errorsValue.getArrayElement(i)
+                val message = errorValue.asString
+                val positions = (0L until errorValue.getArraySize).map { j =>
+                  val posValue = errorValue.getArrayElement(j)
+                  val beginValue = posValue.getMember("begin")
+                  val endValue = posValue.getMember("end")
+                  val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
+                  val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
+                  ErrorRange(begin, end)
+                }
+                ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
+              }
+              EvalValidationFailure(errors.to)
+            } else {
+              // A runtime failure during execution. The query could be a failed tryable, or a runtime error (e.g. a
+              // file not found) hit when processing a reader that evaluates as a _collection_ (processed outside the
+              // evaluation of the query).
+              EvalRuntimeFailure(ex.getMessage)
+            }
+          }
+        } else {
+          // Unexpected error. For now we throw the PolyglotException.
+          throw ex
+        }
+    } finally {
+      ctx.leave()
+      ctx.close()
+    }
+  }
+
+  /**
+   * fromTruffleValueOrIterator determines if the top-level type is an iterable (SnapiIterableType / SnapiListType).
+   * - If yes, returns Right(Iterator[RawValue]).
+   * - Else returns Left(RawValue).
+   * Also returns the corresponding RawType to describe the final shape.
+   */
+  private def fromTruffleValueOrIterator(
+                                          v: Value,
+                                          t: SnapiTypeWithProperties
+                                        ): (RawType, Either[RawValue, Iterator[RawValue]]) = {
+
+    // Because we eventually want to produce a RawType:
+    val rawT: RawType = snapiTypeToRawType(t).get
+
+    // 1) If top-level is an iterable (and not top-level triable error), we produce an iterator:
+    t match {
+      case SnapiIterableType(inner, _) if !v.isNull && !maybeIsException(v, t) =>
+        // Return an iterator
+        val it = new Iterator[RawValue] {
+          private val polyIt = v.getIterator
+          override def hasNext: Boolean = polyIt.hasIteratorNextElement
+          override def next(): RawValue = {
+            val elemVal = polyIt.getIteratorNextElement
+            fromTruffleValue(elemVal, inner.asInstanceOf[SnapiTypeWithProperties])
+          }
+        }
+        (rawT, Right(it))
+
+      case SnapiListType(inner, _) if !v.isNull && !maybeIsException(v, t) =>
+        // Return an iterator over array elements
+        val arrSize = v.getArraySize
+        val it = new Iterator[RawValue] {
+          private var idx = 0L
+          override def hasNext: Boolean = idx < arrSize
+          override def next(): RawValue = {
+            val elemVal = v.getArrayElement(idx)
+            idx += 1
+            fromTruffleValue(elemVal, inner.asInstanceOf[SnapiTypeWithProperties])
+          }
+        }
+        (rawT, Right(it))
+
+      // 2) Otherwise, produce a single RawValue
+      case _ =>
+        val rv = fromTruffleValue(v, t)
+        (rawT, Left(rv))
+    }
+  }
+
+  /**
+   * Check if top-level is triable and an exception, in which case fromTruffleValue
+   * would yield a RawError. But for iterables, we skip that check at top-level
+   * because we want an Iterator that possibly yields items or errors in iteration.
+   */
+  private def maybeIsException(v: Value, t: SnapiTypeWithProperties): Boolean = {
+    val tryableProp = SnapiIsTryableTypeProperty()
+    t.props.contains(tryableProp) && v.isException
+  }
+
+  /**
+   * Convert a single Truffle Value to a RawValue (no iteration at top level).
+   * It recurses into records, or-lambda, intervals, etc.  If the type is triable
+   * and the value is an exception, we produce a RawError; if the type is nullable
+   * and value is null, we produce RawNull, etc.
+   *
+   * This mirrors your SnapiJsonWriter logic, but instead of writing JSON,
+   * we build up the appropriate RawValue.
+   */
+  private def fromTruffleValue(
+                                v: Value,
+                                t: SnapiTypeWithProperties
+                              ): RawValue = {
+    val tryable   = SnapiIsTryableTypeProperty()
+    val nullable  = SnapiIsNullableTypeProperty()
+
+    // 1) If triable
+    if (t.props.contains(tryable)) {
+      // if the value is an exception => produce RawError
+      if (v.isException) {
+        try {
+          // attempt to "throw" to get the actual Java exception
+          v.throwException()
+          // If we get here, it didn't actually throw? We'll produce RawError anyway.
+          RawError("(unknown triable error)")
+        } catch {
+          case NonFatal(ex) => RawError(ex.getMessage)
+        }
+      } else {
+        // remove the property and keep going
+        fromTruffleValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[SnapiTypeWithProperties])
+      }
+    }
+    // 2) If nullable
+    else if (t.props.contains(nullable)) {
+      if (v.isNull) RawNull()
+      else fromTruffleValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[SnapiTypeWithProperties])
+    }
+    // 3) Otherwise match on the underlying type
+    else {
+      t match {
+        case _: SnapiBinaryType =>
+          // read all bytes from the buffer
+          val bytes = Array.ofDim[Byte](v.getBufferSize.toInt)
+          var idx   = 0
+          while (idx < bytes.length) {
+            bytes(idx) = v.readBufferByte(idx.toLong)
+            idx += 1
+          }
+          RawBinary(bytes)
+
+        case _: SnapiBoolType     => RawBool(v.asBoolean())
+        case _: SnapiByteType     => RawByte(v.asByte())
+        case _: SnapiShortType    => RawShort(v.asShort())
+        case _: SnapiIntType      => RawInt(v.asInt())
+        case _: SnapiLongType     => RawLong(v.asLong())
+        case _: SnapiFloatType    => RawFloat(v.asFloat())
+        case _: SnapiDoubleType   => RawDouble(v.asDouble())
+        case _: SnapiDecimalType  =>
+          // If asString() returns decimal textual form, parse into BigDecimal
+          val txt = v.asString()
+          RawDecimal(new java.math.BigDecimal(txt))
+
+        case _: SnapiStringType   => RawString(v.asString())
+
+        case _: SnapiDateType =>
+          // v.asDate() => LocalDate
+          RawDate(v.asDate())
+
+        case _: SnapiTimeType =>
+          // v.asTime() => LocalTime
+          RawTime(v.asTime())
+
+        case _: SnapiTimestampType =>
+          // Typically we treat v.asDate() as LocalDate, v.asTime() as LocalTime, then combine
+          val d = v.asDate()
+          val tm = v.asTime()
+          RawTimestamp(d.atTime(tm))
+
+        case _: SnapiIntervalType =>
+          // Suppose v.asDuration() => java.time.Duration
+          // If you have year-month intervals, you might need something else,
+          // but here's a simple approach for day/time intervals:
+          val dur  = v.asDuration()
+          val days = dur.toDaysPart
+          val hrs  = dur.toHoursPart
+          val mins = dur.toMinutesPart
+          val secs = dur.toSecondsPart
+          val mills= dur.toMillisPart
+          // We store the entire RawInterval splitted out:
+          RawInterval(
+            years = 0,
+            months = 0,
+            weeks = 0,
+            days = days.toInt,
+            hours = hrs,
+            minutes = mins,
+            seconds = secs,
+            millis = mills
+          )
+
+        case SnapiRecordType(attributes, _) =>
+          // Build a RawRecord
+          val recordAttrs = attributes.map { att =>
+            val fieldName  = att.idn
+            val memberVal  = v.getMember(fieldName)
+            val fieldValue = fromTruffleValue(
+              memberVal,
+              att.tipe.asInstanceOf[SnapiTypeWithProperties]
+            )
+            RawRecordAttr(fieldName, fieldValue)
+          }
+          RawRecord(recordAttrs)
+
+        case SnapiIterableType(_, _) | SnapiListType(_, _) =>
+          // Should not happen here for a single-value function,
+          // because we check them earlier in fromTruffleValueOrIterator,
+          // but if it does, handle it by consuming to a list:
+          val size = if (v.hasArrayElements) v.getArraySize else {
+            // possibly v.getIterator? We'll do array approach if we can
+            0
+          }
+          val items = (0L until size).map { i =>
+            val elem = v.getArrayElement(i)
+            fromTruffleValue(elem, t.asInstanceOf[SnapiListType].innerType.asInstanceOf[SnapiTypeWithProperties])
+          }
+          RawList(items.toList)
+
+        case SnapiOrType(inners, _) =>
+          // We can check which index the union picked. Typically you do:
+          val index = v.invokeMember("getIndex").asInt()
+          val value = v.invokeMember("getValue")
+          fromTruffleValue(value, inners(index).asInstanceOf[SnapiTypeWithProperties])
+
+        case other =>
+          // Not recognized or not implemented
+          throw new RuntimeException("unsupported type")
+      }
     }
   }
 

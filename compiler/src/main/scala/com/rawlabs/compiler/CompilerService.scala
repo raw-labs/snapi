@@ -128,6 +128,12 @@ trait CompilerService extends RawService {
       maxRows: Option[Long] = None
   ): ExecutionResponse
 
+  @throws[CompilerServiceException]
+  def eval(
+        source: String,
+        environment: ProgramEnvironment,
+        maybeDecl: Option[String]): EvalResponse
+
   // Format a source program.
   @throws[CompilerServiceException]
   def formatCode(
@@ -187,6 +193,12 @@ sealed trait ExecutionResponse
 final case class ExecutionSuccess(complete: Boolean) extends ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
+
+sealed trait EvalResponse
+final case class EvalSuccessIterator(innerType: RawType, iterator: Iterator[RawValue]) extends EvalResponse
+final case class EvalSuccessValue(valueType: RawType, value: RawValue) extends EvalResponse
+final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
+final case class EvalRuntimeFailure(error: String) extends EvalResponse
 
 final case class FormatCodeResponse(code: Option[String])
 final case class HoverResponse(completion: Option[Completion])
