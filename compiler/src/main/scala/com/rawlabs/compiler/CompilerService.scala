@@ -12,7 +12,7 @@
 
 package com.rawlabs.compiler
 
-import com.rawlabs.protocol.raw.Value
+import com.rawlabs.protocol.raw.{Type, Value}
 import org.graalvm.polyglot.Engine
 
 import java.io.OutputStream
@@ -196,8 +196,8 @@ final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends 
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 
 sealed trait EvalResponse
-final case class EvalSuccessIterator(innerType: RawType, iterator: Iterator[Value]) extends EvalResponse
-final case class EvalSuccessValue(valueType: RawType, value: Value) extends EvalResponse
+final case class EvalSuccessIterator(innerType: Type, iterator: Iterator[Value]) extends EvalResponse
+final case class EvalSuccessValue(valueType: Type, value: Value) extends EvalResponse
 final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
 final case class EvalRuntimeFailure(error: String) extends EvalResponse
 

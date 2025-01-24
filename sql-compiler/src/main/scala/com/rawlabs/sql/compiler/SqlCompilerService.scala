@@ -322,10 +322,12 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                       val arguments = environment.maybeArguments.getOrElse(Array.empty)
                       pstmt.executeWith(arguments) match {
                         case Right(result) => result match {
-                            case NamedParametersPreparedStatementResultSet(rs) =>
-                              EvalSuccessIterator(innerType, new TypedResultSetRawValueIterator(rs, tipe))
+                            case NamedParametersPreparedStatementResultSet(rs) => EvalSuccessIterator(
+                                TypeConverter.toProtocolType(innerType),
+                                new TypedResultSetRawValueIterator(rs, tipe)
+                              )
                             case NamedParametersPreparedStatementUpdate(count) => EvalSuccessValue(
-                                innerType,
+                                TypeConverter.toProtocolType(innerType),
                                 Value.newBuilder().setInt(ValueInt.newBuilder().setV(count)).build()
                               )
                           }

@@ -58,6 +58,7 @@ import com.rawlabs.compiler.{
   RawType,
   RawValue,
   RenameResponse,
+  TypeConverter,
   ValidateResponse
 }
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
@@ -468,9 +469,10 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
 
           try {
             val (rawType, eitherValueOrIter) = fromTruffleValueOrIterator(v, snapiT)
+            val protocolType = TypeConverter.toProtocolType(rawType)
             eitherValueOrIter match {
-              case Left(singleVal) => EvalSuccessValue(rawType, singleVal)
-              case Right(iter) => EvalSuccessIterator(rawType, iter)
+              case Left(singleVal) => EvalSuccessValue(protocolType, singleVal)
+              case Right(iter) => EvalSuccessIterator(protocolType, iter)
             }
           } catch {
             case NonFatal(e) =>
