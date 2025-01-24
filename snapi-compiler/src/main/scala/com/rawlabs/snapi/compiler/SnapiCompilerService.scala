@@ -12,8 +12,67 @@
 
 package com.rawlabs.snapi.compiler
 
-import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, CompilerServiceException, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, EvalResponse, EvalRuntimeFailure, EvalSuccessIterator, EvalSuccessValue, EvalValidationFailure, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, FormatCodeResponse, GetProgramDescriptionFailure, GetProgramDescriptionResponse, GetProgramDescriptionSuccess, GoToDefinitionResponse, HoverResponse, Message, ParamDescription, Pos, ProgramDescription, ProgramEnvironment, RawBinary, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawError, RawFloat, RawInt, RawInterval, RawList, RawLong, RawNull, RawRecord, RawRecordAttr, RawShort, RawString, RawTime, RawTimestamp, RawType, RawValue, RenameResponse, ValidateResponse}
+import com.google.protobuf.ByteString
+import com.rawlabs.compiler.{
+  AutoCompleteResponse,
+  CompilerService,
+  CompilerServiceException,
+  DeclDescription,
+  ErrorMessage,
+  ErrorPosition,
+  ErrorRange,
+  EvalResponse,
+  EvalRuntimeFailure,
+  EvalSuccessIterator,
+  EvalSuccessValue,
+  EvalValidationFailure,
+  ExecutionResponse,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  FormatCodeResponse,
+  GetProgramDescriptionFailure,
+  GetProgramDescriptionResponse,
+  GetProgramDescriptionSuccess,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Message,
+  ParamDescription,
+  Pos,
+  ProgramDescription,
+  ProgramEnvironment,
+  RawBool,
+  RawByte,
+  RawDate,
+  RawDecimal,
+  RawDouble,
+  RawFloat,
+  RawInt,
+  RawInterval,
+  RawLong,
+  RawNull,
+  RawShort,
+  RawString,
+  RawTime,
+  RawTimestamp,
+  RawType,
+  RawValue,
+  RenameResponse,
+  ValidateResponse
+}
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
+import com.rawlabs.protocol.raw.{
+  ValueBinary,
+  ValueBool,
+  ValueByte,
+  ValueError,
+  ValueInterval,
+  ValueList,
+  ValueNull,
+  ValueRecord,
+  ValueRecordField,
+  ValueShort
+}
 import com.rawlabs.snapi.compiler.SnapiCompilerService.getTruffleClassLoader
 import com.rawlabs.snapi.compiler.writers.{SnapiCsvWriter, SnapiJsonWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
@@ -35,6 +94,7 @@ import com.rawlabs.snapi.frontend.snapi.extensions.builtin.{BinaryPackage, CsvPa
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
 import scala.util.control.NonFatal
+import scala.collection.JavaConverters._
 
 object SnapiCompilerService extends CustomClassAndModuleLoader {
   val LANGUAGE: Set[String] = Set("snapi")
@@ -202,8 +262,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     try {
       getValueAndType(source, environment, maybeDecl, ctx) match {
         case Left(err) => ExecutionRuntimeFailure(err)
-        case Right((v, tipe)) =>
-          environment.options
+        case Right((v, tipe)) => environment.options
             .get("output-format")
             .map(_.toLowerCase) match {
             case Some("csv") =>
@@ -321,7 +380,12 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     }
   }
 
-  private def getValueAndType(source: String, environment: ProgramEnvironment, maybeDecl: Option[String], ctx: Context): Either[String, (Value, Type)] = {
+  private def getValueAndType(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String],
+      ctx: Context
+  ): Either[String, (Value, Type)] = {
     maybeDecl match {
       case Some(decl) =>
         // Eval the code and extract the function referred to by 'decl'
@@ -405,10 +469,8 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           try {
             val (rawType, eitherValueOrIter) = fromTruffleValueOrIterator(v, snapiT)
             eitherValueOrIter match {
-              case Left(singleVal) =>
-                EvalSuccessValue(rawType, singleVal)
-              case Right(iter) =>
-                EvalSuccessIterator(rawType, iter)
+              case Left(singleVal) => EvalSuccessValue(rawType, singleVal)
+              case Right(iter) => EvalSuccessIterator(rawType, iter)
             }
           } catch {
             case NonFatal(e) =>
@@ -481,9 +543,9 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
    * Also returns the corresponding RawType to describe the final shape.
    */
   private def fromTruffleValueOrIterator(
-                                          v: Value,
-                                          t: SnapiTypeWithProperties
-                                        ): (RawType, Either[RawValue, Iterator[RawValue]]) = {
+      v: Value,
+      t: SnapiTypeWithProperties
+  ): (RawType, Either[com.rawlabs.protocol.raw.Value, Iterator[com.rawlabs.protocol.raw.Value]]) = {
 
     // Because we eventually want to produce a RawType:
     val rawT: RawType = snapiTypeToRawType(t).get
@@ -492,10 +554,10 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     t match {
       case SnapiIterableType(inner, _) if !v.isNull && !maybeIsException(v, t) =>
         // Return an iterator
-        val it = new Iterator[RawValue] {
+        val it = new Iterator[com.rawlabs.protocol.raw.Value] {
           private val polyIt = v.getIterator
           override def hasNext: Boolean = polyIt.hasIteratorNextElement
-          override def next(): RawValue = {
+          override def next(): com.rawlabs.protocol.raw.Value = {
             val elemVal = polyIt.getIteratorNextElement
             fromTruffleValue(elemVal, inner.asInstanceOf[SnapiTypeWithProperties])
           }
@@ -505,10 +567,10 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       case SnapiListType(inner, _) if !v.isNull && !maybeIsException(v, t) =>
         // Return an iterator over array elements
         val arrSize = v.getArraySize
-        val it = new Iterator[RawValue] {
+        val it = new Iterator[com.rawlabs.protocol.raw.Value] {
           private var idx = 0L
           override def hasNext: Boolean = idx < arrSize
-          override def next(): RawValue = {
+          override def next(): com.rawlabs.protocol.raw.Value = {
             val elemVal = v.getArrayElement(idx)
             idx += 1
             fromTruffleValue(elemVal, inner.asInstanceOf[SnapiTypeWithProperties])
@@ -543,11 +605,11 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
    * we build up the appropriate RawValue.
    */
   private def fromTruffleValue(
-                                v: Value,
-                                t: SnapiTypeWithProperties
-                              ): RawValue = {
-    val tryable   = SnapiIsTryableTypeProperty()
-    val nullable  = SnapiIsNullableTypeProperty()
+      v: Value,
+      t: SnapiTypeWithProperties
+  ): com.rawlabs.protocol.raw.Value = {
+    val tryable = SnapiIsTryableTypeProperty()
+    val nullable = SnapiIsNullableTypeProperty()
 
     // 1) If triable
     if (t.props.contains(tryable)) {
@@ -557,9 +619,12 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           // attempt to "throw" to get the actual Java exception
           v.throwException()
           // If we get here, it didn't actually throw? We'll produce RawError anyway.
-          RawError("(unknown triable error)")
+          throw new CompilerServiceException("unknown triable error")
         } catch {
-          case NonFatal(ex) => RawError(ex.getMessage)
+          case NonFatal(ex) => com.rawlabs.protocol.raw.Value
+              .newBuilder()
+              .setError(ValueError.newBuilder().setMessage(ex.getMessage).build())
+              .build()
         }
       } else {
         // remove the property and keep going
@@ -568,7 +633,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     }
     // 2) If nullable
     else if (t.props.contains(nullable)) {
-      if (v.isNull) RawNull()
+      if (v.isNull) com.rawlabs.protocol.raw.Value.newBuilder().setNull(ValueNull.newBuilder()).build()
       else fromTruffleValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[SnapiTypeWithProperties])
     }
     // 3) Otherwise match on the underlying type
@@ -577,89 +642,150 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
         case _: SnapiBinaryType =>
           // read all bytes from the buffer
           val bytes = Array.ofDim[Byte](v.getBufferSize.toInt)
-          var idx   = 0
+          var idx = 0
           while (idx < bytes.length) {
             bytes(idx) = v.readBufferByte(idx.toLong)
             idx += 1
           }
-          RawBinary(bytes)
+          com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setBinary(ValueBinary.newBuilder().setV(ByteString.copyFrom(bytes)))
+            .build()
 
-        case _: SnapiBoolType     => RawBool(v.asBoolean())
-        case _: SnapiByteType     => RawByte(v.asByte())
-        case _: SnapiShortType    => RawShort(v.asShort())
-        case _: SnapiIntType      => RawInt(v.asInt())
-        case _: SnapiLongType     => RawLong(v.asLong())
-        case _: SnapiFloatType    => RawFloat(v.asFloat())
-        case _: SnapiDoubleType   => RawDouble(v.asDouble())
-        case _: SnapiDecimalType  =>
+        case _: SnapiBoolType =>
+          com.rawlabs.protocol.raw.Value.newBuilder().setBool(ValueBool.newBuilder().setV(v.asBoolean())).build()
+        case _: SnapiByteType =>
+          com.rawlabs.protocol.raw.Value.newBuilder().setByte(ValueByte.newBuilder().setV(v.asByte())).build()
+        case _: SnapiShortType =>
+          com.rawlabs.protocol.raw.Value.newBuilder().setShort(ValueShort.newBuilder().setV(v.asShort())).build()
+        case _: SnapiIntType => com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setInt(com.rawlabs.protocol.raw.ValueInt.newBuilder().setV(v.asInt()))
+            .build()
+        case _: SnapiLongType => com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setLong(com.rawlabs.protocol.raw.ValueLong.newBuilder().setV(v.asLong()))
+            .build()
+        case _: SnapiFloatType => com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setFloat(com.rawlabs.protocol.raw.ValueFloat.newBuilder().setV(v.asFloat()))
+            .build()
+        case _: SnapiDoubleType => com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setDouble(com.rawlabs.protocol.raw.ValueDouble.newBuilder().setV(v.asDouble()))
+            .build()
+        case _: SnapiDecimalType =>
           // If asString() returns decimal textual form, parse into BigDecimal
           val txt = v.asString()
-          RawDecimal(new java.math.BigDecimal(txt))
+          com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setDecimal(com.rawlabs.protocol.raw.ValueDecimal.newBuilder().setV(txt))
+            .build()
 
-        case _: SnapiStringType   => RawString(v.asString())
+        case _: SnapiStringType => com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setString(com.rawlabs.protocol.raw.ValueString.newBuilder().setV(v.asString()))
+            .build()
 
         case _: SnapiDateType =>
           // v.asDate() => LocalDate
-          RawDate(v.asDate())
+          com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setDate(
+              com.rawlabs.protocol.raw.ValueDate
+                .newBuilder()
+                .setYear(v.asDate().getYear)
+                .setMonth(v.asDate().getMonthValue)
+                .setDay(v.asDate().getDayOfMonth)
+            )
+            .build()
 
         case _: SnapiTimeType =>
           // v.asTime() => LocalTime
-          RawTime(v.asTime())
+          com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setTime(
+              com.rawlabs.protocol.raw.ValueTime
+                .newBuilder()
+                .setHour(v.asTime().getHour)
+                .setMinute(v.asTime().getMinute)
+                .setSecond(v.asTime().getSecond)
+                .setNano(v.asTime().getNano)
+            )
+            .build()
 
         case _: SnapiTimestampType =>
           // Typically we treat v.asDate() as LocalDate, v.asTime() as LocalTime, then combine
-          val d = v.asDate()
-          val tm = v.asTime()
-          RawTimestamp(d.atTime(tm))
+          com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setTimestamp(
+              com.rawlabs.protocol.raw.ValueTimestamp
+                .newBuilder()
+                .setYear(v.asDate().getYear)
+                .setMonth(v.asDate().getMonthValue)
+                .setDay(v.asDate().getDayOfMonth)
+                .setHour(v.asTime().getHour)
+                .setMinute(v.asTime().getMinute)
+                .setSecond(v.asTime().getSecond)
+                .setNano(v.asTime().getNano)
+            )
+            .build()
 
         case _: SnapiIntervalType =>
-          // Suppose v.asDuration() => java.time.Duration
-          // If you have year-month intervals, you might need something else,
-          // but here's a simple approach for day/time intervals:
-          val dur  = v.asDuration()
-          val days = dur.toDaysPart
-          val hrs  = dur.toHoursPart
-          val mins = dur.toMinutesPart
-          val secs = dur.toSecondsPart
-          val mills= dur.toMillisPart
-          // We store the entire RawInterval splitted out:
-          RawInterval(
-            years = 0,
-            months = 0,
-            weeks = 0,
-            days = days.toInt,
-            hours = hrs,
-            minutes = mins,
-            seconds = secs,
-            millis = mills
-          )
+          val duration = v.asDuration()
+          val days = duration.toDays
+          val hours = duration.toHoursPart
+          val minutes = duration.toMinutesPart
+          val seconds = duration.toSecondsPart
+          val millis = duration.toMillisPart
+
+          com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setInterval(
+              ValueInterval
+                .newBuilder()
+                .setYears(0)
+                .setMonths(0)
+                .setWeeks(0)
+                .setDays(days.toInt)
+                .setHours(hours)
+                .setMinutes(minutes)
+                .setSeconds(seconds)
+                .setMillis(millis)
+            )
+            .build()
 
         case SnapiRecordType(attributes, _) =>
           // Build a RawRecord
           val recordAttrs = attributes.map { att =>
-            val fieldName  = att.idn
-            val memberVal  = v.getMember(fieldName)
+            val fieldName = att.idn
+            val memberVal = v.getMember(fieldName)
             val fieldValue = fromTruffleValue(
               memberVal,
               att.tipe.asInstanceOf[SnapiTypeWithProperties]
             )
-            RawRecordAttr(fieldName, fieldValue)
+            ValueRecordField.newBuilder().setName(fieldName).setValue(fieldValue).build()
           }
-          RawRecord(recordAttrs)
+          com.rawlabs.protocol.raw.Value
+            .newBuilder()
+            .setRecord(ValueRecord.newBuilder().addAllFields(recordAttrs.asJava))
+            .build()
 
         case SnapiIterableType(_, _) | SnapiListType(_, _) =>
           // Should not happen here for a single-value function,
           // because we check them earlier in fromTruffleValueOrIterator,
           // but if it does, handle it by consuming to a list:
-          val size = if (v.hasArrayElements) v.getArraySize else {
-            // possibly v.getIterator? We'll do array approach if we can
-            0
-          }
+          val size =
+            if (v.hasArrayElements) v.getArraySize
+            else {
+              // possibly v.getIterator? We'll do array approach if we can
+              0
+            }
           val items = (0L until size).map { i =>
             val elem = v.getArrayElement(i)
             fromTruffleValue(elem, t.asInstanceOf[SnapiListType].innerType.asInstanceOf[SnapiTypeWithProperties])
           }
-          RawList(items.toList)
+          com.rawlabs.protocol.raw.Value.newBuilder().setList(ValueList.newBuilder().addAllValues(items.asJava)).build()
 
         case SnapiOrType(inners, _) =>
           // We can check which index the union picked. Typically you do:

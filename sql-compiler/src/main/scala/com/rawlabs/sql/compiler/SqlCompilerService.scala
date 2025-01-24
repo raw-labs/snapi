@@ -14,9 +14,16 @@ package com.rawlabs.sql.compiler
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.rawlabs.compiler._
+import com.rawlabs.protocol.raw.{Value, ValueInt}
 import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, SqlIdnNode, SqlParamUseNode, SqlSyntaxAnalyzer}
 import com.rawlabs.sql.compiler.metadata.UserMetadataCache
-import com.rawlabs.sql.compiler.writers.{StatusCsvWriter, StatusJsonWriter, TypedResultSetCsvWriter, TypedResultSetJsonWriter, TypedResultSetRawValueIterator}
+import com.rawlabs.sql.compiler.writers.{
+  StatusCsvWriter,
+  StatusJsonWriter,
+  TypedResultSetCsvWriter,
+  TypedResultSetJsonWriter,
+  TypedResultSetRawValueIterator
+}
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.bitbucket.inkytonik.kiama.util.Positions
 
@@ -310,21 +317,22 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
             try {
               pstmt.queryMetadata match {
                 case Right(info) => pgRowTypeToIterableType(info.outputType) match {
-                  case Right(tipe) =>
-                    val RawIterableType(innerType @ RawRecordType(atts, false, false), false, false) = tipe
-                    val arguments = environment.maybeArguments.getOrElse(Array.empty)
-                    pstmt.executeWith(arguments) match {
-                      case Right(result) =>
-                        result match {
-                        case NamedParametersPreparedStatementResultSet(rs) =>
-        EvalSuccessIterator( innerType, new TypedResultSetRawValueIterator(rs, tipe))
-                        case NamedParametersPreparedStatementUpdate(count) =>
-                          EvalSuccessValue(innerType, RawInt(count))
+                    case Right(tipe) =>
+                      val RawIterableType(innerType @ RawRecordType(atts, false, false), false, false) = tipe
+                      val arguments = environment.maybeArguments.getOrElse(Array.empty)
+                      pstmt.executeWith(arguments) match {
+                        case Right(result) => result match {
+                            case NamedParametersPreparedStatementResultSet(rs) =>
+                              EvalSuccessIterator(innerType, new TypedResultSetRawValueIterator(rs, tipe))
+                            case NamedParametersPreparedStatementUpdate(count) => EvalSuccessValue(
+                                innerType,
+                                Value.newBuilder().setInt(ValueInt.newBuilder().setV(count)).build()
+                              )
+                          }
+                        case Left(error) => EvalRuntimeFailure(error)
                       }
-                      case Left(error) => EvalRuntimeFailure(error)
-                    }
-                  case Left(errors) => EvalRuntimeFailure(errors.mkString(", "))
-                }
+                    case Left(errors) => EvalRuntimeFailure(errors.mkString(", "))
+                  }
                 case Left(errors) => EvalValidationFailure(errors)
               }
             } finally {

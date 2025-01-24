@@ -15,48 +15,49 @@ package com.rawlabs.sql.compiler.writers
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.rawlabs.compiler._
 import com.rawlabs.compiler.utils.RecordFieldsNaming
+import com.rawlabs.protocol.raw.{Value, ValueBool, ValueByte, ValueDate, ValueDecimal, ValueDouble, ValueFloat, ValueInt, ValueInterval, ValueList, ValueLong, ValueNull, ValueRecord, ValueRecordField, ValueShort, ValueString, ValueTime, ValueTimestamp}
 import com.rawlabs.sql.compiler.SqlIntervals.stringToInterval
+import com.typesafe.scalalogging.StrictLogging
 import org.postgresql.util.{PGInterval, PGobject}
 
 import java.sql.ResultSet
-import java.time.temporal.ChronoField
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
-object TypedResultSetRawValueIterator {
+object TypedResultSetRawValueIterator extends StrictLogging {
   private val mapper = new ObjectMapper()
 
   /**
    * Recursively convert a Jackson JsonNode into a RawValue,
    * for columns typed as json/jsonb, or for hstore-based maps, etc.
    */
-  private def jsonNodeToRawValue(node: JsonNode): RawValue = {
+  private def jsonNodeToRawValue(node: JsonNode): Value = {
     if (node.isNull) {
-      RawNull()
+      buildNullValue()
     } else if (node.isObject) {
       val fields = node.fields().asScala.map { entry =>
         val key = entry.getKey
         val valueNode = entry.getValue
-        RawRecordAttr(key, jsonNodeToRawValue(valueNode))
+        ValueRecordField.newBuilder().setName(key).setValue(jsonNodeToRawValue(valueNode)).build()
       }.toSeq
-      RawRecord(fields)
+      Value.newBuilder().setRecord(ValueRecord.newBuilder().addAllFields(fields.asJava)).build()
     } else if (node.isArray) {
       val vals = node.elements().asScala.map(jsonNodeToRawValue).toList
-      RawList(vals)
+      Value.newBuilder().setList(ValueList.newBuilder().addAllValues(vals.asJava)).build()
     } else if (node.isTextual) {
-      RawString(node.asText())
+      Value.newBuilder().setString(ValueString.newBuilder().setV(node.asText())).build()
     } else if (node.isNumber) {
       // You can refine this if you wish to detect int vs long vs double, etc.
       // For simplicity, we treat all numbers as Double if we want.
       // Or you can do introspection to see if it's an integral number, etc.
-      if (node.isIntegralNumber) RawLong(node.asLong())
-      else RawDouble(node.asDouble())
+      if (node.isIntegralNumber)
+        Value.newBuilder().setLong(ValueLong.newBuilder().setV(node.asLong())).build()
+      else
+        Value.newBuilder().setDouble(ValueDouble.newBuilder().setV(node.asDouble())).build()
     } else if (node.isBoolean) {
-      RawBool(node.asBoolean())
+      Value.newBuilder().setBool(ValueBool.newBuilder().setV(node.asBoolean())).build()
     } else {
-      // If there's some other node type you want to handle, do so here.
-      // Else treat it as an error or a string. We'll do an error for now:
-      RawError("unsupported json node type")
+      throw new CompilerServiceException("unsupported json node type")
     }
   }
 
@@ -64,7 +65,7 @@ object TypedResultSetRawValueIterator {
    * Convert a typical hstore string => Map => RawRecord.
    * If your driver gives you a PGobject or a direct Map, adapt accordingly.
    */
-  private def hstoreToRawRecord(hstoreStr: String): RawRecord = {
+  private def hstoreToRawRecord(hstoreStr: String): Value = {
     // e.g. something like:   "key1"=>"val1", "key2"=>"val2"
     // we parse it very naively.
     val pairs = hstoreStr.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)").toList
@@ -75,14 +76,19 @@ object TypedResultSetRawValueIterator {
       if (kv.length == 2) {
         val key = kv(0).replaceAll("^\"|\"$", "") // remove leading/trailing quotes
         val value = kv(1).replaceAll("^\"|\"$", "") // remove leading/trailing quotes
-        RawRecordAttr(key, if (value == "NULL") RawNull() else RawString(value))
+        ValueRecordField.newBuilder().setName(key).setValue(if (value == "NULL") buildNullValue() else Value.newBuilder().setString(ValueString.newBuilder().setV(value)).build()).build()
       } else {
         // Malformed pair, produce an error:
-        RawRecordAttr("ERROR", RawError(s"Malformed hstore chunk: $pair"))
+        throw new CompilerServiceException(s"Malformed hstore chunk: $pair")
       }
     }
-    RawRecord(attrs)
+    Value.newBuilder().setRecord(ValueRecord.newBuilder().addAllFields(attrs.asJava)).build()
   }
+
+  private def buildNullValue(): Value = {
+    Value.newBuilder().setNull(ValueNull.newBuilder()).build()
+  }
+
 }
 
 /**
@@ -96,7 +102,7 @@ object TypedResultSetRawValueIterator {
 class TypedResultSetRawValueIterator(
                                       resultSet: ResultSet,
                                       t: RawType
-                                    ) extends Iterator[RawValue] {
+                                    ) extends Iterator[Value] with StrictLogging {
 
   import TypedResultSetRawValueIterator._
 
@@ -130,7 +136,7 @@ class TypedResultSetRawValueIterator(
     hasMore
   }
 
-  override def next(): RawValue = {
+  override def next(): Value = {
     if (!hasNext) {
       throw new NoSuchElementException("No more rows in the ResultSet.")
     }
@@ -141,22 +147,21 @@ class TypedResultSetRawValueIterator(
       val fieldName   = distinctNames.get(i)
       val fieldType   = attributes(i).tipe
       val fieldValue  = readValue(resultSet, i + 1, fieldType)
-      RawRecordAttr(fieldName, fieldValue)
+      ValueRecordField.newBuilder().setName(fieldName).setValue(fieldValue).build()
     }
-
-    RawRecord(rowAttrs)
+    Value.newBuilder().setRecord(ValueRecord.newBuilder().addAllFields(rowAttrs.asJava)).build()
   }
 
   /**
    * Recursively read a single column from a row, producing the corresponding RawValue.
    */
   @tailrec
-  private def readValue(rs: ResultSet, colIndex: Int, tipe: RawType): RawValue = {
+  private def readValue(rs: ResultSet, colIndex: Int, tipe: RawType): Value = {
     // If the type is nullable, we must check for null first
     if (tipe.nullable) {
       rs.getObject(colIndex)
       if (rs.wasNull()) {
-        RawNull()
+        Value.newBuilder().setNull(ValueNull.newBuilder()).build()
       } else {
         // make a new type that is the same except not nullable
         val nnType = tipe.cloneNotNullable
@@ -165,104 +170,124 @@ class TypedResultSetRawValueIterator(
     } else tipe match {
       case _: RawBoolType =>
         val b = rs.getBoolean(colIndex)
-        if (rs.wasNull()) RawNull() else RawBool(b)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setBool(ValueBool.newBuilder().setV(b)).build()
 
       case _: RawByteType =>
         val b = rs.getByte(colIndex)
-        if (rs.wasNull()) RawNull() else RawByte(b)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setByte(ValueByte.newBuilder().setV(b)).build()
 
       case _: RawShortType =>
         val s = rs.getShort(colIndex)
-        if (rs.wasNull()) RawNull() else RawShort(s)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setShort(ValueShort.newBuilder().setV(s)).build()
 
       case _: RawIntType =>
         val i = rs.getInt(colIndex)
-        if (rs.wasNull()) RawNull() else RawInt(i)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setInt(ValueInt.newBuilder().setV(i)).build()
 
       case _: RawLongType =>
         val l = rs.getLong(colIndex)
-        if (rs.wasNull()) RawNull() else RawLong(l)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setLong(ValueLong.newBuilder().setV(l)).build()
 
       case _: RawFloatType =>
         val f = rs.getFloat(colIndex)
-        if (rs.wasNull()) RawNull() else RawFloat(f)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setFloat(ValueFloat.newBuilder().setV(f)).build()
 
       case _: RawDoubleType =>
         val d = rs.getDouble(colIndex)
-        if (rs.wasNull()) RawNull() else RawDouble(d)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setDouble(ValueDouble.newBuilder().setV(d)).build()
 
       case _: RawDecimalType =>
         val dec = rs.getBigDecimal(colIndex)
-        if (rs.wasNull()) RawNull() else RawDecimal(dec)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setDecimal(ValueDecimal.newBuilder().setV(dec.toString)).build()
 
       case _: RawStringType =>
         val s = rs.getString(colIndex)
-        if (rs.wasNull()) RawNull() else RawString(s)
+        if (rs.wasNull()) buildNullValue() else Value.newBuilder().setString(ValueString.newBuilder().setV(s)).build()
 
       case RawListType(inner, _, _) =>
         val arrObj = rs.getArray(colIndex)
         if (rs.wasNull() || arrObj == null) {
-          RawNull()
+          buildNullValue()
         } else {
           // Convert to array
           val arrayVals = arrObj.getArray.asInstanceOf[Array[AnyRef]]
           val converted = arrayVals.map { v =>
-            if (v == null) RawNull()
+            if (v == null) buildNullValue()
             else {
               // We'll re-use the approach: create a mock single-value result set?
               // Simpler: we manually convert based on inner type:
               convertArrayElementToRawValue(v, inner, colIndex)
             }
           }.toList
-          RawList(converted)
+          Value.newBuilder().setList(ValueList.newBuilder().addAllValues(converted.asJava)).build()
         }
 
       case _: RawDateType =>
         val date = rs.getDate(colIndex)
         if (rs.wasNull() || date == null) {
-          RawNull()
+          buildNullValue()
         } else {
-          // Convert to local date
-          RawDate(date.toLocalDate)
+           // Convert to local date
+           val localDate = date.toLocalDate
+          Value.newBuilder().setDate(ValueDate.newBuilder()
+            .setYear(localDate.getYear)
+            .setMonth(localDate.getMonthValue)
+            .setDay(localDate.getDayOfMonth))
+            .build()
         }
 
       case _: RawTimeType =>
         val sqlTime = rs.getTime(colIndex)
         if (rs.wasNull() || sqlTime == null) {
-          RawNull()
+          buildNullValue()
         } else {
-          // Convert to local time with fractional millis
-          val withoutMilliseconds = sqlTime.toLocalTime
-          val asMillis            = sqlTime.getTime
-          val millis              = (asMillis % 1000).toInt
-          val fixedTime           = withoutMilliseconds.`with`(ChronoField.MILLI_OF_SECOND, millis)
-          RawTime(fixedTime)
+          // Convert to local time
+          val localTime = sqlTime.toLocalTime
+          Value.newBuilder().setTime(ValueTime.newBuilder()
+            .setHour(localTime.getHour)
+            .setMinute(localTime.getMinute)
+            .setSecond(localTime.getSecond)
+              .setNano(localTime.getNano)
+            .build()
+          ).build()
         }
 
       case _: RawTimestampType =>
         val ts = rs.getTimestamp(colIndex)
         if (rs.wasNull() || ts == null) {
-          RawNull()
+          buildNullValue()
         } else {
-          RawTimestamp(ts.toLocalDateTime)
+          // Convert to local date time
+          val localDateTime = ts.toLocalDateTime
+            Value.newBuilder().setTimestamp(ValueTimestamp.newBuilder()
+                .setYear(localDateTime.getYear)
+                .setMonth(localDateTime.getMonthValue)
+                .setDay(localDateTime.getDayOfMonth)
+                .setHour(localDateTime.getHour)
+                .setMinute(localDateTime.getMinute)
+                .setSecond(localDateTime.getSecond)
+                .setNano(localDateTime.getNano)
+                .build()
+            ).build()
         }
 
       case _: RawIntervalType =>
         val strVal = rs.getString(colIndex)
         if (rs.wasNull() || strVal == null) {
-          RawNull()
+          buildNullValue()
         } else {
           val interval = stringToInterval(strVal)
-          RawInterval(
-            interval.years,
-            interval.months,
-            interval.weeks,
-            interval.days,
-            interval.hours,
-            interval.minutes,
-            interval.seconds,
-            interval.millis
-          )
+          Value.newBuilder().setInterval(
+            ValueInterval.newBuilder()
+              .setYears(interval.years)
+              .setMonths(interval.months)
+              .setWeeks(interval.weeks)
+              .setDays(interval.days)
+              .setHours(interval.hours)
+              .setMinutes(interval.minutes)
+              .setSeconds(interval.seconds)
+              .setMillis(interval.millis)
+          ).build()
         }
 
       case _: RawAnyType =>
@@ -272,7 +297,7 @@ class TypedResultSetRawValueIterator(
           case "json" | "jsonb" =>
             val data = rs.getString(colIndex)
             if (rs.wasNull() || data == null) {
-              RawNull()
+              buildNullValue()
             } else {
               // parse the JSON string
               val node = mapper.readTree(data)
@@ -282,7 +307,7 @@ class TypedResultSetRawValueIterator(
             // Depending on your driver, you may get a PGobject or a direct Map
             val obj = rs.getObject(colIndex)
             if (rs.wasNull() || obj == null) {
-              RawNull()
+              buildNullValue()
             } else {
               obj match {
                 case pg: PGobject if pg.getValue != null =>
@@ -292,25 +317,26 @@ class TypedResultSetRawValueIterator(
                   // convert to Seq[RawRecordAttr]
                   val attrs = m.asScala.map {
                     case (k: String, v: String) =>
-                      RawRecordAttr(k, if (v == null) RawNull() else RawString(v))
+                      ValueRecordField.newBuilder().setName(k).setValue(if (v == null) buildNullValue() else Value.newBuilder().setString(ValueString.newBuilder().setV(v)).build()).build()
                     case _ =>
-                      RawRecordAttr("ERROR", RawError("invalid hstore key/value"))
+                      throw new CompilerServiceException("unsupported type")
                   }.toSeq
-                  RawRecord(attrs)
+                  Value.newBuilder().setRecord(ValueRecord.newBuilder().addAllFields(attrs.asJava)).build()
                 case s: String =>
                   hstoreToRawRecord(s)
                 case other =>
-                  RawError(s"Unsupported hstore type: ${other.getClass}")
+                  logger.warn(s"Unsupported hstore type: ${other.getClass}")
+                  throw new CompilerServiceException("unsupported type")
               }
             }
-          case _ =>
-            // If you have more exotic `ANY` columns, handle them as needed here
-            RawError(s"unsupported type for ANY: $colType")
+          case t =>
+            logger.warn(s"Unsupported ANY type: $t")
+            throw new CompilerServiceException("unsupported type")
         }
 
-      case other =>
-        // You can handle more complex types or throw an error.
-        RawError(s"unsupported type: $other")
+      case _ =>
+        logger.warn(s"Unsupported type: $tipe")
+        throw new CompilerServiceException("unsupported type")
     }
   }
 
@@ -322,60 +348,92 @@ class TypedResultSetRawValueIterator(
                                              element: AnyRef,
                                              tipe: RawType,
                                              colIndex: Int
-                                           ): RawValue = {
+                                           ): Value = {
     // If the element is null, just return RawNull:
-    if (element == null) return RawNull()
+    if (element == null) return buildNullValue()
 
     tipe match {
-      case _: RawBoolType => RawBool(element.asInstanceOf[Boolean])
-      case _: RawByteType => RawByte(element.asInstanceOf[Byte])
-      case _: RawShortType => RawShort(element.asInstanceOf[Short])
-      case _: RawIntType => RawInt(element.asInstanceOf[Int])
-      case _: RawLongType => RawLong(element.asInstanceOf[Long])
-      case _: RawFloatType => RawFloat(element.asInstanceOf[Float])
-      case _: RawDoubleType => RawDouble(element.asInstanceOf[Double])
-      case _: RawDecimalType => RawDecimal(element.asInstanceOf[java.math.BigDecimal])
-      case _: RawStringType => RawString(element.asInstanceOf[String])
+      case _: RawBoolType =>
+        Value.newBuilder().setBool(ValueBool.newBuilder().setV(element.asInstanceOf[Boolean])).build()
+
+      case _: RawByteType =>
+        Value.newBuilder().setByte(ValueByte.newBuilder().setV(element.asInstanceOf[Byte])).build()
+      case _: RawShortType =>
+        Value.newBuilder().setShort(ValueShort.newBuilder().setV(element.asInstanceOf[Short])).build()
+
+      case _: RawIntType =>
+        Value.newBuilder().setInt(ValueInt.newBuilder().setV(element.asInstanceOf[Int])).build()
+
+      case _: RawLongType =>
+        Value.newBuilder().setLong(ValueLong.newBuilder().setV(element.asInstanceOf[Long])).build()
+      case _: RawFloatType =>
+        Value.newBuilder().setFloat(ValueFloat.newBuilder().setV(element.asInstanceOf[Float])).build()
+      case _: RawDoubleType =>
+        Value.newBuilder().setDouble(ValueDouble.newBuilder().setV(element.asInstanceOf[Double])).build()
+
+      case _: RawDecimalType =>
+        Value.newBuilder().setDecimal(ValueDecimal.newBuilder().setV(element.asInstanceOf[java.math.BigDecimal].toString)).build()
+
+      case _: RawStringType =>
+        Value.newBuilder().setString(ValueString.newBuilder().setV(element.asInstanceOf[String])).build()
 
       case _: RawIntervalType =>
         val interval = element.asInstanceOf[PGInterval]
-        // Convert to RawInterval
-        RawInterval(
-          interval.getYears,
-          interval.getMonths,
-          0, // PGInterval doesn't have "weeks" directly
-          interval.getDays,
-          interval.getHours,
-          interval.getMinutes,
-          interval.getWholeSeconds,
-          interval.getMicroSeconds
-        )
+        Value.newBuilder().setInterval(
+          ValueInterval.newBuilder()
+            .setYears(interval.getYears)
+            .setMonths(interval.getMonths)
+            .setWeeks(0) // PGInterval doesn't have "weeks" directly
+            .setDays(interval.getDays)
+            .setHours(interval.getHours)
+            .setMinutes(interval.getMinutes)
+            .setSeconds(interval.getWholeSeconds)
+            .setMillis(interval.getMicroSeconds)
+        ).build()
 
       case _: RawDateType =>
         val date = element.asInstanceOf[java.sql.Date]
-        RawDate(date.toLocalDate)
+        val localDate = date.toLocalDate
+        Value.newBuilder().setDate(ValueDate.newBuilder()
+          .setYear(localDate.getYear)
+          .setMonth(localDate.getMonthValue)
+          .setDay(localDate.getDayOfMonth))
+          .build()
 
       case _: RawTimeType =>
         val time = element.asInstanceOf[java.sql.Time]
-        // same logic as readValue
-        val withoutMillis = time.toLocalTime
-        val asMillis      = time.getTime
-        val millis        = (asMillis % 1000).toInt
-        RawTime(withoutMillis.`with`(ChronoField.MILLI_OF_SECOND, millis))
+        val localTime = time.toLocalTime
+        Value.newBuilder().setTime(ValueTime.newBuilder()
+          .setHour(localTime.getHour)
+          .setMinute(localTime.getMinute)
+          .setSecond(localTime.getSecond)
+          .setNano(localTime.getNano)
+          .build()
+        ).build()
 
       case _: RawTimestampType =>
         val ts = element.asInstanceOf[java.sql.Timestamp]
-        RawTimestamp(ts.toLocalDateTime)
+        val localDateTime = ts.toLocalDateTime
+        Value.newBuilder().setTimestamp(ValueTimestamp.newBuilder()
+          .setYear(localDateTime.getYear)
+          .setMonth(localDateTime.getMonthValue)
+          .setDay(localDateTime.getDayOfMonth)
+          .setHour(localDateTime.getHour)
+          .setMinute(localDateTime.getMinute)
+          .setSecond(localDateTime.getSecond)
+          .setNano(localDateTime.getNano)
+          .build()
+        ).build()
 
       case _: RawAnyType =>
         // For arrays typed as ANY, you might see _json or _hstore, etc
         // Typically you'd do something similar to the single-col ANY logic
         // We'll guess it's a string for now
         val strVal = element.asInstanceOf[String]
-        if (strVal == null) RawNull() else RawString(strVal)
+        if (strVal == null) buildNullValue() else Value.newBuilder().setString(ValueString.newBuilder().setV(strVal)).build()
 
       case other =>
-        RawError(s"unsupported array element type: $other")
+        throw new CompilerServiceException("unsupported array element type")
     }
   }
 
