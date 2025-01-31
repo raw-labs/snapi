@@ -130,10 +130,7 @@ trait CompilerService extends RawService {
   ): ExecutionResponse
 
   @throws[CompilerServiceException]
-  def eval(
-        source: String,
-        environment: ProgramEnvironment,
-        maybeDecl: Option[String]): EvalResponse
+  def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): Either[EvalError, EvalSuccess]
 
   // Format a source program.
   @throws[CompilerServiceException]
@@ -195,11 +192,32 @@ final case class ExecutionSuccess(complete: Boolean) extends ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 
-sealed trait EvalResponse
-final case class EvalSuccessIterator(innerType: Type, iterator: Iterator[Value]) extends EvalResponse
-final case class EvalSuccessValue(valueType: Type, value: Value) extends EvalResponse
-final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
-final case class EvalRuntimeFailure(error: String) extends EvalResponse
+final case class EvalSuccess(valueType: Type, values: Iterator[Value] with AutoCloseable)
+sealed trait EvalError
+object EvalError {
+  final case class ValidationFailure(errors: List[ErrorMessage]) extends EvalError
+  final case class RuntimeFailure(error: String) extends EvalError
+}
+
+/**
+ * A standard Iterator plus a close() method to free resources.
+ */
+trait CloseableIterator[+A] extends Iterator[A] with AutoCloseable
+
+/**
+ * Helper for single-value results that you still want to unify as an iterator.
+ * If you don’t need to do anything special in close(), just override it with an empty block.
+ */
+class SingleValueCloseableIterator(val single: Value) extends CloseableIterator[Value] {
+  private var done = false
+  override def hasNext: Boolean = !done
+  override def next(): Value = {
+    if (done) throw new NoSuchElementException("Already consumed single value.")
+    done = true
+    single
+  }
+  override def close(): Unit = ()
+}
 
 final case class FormatCodeResponse(code: Option[String])
 final case class HoverResponse(completion: Option[Completion])

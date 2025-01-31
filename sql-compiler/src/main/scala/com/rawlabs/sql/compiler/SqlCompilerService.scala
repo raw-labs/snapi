@@ -305,54 +305,169 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     ExecutionSuccess(true)
   }
 
-  override def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): EvalResponse = {
-    try {
-      logger.debug(s"Evaluating: $source")
-      safeParse(source) match {
-        case Left(errors) => EvalValidationFailure(errors)
-        case Right(parsedTree) =>
-          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
-          try {
-            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
-            try {
-              pstmt.queryMetadata match {
-                case Right(info) => pgRowTypeToIterableType(info.outputType) match {
-                    case Right(tipe) =>
-                      val RawIterableType(innerType @ RawRecordType(atts, false, false), false, false) = tipe
-                      val arguments = environment.maybeArguments.getOrElse(Array.empty)
-                      pstmt.executeWith(arguments) match {
-                        case Right(result) => result match {
-                            case NamedParametersPreparedStatementResultSet(rs) => EvalSuccessIterator(
-                                TypeConverter.toProtocolType(innerType),
-                                new TypedResultSetRawValueIterator(rs, tipe)
-                              )
-                            case NamedParametersPreparedStatementUpdate(count) => EvalSuccessValue(
-                                TypeConverter.toProtocolType(innerType),
-                                Value.newBuilder().setInt(ValueInt.newBuilder().setV(count)).build()
-                              )
-                          }
-                        case Left(error) => EvalRuntimeFailure(error)
-                      }
-                    case Left(errors) => EvalRuntimeFailure(errors.mkString(", "))
-                  }
-                case Left(errors) => EvalValidationFailure(errors)
-              }
-            } finally {
-              RawUtils.withSuppressNonFatalException(pstmt.close())
-            }
-          } catch {
-            case e: NamedParametersPreparedStatementException => EvalValidationFailure(e.errors)
-          } finally {
-            RawUtils.withSuppressNonFatalException(conn.close())
+  override def eval(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): Either[EvalError, EvalSuccess] = {
+    import EvalError._
+
+    // 1) Parse
+    safeParse(source) match {
+      case Left(parseErrors) => Left(ValidationFailure(parseErrors))
+
+      case Right(parsedTree) =>
+        // 2) Attempt to get a connection from the pool
+        val conn =
+          try connectionPool.getConnection(environment.jdbcUrl.get)
+          catch {
+            case ex: SQLException if isConnectionFailure(ex) => return Left(RuntimeFailure(ex.getMessage))
+            case NonFatal(t) => return Left(RuntimeFailure(t.getMessage))
           }
-      }
-    } catch {
-      case ex: SQLException if isConnectionFailure(ex) =>
-        logger.warn("SqlConnectionPool connection failure", ex)
-        EvalRuntimeFailure(ex.getMessage)
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+
+        // If parse and connection succeeded, proceed:
+        try {
+          // 3) Build statement
+          val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
+          // We do NOT close `pstmt` right away. We only close if we fail or once iteration is done.
+          // So no try/finally here that automatically kills it.
+          val pstmtAutoClose = asAutoCloseable(pstmt)(_.close())
+
+          // 4) Query metadata
+          pstmt.queryMetadata match {
+            case Left(errors) =>
+              // If we can't get metadata, close everything now.
+              closeQuietly(pstmtAutoClose, conn)
+              Left(ValidationFailure(errors))
+
+            case Right(info) => pgRowTypeToIterableType(info.outputType) match {
+                case Left(errs) =>
+                  // Another error => close.
+                  closeQuietly(pstmtAutoClose, conn)
+                  Left(RuntimeFailure(errs.mkString(", ")))
+
+                case Right(iterableType) =>
+                  // Actually run the statement
+                  val arguments = environment.maybeArguments.getOrElse(Array.empty)
+                  pstmt.executeWith(arguments) match {
+                    case Left(errorMsg) =>
+                      // Execution failed => close
+                      closeQuietly(pstmtAutoClose, conn)
+                      Left(RuntimeFailure(errorMsg))
+
+                    case Right(result) =>
+                      // We have a success; produce a streaming or single-value iterator
+                      val RawIterableType(innerRecord @ RawRecordType(_, _, _), _, _) = iterableType
+                      val protocolType = TypeConverter.toProtocolType(innerRecord)
+
+                      val iterator: CloseableIterator[Value] = result match {
+                        case NamedParametersPreparedStatementResultSet(rs) =>
+                          // Return a streaming iterator that closes RS, stmt, conn in close()
+                          new TypedResultSetRawValueIterator(rs, iterableType) with CloseableIterator[Value] {
+                            override def close(): Unit = {
+                              // Freed when the caller is done iterating
+                              closeQuietly(rs)
+                              closeQuietly(pstmtAutoClose)
+                              closeQuietly(conn)
+                            }
+                          }
+
+                        case NamedParametersPreparedStatementUpdate(count) =>
+                          // A single-value scenario (the "UPDATE count" integer).
+                          new SingleValueCloseableIterator(
+                            Value
+                              .newBuilder()
+                              .setInt(ValueInt.newBuilder().setV(count))
+                              .build()
+                          ) {
+                            override def close(): Unit = {
+                              // Freed when the caller is done
+                              closeQuietly(pstmtAutoClose)
+                              closeQuietly(conn)
+                            }
+                          }
+                      }
+
+                      // Everything worked => return success
+                      Right(EvalSuccess(protocolType, iterator))
+                  }
+              }
+          }
+
+        } catch {
+          // If building/executing statement fails badly:
+          case e: NamedParametersPreparedStatementException =>
+            closeQuietly(conn) // stmt might not even have been created
+            Left(ValidationFailure(e.errors))
+
+          case NonFatal(t) =>
+            closeQuietly(conn)
+            Left(RuntimeFailure(t.getMessage))
+        }
+    }
+
+//    try {
+//      logger.debug(s"Evaluating: $source")
+//      safeParse(source) match {
+//        case Left(errors) => EvalValidationFailure(errors)
+//        case Right(parsedTree) =>
+//          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+//          try {
+//            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
+//            try {
+//              pstmt.queryMetadata match {
+//                case Right(info) => pgRowTypeToIterableType(info.outputType) match {
+//                  case Right(tipe) =>
+//                    val RawIterableType(innerType @ RawRecordType(atts, false, false), false, false) = tipe
+//                    val arguments = environment.maybeArguments.getOrElse(Array.empty)
+//                    pstmt.executeWith(arguments) match {
+//                      case Right(result) => result match {
+//                        case NamedParametersPreparedStatementResultSet(rs) => EvalSuccessIterator(
+//                          TypeConverter.toProtocolType(innerType),
+//                          new TypedResultSetRawValueIterator(rs, tipe)
+//                        )
+//                        case NamedParametersPreparedStatementUpdate(count) => EvalSuccessValue(
+//                          TypeConverter.toProtocolType(innerType),
+//                          Value.newBuilder().setInt(ValueInt.newBuilder().setV(count)).build()
+//                        )
+//                      }
+//                      case Left(error) => EvalRuntimeFailure(error)
+//                    }
+//                  case Left(errors) => EvalRuntimeFailure(errors.mkString(", "))
+//                }
+//                case Left(errors) => EvalValidationFailure(errors)
+//              }
+//            } finally {
+//              RawUtils.withSuppressNonFatalException(pstmt.close())
+//            }
+//          } catch {
+//            case e: NamedParametersPreparedStatementException => EvalValidationFailure(e.errors)
+//          } finally {
+//            RawUtils.withSuppressNonFatalException(conn.close())
+//          }
+//      }
+//    } catch {
+//      case ex: SQLException if isConnectionFailure(ex) =>
+//        logger.warn("SqlConnectionPool connection failure", ex)
+//        EvalRuntimeFailure(ex.getMessage)
+//      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+//    }
+  }
+
+  /** Utility to close multiple resources ignoring non-fatal exceptions. */
+  private def closeQuietly(resources: AutoCloseable*): Unit = {
+    resources.foreach { r =>
+      try r.close()
+      catch { case NonFatal(_) => () }
     }
   }
+
+  /**
+   * Helper to wrap anything that has a `.close()` method into an `AutoCloseable`.
+   * That way we can pass it to `closeQuietly(...)`.
+   */
+  private def asAutoCloseable[T](obj: T)(closeFn: T => Unit): AutoCloseable =
+    new AutoCloseable { def close(): Unit = closeFn(obj) }
 
   override def formatCode(
       source: String,

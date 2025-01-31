@@ -13,19 +13,18 @@
 package com.rawlabs.snapi.compiler
 
 import com.google.protobuf.ByteString
+import com.rawlabs.compiler.utils.RecordFieldsNaming
 import com.rawlabs.compiler.{
   AutoCompleteResponse,
+  CloseableIterator,
   CompilerService,
   CompilerServiceException,
   DeclDescription,
   ErrorMessage,
   ErrorPosition,
   ErrorRange,
-  EvalResponse,
-  EvalRuntimeFailure,
-  EvalSuccessIterator,
-  EvalSuccessValue,
-  EvalValidationFailure,
+  EvalError,
+  EvalSuccess,
   ExecutionResponse,
   ExecutionRuntimeFailure,
   ExecutionSuccess,
@@ -58,6 +57,7 @@ import com.rawlabs.compiler.{
   RawType,
   RawValue,
   RenameResponse,
+  SingleValueCloseableIterator,
   TypeConverter,
   ValidateResponse
 }
@@ -451,38 +451,78 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     }
   }
 
-  override def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): EvalResponse = {
+  override def eval(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): Either[EvalError, EvalSuccess] = {
+
+    import EvalError._
+
+    // Build the Truffle context
     val ctx = buildTruffleContext(environment, maybeOutputStream = None)
     ctx.initialize("snapi")
     ctx.enter()
+
     try {
       // 1) Get the value+type from your language
       getValueAndType(source, environment, maybeDecl, ctx) match {
         case Left(err) =>
-          // Something went wrong at "compilation" or retrieval time
-          EvalRuntimeFailure(err)
+          // We got an immediate compilation (or retrieval) error.
+          // We must close the context now, or we leak it.
+          ctx.leave()
+          ctx.close()
+          Left(RuntimeFailure(err))
 
         case Right((v, t)) =>
-          // 2) Convert to either a single RawValue or an Iterator[RawValue]
-          //    If there's a "tryable" error at the top level, we handle it, etc.
           val snapiT = t.asInstanceOf[SnapiTypeWithProperties]
 
           try {
+            // 2) Convert to either a single RawValue or an Iterator[RawValue]
+            //    If there's a "tryable" error at the top level, we handle it, etc.
             val (rawType, eitherValueOrIter) = fromTruffleValueOrIterator(v, snapiT)
             val protocolType = TypeConverter.toProtocolType(rawType)
+
+            // If single value => return a single-element CloseableIterator that closes ctx
             eitherValueOrIter match {
-              case Left(singleVal) => EvalSuccessValue(protocolType, singleVal)
-              case Right(iter) => EvalSuccessIterator(protocolType, iter)
+              case Left(singleVal) =>
+                val it = new SingleValueCloseableIterator(singleVal) {
+                  override def close(): Unit = {
+                    ctx.leave()
+                    ctx.close()
+                  }
+                }
+                Right(EvalSuccess(protocolType, it))
+
+              case Right(truffleIter) =>
+                // We must keep the context alive while iterating.
+                // Build a streaming iterator that calls the underlying 'truffleIter'
+                // and closes the context on `close()`.
+                val it = new CloseableIterator[com.rawlabs.protocol.raw.Value] {
+                  override def hasNext: Boolean = truffleIter.hasNext
+                  override def next(): com.rawlabs.protocol.raw.Value = truffleIter.next()
+                  override def close(): Unit = {
+                    ctx.leave()
+                    ctx.close()
+                  }
+                }
+                Right(EvalSuccess(protocolType, it))
             }
           } catch {
             case NonFatal(e) =>
-              // E.g. we tried to convert a top-level triable and it had an exception,
-              // or some other runtime error. We'll produce a failure message:
-              EvalRuntimeFailure(e.getMessage)
+              // Some runtime error while converting.
+              ctx.leave()
+              ctx.close()
+              Left(RuntimeFailure(e.getMessage))
           }
       }
     } catch {
+      // 3) Handle polyglot exceptions
       case ex: PolyglotException =>
+        // We must ensure we close the context if we won't succeed:
+        ctx.leave()
+        ctx.close()
+
         // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
         // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
         // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
@@ -520,21 +560,24 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
                 }
                 ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
               }
-              EvalValidationFailure(errors.to)
+              Left(ValidationFailure(errors.to))
             } else {
               // A runtime failure during execution. The query could be a failed tryable, or a runtime error (e.g. a
               // file not found) hit when processing a reader that evaluates as a _collection_ (processed outside the
               // evaluation of the query).
-              EvalRuntimeFailure(ex.getMessage)
+              Left(RuntimeFailure(ex.getMessage))
             }
           }
         } else {
           // Unexpected error. For now we throw the PolyglotException.
           throw ex
         }
-    } finally {
-      ctx.leave()
-      ctx.close()
+
+      // 4) Catch any other non-fatal, rethrow or wrap
+      case NonFatal(t) =>
+        ctx.leave()
+        ctx.close()
+        throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -558,23 +601,12 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
         // Return an iterator
         val it = new Iterator[com.rawlabs.protocol.raw.Value] {
           private val polyIt = v.getIterator
-          override def hasNext: Boolean = polyIt.hasIteratorNextElement
+          override def hasNext: Boolean = {
+            polyIt.hasIteratorNextElement
+          }
+
           override def next(): com.rawlabs.protocol.raw.Value = {
             val elemVal = polyIt.getIteratorNextElement
-            fromTruffleValue(elemVal, inner.asInstanceOf[SnapiTypeWithProperties])
-          }
-        }
-        (rawT, Right(it))
-
-      case SnapiListType(inner, _) if !v.isNull && !maybeIsException(v, t) =>
-        // Return an iterator over array elements
-        val arrSize = v.getArraySize
-        val it = new Iterator[com.rawlabs.protocol.raw.Value] {
-          private var idx = 0L
-          override def hasNext: Boolean = idx < arrSize
-          override def next(): com.rawlabs.protocol.raw.Value = {
-            val elemVal = v.getArrayElement(idx)
-            idx += 1
             fromTruffleValue(elemVal, inner.asInstanceOf[SnapiTypeWithProperties])
           }
         }
@@ -758,36 +790,49 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
             .build()
 
         case SnapiRecordType(attributes, _) =>
+          // We need to make sure that the field names are distinct
+          val keys = new java.util.Vector[String]
+          attributes.foreach(a => keys.add(a.idn))
+          val distincted = RecordFieldsNaming.makeDistinct(keys).asScala
+
           // Build a RawRecord
-          val recordAttrs = attributes.map { att =>
-            val fieldName = att.idn
-            val memberVal = v.getMember(fieldName)
-            val fieldValue = fromTruffleValue(
-              memberVal,
-              att.tipe.asInstanceOf[SnapiTypeWithProperties]
-            )
-            ValueRecordField.newBuilder().setName(fieldName).setValue(fieldValue).build()
+          val recordAttrs = attributes.zip(distincted).map {
+            case (att, distinctName) =>
+              val fieldName = att.idn
+              val memberVal = v.getMember(fieldName)
+              val fieldValue = fromTruffleValue(
+                memberVal,
+                att.tipe.asInstanceOf[SnapiTypeWithProperties]
+              )
+              ValueRecordField.newBuilder().setName(distinctName).setValue(fieldValue).build()
           }
           com.rawlabs.protocol.raw.Value
             .newBuilder()
             .setRecord(ValueRecord.newBuilder().addAllFields(recordAttrs.asJava))
             .build()
 
-        case SnapiIterableType(_, _) | SnapiListType(_, _) =>
-          // Should not happen here for a single-value function,
-          // because we check them earlier in fromTruffleValueOrIterator,
-          // but if it does, handle it by consuming to a list:
-          val size =
-            if (v.hasArrayElements) v.getArraySize
-            else {
-              // possibly v.getIterator? We'll do array approach if we can
-              0
-            }
-          val items = (0L until size).map { i =>
-            val elem = v.getArrayElement(i)
-            fromTruffleValue(elem, t.asInstanceOf[SnapiListType].innerType.asInstanceOf[SnapiTypeWithProperties])
+        case SnapiIterableType(innerType, _) =>
+          val items = mutable.ArrayBuffer[com.rawlabs.protocol.raw.Value]()
+          val iterator = v.getIterator
+          while (iterator.hasIteratorNextElement) {
+            val elem = iterator.getIteratorNextElement
+            items += fromTruffleValue(elem, innerType.asInstanceOf[SnapiTypeWithProperties])
           }
           com.rawlabs.protocol.raw.Value.newBuilder().setList(ValueList.newBuilder().addAllValues(items.asJava)).build()
+
+        case SnapiListType(innerType, _) =>
+          val size = v.getArraySize
+          val items = (0L until size).map { i =>
+            val elem = v.getArrayElement(i)
+            fromTruffleValue(elem, innerType.asInstanceOf[SnapiTypeWithProperties])
+          }
+          com.rawlabs.protocol.raw.Value.newBuilder().setList(ValueList.newBuilder().addAllValues(items.asJava)).build()
+
+        case SnapiOrType(tipes, _) if tipes.exists(SnapiTypeUtils.getProps(_).nonEmpty) =>
+          // A trick to make sur inner types do not have properties
+          val inners = tipes.map { case inner: SnapiTypeWithProperties => SnapiTypeUtils.resetProps(inner, Set.empty) }
+          val orProps = tipes.flatMap { case inner: SnapiTypeWithProperties => inner.props }.toSet
+          fromTruffleValue(v, SnapiOrType(inners, orProps))
 
         case SnapiOrType(inners, _) =>
           // We can check which index the union picked. Typically you do:
