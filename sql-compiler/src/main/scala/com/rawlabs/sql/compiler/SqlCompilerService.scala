@@ -357,8 +357,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
 
                     case Right(result) =>
                       // We have a success; produce a streaming or single-value iterator
-                      val RawIterableType(innerRecord @ RawRecordType(_, _, _), _, _) = iterableType
-                      val protocolType = TypeConverter.toProtocolType(innerRecord)
+                      val protocolType = TypeConverter.toProtocolType(iterableType)
 
                       val iterator: CloseableIterator[Value] = result match {
                         case NamedParametersPreparedStatementResultSet(rs) =>
