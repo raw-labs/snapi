@@ -12,7 +12,40 @@
 
 package com.rawlabs.python.compiler
 
-import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, CompilerServiceException, EvalResponse, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, FormatCodeResponse, GetProgramDescriptionResponse, GoToDefinitionResponse, HoverResponse, Pos, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue, RenameResponse, ValidateResponse}
+import com.rawlabs.compiler.{
+  AutoCompleteResponse,
+  CompilerService,
+  ErrorMessage,
+  EvalError,
+  EvalSuccess,
+  ExecutionResponse,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  FormatCodeResponse,
+  GetProgramDescriptionResponse,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Pos,
+  ProgramEnvironment,
+  RawBool,
+  RawByte,
+  RawDate,
+  RawDecimal,
+  RawDouble,
+  RawFloat,
+  RawInt,
+  RawInterval,
+  RawLong,
+  RawNull,
+  RawShort,
+  RawString,
+  RawTime,
+  RawTimestamp,
+  RawValue,
+  RenameResponse,
+  ValidateResponse
+}
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
@@ -121,7 +154,18 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           val f = bindings.getMember(decl)
           environment.maybeArguments match {
             case Some(args) =>
-              val polyglotArguments = args.map(arg => rawValueToPolyglotValue(arg._2, ctx))
+              val maybePolyglotArguments = args.map(arg => rawValueToPolyglotValue(arg._2, ctx))
+              val unsupportedMandatoryPolyglotArguments = maybePolyglotArguments.zipWithIndex.collect {
+                case (None, idx) => ErrorMessage(
+                    s"unsupported mandatory argument at position ${idx + 1}",
+                    List.empty,
+                    ""
+                  )
+              }
+              if (unsupportedMandatoryPolyglotArguments.nonEmpty) {
+                return ExecutionValidationFailure(unsupportedMandatoryPolyglotArguments.to)
+              }
+              val polyglotArguments = maybePolyglotArguments.flatten
               f.execute(polyglotArguments: _*)
             case None => f.execute()
           }
@@ -188,7 +232,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
     }
   }
 
-  private def rawValueToPolyglotValue(rawValue: RawValue, ctx: Context): Value = {
+  private def rawValueToPolyglotValue(rawValue: RawValue, ctx: Context): Option[Value] = {
     val code: String = rawValue match {
       case RawNull() => "None"
       case RawByte(v) => ???
@@ -204,13 +248,17 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
       case RawTime(v) => ???
       case RawTimestamp(v) => ???
       case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) => ???
-      case _ => throw new CompilerServiceException("type not supported")
+      case _ => return None
     }
     val value = ctx.eval("python", code)
-    ctx.asValue(value)
+    Some(ctx.asValue(value))
   }
 
-  override def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): EvalResponse = ???
+  override def eval(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): Either[EvalError, EvalSuccess] = ???
 
   override def formatCode(
       source: String,

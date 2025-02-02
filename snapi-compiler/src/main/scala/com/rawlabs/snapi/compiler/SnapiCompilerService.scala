@@ -16,9 +16,7 @@ import com.google.protobuf.ByteString
 import com.rawlabs.compiler.utils.RecordFieldsNaming
 import com.rawlabs.compiler.{
   AutoCompleteResponse,
-  CloseableIterator,
   CompilerService,
-  CompilerServiceException,
   DeclDescription,
   ErrorMessage,
   ErrorPosition,
@@ -54,14 +52,13 @@ import com.rawlabs.compiler.{
   RawString,
   RawTime,
   RawTimestamp,
-  RawType,
   RawValue,
   RenameResponse,
-  SingleValueCloseableIterator,
   TypeConverter,
   ValidateResponse
 }
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
+import com.rawlabs.protocol.raw
 import com.rawlabs.protocol.raw.{
   ValueBinary,
   ValueBool,
@@ -171,18 +168,13 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   }
 
   def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
-    val programContext = getProgramContext(environment.uid, environment)
-    try {
-      val positions = new Positions()
-      val parser = new Antlr4SyntaxAnalyzer(positions, true)
-      val parseResult = parser.parse(source)
-      if (parseResult.isSuccess) {
-        ParseSuccess(parseResult.tree)
-      } else {
-        ParseFailure(parseResult.errors)
-      }
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+    val positions = new Positions()
+    val parser = new Antlr4SyntaxAnalyzer(positions, true)
+    val parseResult = parser.parse(source)
+    if (parseResult.isSuccess) {
+      ParseSuccess(parseResult.tree)
+    } else {
+      ParseFailure(parseResult.errors)
     }
   }
 
@@ -194,15 +186,11 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment,
       _ => {
         val programContext = getProgramContext(environment.uid, environment)
-        try {
-          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-          if (tree.valid) {
-            GetTypeSuccess(tree.rootType)
-          } else {
-            GetTypeFailure(tree.errors)
-          }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+        if (tree.valid) {
+          GetTypeSuccess(tree.rootType)
+        } else {
+          GetTypeFailure(tree.errors)
         }
       }
     )
@@ -216,35 +204,31 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment,
       _ => {
         val programContext = getProgramContext(environment.uid, environment)
-        try {
-          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-          if (tree.valid) {
-            val TreeDescription(decls, maybeType, comment) = tree.description
-            val formattedDecls = decls.map {
-              case (idn, programDecls) =>
-                val formattedDecls = programDecls.map {
-                  case TreeDeclDescription(None, outType, comment) =>
-                    DeclDescription(None, snapiTypeToRawType(outType), comment)
-                  case TreeDeclDescription(Some(params), outType, comment) =>
-                    val formattedParams = params.map {
-                      case TreeParamDescription(idn, tipe, required) =>
-                        ParamDescription(idn, snapiTypeToRawType(tipe), defaultValue = None, comment = None, required)
-                    }
-                    DeclDescription(Some(formattedParams), snapiTypeToRawType(outType), comment)
-                }
-                (idn, formattedDecls)
-            }
-            val programDescription = ProgramDescription(
-              formattedDecls,
-              maybeType.map(t => DeclDescription(None, snapiTypeToRawType(t), None)),
-              comment
-            )
-            GetProgramDescriptionSuccess(programDescription)
-          } else {
-            GetProgramDescriptionFailure(tree.errors.collect { case e: ErrorMessage => e })
+        val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+        if (tree.valid) {
+          val TreeDescription(decls, maybeType, comment) = tree.description
+          val formattedDecls = decls.map {
+            case (idn, programDecls) =>
+              val formattedDecls = programDecls.map {
+                case TreeDeclDescription(None, outType, comment) =>
+                  DeclDescription(None, snapiTypeToRawType(outType), comment)
+                case TreeDeclDescription(Some(params), outType, comment) =>
+                  val formattedParams = params.map {
+                    case TreeParamDescription(idn, tipe, required) =>
+                      ParamDescription(idn, snapiTypeToRawType(tipe), defaultValue = None, comment = None, required)
+                  }
+                  DeclDescription(Some(formattedParams), snapiTypeToRawType(outType), comment)
+              }
+              (idn, formattedDecls)
           }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+          val programDescription = ProgramDescription(
+            formattedDecls,
+            maybeType.map(t => DeclDescription(None, snapiTypeToRawType(t), None)),
+            comment
+          )
+          GetProgramDescriptionSuccess(programDescription)
+        } else {
+          GetProgramDescriptionFailure(tree.errors.collect { case e: ErrorMessage => e })
         }
       }
     )
@@ -262,7 +246,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     ctx.enter()
     try {
       getValueAndType(source, environment, maybeDecl, ctx) match {
-        case Left(err) => ExecutionRuntimeFailure(err)
+        case Left(errors) => ExecutionValidationFailure(errors)
         case Right((v, tipe)) => environment.options
             .get("output-format")
             .map(_.toLowerCase) match {
@@ -342,8 +326,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           if (ex.isInternalError) {
             // An internal error. It means a regular Exception thrown from the language (e.g. a Java Exception,
             // or a RawTruffleInternalErrorException, which isn't an AbstractTruffleException)
-            val programContext = getProgramContext(environment.uid, environment)
-            throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
+            throw ex
           } else {
             val err = ex.getGuestObject
             if (err != null && err.hasMembers && err.hasMember("errors")) {
@@ -386,68 +369,102 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
       ctx: Context
-  ): Either[String, (Value, Type)] = {
-    maybeDecl match {
-      case Some(decl) =>
-        // Eval the code and extract the function referred to by 'decl'
-        val truffleSource = Source
-          .newBuilder("snapi", source, "unnamed")
-          .cached(false) // Disable code caching because of the inferrer.
-          .build()
-        ctx.eval(truffleSource)
-        // 'decl' is found in the context bindings (by its name)
-        val bindings = ctx.getBindings("snapi")
-        val f = bindings.getMember(decl)
-        // its type is found in the polyglot bindings as '@type:<name>'
-        val funType = {
-          val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
-          val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.uid, internal = true)
-          tipe
-        }
-        // Prior to .execute, some checks on parameters since we may have
-        // to fill optional parameters with their default value
-
-        // Mandatory arguments are those that don't have a matching 'name' in optional parameters
-        val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
-
-        // Split the provided parameters in two (mandatory/optional)
-        val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
-          case Some(args) =>
-            val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
-            (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
-          case None => (Map.empty[String, RawValue], Array.empty[RawValue])
-        }
-
-        // Mandatory args have to be all provided
-        if (mandatoryArgs.length != funType.ms.size) {
-          return Left("missing mandatory arguments")
-        }
-        val mandatoryPolyglotArguments = mandatoryArgs.map(arg => rawValueToPolyglotValue(arg, ctx))
-        // Optional arguments can be missing from the provided arguments.
-        // We replace the missing ones by their default value.
-        val optionalPolyglotArguments = funType.os.map { arg =>
-          optionalArgs.get(arg.i) match {
-            // if the argument is provided, use it
-            case Some(paramValue) => rawValueToPolyglotValue(paramValue, ctx)
-            // else, the argument has a default value that can be obtained from `f`.
-            case None => f.invokeMember("default_" + arg.i)
+  ): Either[List[ErrorMessage], (Value, Type)] = {
+    try {
+      maybeDecl match {
+        case Some(decl) =>
+          // Eval the code and extract the function referred to by 'decl'
+          val truffleSource = Source
+            .newBuilder("snapi", source, "unnamed")
+            .cached(false) // Disable code caching because of the inferrer.
+            .build()
+          ctx.eval(truffleSource)
+          // 'decl' is found in the context bindings (by its name)
+          val bindings = ctx.getBindings("snapi")
+          val f = bindings.getMember(decl)
+          // its type is found in the polyglot bindings as '@type:<name>'
+          val funType = {
+            val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
+            val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.uid, internal = true)
+            tipe
           }
-        }
-        // All arguments are there. Call .execute.
-        val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
-        val tipe = funType.r
-        // Return the result and its type.
-        Right((result, tipe))
-      case None =>
-        val truffleSource = Source
-          .newBuilder("snapi", source, "unnamed")
-          .cached(false) // Disable code caching because of the inferrer.
-          .build()
-        val result = ctx.eval(truffleSource)
-        // The value type is found in polyglot bindings after calling eval().
-        val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
-        val ParseTypeSuccess(tipe) = parseType(rawType, environment.uid, internal = true)
-        Right((result, tipe))
+          // Prior to .execute, some checks on parameters since we may have
+          // to fill optional parameters with their default value
+
+          // Mandatory arguments are those that don't have a matching 'name' in optional parameters
+          val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
+
+          // Split the provided parameters in two (mandatory/optional)
+          val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
+            case Some(args) =>
+              val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
+              (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
+            case None => (Map.empty[String, RawValue], Array.empty[RawValue])
+          }
+
+          // Mandatory args have to be all provided
+          if (mandatoryArgs.length != funType.ms.size) {
+            return Left(List(ErrorMessage("missing mandatory arguments", List.empty, ParserErrors.ParserErrorCode)))
+          }
+
+          // Mandatory arguments are converted to Polyglot values
+          val maybeMandatoryPolyglotArguments = mandatoryArgs.map(arg => rawValueToPolyglotValue(arg, ctx))
+          val unsupportedMandatoryPolyglotArguments = maybeMandatoryPolyglotArguments.zipWithIndex.collect {
+            case (None, idx) => ErrorMessage(
+                s"unsupported mandatory argument at position ${idx + 1}",
+                List.empty,
+                ParserErrors.ParserErrorCode
+              )
+          }
+          if (unsupportedMandatoryPolyglotArguments.nonEmpty) {
+            return Left(unsupportedMandatoryPolyglotArguments.to)
+          }
+          val mandatoryPolyglotArguments = maybeMandatoryPolyglotArguments.flatten
+
+          // Optional arguments are converted to Polyglot values
+          val maybeOptionalPolyglotArguments = funType.os.collect {
+            case arg if optionalArgs.contains(arg.i) =>
+              val paramValue = optionalArgs(arg.i)
+              arg.i -> rawValueToPolyglotValue(paramValue, ctx)
+          }.toMap
+          val unsupportedOptionalPolyglotArguments = maybeOptionalPolyglotArguments.collect {
+            case (i, None) =>
+              ErrorMessage(s"unsupported optional argument $i", List.empty, ParserErrors.ParserErrorCode)
+          }
+          if (unsupportedOptionalPolyglotArguments.nonEmpty) {
+            return Left(unsupportedOptionalPolyglotArguments.to)
+          }
+
+          // Optional arguments can be missing from the provided arguments.
+          // We replace the missing ones by their default value.
+          val optionalPolyglotArguments = funType.os.map { arg =>
+            maybeOptionalPolyglotArguments.get(arg.i) match {
+              // if the argument is provided, use it
+              case Some(paramValue) => paramValue
+              // else, the argument has a default value that can be obtained from `f`.
+              case None => f.invokeMember("default_" + arg.i)
+            }
+          }
+
+          // All arguments are there. Call .execute.
+          val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
+          val tipe = funType.r
+          // Return the result and its type.
+          Right((result, tipe))
+
+        case None =>
+          val truffleSource = Source
+            .newBuilder("snapi", source, "unnamed")
+            .cached(false) // Disable code caching because of the inferrer.
+            .build()
+          val result = ctx.eval(truffleSource)
+          // The value type is found in polyglot bindings after calling eval().
+          val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
+          val ParseTypeSuccess(tipe) = parseType(rawType, environment.uid, internal = true)
+          Right((result, tipe))
+      }
+    } catch {
+      case TruffleValidationError(errors) => Left(errors)
     }
   }
 
@@ -457,150 +474,66 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       maybeDecl: Option[String]
   ): Either[EvalError, EvalSuccess] = {
 
-    import EvalError._
-
-    // Build the Truffle context
+    // 1) Build the Truffle context
     val ctx = buildTruffleContext(environment, maybeOutputStream = None)
     ctx.initialize("snapi")
     ctx.enter()
 
     try {
-      // 1) Get the value+type from your language
+      // 2) Get the value+type. This is where we handle immediate validation errors, which are caught by the
+      // SnapiLanguage during the parse call.
       getValueAndType(source, environment, maybeDecl, ctx) match {
-        case Left(err) =>
-          // We got an immediate compilation (or retrieval) error.
+        case Left(errors) =>
+          logger.info("A")
+          // 3) We got an immediate validation error from the parse.
           // We must close the context now, or we leak it.
           ctx.leave()
-          ctx.close()
-          Left(RuntimeFailure(err))
+          ctx.close() // Cancel the context and any executing threads.
+          Left(EvalError(errors))
 
         case Right((v, t)) =>
-          val snapiT = t.asInstanceOf[SnapiTypeWithProperties]
+          logger.info("B")
+          // 4) We have a value and an iterator.
+          // The context will remain open so that the iterator can be used to produce results.
+          val it = buildTruffleIterator(ctx, v, t.asInstanceOf[SnapiTypeWithProperties])
+          val protocolType = TypeConverter.toProtocolType(snapiTypeToRawType(t).get)
+          Right(EvalSuccess(protocolType, it))
 
-          try {
-            // 2) Convert to either a single RawValue or an Iterator[RawValue]
-            //    If there's a "tryable" error at the top level, we handle it, etc.
-            val (rawType, eitherValueOrIter) = fromTruffleValueOrIterator(v, snapiT)
-            val protocolType = TypeConverter.toProtocolType(rawType)
-
-            // If single value => return a single-element CloseableIterator that closes ctx
-            eitherValueOrIter match {
-              case Left(singleVal) =>
-                val it = new SingleValueCloseableIterator(singleVal) {
-                  override def close(): Unit = {
-                    ctx.leave()
-                    ctx.close()
-                  }
-                }
-                Right(EvalSuccess(protocolType, it))
-
-              case Right(truffleIter) =>
-                // We must keep the context alive while iterating.
-                // Build a streaming iterator that calls the underlying 'truffleIter'
-                // and closes the context on `close()`.
-                val it = new CloseableIterator[com.rawlabs.protocol.raw.Value] {
-                  override def hasNext: Boolean = truffleIter.hasNext
-                  override def next(): com.rawlabs.protocol.raw.Value = truffleIter.next()
-                  override def close(): Unit = {
-                    ctx.leave()
-                    ctx.close()
-                  }
-                }
-                Right(EvalSuccess(protocolType, it))
-            }
-          } catch {
-            case NonFatal(e) =>
-              // Some runtime error while converting.
-              ctx.leave()
-              ctx.close()
-              Left(RuntimeFailure(e.getMessage))
-          }
       }
     } catch {
-      // 3) Handle polyglot exceptions
-      case ex: PolyglotException =>
-        // We must ensure we close the context if we won't succeed:
+      case t: Throwable =>
+        logger.info("Xx2")
+        // 6) We caught some other exception.
+        // We must close the context now, or we leak it.
         ctx.leave()
-        ctx.close()
-
-        // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
-        // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
-        // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
-        // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
-        // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
-        // and which must handle interruption as well.
-        if (ex.isInterrupted) {
-          throw new InterruptedException()
-        } else if (ex.getCause.isInstanceOf[InterruptedException]) {
-          throw ex.getCause
-        } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
-          throw new InterruptedException()
-        } else if (ex.isGuestException) {
-          if (ex.isInternalError) {
-            // An internal error. It means a regular Exception thrown from the language (e.g. a Java Exception,
-            // or a RawTruffleInternalErrorException, which isn't an AbstractTruffleException)
-            val programContext = getProgramContext(environment.uid, environment)
-            throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
-          } else {
-            val err = ex.getGuestObject
-            if (err != null && err.hasMembers && err.hasMember("errors")) {
-              // A validation exception, semantic or syntax error (both come as the same kind of error)
-              // that has a list of errors and their positions.
-              val errorsValue = err.getMember("errors")
-              val errors = (0L until errorsValue.getArraySize).map { i =>
-                val errorValue = errorsValue.getArrayElement(i)
-                val message = errorValue.asString
-                val positions = (0L until errorValue.getArraySize).map { j =>
-                  val posValue = errorValue.getArrayElement(j)
-                  val beginValue = posValue.getMember("begin")
-                  val endValue = posValue.getMember("end")
-                  val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
-                  val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
-                  ErrorRange(begin, end)
-                }
-                ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
-              }
-              Left(ValidationFailure(errors.to))
-            } else {
-              // A runtime failure during execution. The query could be a failed tryable, or a runtime error (e.g. a
-              // file not found) hit when processing a reader that evaluates as a _collection_ (processed outside the
-              // evaluation of the query).
-              Left(RuntimeFailure(ex.getMessage))
-            }
-          }
-        } else {
-          // Unexpected error. For now we throw the PolyglotException.
-          throw ex
-        }
-
-      // 4) Catch any other non-fatal, rethrow or wrap
-      case NonFatal(t) =>
-        ctx.leave()
-        ctx.close()
-        throw new CompilerServiceException(t, environment)
+        ctx.close(true) // Cancel the context and any executing threads.
+        throw t
     }
   }
 
   /**
-   * fromTruffleValueOrIterator determines if the top-level type is an iterable (SnapiIterableType / SnapiListType).
+   * buildTruffleIterator determines if the top-level type is an iterable (SnapiIterableType / SnapiListType).
    * - If yes, returns Right(Iterator[RawValue]).
    * - Else returns Left(RawValue).
    * Also returns the corresponding RawType to describe the final shape.
    */
-  private def fromTruffleValueOrIterator(
+  private def buildTruffleIterator(
+      ctx: Context,
       v: Value,
       t: SnapiTypeWithProperties
-  ): (RawType, Either[com.rawlabs.protocol.raw.Value, Iterator[com.rawlabs.protocol.raw.Value]]) = {
+  ): Iterator[com.rawlabs.protocol.raw.Value] with AutoCloseable = {
 
-    // Because we eventually want to produce a RawType:
-    val rawT: RawType = snapiTypeToRawType(t).get
-
-    // 1) If top-level is an iterable (and not top-level triable error), we produce an iterator:
     t match {
       case SnapiIterableType(inner, _) if !v.isNull && !maybeIsException(v, t) =>
-        // Return an iterator
-        val it = new Iterator[com.rawlabs.protocol.raw.Value] {
-          private val polyIt = v.getIterator
+        logger.info("1")
+        // 1) If top-level is an iterable (and not top-level triable error), we produce an iterator
+        // Note that the iterator does not close itself on error, as the consumer is expected to call close() itself
+
+        new Iterator[raw.Value] with AutoCloseable {
+          // Lazy to avoid calling getIterator if we don't need it
+          // Note we do not need to check if v.isException because we know 'v' is not a triable.
+          private lazy val polyIt = v.getIterator
+
           override def hasNext: Boolean = {
             polyIt.hasIteratorNextElement
           }
@@ -609,13 +542,41 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
             val elemVal = polyIt.getIteratorNextElement
             fromTruffleValue(elemVal, inner.asInstanceOf[SnapiTypeWithProperties])
           }
-        }
-        (rawT, Right(it))
 
-      // 2) Otherwise, produce a single RawValue
+          override def close(): Unit = {
+            ctx.leave()
+            ctx.close(true)
+          }
+        }
+
       case _ =>
-        val rv = fromTruffleValue(v, t)
-        (rawT, Left(rv))
+        logger.info("2")
+
+        // 2) Otherwise, produce a single value iterator
+        // Note that the iterator does not close itself on error, as the consumer is expected to call close() itself
+
+        new Iterator[raw.Value] with AutoCloseable {
+          private var done = false
+
+          override def hasNext: Boolean = !done
+
+          override def next(): raw.Value = {
+            logger.info("Nx1")
+            if (done) throw new NoSuchElementException("Already consumed single value.")
+            done = true
+            val v1 = fromTruffleValue(v, t)
+            logger.info(s"Nx2 $v1")
+            v1
+          }
+
+          override def close(): Unit = {
+            logger.info("Cx1")
+            ctx.leave()
+            ctx.close(true)
+            logger.info("Cx2")
+          }
+        }
+
     }
   }
 
@@ -624,9 +585,9 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
    * would yield a RawError. But for iterables, we skip that check at top-level
    * because we want an Iterator that possibly yields items or errors in iteration.
    */
-  private def maybeIsException(v: Value, t: SnapiTypeWithProperties): Boolean = {
+  private def maybeIsException(v: Value, st: SnapiTypeWithProperties): Boolean = {
     val tryableProp = SnapiIsTryableTypeProperty()
-    t.props.contains(tryableProp) && v.isException
+    st.props.contains(tryableProp) && v.isException
   }
 
   /**
@@ -653,7 +614,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           // attempt to "throw" to get the actual Java exception
           v.throwException()
           // If we get here, it didn't actually throw? We'll produce RawError anyway.
-          throw new CompilerServiceException("unknown triable error")
+          throw new AssertionError("triable error did not throw exception!")
         } catch {
           case NonFatal(ex) => com.rawlabs.protocol.raw.Value
               .newBuilder()
@@ -853,15 +814,10 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       maybeIndent: Option[Int],
       maybeWidth: Option[Int]
   ): FormatCodeResponse = {
-    val programContext = getProgramContext(environment.uid, environment)
-    try {
-      val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
-      pretty.prettyCode(source) match {
-        case Right(code) => FormatCodeResponse(Some(code))
-        case Left(_) => FormatCodeResponse(None)
-      }
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+    val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
+    pretty.prettyCode(source) match {
+      case Right(code) => FormatCodeResponse(Some(code))
+      case Left(_) => FormatCodeResponse(None)
     }
   }
 
@@ -874,15 +830,11 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment,
       _ => {
         val programContext = getProgramContext(environment.uid, environment)
-        try {
-          withLspTree(source, lspService => lspService.dotAutoComplete(source, environment, position))(
-            programContext
-          ) match {
-            case Right(value) => value
-            case Left(_) => AutoCompleteResponse(Array.empty)
-          }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        withLspTree(source, lspService => lspService.dotAutoComplete(source, environment, position))(
+          programContext
+        ) match {
+          case Right(value) => value
+          case Left(_) => AutoCompleteResponse(Array.empty)
         }
       }
     )
@@ -898,15 +850,11 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment,
       _ => {
         val programContext = getProgramContext(environment.uid, environment)
-        try {
-          withLspTree(source, lspService => lspService.wordAutoComplete(source, environment, prefix, position))(
-            programContext
-          ) match {
-            case Right(value) => value
-            case Left(_) => AutoCompleteResponse(Array.empty)
-          }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        withLspTree(source, lspService => lspService.wordAutoComplete(source, environment, prefix, position))(
+          programContext
+        ) match {
+          case Right(value) => value
+          case Left(_) => AutoCompleteResponse(Array.empty)
         }
       }
     )
@@ -917,13 +865,9 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment,
       _ => {
         val programContext = getProgramContext(environment.uid, environment)
-        try {
-          withLspTree(source, lspService => lspService.hover(source, environment, position))(programContext) match {
-            case Right(value) => value
-            case Left(_) => HoverResponse(None)
-          }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        withLspTree(source, lspService => lspService.hover(source, environment, position))(programContext) match {
+          case Right(value) => value
+          case Left(_) => HoverResponse(None)
         }
       }
     )
@@ -934,13 +878,9 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment,
       _ => {
         val programContext = getProgramContext(environment.uid, environment)
-        try {
-          withLspTree(source, lspService => lspService.rename(source, environment, position))(programContext) match {
-            case Right(value) => value
-            case Left(_) => RenameResponse(Array.empty)
-          }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        withLspTree(source, lspService => lspService.rename(source, environment, position))(programContext) match {
+          case Right(value) => value
+          case Left(_) => RenameResponse(Array.empty)
         }
       }
     )
@@ -955,15 +895,11 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment,
       _ => {
         val programContext = getProgramContext(environment.uid, environment)
-        try {
-          withLspTree(source, lspService => lspService.definition(source, environment, position))(
-            programContext
-          ) match {
-            case Right(value) => value
-            case Left(_) => GoToDefinitionResponse(None)
-          }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        withLspTree(source, lspService => lspService.definition(source, environment, position))(
+          programContext
+        ) match {
+          case Right(value) => value
+          case Left(_) => GoToDefinitionResponse(None)
         }
       }
     )
@@ -974,16 +910,12 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment,
       _ => {
         val programContext = getProgramContext(environment.uid, environment)
-        try {
-          withLspTree(
-            source,
-            lspService => lspService.validate
-          )(programContext) match {
-            case Right(value) => value
-            case Left((err, pos)) => ValidateResponse(parseError(err, pos))
-          }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        withLspTree(
+          source,
+          lspService => lspService.validate
+        )(programContext) match {
+          case Right(value) => value
+          case Left((err, pos)) => ValidateResponse(parseError(err, pos))
         }
       }
     )
@@ -1077,7 +1009,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     }
   }
 
-  private def rawValueToPolyglotValue(rawValue: RawValue, ctx: Context): Value = {
+  private def rawValueToPolyglotValue(rawValue: RawValue, ctx: Context): Option[Value] = {
     val code: String = rawValue match {
       case RawNull() => "let x: undefined = null in x"
       case RawByte(v) => s"let x: byte = ${v}b in x"
@@ -1096,10 +1028,10 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
         s"""let x: timestamp = Timestamp.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}, ${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
       case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) =>
         s"""let x: interval = Interval.Build(years=$years, months=$months, weeks=$weeks, days=$days, hours=$hours, minutes=$minutes, seconds=$seconds, millis=$millis) in x"""
-      case _ => throw new CompilerServiceException("type not supported")
+      case _ => return None
     }
     val value = ctx.eval("snapi", code)
-    ctx.asValue(value)
+    Some(ctx.asValue(value))
   }
 
   private def buildTruffleContext(

@@ -18,8 +18,19 @@ import com.rawlabs.snapi.frontend.snapi.SnapiInterpolator
 
 class EvalTest extends SnapiTestContext {
 
+  // Test single value
   test(snapi"""42""")(it => it should eval(Value.newBuilder().setInt(ValueInt.newBuilder().setV(42)).build()))
 
+  // Test iterator
+  test(snapi"""Collection.Build(1,2,3)""") { it =>
+    it should eval(
+      Value.newBuilder().setInt(ValueInt.newBuilder().setV(1)).build(),
+      Value.newBuilder().setInt(ValueInt.newBuilder().setV(2)).build(),
+      Value.newBuilder().setInt(ValueInt.newBuilder().setV(3)).build()
+    )
+  }
+
+  // Test list (vs iterator)
   test(snapi"""[1,2,3]""") { it =>
     it should eval(
       Value
@@ -36,19 +47,18 @@ class EvalTest extends SnapiTestContext {
     )
   }
 
-  test(snapi"""Collection.Build(1,2,3)""") { it =>
-    it should eval(
-      Value.newBuilder().setInt(ValueInt.newBuilder().setV(1)).build(),
-      Value.newBuilder().setInt(ValueInt.newBuilder().setV(2)).build(),
-      Value.newBuilder().setInt(ValueInt.newBuilder().setV(3)).build()
-    )
-  }
+  // Test validation failure
+  test(snapi"""x + 1""")(it =>
+    it should evalTypeErrorAs("x is not declared")
+  )
 
-  // test runtime failure
 
-  // test validation failure
+  // Test runtime failure
+  test(snapi"""Regex.Groups("aaa", "(\\d+)") """)(it =>
+    it should evalRunErrorAs("string 'aaa' does not match pattern '(\\d+)'")
+  )
 
-  // then test all types
+  // Test all types
 
   /*
 

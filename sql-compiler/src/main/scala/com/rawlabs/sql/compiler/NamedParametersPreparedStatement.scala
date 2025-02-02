@@ -463,6 +463,7 @@ class NamedParametersPreparedStatement(
     def errorPosition(p: Position): ErrorPosition = ErrorPosition(p.line, p.column)
     ErrorRange(errorPosition(position), errorPosition(position1))
   }
+
   def executeWith(
       parameters: Seq[(String, RawValue)]
   ): Either[String, NamedParametersPreparedStatementExecutionResult] = {
@@ -495,6 +496,7 @@ class NamedParametersPreparedStatement(
         // that has ... changed (e.g. the database doesn't have the table anymore, a remote service
         // account has expired (RD-10895)). We report these errors to the user.
         case ex: PSQLException =>
+          // These are still considered validation errors.
           val error = ex.getMessage // it has the code, the message, hint, etc.
           Left(error)
       }

@@ -17,24 +17,7 @@ import org.graalvm.polyglot.Engine
 
 import java.io.OutputStream
 import scala.collection.mutable
-import com.rawlabs.utils.core.{RawException, RawService, RawSettings}
-
-// Exception that wraps the underlying error so that it includes the extra debug info.
-final class CompilerServiceException(
-    message: String,
-    val debugInfo: List[(String, String)] = List.empty,
-    cause: Throwable = null
-) extends RawException(message, cause) {
-
-  def this(t: Throwable, debugInfo: List[(String, String)]) = this(t.getMessage, debugInfo, t)
-
-  def this(t: Throwable, environment: ProgramEnvironment) = {
-    this(t, CompilerService.getDebugInfo(environment))
-  }
-
-  def this(t: Throwable) = this(t.getMessage, cause = t)
-
-}
+import com.rawlabs.utils.core.{ RawService, RawSettings}
 
 object CompilerService {
 
@@ -91,19 +74,6 @@ object CompilerService {
     }
   }
 
-  def getDebugInfo(environment: ProgramEnvironment): List[(String, String)] = {
-    List(
-      "Trace ID" -> environment.maybeTraceId.getOrElse("<undefined>"),
-      "Arguments" -> environment.maybeArguments
-        .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
-        .getOrElse("<undefined>"),
-      "Uid" -> environment.uid.toString,
-      "Scopes" -> environment.scopes.mkString(","),
-      "Options" -> environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
-      //"Settings" -> runtimeContext.settings.toString
-    )
-  }
-
 }
 
 trait CompilerService extends RawService {
@@ -113,14 +83,12 @@ trait CompilerService extends RawService {
   def language: Set[String]
 
   // Get the description of a source program.
-  @throws[CompilerServiceException]
   def getProgramDescription(
       source: String,
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse
 
   // Execute a source program and write the results to the output stream.
-  @throws[CompilerServiceException]
   def execute(
       source: String,
       environment: ProgramEnvironment,
@@ -129,11 +97,9 @@ trait CompilerService extends RawService {
       maxRows: Option[Long] = None
   ): ExecutionResponse
 
-  @throws[CompilerServiceException]
   def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): Either[EvalError, EvalSuccess]
 
   // Format a source program.
-  @throws[CompilerServiceException]
   def formatCode(
       source: String,
       environment: ProgramEnvironment,
@@ -142,7 +108,6 @@ trait CompilerService extends RawService {
   ): FormatCodeResponse
 
   // Auto-complete a source program.
-  @throws[CompilerServiceException]
   def dotAutoComplete(
       source: String,
       environment: ProgramEnvironment,
@@ -150,7 +115,6 @@ trait CompilerService extends RawService {
   ): AutoCompleteResponse
 
   // Auto-complete a word in a source program.
-  @throws[CompilerServiceException]
   def wordAutoComplete(
       source: String,
       environment: ProgramEnvironment,
@@ -159,23 +123,18 @@ trait CompilerService extends RawService {
   ): AutoCompleteResponse
 
   // Get the hover information for a source program.
-  @throws[CompilerServiceException]
   def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse
 
   // Rename an identifier in a source program.
-  @throws[CompilerServiceException]
   def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse
 
   // Go to definition of an identifier in a source program.
-  @throws[CompilerServiceException]
   def goToDefinition(source: String, environment: ProgramEnvironment, position: Pos): GoToDefinitionResponse
 
   // Validate a source program.
-  @throws[CompilerServiceException]
   def validate(source: String, environment: ProgramEnvironment): ValidateResponse
 
   // Validate a source program for the AI service.
-  @throws[CompilerServiceException]
   def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse
 
 }
@@ -193,31 +152,7 @@ final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends 
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 
 final case class EvalSuccess(valueType: Type, values: Iterator[Value] with AutoCloseable)
-sealed trait EvalError
-object EvalError {
-  final case class ValidationFailure(errors: List[ErrorMessage]) extends EvalError
-  final case class RuntimeFailure(error: String) extends EvalError
-}
-
-/**
- * A standard Iterator plus a close() method to free resources.
- */
-trait CloseableIterator[+A] extends Iterator[A] with AutoCloseable
-
-/**
- * Helper for single-value results that you still want to unify as an iterator.
- * If you don’t need to do anything special in close(), just override it with an empty block.
- */
-class SingleValueCloseableIterator(val single: Value) extends CloseableIterator[Value] {
-  private var done = false
-  override def hasNext: Boolean = !done
-  override def next(): Value = {
-    if (done) throw new NoSuchElementException("Already consumed single value.")
-    done = true
-    single
-  }
-  override def close(): Unit = ()
-}
+final case class EvalError(errors: List[ErrorMessage])
 
 final case class FormatCodeResponse(code: Option[String])
 final case class HoverResponse(completion: Option[Completion])

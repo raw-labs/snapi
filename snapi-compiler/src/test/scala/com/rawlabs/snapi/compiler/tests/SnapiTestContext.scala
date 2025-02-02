@@ -12,8 +12,32 @@
 
 package com.rawlabs.snapi.compiler.tests
 
-import com.rawlabs.compiler.{AutoCompleteResponse, CompilerServiceTestContext, EvalSuccess, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, FormatCodeResponse, GoToDefinitionResponse, HoverResponse, Pos, ProgramEnvironment, RawValue, RenameResponse, ValidateResponse}
-import com.rawlabs.utils.core.{RawException, RawTestSuite, RawUid, RawUtils, SettingsTestContext, TestData, TrainingWheelsContext}
+import com.rawlabs.compiler.{
+  AutoCompleteResponse,
+  CompilerServiceTestContext,
+  EvalError,
+  EvalSuccess,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  FormatCodeResponse,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Pos,
+  ProgramEnvironment,
+  RawValue,
+  RenameResponse,
+  ValidateResponse
+}
+import com.rawlabs.utils.core.{
+  RawException,
+  RawTestSuite,
+  RawUid,
+  RawUtils,
+  SettingsTestContext,
+  TestData,
+  TrainingWheelsContext
+}
 import org.scalatest.Tag
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
@@ -21,7 +45,18 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 import com.rawlabs.snapi.compiler._
 import com.rawlabs.snapi.frontend.base.source.{BaseProgram, Type}
 import com.rawlabs.snapi.frontend.inferrer.local.LocalInferrerTestContext
-import com.rawlabs.protocol.compiler.{DropboxAccessTokenConfig, HttpHeadersConfig, LocationConfig, MySqlConfig, OracleConfig, PostgreSQLConfig, S3AccessSecretKey, S3Config, SQLServerConfig, SnowflakeConfig}
+import com.rawlabs.protocol.compiler.{
+  DropboxAccessTokenConfig,
+  HttpHeadersConfig,
+  LocationConfig,
+  MySqlConfig,
+  OracleConfig,
+  PostgreSQLConfig,
+  S3AccessSecretKey,
+  S3Config,
+  SQLServerConfig,
+  SnowflakeConfig
+}
 import com.rawlabs.protocol.raw.Value
 import com.rawlabs.utils.core._
 import com.rawlabs.snapi.compiler.SnapiOutputTestContext
@@ -583,21 +618,74 @@ trait SnapiTestContext
     def apply(data: TestData) = {
       compilerService.eval(data.q, getQueryEnvironment(), maybeDecl = None) match {
         case Right(EvalSuccess(_, actual)) =>
-          val actualList = actual.toList
-          val expectedList = expected.toList
-          MatchResult(
-            actualList == expectedList,
-            s"""results didn't match!
-               |expected: $expectedList
-               |actual:   $actualList""".stripMargin,
-            s"""results matched:
-               |$actualList""".stripMargin
-          )
+          try {
+            val actualList = actual.toList
+            val expectedList = expected.toList
+            MatchResult(
+              actualList == expectedList,
+              s"""results didn't match!
+                |expected: $expectedList
+                |actual:   $actualList""".stripMargin,
+              s"""results matched:
+                |$actualList""".stripMargin
+            )
+          } finally actual.close()
         case _ => MatchResult(false, "didn't evaluate to a value", "???")
       }
     }
   }
   def eval(expected: Value*) = new Eval(expected)
+
+  /////////////////////////////////////////////////////////////////////////
+  // evalTypeErrorAs
+  /////////////////////////////////////////////////////////////////////////
+
+  class EvalTypeErrorAs(expected: Seq[String]) extends Matcher[TestData] {
+    override def apply(data: TestData): MatchResult = {
+      compilerService.eval(data.q, getQueryEnvironment(), maybeDecl = None) match {
+        case Left(EvalError(actual)) =>
+          val leftOvers = expected.filter(e => !actual.exists(_.message.contains(e)))
+          MatchResult(
+            leftOvers.isEmpty,
+            s"didn't include error '${leftOvers.mkString(",")}' in '$actual'",
+            s"didn't type: ${actual.mkString("\n")}"
+          )
+        case _ => MatchResult(false, "didn't evaluate to an error", "???")
+      }
+    }
+  }
+
+  def evalTypeErrorAs(errors: String*) = new EvalTypeErrorAs(errors)
+
+  /////////////////////////////////////////////////////////////////////////
+  // evalRunErrorAs
+  /////////////////////////////////////////////////////////////////////////
+
+  class EvalRunErrorAs(msg: String) extends Matcher[TestData] {
+    override def apply(data: TestData): MatchResult = {
+      compilerService.eval(data.q, getQueryEnvironment(), maybeDecl = None) match {
+        case Left(EvalError(_)) =>
+          MatchResult(false, "didn't validate (must validate successfully and fail only at runtime)", "???")
+        case Right(EvalSuccess(_, values)) =>
+          try {
+            var found = false
+            while (values.hasNext && !found) {
+              val v = values.next
+              if (v.hasError && v.getError.getMessage.contains(msg)) {
+                found = true
+              }
+            }
+            MatchResult(
+              found,
+              s"""Expected to eventually find error '$msg' but didn't""",
+              """Query failed as expected"""
+            )
+          } finally values.close()
+      }
+    }
+  }
+
+  def evalRunErrorAs(msg: String) = new EvalRunErrorAs(msg)
 
   /////////////////////////////////////////////////////////////////////////
   // evaluateTo
