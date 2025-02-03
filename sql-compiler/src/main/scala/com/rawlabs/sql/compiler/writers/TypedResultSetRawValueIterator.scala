@@ -78,7 +78,7 @@ object TypedResultSetRawValueIterator extends StrictLogging {
     } else if (node.isBoolean) {
       Value.newBuilder().setBool(ValueBool.newBuilder().setV(node.asBoolean())).build()
     } else {
-      Value.newBuilder().setError(ValueError.newBuilder().setMessage("unsupported json node type")).build()
+      throw new AssertionError("unsupported JsonNode type: " + node.getNodeType)
     }
   }
 
@@ -366,14 +366,9 @@ class TypedResultSetRawValueIterator(
                   }.toSeq
                   Value.newBuilder().setRecord(ValueRecord.newBuilder().addAllFields(attrs.asJava)).build()
                 case s: String => hstoreToRawRecord(s)
-                case other =>
-                  Value.newBuilder().setError(ValueError.newBuilder().setMessage("unsupported type")).build()
               }
             }
-          case t => Value.newBuilder().setError(ValueError.newBuilder().setMessage("unsupported type")).build()
         }
-
-      case _ => Value.newBuilder().setError(ValueError.newBuilder().setMessage("unsupported type")).build()
     }
   }
 
@@ -487,8 +482,6 @@ class TypedResultSetRawValueIterator(
         if (strVal == null) buildNullValue()
         else Value.newBuilder().setString(ValueString.newBuilder().setV(strVal)).build()
 
-      case other =>
-        Value.newBuilder().setError(ValueError.newBuilder().setMessage("unsupported array element type")).build()
     }
   }
 
