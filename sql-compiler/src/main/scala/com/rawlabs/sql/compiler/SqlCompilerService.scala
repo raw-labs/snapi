@@ -90,7 +90,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       source: String,
       environment: ProgramEnvironment
   ): Either[List[ErrorMessage], ProgramDescription] = {
-    logger.debug(s"Getting program description: $source")
     safeParse(source) match {
       case Left(errors) => Left(errors)
       case Right(parsedTree) =>
@@ -150,9 +149,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
             RawUtils.withSuppressNonFatalException(conn.close())
           }
         } catch {
-          case ex: SQLException if isConnectionFailure(ex) =>
-            logger.warn("SqlConnectionPool connection failure", ex)
-            Left(List(treeError(parsedTree, ex.getMessage)))
+          case ex: SQLException if isConnectionFailure(ex) => Left(List(treeError(parsedTree, ex.getMessage)))
         }
     }
   }
@@ -176,7 +173,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     import ExecutionError._
 
     try {
-      logger.debug(s"Executing: $source")
       safeParse(source) match {
         case Left(errors) => Left(ValidationError(errors))
         case Right(parsedTree) =>
@@ -212,9 +208,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           }
       }
     } catch {
-      case ex: SQLException if isConnectionFailure(ex) =>
-        logger.warn("SqlConnectionPool connection failure", ex)
-        Left(RuntimeError(ex.getMessage))
+      case ex: SQLException if isConnectionFailure(ex) => Left(RuntimeError(ex.getMessage))
     }
   }
 
@@ -398,53 +392,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
             throw t
         }
     }
-
-//    try {
-//      logger.debug(s"Evaluating: $source")
-//      safeParse(source) match {
-//        case Left(errors) => EvalValidationFailure(errors)
-//        case Right(parsedTree) =>
-//          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
-//          try {
-//            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
-//            try {
-//              pstmt.queryMetadata match {
-//                case Right(info) => pgRowTypeToIterableType(info.outputType) match {
-//                  case Right(tipe) =>
-//                    val RawIterableType(innerType @ RawRecordType(atts, false, false), false, false) = tipe
-//                    val arguments = environment.maybeArguments.getOrElse(Array.empty)
-//                    pstmt.executeWith(arguments) match {
-//                      case Right(result) => result match {
-//                        case NamedParametersPreparedStatementResultSet(rs) => EvalSuccessIterator(
-//                          TypeConverter.toProtocolType(innerType),
-//                          new TypedResultSetRawValueIterator(rs, tipe)
-//                        )
-//                        case NamedParametersPreparedStatementUpdate(count) => EvalSuccessValue(
-//                          TypeConverter.toProtocolType(innerType),
-//                          Value.newBuilder().setInt(ValueInt.newBuilder().setV(count)).build()
-//                        )
-//                      }
-//                      case Left(error) => EvalRuntimeFailure(error)
-//                    }
-//                  case Left(errors) => EvalRuntimeFailure(errors.mkString(", "))
-//                }
-//                case Left(errors) => EvalValidationFailure(errors)
-//              }
-//            } finally {
-//              RawUtils.withSuppressNonFatalException(pstmt.close())
-//            }
-//          } catch {
-//            case e: NamedParametersPreparedStatementException => EvalValidationFailure(e.errors)
-//          } finally {
-//            RawUtils.withSuppressNonFatalException(conn.close())
-//          }
-//      }
-//    } catch {
-//      case ex: SQLException if isConnectionFailure(ex) =>
-//        logger.warn("SqlConnectionPool connection failure", ex)
-//        EvalRuntimeFailure(ex.getMessage)
-//      case NonFatal(t) => throw new CompilerServiceException(t, environment)
-//    }
   }
 
   /** Utility to close multiple resources ignoring non-fatal exceptions. */
@@ -472,7 +419,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   }
 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
-    logger.debug(s"dotAutoComplete at position: $position")
     val analyzer = new SqlCodeUtils(parse(source))
     // The editor removes the dot in the completion event
     // So we call the identifier with +1 column
@@ -486,7 +432,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
             val name = if (idns.last.quoted) '"' + idns.last.value + '"' else idns.last.value
             LetBindCompletion(name, tipe)
         }
-        logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
         AutoCompleteResponse(collectedValues.toArray)
       case Some(_: SqlParamUseNode) => AutoCompleteResponse(Array.empty) // dot completion makes no sense on parameters
       case _ => AutoCompleteResponse(Array.empty)
@@ -499,11 +444,9 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       prefix: String,
       position: Pos
   ): AutoCompleteResponse = {
-    logger.debug(s"wordAutoComplete at position: $position")
     val tree = parse(source)
     val analyzer = new SqlCodeUtils(tree)
     val item = analyzer.identifierUnder(position)
-    logger.debug(s"idn $item")
     val matches: Seq[Completion] = item match {
       case Some(idn: SqlIdnNode) =>
         val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
@@ -519,7 +462,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
-    logger.debug(s"Hovering at position: $position")
     val tree = parse(source)
     val analyzer = new SqlCodeUtils(tree)
     analyzer
@@ -550,9 +492,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
               RawUtils.withSuppressNonFatalException(conn.close())
             }
           } catch {
-            case ex: SQLException if isConnectionFailure(ex) =>
-              logger.warn("SqlConnectionPool connection failure", ex)
-              HoverResponse(None)
+            case ex: SQLException if isConnectionFailure(ex) => HoverResponse(None)
           }
         case other => throw new AssertionError(s"Unexpected node type: $other")
       }
@@ -576,7 +516,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    logger.debug(s"Validating: $source")
     safeParse(source) match {
       case Left(errors) => ValidateResponse(errors)
       case Right(parsedTree) =>
@@ -599,7 +538,6 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           }
         } catch {
           case ex: SQLException if isConnectionFailure(ex) =>
-            logger.warn("SqlConnectionPool connection failure", ex)
             ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
         }
     }

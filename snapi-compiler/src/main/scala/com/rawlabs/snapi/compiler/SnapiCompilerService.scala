@@ -485,7 +485,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       // SnapiLanguage during the parse call.
       getValueAndType(source, environment, maybeDecl, ctx) match {
         case Left(error) =>
-          logger.info("A")
           // 3) We got an immediate error.
           // We must close the context now, or we leak it.
           ctx.leave()
@@ -493,14 +492,12 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           Left(error)
 
         case Right((v, t)) =>
-          logger.info("B")
           // 4) We have a value so let's produce the final evaluation result.
           buildEvalResult(ctx, v, t.asInstanceOf[SnapiTypeWithProperties])
 
       }
     } catch {
       case t: Throwable =>
-        logger.info("Xx2")
         // 6) We caught some other exception.
         // We must close the context now, or we leak it.
         ctx.leave()
@@ -585,8 +582,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
         Right(IteratorValue(protocolType, valueIterator))
 
       case _ =>
-        logger.info("2")
-
         // 2) Otherwise, produce a single value iterator
         val protocolValue = fromTruffleValue(v, t)
         val protocolType = TypeConverter.toProtocolType(snapiTypeToRawType(t).get)
