@@ -13,13 +13,14 @@
 package com.rawlabs.sql.compiler.writers
 
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.google.protobuf.ByteString
 import com.rawlabs.compiler._
 import com.rawlabs.protocol.raw._
 import com.rawlabs.sql.compiler.SqlIntervals.stringToInterval
 import com.typesafe.scalalogging.StrictLogging
 import org.postgresql.util.{PGInterval, PGobject}
 
-import java.sql.{ResultSet, Time, Timestamp}
+import java.sql.{ResultSet, Timestamp}
 import java.time.temporal.ChronoField
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -197,11 +198,21 @@ class TypedResultSetRawValueIterator(
           intervalValue(interval)
         }
 
+      case _: RawBinaryType =>
+        val bytes = rs.getBytes(colIndex)
+        if (rs.wasNull() || bytes == null) {
+          buildNullValue()
+        } else {
+          binaryValue(bytes)
+        }
+
       case _: RawAnyType =>
         // Single column typed as ANY
         val colTypeName = rs.getMetaData.getColumnTypeName(colIndex).toLowerCase
         // e.g. "json", "jsonb", "hstore", or something else
         handleAnySingleValue(rs, colIndex, colTypeName)
+
+      case _ => throw new IllegalArgumentException(s"Unsupported type: $tipe")
     }
   }
 
@@ -284,6 +295,9 @@ class TypedResultSetRawValueIterator(
             // fallback or error
             stringValue(element.toString)
         }
+
+      case _ => throw new IllegalArgumentException(s"Unsupported type: $tipe")
+
     }
   }
 
@@ -544,6 +558,19 @@ class TypedResultSetRawValueIterator(
           .setMinutes(i.minutes)
           .setSeconds(i.seconds)
           .setMillis(i.millis.toInt)
+      )
+      .build()
+  }
+
+  private def binaryValue(bytes: Array[Byte]): Value = {
+    Value
+      .newBuilder()
+      .setBinary(
+        ValueBinary
+          .newBuilder()
+          .setV(
+            ByteString.copyFrom(bytes)
+          )
       )
       .build()
   }
