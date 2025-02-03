@@ -12,6 +12,7 @@
 
 package com.rawlabs.sql.compiler.writers
 
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.google.protobuf.ByteString
 import com.rawlabs.compiler._
@@ -138,8 +139,10 @@ class TypedResultSetRawValueIterator(
           buildNullValue()
         } else {
           // Convert to array
-          val arrayVals = arrayObj.getArray.asInstanceOf[Array[AnyRef]]
-          val converted = arrayVals.map(e => convertArrayElementToRawValue(e, inner, colIndex)).toList
+          val arrayVals = arrObj.getArray.asInstanceOf[Array[AnyRef]]
+          val converted = arrayVals.map { v =>
+            convertArrayElementToRawValue(v, inner, rs.getMetaData.getColumnTypeName(colIndex).toLowerCase)
+          }.toList
           listValue(converted)
         }
 
@@ -220,7 +223,13 @@ class TypedResultSetRawValueIterator(
    * Convert array elements to RawValue.
    * If the array is typed ANY (e.g. `_json`, `_hstore`), we handle that similarly.
    */
-  private def convertArrayElementToRawValue(element: AnyRef, tipe: RawType, colIndex: Int): Value = {
+  @tailrec
+  private def convertArrayElementToRawValue(
+      element: AnyRef,
+      tipe: RawType,
+      pgType: String
+  ): Value = {
+    // If the element is null, just return RawNull:
     if (element == null) return buildNullValue()
 
     if (tipe.nullable) {
@@ -278,25 +287,26 @@ class TypedResultSetRawValueIterator(
           ldt.getNano
         )
 
-      case _: RawAnyType =>
-        // For array elements typed as ANY, the actual type name might be `_json`, `_hstore`, etc.
-        // But we can't easily see that from this vantage if we only have `element`.
-        // So we do a runtime check (PGobject, Map, String, etc.).
-        convertAnyElement(element)
-
-      case RawListType(_, _, _) =>
-        // If we have multi-dimensional arrays (list of lists), handle recursively:
-        element match {
-          case arr: Array[AnyRef] =>
-            // Convert each sub-element
-            val subVals = arr.map(e => convertArrayElementToRawValue(e, tipe, colIndex)).toList
-            listValue(subVals)
-          case _ =>
-            // fallback or error
-            stringValue(element.toString)
+      case _: RawAnyType => pgType match {
+          case "_jsonb" | "_json" =>
+            val data = element.asInstanceOf[String]
+            val json = mapper.readTree(data)
+            jsonNodeToRawValue(json)
+          case "_hstore" =>
+            val item = element.asInstanceOf[PGobject]
+            val str = item.getValue
+            // Parse the hstore string into a map
+            val hstoreMap = new java.util.HashMap[String, String]()
+            str
+              .split(",")
+              .foreach { pair =>
+                val Array(k, v) = pair.split("=>")
+                hstoreMap.put(k.strip.replaceAll("\"", ""), v.strip.replaceAll("\"", ""))
+              }
+            // Convert hstore to JSON-like structure
+            val json = mapper.valueToTree[ObjectNode](hstoreMap)
+            jsonNodeToRawValue(json)
         }
-
-      case _ => throw new IllegalArgumentException(s"Unsupported type: $tipe")
 
     }
   }

@@ -13,42 +13,21 @@
 package com.rawlabs.sql.compiler
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
-import com.rawlabs.compiler.{
-  CompilerService,
-  ErrorMessage,
-  ErrorPosition,
-  ExecutionError,
-  ExecutionSuccess,
-  LetBindCompletion,
-  ParamDescription,
-  Pos,
-  ProgramEnvironment,
-  RawAttrType,
-  RawDate,
-  RawDateType,
-  RawDecimalType,
-  RawInt,
-  RawIntType,
-  RawIterableType,
-  RawLongType,
-  RawNull,
-  RawRecordType,
-  RawString,
-  RawStringType,
-  RawValue,
-  TypeCompletion,
-  ValidateResponse
-}
-import org.testcontainers.utility.DockerImageName
+import com.rawlabs.compiler._
 import com.rawlabs.utils.core._
+import org.scalatest.EitherValues
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.testcontainers.utility.DockerImageName
 
 import java.io.ByteArrayOutputStream
 import java.sql.DriverManager
 import java.time.LocalDate
+import scala.collection.JavaConverters._
 import scala.io.Source
 
 class TestSqlCompilerServiceAirports
     extends RawTestSuite
+    with EitherValues
     with ForAllTestContainer
     with SettingsTestContext
     with TrainingWheelsContext {
@@ -145,126 +124,183 @@ class TestSqlCompilerServiceAirports
     val Right(description) = compilerService.getProgramDescription(t.q, asJson())
     val Some(main) = description.maybeRunnable
     assert(main.params.contains(Vector.empty))
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asJson(),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, asJson(), None).value
+    assert(tipe.hasRecord)
+    val colTypes = tipe.getRecord.getAttsList
+    val colValues = it.next().getRecord.getFieldsList
+    colTypes.size shouldBe 15
+    colValues.size shouldBe colTypes.size
+    // Col 0
+    colTypes.get(0).getIdn shouldBe "interval"
+    colTypes.get(0).getTipe.hasInterval shouldBe true
+    val intervalCol = colValues.get(0).getValue.getInterval
+    intervalCol.getYears shouldBe 0
+    intervalCol.getMonths shouldBe 0
+    intervalCol.getDays shouldBe 1
+    intervalCol.getHours shouldBe 0
+    intervalCol.getMinutes shouldBe 0
+    intervalCol.getSeconds shouldBe 0
+    intervalCol.getMillis shouldBe 0
+    // Col 1
+    colTypes.get(1).getIdn shouldBe "short_array"
+    colTypes.get(1).getTipe.hasList shouldBe true
+    colTypes.get(1).getTipe.getList.getInnerType.hasShort shouldBe true
+    val shortArrayCol = colValues.get(1).getValue.getList.getValuesList.asScala.map(v => v.getShort.getV)
+    shortArrayCol shouldBe Seq(1, 2, 3, 4)
+    // Col 2
+    colTypes.get(2).getIdn shouldBe "integer_array"
+    colTypes.get(2).getTipe.hasList shouldBe true
+    colTypes.get(2).getTipe.getList.getInnerType.hasInt shouldBe true
+    val integerArrayCol = colValues.get(2).getValue.getList.getValuesList.asScala.map(v => v.getInt.getV)
+    integerArrayCol shouldBe Seq(1, 2, 3, 4)
+    // Col 3
+    colTypes.get(3).getIdn shouldBe "float_array"
+    colTypes.get(3).getTipe.hasList shouldBe true
+    colTypes.get(3).getTipe.getList.getInnerType.hasFloat shouldBe true
+    val floatArrayCol = colValues.get(3).getValue.getList.getValuesList.asScala.map(v => v.getFloat.getV)
+    floatArrayCol shouldBe Seq(1.1f, 2.2f, 3.3f, 4.4f)
+    // Col 4
+    colTypes.get(4).getIdn shouldBe "double_array"
+    colTypes.get(4).getTipe.hasList shouldBe true
+    colTypes.get(4).getTipe.getList.getInnerType.hasDouble shouldBe true
+    val doubleArrayCol = colValues.get(4).getValue.getList.getValuesList.asScala.map(v => v.getDouble.getV)
+    doubleArrayCol shouldBe Seq(1.1, 2.2, 3.3, 4.4)
+    // Col 5
+    colTypes.get(5).getIdn shouldBe "decimal_array"
+    colTypes.get(5).getTipe.hasList shouldBe true
+    colTypes.get(5).getTipe.getList.getInnerType.hasDecimal shouldBe true
+    val decimalArrayCol = colValues.get(5).getValue.getList.getValuesList.asScala.map(v => v.getDecimal.getV)
+    decimalArrayCol shouldBe Seq("1.1", "2.2", "3.3", "4.4")
+    // Col 6
+    colTypes.get(6).getIdn shouldBe "boolean_array"
+    colTypes.get(6).getTipe.hasList shouldBe true
+    colTypes.get(6).getTipe.getList.getInnerType.hasBool shouldBe true
+    val booleanArrayCol = colValues.get(6).getValue.getList.getValuesList.asScala.map(v => v.getBool.getV)
+    booleanArrayCol shouldBe Seq(true, false, true, false)
+    // Col 7
+    colTypes.get(7).getIdn shouldBe "date_array"
+    colTypes.get(7).getTipe.hasList shouldBe true
+    colTypes.get(7).getTipe.getList.getInnerType.hasDate shouldBe true
+    val dateArrayCol = colValues
+      .get(7)
+      .getValue
+      .getList
+      .getValuesList
+      .asScala
+      .map(v => v.getDate)
+      .map(d => (d.getYear, d.getMonth, d.getDay))
+    dateArrayCol shouldBe Seq(
+      (2021, 1, 1),
+      (2021, 1, 2),
+      (2021, 1, 3),
+      (2021, 1, 4)
     )
-    assert(
-      baos.toString() ==
-        """[
-          |  {
-          |    "interval": "P1D",
-          |    "short_array": [
-          |      1,
-          |      2,
-          |      3,
-          |      4
-          |    ],
-          |    "integer_array": [
-          |      1,
-          |      2,
-          |      3,
-          |      4
-          |    ],
-          |    "float_array": [
-          |      1.1,
-          |      2.2,
-          |      3.3,
-          |      4.4
-          |    ],
-          |    "double_array": [
-          |      1.1,
-          |      2.2,
-          |      3.3,
-          |      4.4
-          |    ],
-          |    "decimal_array": [
-          |      1.1,
-          |      2.2,
-          |      3.3,
-          |      4.4
-          |    ],
-          |    "boolean_array": [
-          |      true,
-          |      false,
-          |      true,
-          |      false
-          |    ],
-          |    "date_array": [
-          |      "2021-01-01",
-          |      "2021-01-02",
-          |      "2021-01-03",
-          |      "2021-01-04"
-          |    ],
-          |    "time_array": [
-          |      "12:00:00.000",
-          |      "13:00:00.000",
-          |      "14:00:00.000",
-          |      "15:00:00.000"
-          |    ],
-          |    "timestamp_array": [
-          |      "2021-01-01T12:00:00.000",
-          |      "2021-01-02T13:00:00.000",
-          |      "2021-01-03T14:00:00.000",
-          |      "2021-01-04T15:00:00.000"
-          |    ],
-          |    "interval_array": [
-          |      "P1D",
-          |      "P2D",
-          |      "P3D",
-          |      "P4D"
-          |    ],
-          |    "json_array": [
-          |      {
-          |        "a": 2.0
-          |      },
-          |      {
-          |        "b": 3.0
-          |      },
-          |      {
-          |        "c": 4.0
-          |      },
-          |      {
-          |        "d": 5.0
-          |      }
-          |    ],
-          |    "jsonb_array": [
-          |      {
-          |        "a": 2.0
-          |      },
-          |      {
-          |        "b": 3.0
-          |      },
-          |      {
-          |        "c": 4.0
-          |      },
-          |      {
-          |        "d": 5.0
-          |      }
-          |    ],
-          |    "hstore_array": [
-          |      {
-          |        "a": "2",
-          |        "b": "3"
-          |      },
-          |      {
-          |        "c": "4",
-          |        "d": "5"
-          |      }
-          |    ],
-          |    "text_array": [
-          |      "apple",
-          |      "banana",
-          |      "cherry"
-          |    ]
-          |  }
-          |]""".stripMargin.replaceAll("\\s+", "")
+    // Col 8
+    colTypes.get(8).getIdn shouldBe "time_array"
+    colTypes.get(8).getTipe.hasList shouldBe true
+    colTypes.get(8).getTipe.getList.getInnerType.hasTime shouldBe true
+    val timeArrayCol = colValues
+      .get(8)
+      .getValue
+      .getList
+      .getValuesList
+      .asScala
+      .map(v => v.getTime)
+      .map(v => (v.getHour, v.getMinute, v.getSecond, v.getNano))
+    timeArrayCol shouldBe Seq(
+      (12, 0, 0, 0),
+      (13, 0, 0, 0),
+      (14, 0, 0, 0),
+      (15, 0, 0, 0)
     )
+    // Col 9
+    colTypes.get(9).getIdn shouldBe "timestamp_array"
+    colTypes.get(9).getTipe.hasList shouldBe true
+    colTypes.get(9).getTipe.getList.getInnerType.hasTimestamp shouldBe true
+    val timestampArrayCol = colValues
+      .get(9)
+      .getValue
+      .getList
+      .getValuesList
+      .asScala
+      .map(v => v.getTimestamp)
+      .map(v => (v.getYear, v.getMonth, v.getDay, v.getHour, v.getMinute, v.getSecond, v.getNano))
+    timestampArrayCol shouldBe Seq(
+      (2021, 1, 1, 12, 0, 0, 0),
+      (2021, 1, 2, 13, 0, 0, 0),
+      (2021, 1, 3, 14, 0, 0, 0),
+      (2021, 1, 4, 15, 0, 0, 0)
+    )
+    // Col 10
+    colTypes.get(10).getIdn shouldBe "interval_array"
+    colTypes.get(10).getTipe.hasList shouldBe true
+    colTypes.get(10).getTipe.getList.getInnerType.hasInterval shouldBe true
+    val intervalArrayCol = colValues.get(10).getValue.getList.getValuesList.asScala.map(v => v.getInterval)
+    intervalArrayCol.map(i =>
+      (i.getYears, i.getMonths, i.getDays, i.getHours, i.getMinutes, i.getSeconds, i.getMillis)
+    ) shouldBe Seq(
+      (0, 0, 1, 0, 0, 0, 0),
+      (0, 0, 2, 0, 0, 0, 0),
+      (0, 0, 3, 0, 0, 0, 0),
+      (0, 0, 4, 0, 0, 0, 0)
+    )
+    // Col 11
+    colTypes.get(11).getIdn shouldBe "json_array"
+    colTypes.get(11).getTipe.hasList shouldBe true
+    colTypes.get(11).getTipe.getList.getInnerType.hasAny shouldBe true
+    val jsonArrayCol = colValues
+      .get(11)
+      .getValue
+      .getList
+      .getValuesList
+      .asScala
+      .map(v => v.getRecord)
+      .map(r => r.getFieldsList.asScala.map(f => f.getName -> f.getValue.getLong.getV).toMap)
+    jsonArrayCol shouldBe Seq(
+      Map("a" -> 2L),
+      Map("b" -> 3L),
+      Map("c" -> 4L),
+      Map("d" -> 5L)
+    )
+    // Col 12
+    colTypes.get(12).getIdn shouldBe "jsonb_array"
+    colTypes.get(12).getTipe.hasList shouldBe true
+    colTypes.get(12).getTipe.getList.getInnerType.hasAny shouldBe true
+    val jsonbArrayCol = colValues
+      .get(12)
+      .getValue
+      .getList
+      .getValuesList
+      .asScala
+      .map(v => v.getRecord)
+      .map(r => r.getFieldsList.asScala.map(f => f.getName -> f.getValue.getLong.getV).toMap)
+    jsonbArrayCol shouldBe Seq(
+      Map("a" -> 2L),
+      Map("b" -> 3L),
+      Map("c" -> 4L),
+      Map("d" -> 5L)
+    )
+    // Col 13
+    colTypes.get(13).getIdn shouldBe "hstore_array"
+    colTypes.get(13).getTipe.hasList shouldBe true
+    colTypes.get(13).getTipe.getList.getInnerType.hasAny shouldBe true
+    val hstoreArrayCol = colValues
+      .get(13)
+      .getValue
+      .getList
+      .getValuesList
+      .asScala
+      .map(v => v.getRecord.getFieldsList.asScala.map(f => f.getName -> f.getValue.getString.getV).toMap)
+    hstoreArrayCol shouldBe Seq(
+      Map("a" -> "2", "b" -> "3"),
+      Map("c" -> "4", "d" -> "5")
+    )
+    // Col 14
+    colTypes.get(14).getIdn shouldBe "text_array"
+    colTypes.get(14).getTipe.hasList shouldBe true
+    colTypes.get(14).getTipe.getList.getInnerType.hasString shouldBe true
+    val textArrayCol = colValues.get(14).getValue.getList.getValuesList.asScala.map(v => v.getString.getV)
+    textArrayCol shouldBe Seq("apple", "banana", "cherry")
   }
 
   // To be sure our offset checks aren't fooled by internal postgres parameters called $1, $2, ..., $10 (with several digits)
