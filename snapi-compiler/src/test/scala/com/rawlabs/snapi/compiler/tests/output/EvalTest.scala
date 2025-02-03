@@ -16,6 +16,7 @@ import com.rawlabs.protocol.raw.{Value, ValueInt, ValueList}
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 import com.rawlabs.snapi.frontend.snapi.SnapiInterpolator
 
+// FIXME (msb): This test should remain in SnapiCompiler while all other tests should become Truffle "value" tests.
 class EvalTest extends SnapiTestContext {
 
   // Test single value
@@ -56,6 +57,8 @@ class EvalTest extends SnapiTestContext {
   )
 
   // Test all types
+
+  // Test duplicate fields names renaming
 
   /*
 

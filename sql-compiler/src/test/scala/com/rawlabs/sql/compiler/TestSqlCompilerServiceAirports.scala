@@ -110,6 +110,7 @@ class TestSqlCompilerServiceAirports
       jdbcUrl = Some(jdbcUrl)
     )
   }
+
   private def asCsv(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): ProgramEnvironment = {
     ProgramEnvironment(
       user,
@@ -931,7 +932,9 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == Left(ExecutionError.RuntimeError("no value was specified for s"))
+      ) == Left(
+        ExecutionError.ValidationError(List(ErrorMessage("no value was specified for s", List(), "sqlError", List())))
+      )
     )
   }
 

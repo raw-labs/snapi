@@ -47,7 +47,7 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
       Map("output-format" -> "json")
     )
     val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute("1+1", environment, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute("1+1", environment, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == "2")
   }
 
@@ -61,7 +61,9 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
       Map("output-format" -> "json")
     )
     val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute("def f(): return 1+1", environment, Some("f"), baos) == ExecutionSuccess(true))
+    assert(
+      compilerService.execute("def f(): return 1+1", environment, Some("f"), baos) == Right(ExecutionSuccess(true))
+    )
     assert(baos.toString() == "2")
   }
 
@@ -75,7 +77,9 @@ class TestPythonCompilerService extends RawTestSuite with SettingsTestContext wi
       Map("output-format" -> "json")
     )
     val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute("def f(v): return v*2", environment, Some("f"), baos) == ExecutionSuccess(true))
+    assert(
+      compilerService.execute("def f(v): return v*2", environment, Some("f"), baos) == Right(ExecutionSuccess(true))
+    )
     assert(baos.toString() == "4")
   }
 

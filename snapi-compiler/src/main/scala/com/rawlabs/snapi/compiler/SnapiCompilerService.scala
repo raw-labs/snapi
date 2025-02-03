@@ -419,10 +419,10 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           if (unsupportedMandatoryPolyglotArguments.nonEmpty) {
             return Left(ValidationError(unsupportedMandatoryPolyglotArguments.to))
           }
-          val mandatoryPolyglotArguments = maybeMandatoryPolyglotArguments.flatten
+          val mandatoryPolyglotArguments: Array[Value] = maybeMandatoryPolyglotArguments.flatten
 
           // Optional arguments are converted to Polyglot values
-          val maybeOptionalPolyglotArguments = funType.os.collect {
+          val maybeOptionalPolyglotArguments: Map[String, Option[Value]] = funType.os.collect {
             case arg if optionalArgs.contains(arg.i) =>
               val paramValue = optionalArgs(arg.i)
               arg.i -> rawValueToPolyglotValue(paramValue, ctx)
@@ -437,10 +437,10 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
 
           // Optional arguments can be missing from the provided arguments.
           // We replace the missing ones by their default value.
-          val optionalPolyglotArguments = funType.os.map { arg =>
+          val optionalPolyglotArguments: Seq[Value] = funType.os.map { arg =>
             maybeOptionalPolyglotArguments.get(arg.i) match {
               // if the argument is provided, use it
-              case Some(paramValue) => paramValue
+              case Some(paramValue) => paramValue.get
               // else, the argument has a default value that can be obtained from `f`.
               case None => f.invokeMember("default_" + arg.i)
             }
