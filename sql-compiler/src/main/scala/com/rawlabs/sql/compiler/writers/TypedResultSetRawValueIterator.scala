@@ -14,7 +14,6 @@ package com.rawlabs.sql.compiler.writers
 
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.rawlabs.compiler._
-import com.rawlabs.compiler.utils.RecordFieldsNaming
 import com.rawlabs.protocol.raw.{
   Value,
   ValueBool,
@@ -132,13 +131,9 @@ class TypedResultSetRawValueIterator(
 
   import TypedResultSetRawValueIterator._
 
-  private val (attributes, distinctNames) = t match {
+  private val attributes = t match {
     // We assume t is something like RawIterableType(RawRecordType(atts, _, _), _, _)
-    case RawIterableType(RawRecordType(atts, _, _), _, _) =>
-      val names = new java.util.Vector[String]()
-      atts.foreach(a => names.add(a.idn))
-      val distincted = RecordFieldsNaming.makeDistinct(names)
-      (atts, distincted)
+    case RawIterableType(RawRecordType(atts, _, _), _, _) => atts
     case _ => throw new IllegalArgumentException(
         s"TypedResultSetRawValueIterator can only handle Iterable of Record. Got: $t"
       )
@@ -169,7 +164,7 @@ class TypedResultSetRawValueIterator(
 
     // Each row is a RawRecord
     val rowAttrs = for (i <- attributes.indices) yield {
-      val fieldName = distinctNames.get(i)
+      val fieldName = attributes(i).idn
       val fieldType = attributes(i).tipe
       val fieldValue = readValue(resultSet, i + 1, fieldType)
       ValueRecordField.newBuilder().setName(fieldName).setValue(fieldValue).build()

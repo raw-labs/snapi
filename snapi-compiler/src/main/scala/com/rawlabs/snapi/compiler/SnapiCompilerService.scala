@@ -13,7 +13,6 @@
 package com.rawlabs.snapi.compiler
 
 import com.google.protobuf.ByteString
-import com.rawlabs.compiler.utils.RecordFieldsNaming
 import com.rawlabs.compiler.{
   AutoCompleteResponse,
   CompilerService,
@@ -766,21 +765,16 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
             .build()
 
         case SnapiRecordType(attributes, _) =>
-          // We need to make sure that the field names are distinct
-          val keys = new java.util.Vector[String]
-          attributes.foreach(a => keys.add(a.idn))
-          val distincted = RecordFieldsNaming.makeDistinct(keys).asScala
-
           // Build a RawRecord
-          val recordAttrs = attributes.zip(distincted).map {
-            case (att, distinctName) =>
+          val recordAttrs = attributes.map {
+            case att =>
               val fieldName = att.idn
               val memberVal = v.getMember(fieldName)
               val fieldValue = fromTruffleValue(
                 memberVal,
                 att.tipe.asInstanceOf[SnapiTypeWithProperties]
               )
-              ValueRecordField.newBuilder().setName(distinctName).setValue(fieldValue).build()
+              ValueRecordField.newBuilder().setName(fieldName).setValue(fieldValue).build()
           }
           com.rawlabs.protocol.raw.Value
             .newBuilder()
