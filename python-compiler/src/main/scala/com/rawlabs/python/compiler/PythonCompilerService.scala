@@ -16,17 +16,14 @@ import com.rawlabs.compiler.{
   AutoCompleteResponse,
   CompilerService,
   ErrorMessage,
-  EvalError,
   EvalSuccess,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
+  ExecutionError,
   ExecutionSuccess,
-  ExecutionValidationFailure,
   FormatCodeResponse,
-  GetProgramDescriptionResponse,
   GoToDefinitionResponse,
   HoverResponse,
   Pos,
+  ProgramDescription,
   ProgramEnvironment,
   RawBool,
   RawByte,
@@ -70,7 +67,10 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
 
   override def language: Set[String] = Set("python")
 
-  override def getProgramDescription(source: String, environment: ProgramEnvironment): GetProgramDescriptionResponse = {
+  override def getProgramDescription(
+      source: String,
+      environment: ProgramEnvironment
+  ): Either[List[ErrorMessage], ProgramDescription] = {
     ???
 //    val source = """
 //import ast
@@ -139,7 +139,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
       maybeDecl: Option[String],
       outputStream: OutputStream,
       maxRows: Option[Long]
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
     ctx.initialize("python")
     ctx.enter()
@@ -163,7 +163,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
                   )
               }
               if (unsupportedMandatoryPolyglotArguments.nonEmpty) {
-                return ExecutionValidationFailure(unsupportedMandatoryPolyglotArguments.to)
+                return Left(ExecutionError.ValidationError(unsupportedMandatoryPolyglotArguments.to))
               }
               val polyglotArguments = maybePolyglotArguments.flatten
               f.execute(polyglotArguments: _*)
@@ -184,9 +184,9 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           try {
             w.write(v)
             w.flush()
-            ExecutionSuccess(complete = true)
+            Right(ExecutionSuccess(complete = true))
           } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+            case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
           } finally {
             RawUtils.withSuppressNonFatalException(w.close())
           }
@@ -195,9 +195,9 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           try {
             w.write(v)
             w.flush()
-            ExecutionSuccess(complete = true)
+            Right(ExecutionSuccess(complete = true))
           } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+            case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
           } finally {
             RawUtils.withSuppressNonFatalException(w.close())
           }
@@ -205,26 +205,26 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           val w = new PolyglotTextWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess(complete = true)
+            Right(ExecutionSuccess(complete = true))
           } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+            case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
           }
         case Some("binary") =>
           val w = new PolyglotBinaryWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess(complete = true)
+            Right(ExecutionSuccess(complete = true))
           } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+            case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
           }
-        case _ => ExecutionRuntimeFailure("unknown output format")
+        case _ => Left(ExecutionError.RuntimeError("unknown output format"))
       }
     } catch {
       case ex: PolyglotException =>
         if (ex.isInterrupted) {
           throw new InterruptedException()
         } else {
-          ExecutionRuntimeFailure(ex.getMessage)
+          Left(ExecutionError.RuntimeError(ex.getMessage))
         }
     } finally {
       ctx.leave()
@@ -258,7 +258,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String]
-  ): Either[EvalError, EvalSuccess] = ???
+  ): Either[ExecutionError, EvalSuccess] = ???
 
   override def formatCode(
       source: String,

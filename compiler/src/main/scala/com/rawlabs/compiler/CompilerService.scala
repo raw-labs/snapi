@@ -17,7 +17,7 @@ import org.graalvm.polyglot.Engine
 
 import java.io.OutputStream
 import scala.collection.mutable
-import com.rawlabs.utils.core.{ RawService, RawSettings}
+import com.rawlabs.utils.core.{RawService, RawSettings}
 
 object CompilerService {
 
@@ -86,7 +86,7 @@ trait CompilerService extends RawService {
   def getProgramDescription(
       source: String,
       environment: ProgramEnvironment
-  ): GetProgramDescriptionResponse
+  ): Either[List[ErrorMessage], ProgramDescription]
 
   // Execute a source program and write the results to the output stream.
   def execute(
@@ -95,9 +95,13 @@ trait CompilerService extends RawService {
       maybeDecl: Option[String],
       outputStream: OutputStream,
       maxRows: Option[Long] = None
-  ): ExecutionResponse
+  ): Either[ExecutionError, ExecutionSuccess]
 
-  def eval(source: String, environment: ProgramEnvironment, maybeDecl: Option[String]): Either[EvalError, EvalSuccess]
+  def eval(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): Either[ExecutionError, EvalSuccess]
 
   // Format a source program.
   def formatCode(
@@ -141,18 +145,20 @@ trait CompilerService extends RawService {
 
 final case class Pos(line: Int, column: Int)
 
-sealed trait GetProgramDescriptionResponse
-final case class GetProgramDescriptionFailure(errors: List[ErrorMessage]) extends GetProgramDescriptionResponse
-final case class GetProgramDescriptionSuccess(programDescription: ProgramDescription)
-    extends GetProgramDescriptionResponse
+final case class ExecutionSuccess(complete: Boolean)
 
-sealed trait ExecutionResponse
-final case class ExecutionSuccess(complete: Boolean) extends ExecutionResponse
-final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
-final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
+sealed trait ExecutionError
+object ExecutionError {
+  final case class ValidationError(errors: List[ErrorMessage]) extends ExecutionError
 
-final case class EvalSuccess(valueType: Type, values: Iterator[Value] with AutoCloseable)
-final case class EvalError(errors: List[ErrorMessage])
+  final case class RuntimeError(error: String) extends ExecutionError
+}
+
+sealed trait EvalSuccess
+object EvalSuccess {
+  final case class IteratorValue(innerType: Type, valueIterator: Iterator[Value] with AutoCloseable) extends EvalSuccess
+  final case class ResultValue(valueType: Type, value: Value) extends EvalSuccess
+}
 
 final case class FormatCodeResponse(code: Option[String])
 final case class HoverResponse(completion: Option[Completion])

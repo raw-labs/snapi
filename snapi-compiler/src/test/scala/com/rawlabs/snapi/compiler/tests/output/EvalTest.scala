@@ -19,11 +19,11 @@ import com.rawlabs.snapi.frontend.snapi.SnapiInterpolator
 class EvalTest extends SnapiTestContext {
 
   // Test single value
-  test(snapi"""42""")(it => it should eval(Value.newBuilder().setInt(ValueInt.newBuilder().setV(42)).build()))
+  test(snapi"""42""")(it => it should evalSingle(Value.newBuilder().setInt(ValueInt.newBuilder().setV(42)).build()))
 
   // Test iterator
   test(snapi"""Collection.Build(1,2,3)""") { it =>
-    it should eval(
+    it should evalIterator(
       Value.newBuilder().setInt(ValueInt.newBuilder().setV(1)).build(),
       Value.newBuilder().setInt(ValueInt.newBuilder().setV(2)).build(),
       Value.newBuilder().setInt(ValueInt.newBuilder().setV(3)).build()
@@ -32,7 +32,7 @@ class EvalTest extends SnapiTestContext {
 
   // Test list (vs iterator)
   test(snapi"""[1,2,3]""") { it =>
-    it should eval(
+    it should evalSingle(
       Value
         .newBuilder()
         .setList(
@@ -48,10 +48,7 @@ class EvalTest extends SnapiTestContext {
   }
 
   // Test validation failure
-  test(snapi"""x + 1""")(it =>
-    it should evalTypeErrorAs("x is not declared")
-  )
-
+  test(snapi"""x + 1""")(it => it should evalTypeErrorAs("x is not declared"))
 
   // Test runtime failure
   test(snapi"""Regex.Groups("aaa", "(\\d+)") """)(it =>

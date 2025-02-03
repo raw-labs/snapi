@@ -16,15 +16,13 @@ import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import com.rawlabs.compiler.{
   AutoCompleteResponse,
   CompilerService,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
+  ErrorMessage,
+  ExecutionError,
   ExecutionSuccess,
-  GetProgramDescriptionFailure,
-  GetProgramDescriptionResponse,
-  GetProgramDescriptionSuccess,
   HoverResponse,
   LetBindCompletion,
   Pos,
+  ProgramDescription,
   ProgramEnvironment,
   RawInt,
   TypeCompletion,
@@ -128,7 +126,7 @@ class TestSqlConnectionFailures
       val futures = others.map(user => pool.submit(() => runExecute(compilerService, user, longRunningQuery, 5)))
       val results = futures.map(_.get(60, TimeUnit.SECONDS))
       results.foreach {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(ExecutionSuccess(complete)) => complete shouldBe true
         case r => fail(s"unexpected result $r")
       }
       // The user is able to get a connection to run all LSP calls.
@@ -164,7 +162,7 @@ class TestSqlConnectionFailures
       val futures = others.map(user => pool.submit(() => runExecute(compilerService, user, longRunningQuery, 5)))
       val results = futures.map(_.get(60, TimeUnit.SECONDS))
       results.foreach {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(ExecutionSuccess(complete)) => complete shouldBe true
         case r => fail(s"unexpected result $r")
       }
       // hover returns nothing
@@ -209,7 +207,7 @@ class TestSqlConnectionFailures
       }.toSet === Set("airports", "trips", "machines"))
       val results = futures.map(_.get(60, TimeUnit.SECONDS))
       results.foreach {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(ExecutionSuccess(complete)) => complete shouldBe true
         case r => fail(s"unexpected result $r")
       }
     } finally {
@@ -243,7 +241,7 @@ class TestSqlConnectionFailures
       assert(dotCompletionResponse.completions.isEmpty)
       val results = futures.map(_.get(60, TimeUnit.SECONDS))
       results.foreach {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(ExecutionSuccess(complete)) => complete shouldBe true
         case r => fail(s"unexpected result $r")
       }
     } finally {
@@ -266,7 +264,7 @@ class TestSqlConnectionFailures
         .map(user => user -> iterations.map(_ => runExecute(compilerService, user, longRunningQuery, 0)))
         .toMap
       for (userResults <- results.values; r <- userResults) r match {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(ExecutionSuccess(complete)) => complete shouldBe true
         case _ => fail(s"unexpected result $r")
       }
     } finally {
@@ -292,7 +290,7 @@ class TestSqlConnectionFailures
         .toMap
       val results = futures.mapValues(_.map(_.get(60, TimeUnit.SECONDS)))
       for (userResults <- results.values; r <- userResults) r match {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(ExecutionSuccess(complete)) => complete shouldBe true
         case _ => fail(s"unexpected result $r")
       }
     } finally {
@@ -314,12 +312,14 @@ class TestSqlConnectionFailures
       val results = users
         .map(user => user -> iterations.map(_ => runExecute(compilerService, user, longRunningQuery, 0)))
         .toMap
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
-        case ExecutionSuccess(complete) => complete shouldBe true
-        case ExecutionRuntimeFailure(error) => error shouldBe "no connections available"
+        case Right(ExecutionSuccess(complete)) => complete shouldBe true
+        case Left(ExecutionError.RuntimeError(error)) =>
+          error shouldBe "no connections available"
+          errorCount += 1
         case _ => fail(s"unexpected result $r")
       }
-      val errorCount = results.values.map(_.count(_.isInstanceOf[ExecutionRuntimeFailure])).sum
       errorCount should be > 0
     } finally {
       compilerService.stop()
@@ -339,13 +339,14 @@ class TestSqlConnectionFailures
       val results = users
         .map(user => user -> iterations.map(_ => runGetProgramDescription(compilerService, user, longValidateQuery)))
         .toMap
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
-        case GetProgramDescriptionSuccess(_) =>
-        case GetProgramDescriptionFailure(errors) =>
+        case Right(_) =>
+        case Left(errors) =>
           errors.size shouldBe 1
           errors.head.message shouldBe "no connections available"
+          errorCount += 1
       }
-      val errorCount = results.values.map(_.count(_.isInstanceOf[GetProgramDescriptionFailure])).sum
       errorCount should be > 0
     } finally {
       compilerService.stop()
@@ -365,13 +366,14 @@ class TestSqlConnectionFailures
       val results = users
         .map(user => user -> iterations.map(_ => runValidate(compilerService, user, longValidateQuery)))
         .toMap
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
         case ValidateResponse(errors) if errors.isEmpty =>
         case ValidateResponse(errors) =>
           errors.size shouldBe 1
           errors.head.message shouldBe "no connections available"
+          errorCount += 1
       }
-      val errorCount = results.values.map(_.count(_.messages.nonEmpty)).sum
       errorCount should be > 0
     } finally {
       compilerService.stop()
@@ -396,12 +398,14 @@ class TestSqlConnectionFailures
         )
         .toMap
       val results = futures.mapValues(_.map(_.get(60, TimeUnit.SECONDS)))
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
-        case ExecutionSuccess(complete) => complete shouldBe true
-        case ExecutionRuntimeFailure(error) => error shouldBe "too many connections active"
+        case Right(ExecutionSuccess(complete)) => complete shouldBe true
+        case Left(ExecutionError.RuntimeError(error)) =>
+          error shouldBe "too many connections active"
+          errorCount += 1
         case _ => fail(s"unexpected result $r")
       }
-      val errorCount = results.values.map(_.count(_.isInstanceOf[ExecutionRuntimeFailure])).sum
       errorCount should be > 0
     } finally {
       pool.close()
@@ -429,13 +433,14 @@ class TestSqlConnectionFailures
         )
         .toMap
       val results = futures.mapValues(_.map(_.get(60, TimeUnit.SECONDS)))
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
-        case GetProgramDescriptionSuccess(_) =>
-        case GetProgramDescriptionFailure(errors) =>
+        case Right(_) =>
+        case Left(errors) =>
           errors.size shouldBe 1
           errors.head.message shouldBe "too many connections active"
+          errorCount += 1
       }
-      val errorCount = results.values.map(_.count(_.isInstanceOf[GetProgramDescriptionFailure])).sum
       errorCount should be > 0
     } finally {
       pool.close()
@@ -461,13 +466,14 @@ class TestSqlConnectionFailures
         )
         .toMap
       val results = futures.mapValues(_.map(_.get(60, TimeUnit.SECONDS)))
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
         case ValidateResponse(errors) if errors.isEmpty =>
         case ValidateResponse(errors) =>
           errors.size shouldBe 1
           errors.head.message shouldBe "too many connections active"
+          errorCount += 1
       }
-      val errorCount = results.values.map(_.count(_.messages.nonEmpty)).sum
       errorCount should be > 0
     } finally {
       pool.close()
@@ -480,7 +486,7 @@ class TestSqlConnectionFailures
       user: RawUid,
       code: String,
       arg: Int
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
     val env = ProgramEnvironment(
       user,
       Some(Array("arg" -> RawInt(arg))),
@@ -557,7 +563,7 @@ class TestSqlConnectionFailures
       compilerService: CompilerService,
       user: RawUid,
       code: String
-  ): GetProgramDescriptionResponse = {
+  ): Either[List[ErrorMessage], ProgramDescription] = {
     val env = ProgramEnvironment(
       user,
       None,

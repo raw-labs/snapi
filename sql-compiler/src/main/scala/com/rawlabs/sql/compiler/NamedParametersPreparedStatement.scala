@@ -16,6 +16,7 @@ import com.rawlabs.compiler.{
   ErrorMessage,
   ErrorPosition,
   ErrorRange,
+  ExecutionError,
   RawBinary,
   RawBool,
   RawByte,
@@ -466,7 +467,10 @@ class NamedParametersPreparedStatement(
 
   def executeWith(
       parameters: Seq[(String, RawValue)]
-  ): Either[String, NamedParametersPreparedStatementExecutionResult] = {
+  ): Either[ExecutionError, NamedParametersPreparedStatementExecutionResult] = {
+
+    import ExecutionError._
+
     val mandatoryParameters = {
       for (
         (name, diagnostic) <- declaredTypeInfo
@@ -479,8 +483,19 @@ class NamedParametersPreparedStatement(
         setParam(p, v)
         mandatoryParameters.remove(p)
     }
-    if (mandatoryParameters.nonEmpty) Left(s"no value was specified for ${mandatoryParameters.mkString(", ")}")
-    else
+    if (mandatoryParameters.nonEmpty) {
+      Left(
+        ValidationError(
+          List(
+            ErrorMessage(
+              s"no value was specified for ${mandatoryParameters.mkString(", ")}",
+              Nil,
+              ErrorCode.SqlErrorCode
+            )
+          )
+        )
+      )
+    } else
       try {
         val isResultSet = stmt.execute()
         if (isResultSet) Right(NamedParametersPreparedStatementResultSet(stmt.getResultSet))
@@ -498,7 +513,7 @@ class NamedParametersPreparedStatement(
         case ex: PSQLException =>
           // These are still considered validation errors.
           val error = ex.getMessage // it has the code, the message, hint, etc.
-          Left(error)
+          Left(RuntimeError(error))
       }
   }
 

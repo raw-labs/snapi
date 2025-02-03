@@ -41,3 +41,9 @@ object TruffleValidationError {
     case _ => None
   }
 }
+
+object TruffleRuntimeError {
+  def unapply(t: Throwable): Option[String] = t match {
+    case ex: PolyglotException if ex.isGuestException => Some(ex.getMessage)
+  }
+}

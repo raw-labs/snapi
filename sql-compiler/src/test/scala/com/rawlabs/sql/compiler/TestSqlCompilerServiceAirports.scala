@@ -17,11 +17,8 @@ import com.rawlabs.compiler.{
   CompilerService,
   ErrorMessage,
   ErrorPosition,
-  ExecutionRuntimeFailure,
+  ExecutionError,
   ExecutionSuccess,
-  ExecutionValidationFailure,
-  GetProgramDescriptionFailure,
-  GetProgramDescriptionSuccess,
   LetBindCompletion,
   ParamDescription,
   Pos,
@@ -144,7 +141,7 @@ class TestSqlCompilerServiceAirports
     |    ARRAY['apple', 'banana', 'cherry'] AS text_array;""".stripMargin) { t =>
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
     val Some(main) = description.maybeRunnable
     assert(main.params.contains(Vector.empty))
     val baos = new ByteArrayOutputStream()
@@ -154,7 +151,7 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ==
@@ -287,7 +284,7 @@ class TestSqlCompilerServiceAirports
     |AND :n > 0
     |AND :n > 0
     |AND :n > 0""".stripMargin) { t =>
-    val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(errors) = compilerService.getProgramDescription(t.q, asJson())
     assert(errors.size == 1)
     val error = errors.head
     assert(error.message.contains("syntax error at or near \",\""))
@@ -554,7 +551,7 @@ class TestSqlCompilerServiceAirports
   test("SELECT * FROM example.airports WHERE city = 'Braganca'") { t =>
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
     val Some(main) = description.maybeRunnable
     assert(
       main.outType.get == airportType
@@ -567,7 +564,7 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ==
@@ -594,7 +591,7 @@ class TestSqlCompilerServiceAirports
     val environment = asCsv(Map("city" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
+    val Right(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
@@ -612,7 +609,7 @@ class TestSqlCompilerServiceAirports
         environment,
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ==
@@ -627,7 +624,7 @@ class TestSqlCompilerServiceAirports
     val environment = asJson(Map("city" -> RawNull()))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
+    val Right(description) = compilerService.getProgramDescription(t.q, environment)
     val Some(main) = description.maybeRunnable
     assert(
       main.outType.get == airportType
@@ -644,7 +641,7 @@ class TestSqlCompilerServiceAirports
         environment,
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(baos.toString() == "[]")
   }
@@ -655,7 +652,7 @@ class TestSqlCompilerServiceAirports
     val environment = asJson()
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
+    val Right(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
@@ -679,7 +676,7 @@ class TestSqlCompilerServiceAirports
         environment,
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(baos.toString() == """[{"n":6}]""")
   }
@@ -731,7 +728,7 @@ class TestSqlCompilerServiceAirports
     val environment = asCsv(Map("param" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.nonEmpty)
-    val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, environment)
+    val Left(errors) = compilerService.getProgramDescription(t.q, environment)
     assert(errors.size === 1)
     assert(errors.head.message === "a parameter cannot be both varchar and integer")
     assert(errors.head.positions(0).begin === ErrorPosition(1, 45))
@@ -745,10 +742,10 @@ class TestSqlCompilerServiceAirports
     val expectedError = "syntax error at end of input"
     val validation = compilerService.validate(t.q, asJson())
     assert(validation.messages.exists(_.message.contains(expectedError)))
-    val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
     val baos = new ByteArrayOutputStream()
-    val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, asJson(), None, baos)
+    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
     assert(executionErrors.exists(_.message.contains(expectedError)))
   }
 
@@ -756,10 +753,10 @@ class TestSqlCompilerServiceAirports
     val expectedError = "syntax error at or near \"-\""
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.exists(_.message.contains(expectedError)))
-    val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
     val baos = new ByteArrayOutputStream()
-    val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, asJson(), None, baos)
+    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
     assert(executionErrors.exists(_.message.contains(expectedError)))
   }
 
@@ -768,10 +765,10 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, asJson())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
     assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
-    val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
     val baos = new ByteArrayOutputStream()
-    val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, asJson(), None, baos)
+    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
     assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
   }
 
@@ -782,10 +779,10 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, asJson())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
     assert(failures.forall(err => expectedErrors.exists(err.message.contains)))
-    val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.forall(err => expectedErrors.exists(err.message.contains)))
     val baos = new ByteArrayOutputStream()
-    val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, asJson(), None, baos)
+    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
     assert(executionErrors.forall(err => expectedErrors.exists(err.message.contains)))
   }
 
@@ -793,11 +790,11 @@ class TestSqlCompilerServiceAirports
     |SELECT :a + :a AS v""".stripMargin) { t =>
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty, v.messages.mkString(","))
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
     assert(!description.maybeRunnable.get.params.get.head.required)
     assert(description.maybeRunnable.get.params.get.head.defaultValue.contains(RawInt(2)))
     val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"v":4}]""")
   }
 
@@ -806,10 +803,10 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, asJson())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
     assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
-    val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
     val baos = new ByteArrayOutputStream()
-    val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, asJson(), None, baos)
+    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
     assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
   }
 
@@ -844,7 +841,7 @@ class TestSqlCompilerServiceAirports
     val withNull = asJson(Map("name" -> RawNull()))
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
+    val Right(description) = compilerService.getProgramDescription(t.q, withCity)
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
@@ -861,13 +858,13 @@ class TestSqlCompilerServiceAirports
     assert(param.defaultValue.isEmpty)
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, withCity, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, withCity, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"count":1}]""")
     baos.reset()
-    assert(compilerService.execute(t.q, withNull, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, withNull, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"count":0}]""")
     baos.reset()
-    assert(compilerService.execute(t.q, withCountry, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, withCountry, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"count":39}]""")
   }
 
@@ -878,7 +875,7 @@ class TestSqlCompilerServiceAirports
     val withNull = asJson(Map("name" -> RawNull()))
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
+    val Right(description) = compilerService.getProgramDescription(t.q, withCity)
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
@@ -895,10 +892,10 @@ class TestSqlCompilerServiceAirports
     assert(param.defaultValue.isEmpty)
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, withCity, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, withCity, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"count":1}]""")
     baos.reset()
-    assert(compilerService.execute(t.q, withNull, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, withNull, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"count":3}]""")
   }
 
@@ -906,7 +903,7 @@ class TestSqlCompilerServiceAirports
     |SELECT DATE '2002-01-01' - :s::int AS x -- RD-10538""".stripMargin) { t =>
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
@@ -934,7 +931,7 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == ExecutionRuntimeFailure("no value was specified for s")
+      ) == Left(ExecutionError.RuntimeError("no value was specified for s"))
     )
   }
 
@@ -942,7 +939,7 @@ class TestSqlCompilerServiceAirports
     |SELECT DATE '2002-01-01' - :s AS x -- RD-10538""".stripMargin) { t =>
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
     val Some(main) = description.maybeRunnable
     assert(
       main.outType.contains(
@@ -971,7 +968,7 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ==
@@ -1002,7 +999,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, noParam, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"count":8107}]""")
   }
 
@@ -1014,7 +1011,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, noParam, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"count":8107}]""")
   }
 
@@ -1028,7 +1025,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, noParam, None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"count":8107}]""")
   }
 
@@ -1093,9 +1090,9 @@ class TestSqlCompilerServiceAirports
     def runWith(q: String, scopes: Set[String]): String = {
       val env = asJson(scopes = scopes)
       assert(compilerService.validate(q, env).messages.isEmpty)
-      val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(q, env)
+      val Right(_) = compilerService.getProgramDescription(q, env)
       baos.reset()
-      assert(compilerService.execute(q, env, None, baos) == ExecutionSuccess(true))
+      assert(compilerService.execute(q, env, None, baos) == Right(ExecutionSuccess(true)))
       baos.toString
     }
 //    assert(runWith("SELECT e.airport_id FROM example.airports e", Set.empty) == """[]""")
@@ -1145,7 +1142,7 @@ class TestSqlCompilerServiceAirports
         asJson(Map("p" -> RawInt(5))),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     // The code does nothing, but we don't get an error when running it in Postgres.
     assert(
@@ -1170,17 +1167,17 @@ class TestSqlCompilerServiceAirports
   test("""SELECT pg_typeof(NOW())""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
-    val GetProgramDescriptionFailure(errors2) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(errors2) = compilerService.getProgramDescription(t.q, asJson())
     errors2.map(_.message).contains("unsupported type: regtype")
   }
 
   test("""SELECT CAST(pg_typeof(NOW()) AS VARCHAR)""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
-    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() == """[{"pg_typeof":"timestamp with time zone"}]""")
 
   }
@@ -1190,20 +1187,20 @@ class TestSqlCompilerServiceAirports
     // it works (we cannot assert on the result).
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
   }
 
   test("""SELECT TIMESTAMP '2001-07-01 12:13:14.567' AS t""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
-    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     for (env <- Seq(asJson(), asCsv())) {
       baos.reset()
-      assert(compilerService.execute(t.q, env, None, baos) == ExecutionSuccess(true))
+      assert(compilerService.execute(t.q, env, None, baos) == Right(ExecutionSuccess(true)))
       assert(baos.toString().contains("12:13:14.567"))
     }
   }
@@ -1211,10 +1208,10 @@ class TestSqlCompilerServiceAirports
   test("""SELECT TIMESTAMP '2001-07-01 12:13:14' AS t""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
-    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, asCsv(), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asCsv(), None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString().contains("12:13:14"))
     assert(!baos.toString().contains("12:13:14.000"))
   }
@@ -1222,11 +1219,11 @@ class TestSqlCompilerServiceAirports
   test("""SELECT TIME '12:13:14.567' AS t""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
-    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     for (env <- Seq(asJson(), asCsv())) {
       baos.reset()
-      assert(compilerService.execute(t.q, env, None, baos) == ExecutionSuccess(true))
+      assert(compilerService.execute(t.q, env, None, baos) == Right(ExecutionSuccess(true)))
       assert(baos.toString().contains("12:13:14.567"))
     }
   }
@@ -1234,10 +1231,10 @@ class TestSqlCompilerServiceAirports
   test("""SELECT TIME '12:13:14' AS t""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
-    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, asCsv(), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asCsv(), None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString().contains("12:13:14"))
     assert(!baos.toString().contains("12:13:14.000"))
   }
@@ -1246,12 +1243,12 @@ class TestSqlCompilerServiceAirports
     |SELECT :t AS t""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
-    val GetProgramDescriptionSuccess(_) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     baos.reset()
     for (env <- Seq(asJson(), asCsv())) {
       baos.reset()
-      assert(compilerService.execute(t.q, env, None, baos) == ExecutionSuccess(true))
+      assert(compilerService.execute(t.q, env, None, baos) == Right(ExecutionSuccess(true)))
       assert(baos.toString().contains("12:13:14.567"))
     }
   }
@@ -1261,10 +1258,10 @@ class TestSqlCompilerServiceAirports
     |SELECT :x AS x""".stripMargin) { t =>
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() === """[{"x":null}]""")
     baos.reset()
-    assert(compilerService.execute(t.q, asJson(Map("x" -> RawInt(12))), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asJson(Map("x" -> RawInt(12))), None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() === """[{"x":12}]""")
   }
 
@@ -1272,10 +1269,14 @@ class TestSqlCompilerServiceAirports
     |-- @default x null
     |SELECT :x AS x""".stripMargin) { t =>
     val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() === """[{"x":null}]""")
     baos.reset()
-    assert(compilerService.execute(t.q, asJson(Map("x" -> RawString("tralala"))), None, baos) == ExecutionSuccess(true))
+    assert(
+      compilerService.execute(t.q, asJson(Map("x" -> RawString("tralala"))), None, baos) == Right(
+        ExecutionSuccess(true)
+      )
+    )
     assert(baos.toString() === """[{"x":"tralala"}]""")
   }
 
@@ -1283,7 +1284,7 @@ class TestSqlCompilerServiceAirports
     |-- @default x null
     |SELECT :x AS x""".stripMargin) { t =>
     val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess(true))
+    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
     assert(baos.toString() === """[{"x":null}]""")
     baos.reset()
     assert(
@@ -1292,7 +1293,7 @@ class TestSqlCompilerServiceAirports
         asJson(Map("x" -> RawDate(LocalDate.of(2008, 9, 29)))),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(baos.toString() === """[{"x":"2008-09-29"}]""")
   }
@@ -1334,7 +1335,7 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(baos.toString() === """[{"r":{"a":"1","b":"tralala"}}]""")
   }
@@ -1347,7 +1348,7 @@ class TestSqlCompilerServiceAirports
         asJson(),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(baos.toString() === """[{"r":null}]""")
   }
@@ -1361,7 +1362,7 @@ class TestSqlCompilerServiceAirports
         asCsv(),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ===
@@ -1379,7 +1380,7 @@ class TestSqlCompilerServiceAirports
         asCsv(),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(baos.toString() === """[{"r":{"a":"1","b":"tralala"}}]""")
   }
@@ -1392,7 +1393,7 @@ class TestSqlCompilerServiceAirports
         asCsv(),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(baos.toString() === """airport_id,name,city,country,iata_faa,icao,latitude,longitude,altitude,timezone,dst,tz
       |1,Goroka,Goroka,Papua New Guinea,GKA,AYGA,-6.081689,145.391881,5282.000,10,U,Pacific/Port_Moresby
@@ -1415,7 +1416,7 @@ class TestSqlCompilerServiceAirports
         ),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ===
@@ -1430,7 +1431,7 @@ class TestSqlCompilerServiceAirports
         asCsv(params = Map("a" -> RawString("FAKE"))),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ===
@@ -1449,7 +1450,7 @@ class TestSqlCompilerServiceAirports
         asCsv(params = Map("newName" -> RawString("La Roche sur Foron"), "c" -> RawString("Portugal"))),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ===
@@ -1464,7 +1465,7 @@ class TestSqlCompilerServiceAirports
         asCsv(params = Map("c" -> RawString("Portugal"))),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ===
@@ -1482,7 +1483,7 @@ class TestSqlCompilerServiceAirports
         asJson(params = Map("newName" -> RawString("Lausanne"), "c" -> RawString("Portugal"))),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ===
@@ -1495,7 +1496,7 @@ class TestSqlCompilerServiceAirports
         asJson(params = Map("c" -> RawString("Portugal"))),
         None,
         baos
-      ) == ExecutionSuccess(true)
+      ) == Right(ExecutionSuccess(true))
     )
     assert(
       baos.toString() ===

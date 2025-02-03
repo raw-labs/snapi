@@ -21,16 +21,10 @@ import com.rawlabs.compiler.{
   ErrorMessage,
   ErrorPosition,
   ErrorRange,
-  EvalError,
   EvalSuccess,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
+  ExecutionError,
   ExecutionSuccess,
-  ExecutionValidationFailure,
   FormatCodeResponse,
-  GetProgramDescriptionFailure,
-  GetProgramDescriptionResponse,
-  GetProgramDescriptionSuccess,
   GoToDefinitionResponse,
   HoverResponse,
   Message,
@@ -199,7 +193,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   override def getProgramDescription(
       source: String,
       environment: ProgramEnvironment
-  ): GetProgramDescriptionResponse = {
+  ): Either[List[ErrorMessage], ProgramDescription] = {
     withTruffleContext(
       environment,
       _ => {
@@ -226,9 +220,9 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
             maybeType.map(t => DeclDescription(None, snapiTypeToRawType(t), None)),
             comment
           )
-          GetProgramDescriptionSuccess(programDescription)
+          Right(programDescription)
         } else {
-          GetProgramDescriptionFailure(tree.errors.collect { case e: ErrorMessage => e })
+          Left(tree.errors.collect { case e: ErrorMessage => e })
         }
       }
     )
@@ -240,19 +234,19 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       maybeDecl: Option[String],
       outputStream: OutputStream,
       maxRows: Option[Long]
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
     ctx.initialize("snapi")
     ctx.enter()
     try {
       getValueAndType(source, environment, maybeDecl, ctx) match {
-        case Left(errors) => ExecutionValidationFailure(errors)
+        case Left(err) => Left(err)
         case Right((v, tipe)) => environment.options
             .get("output-format")
             .map(_.toLowerCase) match {
             case Some("csv") =>
               if (!CsvPackage.outputWriteSupport(tipe)) {
-                return ExecutionRuntimeFailure("unsupported type")
+                return Left(ExecutionError.RuntimeError("unsupported type"))
               }
               val windowsLineEnding = environment.options.get("windows-line-ending") match {
                 case Some("true") => true
@@ -263,49 +257,49 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
               try {
                 w.write(v, tipe.asInstanceOf[SnapiTypeWithProperties])
                 w.flush()
-                ExecutionSuccess(w.complete)
+                Right(ExecutionSuccess(w.complete))
               } catch {
-                case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+                case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
               } finally {
                 RawUtils.withSuppressNonFatalException(w.close())
               }
             case Some("json") =>
               if (!JsonPackage.outputWriteSupport(tipe)) {
-                return ExecutionRuntimeFailure("unsupported type")
+                return Left(ExecutionError.RuntimeError("unsupported type"))
               }
               val w = new SnapiJsonWriter(outputStream, maxRows)
               try {
                 w.write(v, tipe.asInstanceOf[SnapiTypeWithProperties])
                 w.flush()
-                ExecutionSuccess(w.complete)
+                Right(ExecutionSuccess(w.complete))
               } catch {
-                case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+                case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
               } finally {
                 RawUtils.withSuppressNonFatalException(w.close())
               }
             case Some("text") =>
               if (!StringPackage.outputWriteSupport(tipe)) {
-                return ExecutionRuntimeFailure("unsupported type")
+                return Left(ExecutionError.RuntimeError("unsupported type"))
               }
               val w = new PolyglotTextWriter(outputStream)
               try {
                 w.writeAndFlush(v)
-                ExecutionSuccess(complete = true)
+                Right(ExecutionSuccess(complete = true))
               } catch {
-                case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+                case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
               }
             case Some("binary") =>
               if (!BinaryPackage.outputWriteSupport(tipe)) {
-                return ExecutionRuntimeFailure("unsupported type")
+                return Left(ExecutionError.RuntimeError("unsupported type"))
               }
               val w = new PolyglotBinaryWriter(outputStream)
               try {
                 w.writeAndFlush(v)
-                ExecutionSuccess(complete = true)
+                Right(ExecutionSuccess(complete = true))
               } catch {
-                case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+                case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
               }
-            case _ => ExecutionRuntimeFailure("unknown output format")
+            case _ => Left(ExecutionError.RuntimeError("unknown output format"))
           }
       }
     } catch {
@@ -346,12 +340,12 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
                 }
                 ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
               }
-              ExecutionValidationFailure(errors.to)
+              Left(ExecutionError.ValidationError(errors.to))
             } else {
               // A runtime failure during execution. The query could be a failed tryable, or a runtime error (e.g. a
               // file not found) hit when processing a reader that evaluates as a _collection_ (processed outside the
               // evaluation of the query).
-              ExecutionRuntimeFailure(ex.getMessage)
+              Left(ExecutionError.RuntimeError(ex.getMessage))
             }
           }
         } else {
@@ -369,7 +363,9 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
       ctx: Context
-  ): Either[List[ErrorMessage], (Value, Type)] = {
+  ): Either[ExecutionError, (Value, Type)] = {
+    import ExecutionError._
+
     try {
       maybeDecl match {
         case Some(decl) =>
@@ -404,7 +400,11 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
 
           // Mandatory args have to be all provided
           if (mandatoryArgs.length != funType.ms.size) {
-            return Left(List(ErrorMessage("missing mandatory arguments", List.empty, ParserErrors.ParserErrorCode)))
+            return Left(
+              ValidationError(
+                List(ErrorMessage("missing mandatory arguments", List.empty, ParserErrors.ParserErrorCode))
+              )
+            )
           }
 
           // Mandatory arguments are converted to Polyglot values
@@ -417,7 +417,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
               )
           }
           if (unsupportedMandatoryPolyglotArguments.nonEmpty) {
-            return Left(unsupportedMandatoryPolyglotArguments.to)
+            return Left(ValidationError(unsupportedMandatoryPolyglotArguments.to))
           }
           val mandatoryPolyglotArguments = maybeMandatoryPolyglotArguments.flatten
 
@@ -432,7 +432,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
               ErrorMessage(s"unsupported optional argument $i", List.empty, ParserErrors.ParserErrorCode)
           }
           if (unsupportedOptionalPolyglotArguments.nonEmpty) {
-            return Left(unsupportedOptionalPolyglotArguments.to)
+            return Left(ValidationError(unsupportedOptionalPolyglotArguments.to))
           }
 
           // Optional arguments can be missing from the provided arguments.
@@ -464,7 +464,8 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           Right((result, tipe))
       }
     } catch {
-      case TruffleValidationError(errors) => Left(errors)
+      case TruffleValidationError(errors) => Left(ValidationError(errors))
+      case TruffleRuntimeError(message) => Left(RuntimeError(message))
     }
   }
 
@@ -472,7 +473,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String]
-  ): Either[EvalError, EvalSuccess] = {
+  ): Either[ExecutionError, EvalSuccess] = {
 
     // 1) Build the Truffle context
     val ctx = buildTruffleContext(environment, maybeOutputStream = None)
@@ -483,21 +484,18 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       // 2) Get the value+type. This is where we handle immediate validation errors, which are caught by the
       // SnapiLanguage during the parse call.
       getValueAndType(source, environment, maybeDecl, ctx) match {
-        case Left(errors) =>
+        case Left(error) =>
           logger.info("A")
-          // 3) We got an immediate validation error from the parse.
+          // 3) We got an immediate error.
           // We must close the context now, or we leak it.
           ctx.leave()
-          ctx.close() // Cancel the context and any executing threads.
-          Left(EvalError(errors))
+          ctx.close(true) // Cancel the context and any executing threads.
+          Left(error)
 
         case Right((v, t)) =>
           logger.info("B")
-          // 4) We have a value and an iterator.
-          // The context will remain open so that the iterator can be used to produce results.
-          val it = buildTruffleIterator(ctx, v, t.asInstanceOf[SnapiTypeWithProperties])
-          val protocolType = TypeConverter.toProtocolType(snapiTypeToRawType(t).get)
-          Right(EvalSuccess(protocolType, it))
+          // 4) We have a value so let's produce the final evaluation result.
+          buildEvalResult(ctx, v, t.asInstanceOf[SnapiTypeWithProperties])
 
       }
     } catch {
@@ -517,30 +515,61 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
    * - Else returns Left(RawValue).
    * Also returns the corresponding RawType to describe the final shape.
    */
-  private def buildTruffleIterator(
+  private def buildEvalResult(
       ctx: Context,
       v: Value,
       t: SnapiTypeWithProperties
-  ): Iterator[com.rawlabs.protocol.raw.Value] with AutoCloseable = {
+  ): Either[ExecutionError.RuntimeError, EvalSuccess] = {
+
+    import EvalSuccess._
+    import ExecutionError._
+
+    // If top-level is triable AND holds an exception, return it as a runtime error.
+    if (maybeIsException(v, t)) {
+      try {
+        v.throwException()
+      } catch {
+        case NonFatal(ex) =>
+          // Close context here directly, since we're done
+          ctx.leave()
+          ctx.close(true)
+          return Left(ExecutionError.RuntimeError(ex.getMessage))
+      }
+    }
 
     t match {
-      case SnapiIterableType(inner, _) if !v.isNull && !maybeIsException(v, t) =>
-        logger.info("1")
+      case SnapiIterableType(innerType, _) if !v.isNull =>
+        assert(!maybeIsException(v, t))
+
         // 1) If top-level is an iterable (and not top-level triable error), we produce an iterator
         // Note that the iterator does not close itself on error, as the consumer is expected to call close() itself
 
-        new Iterator[raw.Value] with AutoCloseable {
+        // First obtain the polyglot iterator
+        val polyIt =
+          try {
+            v.getIterator
+          } catch {
+            case TruffleRuntimeError(message) => return Left(RuntimeError(message))
+          }
+
+        val valueIterator = new Iterator[raw.Value] with AutoCloseable {
           // Lazy to avoid calling getIterator if we don't need it
           // Note we do not need to check if v.isException because we know 'v' is not a triable.
-          private lazy val polyIt = v.getIterator
 
           override def hasNext: Boolean = {
+            // We do not expect this call to fail; only the creation of the polyIt can fail...
             polyIt.hasIteratorNextElement
           }
 
           override def next(): com.rawlabs.protocol.raw.Value = {
-            val elemVal = polyIt.getIteratorNextElement
-            fromTruffleValue(elemVal, inner.asInstanceOf[SnapiTypeWithProperties])
+            // We do not expect this call to fail; only the creation of the polyIt can fail...
+            val truffleVal = polyIt.getIteratorNextElement
+
+            // Now convert the Truffle value to protocolValue.
+            // If the value is an exception, as per our semantic, it will be converted now to a ValueError.
+            val protocolVal = fromTruffleValue(truffleVal, innerType.asInstanceOf[SnapiTypeWithProperties])
+
+            protocolVal
           }
 
           override def close(): Unit = {
@@ -548,35 +577,26 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
             ctx.close(true)
           }
         }
+
+        // The context remains open since we are returning an iterator.
+        // It is up to the caller to close that iterator, which then triggers the Truffle context closure.
+
+        val protocolType = TypeConverter.toProtocolType(snapiTypeToRawType(innerType).get)
+        Right(IteratorValue(protocolType, valueIterator))
 
       case _ =>
         logger.info("2")
 
         // 2) Otherwise, produce a single value iterator
-        // Note that the iterator does not close itself on error, as the consumer is expected to call close() itself
+        val protocolValue = fromTruffleValue(v, t)
+        val protocolType = TypeConverter.toProtocolType(snapiTypeToRawType(t).get)
+        val evalResult = ResultValue(protocolType, protocolValue)
 
-        new Iterator[raw.Value] with AutoCloseable {
-          private var done = false
+        // Close context here directly
+        ctx.leave()
+        ctx.close(true)
 
-          override def hasNext: Boolean = !done
-
-          override def next(): raw.Value = {
-            logger.info("Nx1")
-            if (done) throw new NoSuchElementException("Already consumed single value.")
-            done = true
-            val v1 = fromTruffleValue(v, t)
-            logger.info(s"Nx2 $v1")
-            v1
-          }
-
-          override def close(): Unit = {
-            logger.info("Cx1")
-            ctx.leave()
-            ctx.close(true)
-            logger.info("Cx2")
-          }
-        }
-
+        Right(evalResult)
     }
   }
 

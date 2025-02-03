@@ -15,11 +15,9 @@ package com.rawlabs.snapi.compiler.tests
 import com.rawlabs.compiler.{
   AutoCompleteResponse,
   CompilerServiceTestContext,
-  EvalError,
   EvalSuccess,
-  ExecutionRuntimeFailure,
+  ExecutionError,
   ExecutionSuccess,
-  ExecutionValidationFailure,
   FormatCodeResponse,
   GoToDefinitionResponse,
   HoverResponse,
@@ -611,13 +609,34 @@ trait SnapiTestContext
   def typeErrorAs(expectedErrors: String*) = new TypeErrorAs(expectedErrors)
 
   /////////////////////////////////////////////////////////////////////////
-  // eval
+  // evalSingle
   /////////////////////////////////////////////////////////////////////////
 
-  class Eval(expected: Seq[Value]) extends Matcher[TestData] {
+  class EvalSingle(expected: Value) extends Matcher[TestData] {
     def apply(data: TestData) = {
       compilerService.eval(data.q, getQueryEnvironment(), maybeDecl = None) match {
-        case Right(EvalSuccess(_, actual)) =>
+        case Right(EvalSuccess.ResultValue(_, actual)) => MatchResult(
+            actual == expected,
+            s"""results didn't match!
+              |expected: $expected
+              |actual:   $actual""".stripMargin,
+            s"""results matched:
+              |$actual""".stripMargin
+          )
+        case _ => MatchResult(false, "didn't evaluate to a value", "???")
+      }
+    }
+  }
+  def evalSingle(expected: Value) = new EvalSingle(expected)
+
+  /////////////////////////////////////////////////////////////////////////
+  // evalIterator
+  /////////////////////////////////////////////////////////////////////////
+
+  class EvalIterator(expected: Seq[Value]) extends Matcher[TestData] {
+    def apply(data: TestData) = {
+      compilerService.eval(data.q, getQueryEnvironment(), maybeDecl = None) match {
+        case Right(EvalSuccess.IteratorValue(_, actual)) =>
           try {
             val actualList = actual.toList
             val expectedList = expected.toList
@@ -634,7 +653,7 @@ trait SnapiTestContext
       }
     }
   }
-  def eval(expected: Value*) = new Eval(expected)
+  def evalIterator(expected: Value*) = new EvalIterator(expected)
 
   /////////////////////////////////////////////////////////////////////////
   // evalTypeErrorAs
@@ -643,14 +662,14 @@ trait SnapiTestContext
   class EvalTypeErrorAs(expected: Seq[String]) extends Matcher[TestData] {
     override def apply(data: TestData): MatchResult = {
       compilerService.eval(data.q, getQueryEnvironment(), maybeDecl = None) match {
-        case Left(EvalError(actual)) =>
+        case Left(ExecutionError.ValidationError(actual)) =>
           val leftOvers = expected.filter(e => !actual.exists(_.message.contains(e)))
           MatchResult(
             leftOvers.isEmpty,
             s"didn't include error '${leftOvers.mkString(",")}' in '$actual'",
-            s"didn't type: ${actual.mkString("\n")}"
+            """failed as expected"""
           )
-        case _ => MatchResult(false, "didn't evaluate to an error", "???")
+        case _ => MatchResult(false, "didn't evaluate to a type error", "???")
       }
     }
   }
@@ -661,26 +680,15 @@ trait SnapiTestContext
   // evalRunErrorAs
   /////////////////////////////////////////////////////////////////////////
 
-  class EvalRunErrorAs(msg: String) extends Matcher[TestData] {
+  class EvalRunErrorAs(expected: String) extends Matcher[TestData] {
     override def apply(data: TestData): MatchResult = {
       compilerService.eval(data.q, getQueryEnvironment(), maybeDecl = None) match {
-        case Left(EvalError(_)) =>
-          MatchResult(false, "didn't validate (must validate successfully and fail only at runtime)", "???")
-        case Right(EvalSuccess(_, values)) =>
-          try {
-            var found = false
-            while (values.hasNext && !found) {
-              val v = values.next
-              if (v.hasError && v.getError.getMessage.contains(msg)) {
-                found = true
-              }
-            }
-            MatchResult(
-              found,
-              s"""Expected to eventually find error '$msg' but didn't""",
-              """Query failed as expected"""
-            )
-          } finally values.close()
+        case Left(ExecutionError.RuntimeError(actual)) => MatchResult(
+            expected.contains(actual),
+            s"""dind't include error '$expected' in '$actual'""",
+            """failed as expected"""
+          )
+        case _ => MatchResult(false, "didn't evaluate to a runtime error", "???")
       }
     }
   }
@@ -941,9 +949,9 @@ trait SnapiTestContext
         maybeDecl,
         outputStream
       ) match {
-        case ExecutionValidationFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
-        case ExecutionRuntimeFailure(err) => Left(err)
-        case ExecutionSuccess(_) => Right(Path.of(outputStream.toString))
+        case Left(ExecutionError.ValidationError(errs)) => Left(errs.map(err => err.toString).mkString(","))
+        case Left(ExecutionError.RuntimeError(err)) => Left(err)
+        case Right(ExecutionSuccess(_)) => Right(Path.of(outputStream.toString))
       }
     } finally {
       outputStream.close()
@@ -990,9 +998,9 @@ trait SnapiTestContext
     logger.debug(s"Test infrastructure now writing output result to temporary location: $path")
     try {
       compilerService.execute(query, getQueryEnvironment(maybeArgs, scopes, options), maybeDecl, outputStream) match {
-        case ExecutionValidationFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
-        case ExecutionRuntimeFailure(err) => Left(err)
-        case ExecutionSuccess(_) => Right(path)
+        case Left(ExecutionError.ValidationError(errs)) => Left(errs.map(err => err.toString).mkString(","))
+        case Left(ExecutionError.RuntimeError(err)) => Left(err)
+        case Right(ExecutionSuccess(_)) => Right(path)
       }
     } finally {
       outputStream.close()

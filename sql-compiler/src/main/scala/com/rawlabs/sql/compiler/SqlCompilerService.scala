@@ -89,10 +89,10 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   override def getProgramDescription(
       source: String,
       environment: ProgramEnvironment
-  ): GetProgramDescriptionResponse = {
+  ): Either[List[ErrorMessage], ProgramDescription] = {
     logger.debug(s"Getting program description: $source")
     safeParse(source) match {
-      case Left(errors) => GetProgramDescriptionFailure(errors)
+      case Left(errors) => Left(errors)
       case Right(parsedTree) =>
         try {
           val conn = connectionPool.getConnection(environment.jdbcUrl.get)
@@ -135,24 +135,24 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                       Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
                       None
                     )
-                    GetProgramDescriptionSuccess(ok)
+                    Right(ok)
                   case _ =>
                     val errorMessages = outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
-                    GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
+                    Left(treeErrors(parsedTree, errorMessages).toList)
                 }
-              case Left(errors) => GetProgramDescriptionFailure(errors)
+              case Left(errors) => Left(errors)
             }
             RawUtils.withSuppressNonFatalException(stmt.close())
             description
           } catch {
-            case e: NamedParametersPreparedStatementException => GetProgramDescriptionFailure(e.errors)
+            case e: NamedParametersPreparedStatementException => Left(e.errors)
           } finally {
             RawUtils.withSuppressNonFatalException(conn.close())
           }
         } catch {
           case ex: SQLException if isConnectionFailure(ex) =>
             logger.warn("SqlConnectionPool connection failure", ex)
-            GetProgramDescriptionFailure(List(treeError(parsedTree, ex.getMessage)))
+            Left(List(treeError(parsedTree, ex.getMessage)))
         }
     }
   }
@@ -172,11 +172,13 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       maybeDecl: Option[String],
       outputStream: OutputStream,
       maxRows: Option[Long]
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
+    import ExecutionError._
+
     try {
       logger.debug(s"Executing: $source")
       safeParse(source) match {
-        case Left(errors) => ExecutionValidationFailure(errors)
+        case Left(errors) => Left(ValidationError(errors))
         case Right(parsedTree) =>
           val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
@@ -194,17 +196,17 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                               // No ResultSet, it was an update. Return a status in the expected format.
                               updateResultRendering(environment, outputStream, count, maxRows)
                           }
-                        case Left(error) => ExecutionRuntimeFailure(error)
+                        case Left(error) => Left(error)
                       }
-                    case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
+                    case Left(errors) => Left(RuntimeError(errors.mkString(", ")))
                   }
-                case Left(errors) => ExecutionValidationFailure(errors)
+                case Left(errors) => Left(ValidationError(errors))
               }
             } finally {
               RawUtils.withSuppressNonFatalException(pstmt.close())
             }
           } catch {
-            case e: NamedParametersPreparedStatementException => ExecutionValidationFailure(e.errors)
+            case e: NamedParametersPreparedStatementException => Left(ValidationError(e.errors))
           } finally {
             RawUtils.withSuppressNonFatalException(conn.close())
           }
@@ -212,7 +214,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
     } catch {
       case ex: SQLException if isConnectionFailure(ex) =>
         logger.warn("SqlConnectionPool connection failure", ex)
-        ExecutionRuntimeFailure(ex.getMessage)
+        Left(RuntimeError(ex.getMessage))
     }
   }
 
@@ -222,13 +224,15 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       v: ResultSet,
       outputStream: OutputStream,
       maxRows: Option[Long]
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
+    import ExecutionError._
+
     environment.options
       .get("output-format")
       .map(_.toLowerCase) match {
       case Some("csv") =>
         if (!TypedResultSetCsvWriter.outputWriteSupport(tipe)) {
-          ExecutionRuntimeFailure("unsupported type")
+          RuntimeError("unsupported type")
         }
         val windowsLineEnding = environment.options.get("windows-line-ending") match {
           case Some("true") => true
@@ -238,26 +242,26 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         val w = new TypedResultSetCsvWriter(outputStream, lineSeparator, maxRows)
         try {
           w.write(v, tipe)
-          ExecutionSuccess(w.complete)
+          Right(ExecutionSuccess(w.complete))
         } catch {
-          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          case ex: IOException => Left(RuntimeError(ex.getMessage))
         } finally {
           RawUtils.withSuppressNonFatalException(w.close())
         }
       case Some("json") =>
         if (!TypedResultSetJsonWriter.outputWriteSupport(tipe)) {
-          ExecutionRuntimeFailure("unsupported type")
+          RuntimeError("unsupported type")
         }
         val w = new TypedResultSetJsonWriter(outputStream, maxRows)
         try {
           w.write(v, tipe)
-          ExecutionSuccess(w.complete)
+          Right(ExecutionSuccess(w.complete))
         } catch {
-          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          case ex: IOException => Left(RuntimeError(ex.getMessage))
         } finally {
           RawUtils.withSuppressNonFatalException(w.close())
         }
-      case _ => ExecutionRuntimeFailure("unknown output format")
+      case _ => Left(RuntimeError("unknown output format"))
     }
   }
 
@@ -266,7 +270,9 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       stream: OutputStream,
       count: Int,
       maybeLong: Option[Long]
-  ) = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
+    import ExecutionError._
+
     environment.options
       .get("output-format")
       .map(_.toLowerCase) match {
@@ -279,8 +285,9 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         val writer = new StatusCsvWriter(stream, lineSeparator)
         try {
           writer.write(count)
+          Right(ExecutionSuccess(true))
         } catch {
-          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          case ex: IOException => Left(RuntimeError(ex.getMessage))
         } finally {
           RawUtils.withSuppressNonFatalException(writer.close())
         }
@@ -288,26 +295,28 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         val w = new StatusJsonWriter(stream)
         try {
           w.write(count)
-          ExecutionSuccess(true)
+          Right(ExecutionSuccess(true))
         } catch {
-          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          case ex: IOException => Left(RuntimeError(ex.getMessage))
         } finally {
           RawUtils.withSuppressNonFatalException(w.close())
         }
-      case _ => ExecutionRuntimeFailure("unknown output format")
+      case _ => Left(RuntimeError("unknown output format"))
     }
-    ExecutionSuccess(true)
   }
 
   override def eval(
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String]
-  ): Either[EvalError, EvalSuccess] = {
+  ): Either[ExecutionError, EvalSuccess] = {
+
+    import EvalSuccess._
+    import ExecutionError._
 
     // 1) Parse
     safeParse(source) match {
-      case Left(parseErrors) => Left(EvalError(parseErrors))
+      case Left(parseErrors) => Left(ValidationError(parseErrors))
 
       case Right(parsedTree) =>
         // 2) Attempt to get a connection from the pool
@@ -315,7 +324,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           try connectionPool.getConnection(environment.jdbcUrl.get)
           catch {
             case ex: SQLException if isConnectionFailure(ex) =>
-              return Left(EvalError(List(ErrorMessage(ex.getMessage, Nil, ErrorCode.SqlErrorCode))))
+              return Left(ValidationError(List(ErrorMessage(ex.getMessage, Nil, ErrorCode.SqlErrorCode))))
           }
 
         // If parse and connection succeeded, proceed:
@@ -331,60 +340,49 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
             case Left(errors) =>
               // If we can't get metadata, close everything now.
               closeQuietly(pstmtAutoClose, conn)
-              Left(EvalError(errors))
+              Left(ValidationError(errors))
 
             case Right(info) => pgRowTypeToIterableType(info.outputType) match {
                 case Left(errs) =>
                   // Another error => close.
                   closeQuietly(pstmtAutoClose, conn)
-                  Left(EvalError(List(ErrorMessage(errs.mkString(", "), Nil, ErrorCode.SqlErrorCode))))
+                  Left(ValidationError(List(ErrorMessage(errs.mkString(", "), Nil, ErrorCode.SqlErrorCode))))
 
                 case Right(iterableType) =>
                   // Actually run the statement
                   val arguments = environment.maybeArguments.getOrElse(Array.empty)
                   pstmt.executeWith(arguments) match {
-                    case Left(errorMsg) =>
+                    case Left(error) =>
                       // Execution failed => close
                       closeQuietly(pstmtAutoClose, conn)
-                      Left(EvalError(List(ErrorMessage(errorMsg, Nil, ErrorCode.SqlErrorCode))))
+                      Left(error)
 
                     case Right(result) =>
                       // We have a success; produce a streaming or single-value iterator
-                      val protocolType = TypeConverter.toProtocolType(iterableType)
+                      val protocolType = TypeConverter.toProtocolType(iterableType.innerType)
 
-                      val iterator = result match {
+                      result match {
                         case NamedParametersPreparedStatementResultSet(rs) =>
                           // Return a streaming iterator that closes RS, stmt, conn in close()
-                          new TypedResultSetRawValueIterator(rs, iterableType) with AutoCloseable {
+                          val valueIterator = new TypedResultSetRawValueIterator(rs, iterableType) with AutoCloseable {
                             override def close(): Unit = {
                               // Freed when the caller is done iterating
                               closeQuietly(rs, pstmtAutoClose, conn)
                             }
                           }
 
+                          Right(IteratorValue(protocolType, valueIterator))
+
                         case NamedParametersPreparedStatementUpdate(countV) =>
                           // A single-value scenario (the "UPDATE count" integer).
-                          new Iterator[Value] with AutoCloseable {
-                            private var done = false
+                          val resultValue = Value.newBuilder().setInt(ValueInt.newBuilder().setV(countV)).build()
 
-                            override def hasNext: Boolean = !done
+                          // Close everything now
+                          closeQuietly(pstmtAutoClose)
+                          closeQuietly(conn)
 
-                            override def next(): Value = {
-                              if (done) throw new NoSuchElementException("Already consumed single value.")
-                              done = true
-                              Value.newBuilder().setInt(ValueInt.newBuilder().setV(countV)).build()
-                            }
-
-                            override def close(): Unit = {
-                              // Freed when the caller is done
-                              closeQuietly(pstmtAutoClose)
-                              closeQuietly(conn)
-                            }
-                          }
+                          Right(ResultValue(protocolType, resultValue))
                       }
-
-                      // Everything worked => return success
-                      Right(EvalSuccess(protocolType, iterator))
                   }
               }
           }
@@ -393,7 +391,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
           // If building/executing statement fails badly:
           case e: NamedParametersPreparedStatementException =>
             closeQuietly(conn) // stmt might not even have been created
-            Left(EvalError(e.errors))
+            Left(ValidationError(e.errors))
 
           case t: Throwable =>
             closeQuietly(conn)
