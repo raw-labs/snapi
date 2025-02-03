@@ -13,6 +13,7 @@
 package com.rawlabs.snapi.compiler
 
 import com.google.protobuf.ByteString
+import com.rawlabs.compiler.utils.RecordFieldsNaming
 import com.rawlabs.compiler.{
   AutoCompleteResponse,
   CompilerService,
@@ -765,11 +766,18 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
             .build()
 
         case SnapiRecordType(attributes, _) =>
+          // Snapi language produces record fields that can be renamed (while the type is not!)
+          // So this compensates for that, so that when we do TRuffle value.getMember(...) we can use the
+          // distinct name
+          val names = new java.util.Vector[String]()
+          attributes.foreach(a => names.add(a.idn))
+          val distincted = RecordFieldsNaming.makeDistinct(names).asScala
+
           // Build a RawRecord
-          val recordAttrs = attributes.map {
-            case att =>
+          val recordAttrs = attributes.zip(distincted).map {
+            case (att, distinctFieldName) =>
               val fieldName = att.idn
-              val memberVal = v.getMember(fieldName)
+              val memberVal = v.getMember(distinctFieldName)
               val fieldValue = fromTruffleValue(
                 memberVal,
                 att.tipe.asInstanceOf[SnapiTypeWithProperties]
@@ -809,10 +817,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
           val index = v.invokeMember("getIndex").asInt()
           val value = v.invokeMember("getValue")
           fromTruffleValue(value, inners(index).asInstanceOf[SnapiTypeWithProperties])
-
-        case other =>
-          // Not recognized or not implemented
-          throw new RuntimeException("unsupported type")
       }
     }
   }

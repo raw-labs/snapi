@@ -649,7 +649,7 @@ trait SnapiTestContext
                 |$actualList""".stripMargin
             )
           } finally actual.close()
-        case _ => MatchResult(false, "didn't evaluate to a value", "???")
+        case _ => MatchResult(false, "didn't evaluate to an iterator value", "???")
       }
     }
   }
