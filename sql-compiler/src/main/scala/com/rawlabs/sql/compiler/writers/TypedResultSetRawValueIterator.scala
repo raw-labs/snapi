@@ -14,27 +14,7 @@ package com.rawlabs.sql.compiler.writers
 
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.rawlabs.compiler._
-import com.rawlabs.protocol.raw.{
-  Value,
-  ValueBool,
-  ValueByte,
-  ValueDate,
-  ValueDecimal,
-  ValueDouble,
-  ValueError,
-  ValueFloat,
-  ValueInt,
-  ValueInterval,
-  ValueList,
-  ValueLong,
-  ValueNull,
-  ValueRecord,
-  ValueRecordField,
-  ValueShort,
-  ValueString,
-  ValueTime,
-  ValueTimestamp
-}
+import com.rawlabs.protocol.raw._
 import com.rawlabs.sql.compiler.SqlIntervals.stringToInterval
 import com.typesafe.scalalogging.StrictLogging
 import org.postgresql.util.{PGInterval, PGobject}
