@@ -91,18 +91,6 @@ class TestSqlCompilerServiceAirports
     )
   }
 
-  private def asCsv(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): ProgramEnvironment = {
-    ProgramEnvironment(
-      user,
-      if (params.isEmpty) None else Some(params.toArray),
-      scopes,
-      Map.empty,
-      Map.empty,
-      Map("output-format" -> "csv"),
-      jdbcUrl = Some(jdbcUrl)
-    )
-  }
-
   // ARRAY types
   test("""SELECT
     |    INTERVAL '1 day' AS interval,
@@ -641,7 +629,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = :city") { t =>
-    val environment = asCsv(Map("city" -> RawString("Braganca")))
+    val environment = asJson(Map("city" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val Right(description) = compilerService.getProgramDescription(t.q, environment)
@@ -812,7 +800,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = :param and airport_id = :param") { t =>
-    val environment = asCsv(Map("param" -> RawString("Braganca")))
+    val environment = asJson(Map("param" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.nonEmpty)
     val Left(errors) = compilerService.getProgramDescription(t.q, environment)
@@ -1266,11 +1254,10 @@ class TestSqlCompilerServiceAirports
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
     val Right(_) = compilerService.getProgramDescription(t.q, asJson())
-    val baos = new ByteArrayOutputStream()
-    baos.reset()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"pg_typeof":"timestamp with time zone"}]""")
-
+    val row = fetchOneRowResult(t.q, asJson())
+    row.size shouldBe 1
+    row.head._1.hasString shouldBe true
+    row.head._2.getString.getV shouldBe "timestamp with time zone"
   }
 
   test("""SELECT NOW()""".stripMargin) { t =>
@@ -1279,55 +1266,37 @@ class TestSqlCompilerServiceAirports
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
     val Right(description) = compilerService.getProgramDescription(t.q, asJson())
-    val baos = new ByteArrayOutputStream()
-    baos.reset()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
+    val row = fetchOneRowResult(t.q, asJson())
+    row.size shouldBe 1
   }
 
   test("""SELECT TIMESTAMP '2001-07-01 12:13:14.567' AS t""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
     val Right(_) = compilerService.getProgramDescription(t.q, asJson())
-    val baos = new ByteArrayOutputStream()
-    for (env <- Seq(asJson(), asCsv())) {
-      baos.reset()
-      assert(compilerService.execute(t.q, env, None, baos) == Right(ExecutionSuccess(true)))
-      assert(baos.toString().contains("12:13:14.567"))
-    }
-  }
-
-  test("""SELECT TIMESTAMP '2001-07-01 12:13:14' AS t""".stripMargin) { t =>
-    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
-    assert(errors.isEmpty)
-    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
-    val baos = new ByteArrayOutputStream()
-    baos.reset()
-    assert(compilerService.execute(t.q, asCsv(), None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString().contains("12:13:14"))
-    assert(!baos.toString().contains("12:13:14.000"))
+    val row = fetchOneRowResult(t.q, asJson())
+    row.size shouldBe 1
+    val ts = row.head._2.getTimestamp
+    ts.getYear shouldBe 2001
+    ts.getMonth shouldBe 7
+    ts.getDay shouldBe 1
+    ts.getHour shouldBe 12
+    ts.getMinute shouldBe 13
+    ts.getSecond shouldBe 14
+    ts.getNano shouldBe 567000000
   }
 
   test("""SELECT TIME '12:13:14.567' AS t""".stripMargin) { t =>
     val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
     assert(errors.isEmpty)
     val Right(_) = compilerService.getProgramDescription(t.q, asJson())
-    val baos = new ByteArrayOutputStream()
-    for (env <- Seq(asJson(), asCsv())) {
-      baos.reset()
-      assert(compilerService.execute(t.q, env, None, baos) == Right(ExecutionSuccess(true)))
-      assert(baos.toString().contains("12:13:14.567"))
-    }
-  }
-
-  test("""SELECT TIME '12:13:14' AS t""".stripMargin) { t =>
-    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
-    assert(errors.isEmpty)
-    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
-    val baos = new ByteArrayOutputStream()
-    baos.reset()
-    assert(compilerService.execute(t.q, asCsv(), None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString().contains("12:13:14"))
-    assert(!baos.toString().contains("12:13:14.000"))
+    val row = fetchOneRowResult(t.q, asJson())
+    row.size shouldBe 1
+    val ts = row.head._2.getTime
+    ts.getHour shouldBe 12
+    ts.getMinute shouldBe 13
+    ts.getSecond shouldBe 14
+    ts.getNano shouldBe 567000000
   }
 
   test("""-- @default t TIME '12:13:14.567'
@@ -1337,56 +1306,49 @@ class TestSqlCompilerServiceAirports
     val Right(_) = compilerService.getProgramDescription(t.q, asJson())
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    for (env <- Seq(asJson(), asCsv())) {
-      baos.reset()
-      assert(compilerService.execute(t.q, env, None, baos) == Right(ExecutionSuccess(true)))
-      assert(baos.toString().contains("12:13:14.567"))
-    }
+    val row = fetchOneRowResult(t.q, asJson())
+    row.size shouldBe 1
+    val ts = row.head._2.getTime
+    ts.getHour shouldBe 12
+    ts.getMinute shouldBe 13
+    ts.getSecond shouldBe 14
+    ts.getNano shouldBe 567000000
   }
 
   test("""-- @type x integer
     |-- @default x null
     |SELECT :x AS x""".stripMargin) { t =>
-    val baos = new ByteArrayOutputStream()
-    baos.reset()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() === """[{"x":null}]""")
-    baos.reset()
-    assert(compilerService.execute(t.q, asJson(Map("x" -> RawInt(12))), None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() === """[{"x":12}]""")
+    val rowWithDefault = fetchOneRowResult(t.q, asJson())
+    rowWithDefault.size shouldBe 1
+    rowWithDefault.head._2.hasNull shouldBe true
+    val rowWith12 = fetchOneRowResult(t.q, asJson(Map("x" -> RawInt(12))))
+    rowWith12.size shouldBe 1
+    rowWith12.head._2.getInt.getV shouldBe 12
   }
 
   test("""-- @type x varchar
     |-- @default x null
     |SELECT :x AS x""".stripMargin) { t =>
-    val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() === """[{"x":null}]""")
-    baos.reset()
-    assert(
-      compilerService.execute(t.q, asJson(Map("x" -> RawString("tralala"))), None, baos) == Right(
-        ExecutionSuccess(true)
-      )
-    )
-    assert(baos.toString() === """[{"x":"tralala"}]""")
+    val rowWithDefault = fetchOneRowResult(t.q, asJson())
+    rowWithDefault.size shouldBe 1
+    rowWithDefault.head._2.hasNull shouldBe true
+    val rowWithTralala = fetchOneRowResult(t.q, asJson(Map("x" -> RawString("tralala"))))
+    rowWithTralala.size shouldBe 1
+    rowWithTralala.head._2.getString.getV shouldBe "tralala"
   }
 
   test("""-- @type x date
     |-- @default x null
     |SELECT :x AS x""".stripMargin) { t =>
-    val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() === """[{"x":null}]""")
-    baos.reset()
-    assert(
-      compilerService.execute(
-        t.q,
-        asJson(Map("x" -> RawDate(LocalDate.of(2008, 9, 29)))),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(baos.toString() === """[{"x":"2008-09-29"}]""")
+    val rowWithDefault = fetchOneRowResult(t.q, asJson())
+    rowWithDefault.size shouldBe 1
+    rowWithDefault.head._2.hasNull shouldBe true
+    val rowWithDate = fetchOneRowResult(t.q, asJson(Map("x" -> RawDate(LocalDate.of(2008, 9, 29)))))
+    rowWithDate.size shouldBe 1
+    val d = rowWithDate.head._2.getDate
+    d.getYear shouldBe 2008
+    d.getMonth shouldBe 9
+    d.getDay shouldBe 29
   }
 
   test("""RD-14898""".stripMargin) { _ =>
@@ -1418,78 +1380,18 @@ class TestSqlCompilerServiceAirports
     }
   }
 
-  test("SELECT 'a=>1,b=>tralala'::hstore AS r -- JSON") { t =>
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asJson(),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(baos.toString() === """[{"r":{"a":"1","b":"tralala"}}]""")
+  // Checking nested records with hstore
+  test("SELECT 'a=>1,b=>tralala'::hstore AS r") { t =>
+    val Seq((_, v)) = fetchOneRowResult(t.q, asJson())
+    v.getRecord.getFields(0).getName shouldBe "a"
+    v.getRecord.getFields(0).getValue.getString.getV shouldBe "1"
+    v.getRecord.getFields(1).getName shouldBe "b"
+    v.getRecord.getFields(1).getValue.getString.getV shouldBe "tralala"
   }
 
-  test("SELECT NULL::hstore AS r -- JSON") { t =>
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asJson(),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(baos.toString() === """[{"r":null}]""")
-  }
-
-  // TODO What do we do in CSV?
-  ignore("SELECT 'a=>1,b=>tralala'::hstore AS r -- CSV") { t =>
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asCsv(),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(
-      baos.toString() ===
-        """r
-          |{"a":"1","b":"tralala"}
-          |""".stripMargin
-    )
-  }
-
-  ignore("SELECT NULL::hstore AS r -- CSV") { t =>
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asCsv(),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(baos.toString() === """[{"r":{"a":"1","b":"tralala"}}]""")
-  }
-
-  test("SELECT a.* FROM example.airports a ORDER BY airport_id LIMIT 1") { t =>
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asCsv(),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(baos.toString() === """airport_id,name,city,country,iata_faa,icao,latitude,longitude,altitude,timezone,dst,tz
-      |1,Goroka,Goroka,Papua New Guinea,GKA,AYGA,-6.081689,145.391881,5282.000,10,U,Pacific/Port_Moresby
-      |""".stripMargin)
-
+  test("SELECT NULL::hstore AS r") { t =>
+    val Seq((_, v)) = fetchOneRowResult(t.q, asJson())
+    v.hasNull shouldBe true
   }
 
   test("INSERT") { _ =>
@@ -1498,100 +1400,32 @@ class TestSqlCompilerServiceAirports
       """INSERT INTO example.airports (airport_id, name, city, country, iata_faa, icao, latitude, longitude, altitude, timezone, dst, tz)
         |VALUES (8108, :airport, :city, :country, 'FC', 'FC', 0.0, 0.0, 0.0, 0, 'U', 'UTC')
         |""".stripMargin
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        q,
-        asCsv(params =
-          Map("airport" -> RawString("FAKE"), "city" -> RawString("Fake City"), "country" -> RawString("Fake Country"))
-        ),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
+    fetchStatementResult(
+      q,
+      asJson(
+        Map("airport" -> RawString("FAKE"), "city" -> RawString("Fake City"), "country" -> RawString("Fake Country"))
+      )
+    ) shouldBe 1
+    val columns = fetchOneRowResult(
+      "SELECT city, country FROM example.airports WHERE name = :a",
+      asJson(params = Map("a" -> RawString("FAKE")))
     )
-    assert(
-      baos.toString() ===
-        """update_count
-          |1
-          |""".stripMargin
-    )
-    baos.reset()
-    assert(
-      compilerService.execute(
-        "SELECT city, country FROM example.airports WHERE name = :a",
-        asCsv(params = Map("a" -> RawString("FAKE"))),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(
-      baos.toString() ===
-        """city,country
-          |Fake City,Fake Country
-          |""".stripMargin
-    )
-
+    columns.size shouldBe 2
+    columns(0)._2.getString.getV shouldBe "Fake City"
+    columns(1)._2.getString.getV shouldBe "Fake Country"
   }
 
-  test("UPDATE (CSV output)") { _ =>
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        "UPDATE example.airports SET city = :newName WHERE country = :c",
-        asCsv(params = Map("newName" -> RawString("La Roche sur Foron"), "c" -> RawString("Portugal"))),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
+  test("UPDATE") { _ =>
+    fetchStatementResult(
+      "UPDATE example.airports SET city = :newName WHERE country = :c",
+      asJson(params = Map("newName" -> RawString("La Roche sur Foron"), "c" -> RawString("Portugal")))
+    ) shouldBe 39
+    val columns = fetchOneRowResult(
+      "SELECT DISTINCT city FROM example.airports WHERE country = :c",
+      asJson(params = Map("c" -> RawString("Portugal")))
     )
-    assert(
-      baos.toString() ===
-        """update_count
-          |39
-          |""".stripMargin
-    )
-    baos.reset()
-    assert(
-      compilerService.execute(
-        "SELECT DISTINCT city FROM example.airports WHERE country = :c",
-        asCsv(params = Map("c" -> RawString("Portugal"))),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(
-      baos.toString() ===
-        """city
-          |La Roche sur Foron
-          |""".stripMargin
-    )
+    columns.size shouldBe 1
+    columns.head._2.getString.getV shouldBe "La Roche sur Foron"
   }
 
-  test("UPDATE (Json output)") { _ =>
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        "UPDATE example.airports SET city = :newName WHERE country = :c",
-        asJson(params = Map("newName" -> RawString("Lausanne"), "c" -> RawString("Portugal"))),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(
-      baos.toString() ===
-        """[{"update_count":39}]""".stripMargin
-    )
-    baos.reset()
-    assert(
-      compilerService.execute(
-        "SELECT DISTINCT city FROM example.airports WHERE country = :c",
-        asJson(params = Map("c" -> RawString("Portugal"))),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(
-      baos.toString() ===
-        """[{"city":"Lausanne"}]"""
-    )
-  }
 }

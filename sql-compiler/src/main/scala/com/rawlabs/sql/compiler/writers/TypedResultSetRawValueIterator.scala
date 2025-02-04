@@ -139,7 +139,7 @@ class TypedResultSetRawValueIterator(
           buildNullValue()
         } else {
           // Convert to array
-          val arrayVals = arrObj.getArray.asInstanceOf[Array[AnyRef]]
+          val arrayVals = arrayObj.getArray.asInstanceOf[Array[AnyRef]]
           val converted = arrayVals.map { v =>
             convertArrayElementToRawValue(v, inner, rs.getMetaData.getColumnTypeName(colIndex).toLowerCase)
           }.toList
@@ -235,7 +235,7 @@ class TypedResultSetRawValueIterator(
     if (tipe.nullable) {
       // If the subtype is nullable, we treat a null element or the object as if it might be null
       if (element == null) buildNullValue()
-      else convertArrayElementToRawValue(element, tipe.cloneNotNullable, colIndex)
+      else convertArrayElementToRawValue(element, tipe.cloneNotNullable, pgType)
     } else tipe match {
       case _: RawBoolType => boolValue(element.asInstanceOf[Boolean])
       case _: RawByteType => byteValue(element.asInstanceOf[Byte])
@@ -307,6 +307,8 @@ class TypedResultSetRawValueIterator(
             val json = mapper.valueToTree[ObjectNode](hstoreMap)
             jsonNodeToRawValue(json)
         }
+
+      case _ => throw new IllegalArgumentException(s"Unsupported type: $tipe")
 
     }
   }
