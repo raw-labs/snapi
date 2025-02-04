@@ -6,7 +6,7 @@ cd "${SNAPI_HOME}"
 
 find . -type d -name "target" -exec rm -rf {} + || true
 
-JAVA_VERSION="21.0.1-graalce"
+JAVA_VERSION="21.0.2-graalce"
 
 toCamel() {
   local input=$1
