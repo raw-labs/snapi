@@ -14,6 +14,7 @@ package com.rawlabs.sql.compiler
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import com.rawlabs.compiler._
+import com.rawlabs.protocol.raw.{Type, Value}
 import com.rawlabs.utils.core._
 import org.scalatest.EitherValues
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -128,6 +129,7 @@ class TestSqlCompilerServiceAirports
     assert(tipe.hasRecord)
     val colTypes = tipe.getRecord.getAttsList
     val colValues = it.next().getRecord.getFieldsList
+    it.hasNext shouldBe false
     colTypes.size shouldBe 15
     colValues.size shouldBe colTypes.size
     // Col 0
@@ -594,34 +596,48 @@ class TestSqlCompilerServiceAirports
       main.outType.get == airportType
     )
     assert(main.params.contains(Vector.empty))
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asJson(),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(
-      baos.toString() ==
-        """[
-          |  {
-          |    "airport_id": 1618,
-          |    "name": "Braganca",
-          |    "city": "Braganca",
-          |    "country": "Portugal",
-          |    "iata_faa": "BGC",
-          |    "icao": "LPBG",
-          |    "latitude": 41.857800,
-          |    "longitude": -6.707125,
-          |    "altitude": 2241.000,
-          |    "timezone": 0,
-          |    "dst": "E",
-          |    "tz": "Europe/Lisbon"
-          |  }
-          |]""".stripMargin.replaceAll("\\s+", "")
-    )
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, asJson(), None).value
+    val row = it.next()
+    it.hasNext shouldBe false
+    it.close()
+    val columns = row.getRecord.getFieldsList
+    val colTypes = tipe.getRecord.getAttsList.asScala.map(_.getTipe)
+    colTypes(0).hasInt shouldBe true
+    columns.get(0).getName shouldBe "airport_id"
+    columns.get(0).getValue.getInt.getV shouldBe 1618
+    colTypes(1).hasString shouldBe true
+    columns.get(1).getName shouldBe "name"
+    columns.get(1).getValue.getString.getV shouldBe "Braganca"
+    colTypes(2).hasString shouldBe true
+    columns.get(2).getName shouldBe "city"
+    columns.get(2).getValue.getString.getV shouldBe "Braganca"
+    colTypes(3).hasString shouldBe true
+    columns.get(3).getName shouldBe "country"
+    columns.get(3).getValue.getString.getV shouldBe "Portugal"
+    colTypes(4).hasString shouldBe true
+    columns.get(4).getName shouldBe "iata_faa"
+    columns.get(4).getValue.getString.getV shouldBe "BGC"
+    colTypes(5).hasString shouldBe true
+    columns.get(5).getName shouldBe "icao"
+    columns.get(5).getValue.getString.getV shouldBe "LPBG"
+    colTypes(6).hasDecimal shouldBe true
+    columns.get(6).getName shouldBe "latitude"
+    columns.get(6).getValue.getDecimal.getV shouldBe "41.857800"
+    colTypes(7).hasDecimal shouldBe true
+    columns.get(7).getName shouldBe "longitude"
+    columns.get(7).getValue.getDecimal.getV shouldBe "-6.707125"
+    colTypes(8).hasDecimal shouldBe true
+    columns.get(8).getName shouldBe "altitude"
+    columns.get(8).getValue.getDecimal.getV shouldBe "2241.000"
+    colTypes(9).hasInt shouldBe true
+    columns.get(9).getName shouldBe "timezone"
+    columns.get(9).getValue.getDouble.getV shouldBe 0
+    colTypes(10).hasString shouldBe true
+    columns.get(10).getName shouldBe "dst"
+    columns.get(10).getValue.getString.getV shouldBe "E"
+    colTypes(11).hasString shouldBe true
+    columns.get(11).getName shouldBe "tz"
+    columns.get(11).getValue.getString.getV shouldBe "Europe/Lisbon"
   }
 
   test("SELECT * FROM example.airports WHERE city = :city") { t =>
@@ -639,21 +655,48 @@ class TestSqlCompilerServiceAirports
     assert(param.idn == "city")
     assert(param.tipe.get == RawStringType(true, false))
     assert(param.defaultValue.isEmpty)
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        environment,
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(
-      baos.toString() ==
-        """airport_id,name,city,country,iata_faa,icao,latitude,longitude,altitude,timezone,dst,tz
-          |1618,Braganca,Braganca,Portugal,BGC,LPBG,41.857800,-6.707125,2241.000,0,E,Europe/Lisbon
-          |""".stripMargin
-    )
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, environment, None).value
+    val row = it.next()
+    it.hasNext shouldBe false
+    it.close()
+    val columns = row.getRecord.getFieldsList
+    val colTypes = tipe.getRecord.getAttsList.asScala.map(_.getTipe)
+    colTypes(0).hasInt shouldBe true
+    columns.get(0).getName shouldBe "airport_id"
+    columns.get(0).getValue.getInt.getV shouldBe 1618
+    colTypes(1).hasString shouldBe true
+    columns.get(1).getName shouldBe "name"
+    columns.get(1).getValue.getString.getV shouldBe "Braganca"
+    colTypes(2).hasString shouldBe true
+    columns.get(2).getName shouldBe "city"
+    columns.get(2).getValue.getString.getV shouldBe "Braganca"
+    colTypes(3).hasString shouldBe true
+    columns.get(3).getName shouldBe "country"
+    columns.get(3).getValue.getString.getV shouldBe "Portugal"
+    colTypes(4).hasString shouldBe true
+    columns.get(4).getName shouldBe "iata_faa"
+    columns.get(4).getValue.getString.getV shouldBe "BGC"
+    colTypes(5).hasString shouldBe true
+    columns.get(5).getName shouldBe "icao"
+    columns.get(5).getValue.getString.getV shouldBe "LPBG"
+    colTypes(6).hasDecimal shouldBe true
+    columns.get(6).getName shouldBe "latitude"
+    columns.get(6).getValue.getDecimal.getV shouldBe "41.857800"
+    colTypes(7).hasDecimal shouldBe true
+    columns.get(7).getName shouldBe "longitude"
+    columns.get(7).getValue.getDecimal.getV shouldBe "-6.707125"
+    colTypes(8).hasDecimal shouldBe true
+    columns.get(8).getName shouldBe "altitude"
+    columns.get(8).getValue.getDecimal.getV shouldBe "2241.000"
+    colTypes(9).hasInt shouldBe true
+    columns.get(9).getName shouldBe "timezone"
+    columns.get(9).getValue.getDouble.getV shouldBe 0
+    colTypes(10).hasString shouldBe true
+    columns.get(10).getName shouldBe "dst"
+    columns.get(10).getValue.getString.getV shouldBe "E"
+    colTypes(11).hasString shouldBe true
+    columns.get(11).getName shouldBe "tz"
+    columns.get(11).getValue.getString.getV shouldBe "Europe/Lisbon"
   }
 
   test("""-- a query with no default, called without the parameter
@@ -671,16 +714,22 @@ class TestSqlCompilerServiceAirports
     assert(param.idn == "city")
     assert(param.tipe.get == RawStringType(true, false))
     assert(param.defaultValue.isEmpty)
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        environment,
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(baos.toString() == "[]")
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, environment, None).value
+    it.hasNext shouldBe false
+    it.close()
+    val colTypes = tipe.getRecord.getAttsList.asScala.map(_.getTipe)
+    colTypes(0).hasInt shouldBe true
+    colTypes(1).hasString shouldBe true
+    colTypes(2).hasString shouldBe true
+    colTypes(3).hasString shouldBe true
+    colTypes(4).hasString shouldBe true
+    colTypes(5).hasString shouldBe true
+    colTypes(6).hasDecimal shouldBe true
+    colTypes(7).hasDecimal shouldBe true
+    colTypes(8).hasDecimal shouldBe true
+    colTypes(9).hasInt shouldBe true
+    colTypes(10).hasString shouldBe true
+    colTypes(11).hasString shouldBe true
   }
 
   test("""-- a query with a default, called without the parameter
@@ -706,16 +755,17 @@ class TestSqlCompilerServiceAirports
     assert(param.idn == "city")
     assert(param.tipe.contains(RawStringType(true, false)))
     assert(param.defaultValue.contains(RawString("Athens")))
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        environment,
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(baos.toString() == """[{"n":6}]""")
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, environment, None).value
+    val row = it.next()
+    it.hasNext shouldBe false
+    it.close()
+    val columns = row.getRecord.getFieldsList
+    columns.size shouldBe 1
+    val colTypes = tipe.getRecord.getAttsList.asScala.map(_.getTipe)
+    colTypes.size shouldBe 1
+    colTypes(0).hasLong shouldBe true
+    columns.get(0).getName shouldBe "n"
+    columns.get(0).getValue.getLong.getV shouldBe 6
   }
 
   test("""-- @type age intger
@@ -781,9 +831,8 @@ class TestSqlCompilerServiceAirports
     assert(validation.messages.exists(_.message.contains(expectedError)))
     val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
-    val baos = new ByteArrayOutputStream()
-    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
-    assert(executionErrors.exists(_.message.contains(expectedError)))
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    assert(errorMessages.exists(_.message.contains(expectedError)))
   }
 
   test("SELECT * FROM inexistent-table") { t =>
@@ -792,9 +841,8 @@ class TestSqlCompilerServiceAirports
     assert(v.messages.exists(_.message.contains(expectedError)))
     val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
-    val baos = new ByteArrayOutputStream()
-    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
-    assert(executionErrors.exists(_.message.contains(expectedError)))
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    assert(errorMessages.exists(_.message.contains(expectedError)))
   }
 
   test("SELECT * FROM inexistent_table") { t =>
@@ -804,9 +852,8 @@ class TestSqlCompilerServiceAirports
     assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
     val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
-    val baos = new ByteArrayOutputStream()
-    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
-    assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    assert(errorMessages.exists(error => expectedErrors.forall(error.message.contains)))
   }
 
   test("""-- @default a 1234
@@ -818,9 +865,8 @@ class TestSqlCompilerServiceAirports
     assert(failures.forall(err => expectedErrors.exists(err.message.contains)))
     val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.forall(err => expectedErrors.exists(err.message.contains)))
-    val baos = new ByteArrayOutputStream()
-    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
-    assert(executionErrors.forall(err => expectedErrors.exists(err.message.contains)))
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    assert(errorMessages.forall(err => expectedErrors.exists(err.message.contains)))
   }
 
   test("""/* @default a 1 + 1 */
@@ -830,9 +876,17 @@ class TestSqlCompilerServiceAirports
     val Right(description) = compilerService.getProgramDescription(t.q, asJson())
     assert(!description.maybeRunnable.get.params.get.head.required)
     assert(description.maybeRunnable.get.params.get.head.defaultValue.contains(RawInt(2)))
-    val baos = new ByteArrayOutputStream()
-    assert(compilerService.execute(t.q, asJson(), None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"v":4}]""")
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, asJson(), None).value
+    val row = it.next()
+    it.hasNext shouldBe false
+    it.close()
+    val columns = row.getRecord.getFieldsList
+    columns.size shouldBe 1
+    val colTypes = tipe.getRecord.getAttsList.asScala.map(_.getTipe)
+    colTypes.size shouldBe 1
+    colTypes(0).hasInt shouldBe true
+    columns.get(0).getName shouldBe "v"
+    columns.get(0).getValue.getInt.getV shouldBe 4
   }
 
   test("SELECT * FROM wrong.relation") { t =>
@@ -842,9 +896,8 @@ class TestSqlCompilerServiceAirports
     assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
     val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
     assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
-    val baos = new ByteArrayOutputStream()
-    val Left(ExecutionError.ValidationError(executionErrors)) = compilerService.execute(t.q, asJson(), None, baos)
-    assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    assert(errorMessages.forall(err => expectedErrors.exists(err.message.contains)))
   }
 
   private val airportType = RawIterableType(
@@ -870,6 +923,34 @@ class TestSqlCompilerServiceAirports
     false
   )
 
+  private def fetchOneRowResult(q: String, environment: ProgramEnvironment): Seq[(Type, Value)] = {
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(q, environment, None).value
+    val row = it.next()
+    it.hasNext shouldBe false
+    it.close()
+    val columns = row.getRecord.getFieldsList.asScala
+    val atts = tipe.getRecord.getAttsList.asScala
+    columns.size shouldBe atts.size
+    atts.zip(columns).foreach { case (a, v) => v.getName shouldBe a.getIdn }
+    atts.zip(columns).map { case (t, v) => (t.getTipe, v.getValue) }
+  }
+
+  private def fetchStatementResult(q: String, environment: ProgramEnvironment): Int = {
+    val EvalSuccess.ResultValue(tipe, v) = compilerService.eval(q, environment, None).value
+    val atts = tipe.getRecord.getAttsList.asScala
+    atts.size shouldBe 1
+    tipe.getRecord.getAtts(0).getIdn shouldBe "update_count"
+    v.getRecord.getFields(0).getValue.getInt.getV
+  }
+
+  private def fetchCountQueryResult(q: String, environment: ProgramEnvironment) = {
+    val res = fetchOneRowResult(q, environment)
+    res.size shouldBe 1
+    res.head._1.hasLong shouldBe true
+    res.head._2.hasLong shouldBe true
+    res.head._2.getLong.getV
+  }
+
   test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = :name OR country = :name""".stripMargin) { t =>
@@ -893,16 +974,11 @@ class TestSqlCompilerServiceAirports
     assert(param.idn == "name")
     assert(param.tipe.get == RawStringType(true, false))
     assert(param.defaultValue.isEmpty)
-    val baos = new ByteArrayOutputStream()
-    baos.reset()
-    assert(compilerService.execute(t.q, withCity, None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"count":1}]""")
-    baos.reset()
-    assert(compilerService.execute(t.q, withNull, None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"count":0}]""")
-    baos.reset()
-    assert(compilerService.execute(t.q, withCountry, None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"count":39}]""")
+
+    fetchCountQueryResult(t.q, withCity) shouldBe 1
+    fetchCountQueryResult(t.q, withNull) shouldBe 0
+    fetchCountQueryResult(t.q, withCountry) shouldBe 39
+
   }
 
   test("""
@@ -927,13 +1003,8 @@ class TestSqlCompilerServiceAirports
     assert(param.idn == "name")
     assert(param.tipe.get == RawStringType(true, false))
     assert(param.defaultValue.isEmpty)
-    val baos = new ByteArrayOutputStream()
-    baos.reset()
-    assert(compilerService.execute(t.q, withCity, None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"count":1}]""")
-    baos.reset()
-    assert(compilerService.execute(t.q, withNull, None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"count":3}]""")
+    fetchCountQueryResult(t.q, withCity) shouldBe 1
+    fetchCountQueryResult(t.q, withNull) shouldBe 3
   }
 
   test("""-- @param s just an int
@@ -961,17 +1032,9 @@ class TestSqlCompilerServiceAirports
         Vector(ParamDescription("s", Some(RawIntType(true, false)), None, Some("just an int"), required = true))
       )
     )
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asJson(),
-        None,
-        baos
-      ) == Left(
-        ExecutionError.ValidationError(List(ErrorMessage("no value was specified for s", List(), "sqlError", List())))
-      )
-    )
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    errorMessages.size shouldBe 1
+    errorMessages.head shouldBe ErrorMessage("no value was specified for s", List(), "sqlError", List())
   }
 
   test("""-- @default s CAST(null AS INTEGER)
@@ -1000,23 +1063,17 @@ class TestSqlCompilerServiceAirports
         Vector(ParamDescription("s", Some(RawIntType(true, false)), Some(RawNull()), comment = None, required = false))
       )
     )
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asJson(),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    assert(
-      baos.toString() ==
-        """[
-          |  {
-          |    "x": null
-          |  }
-          |]""".stripMargin.replaceAll("\\s+", "")
-    )
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, asJson(), None).value
+    val row = it.next()
+    it.hasNext shouldBe false
+    it.close()
+    val columns = row.getRecord.getFieldsList
+    columns.size shouldBe 1
+    val colTypes = tipe.getRecord.getAttsList.asScala.map(_.getTipe)
+    colTypes.size shouldBe 1
+    colTypes(0).hasDate shouldBe true
+    columns.get(0).getName shouldBe "x"
+    columns.get(0).getValue.hasNull shouldBe true
   }
 
   private val airportColumns = Set(
@@ -1038,8 +1095,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"count":8107}]""")
+    fetchCountQueryResult(t.q, noParam) shouldBe 8107
   }
 
   test( // RD-10505
@@ -1050,8 +1106,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"count":8107}]""")
+    fetchCountQueryResult(t.q, noParam) shouldBe 8107
   }
 
   test( // RD-10505
@@ -1064,8 +1119,7 @@ class TestSqlCompilerServiceAirports
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = asJson()
-    assert(compilerService.execute(t.q, noParam, None, baos) == Right(ExecutionSuccess(true)))
-    assert(baos.toString() == """[{"count":8107}]""")
+    fetchCountQueryResult(t.q, noParam) shouldBe 8107
   }
 
   // #RD-10612: hovering on a parameter name doesn't return the parameter type + fails internally
@@ -1125,47 +1179,58 @@ class TestSqlCompilerServiceAirports
   }
 
   test("""scopes work""") { _ =>
-    val baos = new ByteArrayOutputStream()
-    def runWith(q: String, scopes: Set[String]): String = {
+    def runWith(q: String, scopes: Set[String]): Seq[(String, String)] = {
       val env = asJson(scopes = scopes)
       assert(compilerService.validate(q, env).messages.isEmpty)
       val Right(_) = compilerService.getProgramDescription(q, env)
-      baos.reset()
-      assert(compilerService.execute(q, env, None, baos) == Right(ExecutionSuccess(true)))
-      baos.toString
+      val EvalSuccess.IteratorValue(_, it) = compilerService
+        .eval(q, env, None)
+        .value
+      val r = it.map { v =>
+        val fields = v.getRecord.getFieldsList
+        (fields.get(0).getName, fields.get(0).getValue.getString.getV)
+      }.toList
+      it.close()
+      r
     }
-//    assert(runWith("SELECT e.airport_id FROM example.airports e", Set.empty) == """[]""")
-    assert(runWith("SELECT token\nFROM scopes", Set.empty) == """[]""")
-    assert(runWith("SELECT * FROM scopes value ORDER by value", Set.empty) == """[]""")
-    assert(runWith("SELECT * FROM scopes AS value ORDER by value", Set("ADMIN")) == """[{"token":"ADMIN"}]""")
-    assert(
-      runWith(
-        "SELECT token FROM scopes value ORDER by value",
-        Set("ADMIN", "SALES", "DEV")
-      ) == """[{"token":"ADMIN"},{"token":"DEV"},{"token":"SALES"}]"""
+    runWith("SELECT token\nFROM scopes", Set.empty) shouldBe Seq.empty
+    runWith("SELECT * FROM scopes value ORDER by value", Set.empty) shouldBe Seq.empty
+    runWith("SELECT * FROM scopes AS value ORDER by value", Set("ADMIN")) shouldBe Seq(("token", "ADMIN"))
+    runWith(
+      "SELECT token FROM scopes value ORDER by value",
+      Set("ADMIN", "SALES", "DEV")
+    ) shouldBe Seq(("token", "ADMIN"), ("token", "DEV"), ("token", "SALES"))
+    // more complex query
+    val r1 = fetchOneRowResult(
+      """SELECT 'DEV' IN (SELECT * FROM scopes) AS isDev,
+        |       'ADMIN' IN (SELECT token FROM scopes) AS isAdmin""".stripMargin,
+      asJson(scopes = Set("ADMIN"))
     )
-    assert(
-      runWith(
-        """SELECT 'DEV' IN (SELECT * FROM scopes) AS isDev,
-          |       'ADMIN' IN (SELECT token FROM scopes) AS isAdmin""".stripMargin,
-        Set("ADMIN")
-      ) == """[{"isdev":false,"isadmin":true}]"""
-    )
+    r1.size shouldBe 2
+    r1(0)._1.hasBool shouldBe true
+    r1(0)._2.getBool.getV shouldBe false
+    r1(1)._1.hasBool shouldBe true
+    r1(1)._2.getBool.getV shouldBe true
     // demo CASE WHEN to hide a certain field
-    val q = """SELECT
-      |    CASE WHEN 'DEV' IN (SELECT * FROM scopes) THEN trip_id END AS trip_id, -- "AS trip_id" to name it normally
-      |    departure_date,
-      |    arrival_date
-      |FROM example.trips
-      |WHERE reason = 'Holidays' AND departure_date = DATE '2016-02-27'""".stripMargin
-    assert(
-      runWith(q, Set("ADMIN"))
-        == """[{"trip_id":null,"departure_date":"2016-02-27","arrival_date":"2016-03-06"}]"""
+    val r2 = fetchOneRowResult(
+      """SELECT
+        |    CASE WHEN 'DEV' IN (SELECT * FROM scopes) THEN trip_id END AS trip_id, -- "AS trip_id" to name it normally
+        |    departure_date,
+        |    arrival_date
+        |FROM example.trips
+        |WHERE reason = 'Holidays' AND departure_date = DATE '2016-02-27'""".stripMargin,
+      asJson(scopes = Set("ADMIN"))
     )
-    assert(
-      runWith(q, Set("DEV"))
-        == """[{"trip_id":0,"departure_date":"2016-02-27","arrival_date":"2016-03-06"}]"""
-    )
+    r2.size shouldBe 3 // Three columns
+    r2(0)._1.hasInt shouldBe true
+    r2(0)._2.hasNull shouldBe true
+    r2(1)._1.hasDate shouldBe true
+    r2(1)._2.getDate.getYear shouldBe 2016
+    r2(1)._2.getDate.getMonth shouldBe 2
+    r2(1)._2.getDate.getDay shouldBe 27
+    r2(2)._2.getDate.getYear shouldBe 2016
+    r2(2)._2.getDate.getMonth shouldBe 3
+    r2(2)._2.getDate.getDay shouldBe 6
   }
 
   test("""-- @param p
@@ -1174,20 +1239,7 @@ class TestSqlCompilerServiceAirports
     |""".stripMargin) { t =>
     val v = compilerService.validate(t.q, asJson())
     assert(v.messages.isEmpty)
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        asJson(Map("p" -> RawInt(5))),
-        None,
-        baos
-      ) == Right(ExecutionSuccess(true))
-    )
-    // The code does nothing, but we don't get an error when running it in Postgres.
-    assert(
-      baos.toString() ===
-        """[{"update_count":0}]""".stripMargin
-    )
+    fetchStatementResult(t.q, asJson(Map("p" -> RawInt(5)))) shouldBe 0
   }
 
   test("""select

@@ -14,16 +14,10 @@ package com.rawlabs.sql.compiler
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.rawlabs.compiler._
-import com.rawlabs.protocol.raw.{Value, ValueInt}
+import com.rawlabs.protocol.raw.{Value, ValueInt, ValueRecord, ValueRecordField}
 import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, SqlIdnNode, SqlParamUseNode, SqlSyntaxAnalyzer}
 import com.rawlabs.sql.compiler.metadata.UserMetadataCache
-import com.rawlabs.sql.compiler.writers.{
-  StatusCsvWriter,
-  StatusJsonWriter,
-  TypedResultSetCsvWriter,
-  TypedResultSetJsonWriter,
-  TypedResultSetRawValueIterator
-}
+import com.rawlabs.sql.compiler.writers._
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.bitbucket.inkytonik.kiama.util.Positions
 
@@ -369,7 +363,21 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
 
                         case NamedParametersPreparedStatementUpdate(countV) =>
                           // A single-value scenario (the "UPDATE count" integer).
-                          val resultValue = Value.newBuilder().setInt(ValueInt.newBuilder().setV(countV)).build()
+                          // It wraps the count in a record with "update_count"
+                          val resultValue = Value
+                            .newBuilder()
+                            .setRecord(
+                              ValueRecord
+                                .newBuilder()
+                                .addFields(
+                                  ValueRecordField
+                                    .newBuilder()
+                                    .setName("update_count")
+                                    .setValue(Value.newBuilder().setInt(ValueInt.newBuilder().setV(countV)).build())
+                                )
+                                .build()
+                            )
+                            .build()
 
                           // Close everything now
                           closeQuietly(pstmtAutoClose)
