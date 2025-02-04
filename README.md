@@ -144,7 +144,7 @@ To build the project, you will need to install:
 We recommend using [SDKMAN](https://sdkman.io/) to install both:
 ```bash
 $ sdk install sbt
-$ sdk install java 21.0.2-graalce
+$ sdk install java 21.0.1-graalce
 ```
 
 Once you have both installed and have the GraalVM enabled in your console, you can build all of Snapi's components and dependencies using:

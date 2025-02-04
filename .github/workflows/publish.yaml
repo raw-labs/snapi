@@ -39,8 +39,8 @@ jobs:
         export HOME="/home/sbtuser"
         export SDKMAN_DIR="$HOME/.sdkman"
         source $SDKMAN_DIR/bin/sdkman-init.sh
-        yes n | sdk install java 21.0.2-graalce || true
-        sdk use java 21.0.2-graalce
+        yes n | sdk install java 21.0.1-graalce || true
+        sdk use java 21.0.1-graalce
         echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
         sbt update
         sbt clean publish
