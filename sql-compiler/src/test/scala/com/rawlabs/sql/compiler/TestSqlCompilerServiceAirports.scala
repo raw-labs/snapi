@@ -79,14 +79,14 @@ class TestSqlCompilerServiceAirports
     super.afterAll()
   }
 
-  private def asJson(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): ProgramEnvironment = {
+  private def mkEnv(params: Map[String, RawValue] = Map.empty, scopes: Set[String] = Set.empty): ProgramEnvironment = {
     ProgramEnvironment(
       user,
       if (params.isEmpty) None else Some(params.toArray),
       scopes,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl)
     )
   }
@@ -108,12 +108,12 @@ class TestSqlCompilerServiceAirports
     |    ARRAY['{"a": 2}'::jsonb, '{"b": 3}'::jsonb, '{"c": 4}'::jsonb, '{"d": 5}'::jsonb] AS jsonb_array,
     |    ARRAY['"a" => "2", "b" => "3"'::hstore, '"c" => "4", "d" => "5"'::hstore] AS hstore_array,
     |    ARRAY['apple', 'banana', 'cherry'] AS text_array;""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.isEmpty)
-    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, mkEnv())
     val Some(main) = description.maybeRunnable
     assert(main.params.contains(Vector.empty))
-    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, asJson(), None).value
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, mkEnv(), None).value
     assert(tipe.hasRecord)
     val colTypes = tipe.getRecord.getAttsList
     val colValues = it.next().getRecord.getFieldsList
@@ -311,7 +311,7 @@ class TestSqlCompilerServiceAirports
     |AND :n > 0
     |AND :n > 0
     |AND :n > 0""".stripMargin) { t =>
-    val Left(errors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(errors) = compilerService.getProgramDescription(t.q, mkEnv())
     assert(errors.size == 1)
     val error = errors.head
     assert(error.message.contains("syntax error at or near \",\""))
@@ -325,7 +325,7 @@ class TestSqlCompilerServiceAirports
     |WHERE :city::json IS NULL
     |   OR :city::integer != 3
     |   OR :city::xml IS NULL""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.size == 2)
     assert(v.messages(0).positions(0).begin.line == 2) // first error is about json (one position, the :city::json)
     assert(v.messages(1).positions(0).begin.line == 4) // second error is about xml (one position, the :city::xml)
@@ -334,7 +334,7 @@ class TestSqlCompilerServiceAirports
 
   test("""-- @type v double precisionw
     |SELECT :v FROM example.airports where city = :city""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(2, 48))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(2, 48))
     // the typo in type declaration doesn't block hover info about a correct one
     assert(hover.completion.contains(TypeCompletion("city", "varchar")))
 
@@ -343,7 +343,7 @@ class TestSqlCompilerServiceAirports
 
   // Quoted value
   test("""select * from exam""".stripMargin) { t =>
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(1, 19))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "c", Pos(1, 19))
     assert(
       completion.completions.toSet === Set(LetBindCompletion("example", "schema"))
     )
@@ -351,7 +351,7 @@ class TestSqlCompilerServiceAirports
 
   // Quoted value
   ignore("""do something to see if a schema has the same name as a column and it still works""") { t =>
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(1, 19)) // right after 'm'
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "c", Pos(1, 19)) // right after 'm'
     assert(
       completion.completions.toSet === Set(LetBindCompletion("example", "schema"))
     )
@@ -359,7 +359,7 @@ class TestSqlCompilerServiceAirports
 
   // Quoted value
   test("""select * from "example"."airp""".stripMargin) { t =>
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(1, 30))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "c", Pos(1, 30))
     assert(
       completion.completions.toSet === Set(LetBindCompletion("airports", "table"))
     )
@@ -368,7 +368,7 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE airports.c
     |""".stripMargin) { t =>
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(2, 17))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "c", Pos(2, 17))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("city", "character varying"),
@@ -381,7 +381,7 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE airports."c
     |""".stripMargin) { t =>
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "c", Pos(2, 18))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "c", Pos(2, 18))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("city", "character varying"),
@@ -395,9 +395,9 @@ class TestSqlCompilerServiceAirports
     |WHERE ai.
     |AND   airports.
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 9))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "", Pos(2, 9))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("airport_id", "integer"),
@@ -406,7 +406,7 @@ class TestSqlCompilerServiceAirports
     )
 
     // The calls to the dotAutoComplete have to point to the place before the dot
-    val dotCompletion = compilerService.dotAutoComplete(t.q, asJson(), Pos(3, 15))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, mkEnv(), Pos(3, 15))
     assert(
       dotCompletion.completions.toSet === airportColumns
     )
@@ -415,9 +415,9 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE ai.
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 9))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "", Pos(2, 9))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("airport_id", "integer"),
@@ -430,10 +430,10 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE airports.
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
-    val dotCompletion = compilerService.dotAutoComplete(t.q, asJson(), Pos(2, 15))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, mkEnv(), Pos(2, 15))
     assert(
       dotCompletion.completions.toSet === airportColumns
     )
@@ -443,9 +443,9 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM example.airports
     |WHERE example.airports.
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 17))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "", Pos(2, 17))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("airports", "table")
@@ -453,7 +453,7 @@ class TestSqlCompilerServiceAirports
     )
 
     // The calls to the dotAutoComplete have to point to the place before the dot
-    val dotCompletion = compilerService.dotAutoComplete(t.q, asJson(), Pos(2, 23))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, mkEnv(), Pos(2, 23))
     assert(
       dotCompletion.completions.toSet === airportColumns
     )
@@ -463,9 +463,9 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM "example"."airports"
     |WHERE "ai
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 17))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 17))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 10))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "", Pos(2, 10))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("airport_id", "integer"),
@@ -478,10 +478,10 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM "example"."airports"
     |WHERE "airports".
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 17))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 17))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
-    val dotCompletion = compilerService.dotAutoComplete(t.q, asJson(), Pos(2, 17))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, mkEnv(), Pos(2, 17))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("icao", "character varying"),
@@ -504,10 +504,10 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM EXAMPLE.AIRPORTS
     |WHERE AIRPORTS.
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
-    val dotCompletion = compilerService.dotAutoComplete(t.q, asJson(), Pos(2, 15))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, mkEnv(), Pos(2, 15))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("icao", "character varying"),
@@ -530,9 +530,9 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM EXAMPLE.AIRPORTS
     |WHERE AI.
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 9))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "", Pos(2, 9))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("airport_id", "integer"),
@@ -546,13 +546,13 @@ class TestSqlCompilerServiceAirports
   test("""SELECT * FROM "EXAMPLE"."AIRPORTS"
     |WHERE "AIRPORTS".
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 16))
     assert(hover.completion.isEmpty)
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "", Pos(2, 9))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "", Pos(2, 9))
     assert(completion.completions.isEmpty)
 
     // The calls to the dotAutoComplete have to point to the place before the dot
-    val dotCompletion = compilerService.dotAutoComplete(t.q, asJson(), Pos(2, 17))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, mkEnv(), Pos(2, 17))
     assert(dotCompletion.completions.isEmpty)
   }
 
@@ -560,12 +560,12 @@ class TestSqlCompilerServiceAirports
     |WHERE airports.city = 'Porto'
     |AND airports.country = 'Portugal'
     |""".stripMargin) { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 16))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, asJson(), "exa", Pos(1, 18))
+    val completion = compilerService.wordAutoComplete(t.q, mkEnv(), "exa", Pos(1, 18))
     assert(completion.completions sameElements Array(LetBindCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
-    val dotCompletion = compilerService.dotAutoComplete(t.q, asJson(), Pos(1, 22))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, mkEnv(), Pos(1, 22))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("airports", "table"),
@@ -576,15 +576,15 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = 'Braganca'") { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.isEmpty)
-    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, mkEnv())
     val Some(main) = description.maybeRunnable
     assert(
       main.outType.get == airportType
     )
     assert(main.params.contains(Vector.empty))
-    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, asJson(), None).value
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, mkEnv(), None).value
     val row = it.next()
     it.hasNext shouldBe false
     it.close()
@@ -629,7 +629,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = :city") { t =>
-    val environment = asJson(Map("city" -> RawString("Braganca")))
+    val environment = mkEnv(Map("city" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val Right(description) = compilerService.getProgramDescription(t.q, environment)
@@ -689,7 +689,7 @@ class TestSqlCompilerServiceAirports
 
   test("""-- a query with no default, called without the parameter
     |SELECT * FROM example.airports WHERE city = :city""".stripMargin) { t =>
-    val environment = asJson(Map("city" -> RawNull()))
+    val environment = mkEnv(Map("city" -> RawNull()))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val Right(description) = compilerService.getProgramDescription(t.q, environment)
@@ -723,7 +723,7 @@ class TestSqlCompilerServiceAirports
   test("""-- a query with a default, called without the parameter
     |-- @default city 'Athens'
     |SELECT COUNT(*) AS n FROM example.airports WHERE city = :city""".stripMargin) { t =>
-    val environment = asJson()
+    val environment = mkEnv()
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val Right(description) = compilerService.getProgramDescription(t.q, environment)
@@ -760,7 +760,7 @@ class TestSqlCompilerServiceAirports
     |-- @default age 'tralala
     |-- @param whatever an unknown parameter
     |SELECT COUNT(*) FROM example.airports WHERE :city = city""".stripMargin) { t =>
-    val environment = asJson(Map.empty)
+    val environment = mkEnv(Map.empty)
     val v = compilerService.validate(t.q, environment)
     val expectedErrors = List(
       1 -> "unsupported type intger",
@@ -781,7 +781,7 @@ class TestSqlCompilerServiceAirports
     |-- @default age 'tralala'
     |-- @param whatever an unknown parameter
     |SELECT COUNT(*) FROM example.airports WHERE :age = city""".stripMargin) { t =>
-    val environment = asJson(Map.empty)
+    val environment = mkEnv(Map.empty)
 
     val v = compilerService.validate(t.q, environment)
     val expectedErrors = List(
@@ -800,7 +800,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT * FROM example.airports WHERE city = :param and airport_id = :param") { t =>
-    val environment = asJson(Map("param" -> RawString("Braganca")))
+    val environment = mkEnv(Map("param" -> RawString("Braganca")))
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.nonEmpty)
     val Left(errors) = compilerService.getProgramDescription(t.q, environment)
@@ -815,32 +815,32 @@ class TestSqlCompilerServiceAirports
   test("""SELECT *
     |FROM""".stripMargin) { t =>
     val expectedError = "syntax error at end of input"
-    val validation = compilerService.validate(t.q, asJson())
+    val validation = compilerService.validate(t.q, mkEnv())
     assert(validation.messages.exists(_.message.contains(expectedError)))
-    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, mkEnv())
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
-    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, mkEnv(), None)
     assert(errorMessages.exists(_.message.contains(expectedError)))
   }
 
   test("SELECT * FROM inexistent-table") { t =>
     val expectedError = "syntax error at or near \"-\""
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.exists(_.message.contains(expectedError)))
-    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, mkEnv())
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
-    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, mkEnv(), None)
     assert(errorMessages.exists(_.message.contains(expectedError)))
   }
 
   test("SELECT * FROM inexistent_table") { t =>
     val expectedErrors = Set("relation \"inexistent_table\" does not exist", "Did you forget to add credentials?")
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
     assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
-    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, mkEnv())
     assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
-    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, mkEnv(), None)
     assert(errorMessages.exists(error => expectedErrors.forall(error.message.contains)))
   }
 
@@ -848,23 +848,23 @@ class TestSqlCompilerServiceAirports
     |-- @type a date
     |SELECT LENGTH(:a)""".stripMargin) { t =>
     val expectedErrors = Set("cannot cast type integer to date", "function length(date) does not exist")
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
     assert(failures.forall(err => expectedErrors.exists(err.message.contains)))
-    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, mkEnv())
     assert(descriptionErrors.forall(err => expectedErrors.exists(err.message.contains)))
-    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, mkEnv(), None)
     assert(errorMessages.forall(err => expectedErrors.exists(err.message.contains)))
   }
 
   test("""/* @default a 1 + 1 */
     |SELECT :a + :a AS v""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.isEmpty, v.messages.mkString(","))
-    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, mkEnv())
     assert(!description.maybeRunnable.get.params.get.head.required)
     assert(description.maybeRunnable.get.params.get.head.defaultValue.contains(RawInt(2)))
-    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, asJson(), None).value
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, mkEnv(), None).value
     val row = it.next()
     it.hasNext shouldBe false
     it.close()
@@ -879,12 +879,12 @@ class TestSqlCompilerServiceAirports
 
   test("SELECT * FROM wrong.relation") { t =>
     val expectedErrors = Set("relation \"wrong.relation\" does not exist", "Did you forget to add credentials?")
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
     assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
-    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(descriptionErrors) = compilerService.getProgramDescription(t.q, mkEnv())
     assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
-    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, mkEnv(), None)
     assert(errorMessages.forall(err => expectedErrors.exists(err.message.contains)))
   }
 
@@ -942,9 +942,9 @@ class TestSqlCompilerServiceAirports
   test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = :name OR country = :name""".stripMargin) { t =>
-    val withCity = asJson(Map("name" -> RawString("Braganca")))
-    val withCountry = asJson(Map("name" -> RawString("Portugal")))
-    val withNull = asJson(Map("name" -> RawNull()))
+    val withCity = mkEnv(Map("name" -> RawString("Braganca")))
+    val withCountry = mkEnv(Map("name" -> RawString("Portugal")))
+    val withNull = mkEnv(Map("name" -> RawNull()))
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val Right(description) = compilerService.getProgramDescription(t.q, withCity)
@@ -972,8 +972,8 @@ class TestSqlCompilerServiceAirports
   test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = COALESCE(:name, 'Lyon')""".stripMargin) { t =>
-    val withCity = asJson(Map("name" -> RawString("Braganca")))
-    val withNull = asJson(Map("name" -> RawNull()))
+    val withCity = mkEnv(Map("name" -> RawString("Braganca")))
+    val withNull = mkEnv(Map("name" -> RawNull()))
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val Right(description) = compilerService.getProgramDescription(t.q, withCity)
@@ -997,9 +997,9 @@ class TestSqlCompilerServiceAirports
 
   test("""-- @param s just an int
     |SELECT DATE '2002-01-01' - :s::int AS x -- RD-10538""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.isEmpty)
-    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, mkEnv())
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
@@ -1020,16 +1020,16 @@ class TestSqlCompilerServiceAirports
         Vector(ParamDescription("s", Some(RawIntType(true, false)), None, Some("just an int"), required = true))
       )
     )
-    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, asJson(), None)
+    val Left(ExecutionError.ValidationError(errorMessages)) = compilerService.eval(t.q, mkEnv(), None)
     errorMessages.size shouldBe 1
     errorMessages.head shouldBe ErrorMessage("no value was specified for s", List(), "sqlError", List())
   }
 
   test("""-- @default s CAST(null AS INTEGER)
     |SELECT DATE '2002-01-01' - :s AS x -- RD-10538""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.isEmpty)
-    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, mkEnv())
     val Some(main) = description.maybeRunnable
     assert(
       main.outType.contains(
@@ -1051,7 +1051,7 @@ class TestSqlCompilerServiceAirports
         Vector(ParamDescription("s", Some(RawIntType(true, false)), Some(RawNull()), comment = None, required = false))
       )
     )
-    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, asJson(), None).value
+    val EvalSuccess.IteratorValue(tipe, it) = compilerService.eval(t.q, mkEnv(), None).value
     val row = it.next()
     it.hasNext shouldBe false
     it.close()
@@ -1082,7 +1082,7 @@ class TestSqlCompilerServiceAirports
   test("""SELECT COUNT(*) FROM example.airports;""") { t =>
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = asJson()
+    val noParam = mkEnv()
     fetchCountQueryResult(t.q, noParam) shouldBe 8107
   }
 
@@ -1093,7 +1093,7 @@ class TestSqlCompilerServiceAirports
   ) { t =>
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = asJson()
+    val noParam = mkEnv()
     fetchCountQueryResult(t.q, noParam) shouldBe 8107
   }
 
@@ -1106,7 +1106,7 @@ class TestSqlCompilerServiceAirports
   ) { t =>
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val noParam = asJson()
+    val noParam = mkEnv()
     fetchCountQueryResult(t.q, noParam) shouldBe 8107
   }
 
@@ -1115,28 +1115,28 @@ class TestSqlCompilerServiceAirports
   // However, because of the function SqlCodeUtils.identifiers right now it returns an identifier with an empty string.
   // The state machine in that function bails out because it finds the ':' at the start of the string.
   test("SELECT :v > 12 AS column") { t =>
-    val hover = compilerService.hover(t.q, asJson(), Pos(1, 10))
+    val hover = compilerService.hover(t.q, mkEnv(), Pos(1, 10))
     assert(hover.completion.contains(TypeCompletion("v", "integer"))) // postgres type
 
   }
 
   test("SELECT :city > 12, city FROM example.airports WHERE airport_id = :city LIMIT 2 ") { t =>
-    val hover1 = compilerService.hover(t.q, asJson(), Pos(1, 11))
+    val hover1 = compilerService.hover(t.q, mkEnv(), Pos(1, 11))
     assert(hover1.completion.contains(TypeCompletion("city", "integer"))) // has to be the Postgres type
-    val hover2 = compilerService.hover(t.q, asJson(), Pos(1, 20))
+    val hover2 = compilerService.hover(t.q, mkEnv(), Pos(1, 20))
     assert(hover2.completion.contains(TypeCompletion("city", "character varying")))
   }
 
   // RD-10865 (mistakenly passing snapi code)
   test("""[{a: 12}, null]""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.exists(_.message contains "the input does not form a valid statement or expression"))
   }
 
   test("""RD-10948+10961""") { _ =>
     val q = """:
       |""".stripMargin
-    val ValidateResponse(errors) = compilerService.validate(q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(q, mkEnv())
     assert(errors.nonEmpty)
   }
 
@@ -1148,7 +1148,7 @@ class TestSqlCompilerServiceAirports
       |) as i(id, first_name, email, password)
       |WHERE email = :email AND password:
       |""".stripMargin
-    val ValidateResponse(errors) = compilerService.validate(q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(q, mkEnv())
     assert(errors.nonEmpty)
   }
 
@@ -1162,13 +1162,13 @@ class TestSqlCompilerServiceAirports
       |) as i(id, first_name, last_name, birthday)
       |WHERE id = :id && id = :
       |""".stripMargin
-    val ValidateResponse(errors) = compilerService.validate(q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(q, mkEnv())
     assert(errors.nonEmpty)
   }
 
   test("""scopes work""") { _ =>
     def runWith(q: String, scopes: Set[String]): Seq[(String, String)] = {
-      val env = asJson(scopes = scopes)
+      val env = mkEnv(scopes = scopes)
       assert(compilerService.validate(q, env).messages.isEmpty)
       val Right(_) = compilerService.getProgramDescription(q, env)
       val EvalSuccess.IteratorValue(_, it) = compilerService
@@ -1192,7 +1192,7 @@ class TestSqlCompilerServiceAirports
     val r1 = fetchOneRowResult(
       """SELECT 'DEV' IN (SELECT * FROM scopes) AS isDev,
         |       'ADMIN' IN (SELECT token FROM scopes) AS isAdmin""".stripMargin,
-      asJson(scopes = Set("ADMIN"))
+      mkEnv(scopes = Set("ADMIN"))
     )
     r1.size shouldBe 2
     r1(0)._1.hasBool shouldBe true
@@ -1207,7 +1207,7 @@ class TestSqlCompilerServiceAirports
         |    arrival_date
         |FROM example.trips
         |WHERE reason = 'Holidays' AND departure_date = DATE '2016-02-27'""".stripMargin,
-      asJson(scopes = Set("ADMIN"))
+      mkEnv(scopes = Set("ADMIN"))
     )
     r2.size shouldBe 3 // Three columns
     r2(0)._1.hasInt shouldBe true
@@ -1225,9 +1225,9 @@ class TestSqlCompilerServiceAirports
     |-- @type p integer
     |-- SELECT :p + 10;
     |""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.isEmpty)
-    fetchStatementResult(t.q, asJson(Map("p" -> RawInt(5)))) shouldBe 0
+    fetchStatementResult(t.q, mkEnv(Map("p" -> RawInt(5)))) shouldBe 0
   }
 
   test("""select
@@ -1238,23 +1238,23 @@ class TestSqlCompilerServiceAirports
     |  example.airports
     |limit 10;
     |""".stripMargin) { t =>
-    val v = compilerService.validate(t.q, asJson())
+    val v = compilerService.validate(t.q, mkEnv())
     assert(v.messages.size == 1)
     assert(v.messages(0).message == "schema \"country\" does not exist")
   }
 
   test("""SELECT pg_typeof(NOW())""".stripMargin) { t =>
-    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(t.q, mkEnv())
     assert(errors.isEmpty)
-    val Left(errors2) = compilerService.getProgramDescription(t.q, asJson())
+    val Left(errors2) = compilerService.getProgramDescription(t.q, mkEnv())
     errors2.map(_.message).contains("unsupported type: regtype")
   }
 
   test("""SELECT CAST(pg_typeof(NOW()) AS VARCHAR)""".stripMargin) { t =>
-    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(t.q, mkEnv())
     assert(errors.isEmpty)
-    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
-    val row = fetchOneRowResult(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, mkEnv())
+    val row = fetchOneRowResult(t.q, mkEnv())
     row.size shouldBe 1
     row.head._1.hasString shouldBe true
     row.head._2.getString.getV shouldBe "timestamp with time zone"
@@ -1263,18 +1263,18 @@ class TestSqlCompilerServiceAirports
   test("""SELECT NOW()""".stripMargin) { t =>
     // NOW() is a timestamp with timezone. The one of the SQL connection. This test is to make sure
     // it works (we cannot assert on the result).
-    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(t.q, mkEnv())
     assert(errors.isEmpty)
-    val Right(description) = compilerService.getProgramDescription(t.q, asJson())
-    val row = fetchOneRowResult(t.q, asJson())
+    val Right(description) = compilerService.getProgramDescription(t.q, mkEnv())
+    val row = fetchOneRowResult(t.q, mkEnv())
     row.size shouldBe 1
   }
 
   test("""SELECT TIMESTAMP '2001-07-01 12:13:14.567' AS t""".stripMargin) { t =>
-    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(t.q, mkEnv())
     assert(errors.isEmpty)
-    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
-    val row = fetchOneRowResult(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, mkEnv())
+    val row = fetchOneRowResult(t.q, mkEnv())
     row.size shouldBe 1
     val ts = row.head._2.getTimestamp
     ts.getYear shouldBe 2001
@@ -1287,10 +1287,10 @@ class TestSqlCompilerServiceAirports
   }
 
   test("""SELECT TIME '12:13:14.567' AS t""".stripMargin) { t =>
-    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(t.q, mkEnv())
     assert(errors.isEmpty)
-    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
-    val row = fetchOneRowResult(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, mkEnv())
+    val row = fetchOneRowResult(t.q, mkEnv())
     row.size shouldBe 1
     val ts = row.head._2.getTime
     ts.getHour shouldBe 12
@@ -1301,12 +1301,12 @@ class TestSqlCompilerServiceAirports
 
   test("""-- @default t TIME '12:13:14.567'
     |SELECT :t AS t""".stripMargin) { t =>
-    val ValidateResponse(errors) = compilerService.validate(t.q, asJson())
+    val ValidateResponse(errors) = compilerService.validate(t.q, mkEnv())
     assert(errors.isEmpty)
-    val Right(_) = compilerService.getProgramDescription(t.q, asJson())
+    val Right(_) = compilerService.getProgramDescription(t.q, mkEnv())
     val baos = new ByteArrayOutputStream()
     baos.reset()
-    val row = fetchOneRowResult(t.q, asJson())
+    val row = fetchOneRowResult(t.q, mkEnv())
     row.size shouldBe 1
     val ts = row.head._2.getTime
     ts.getHour shouldBe 12
@@ -1318,10 +1318,10 @@ class TestSqlCompilerServiceAirports
   test("""-- @type x integer
     |-- @default x null
     |SELECT :x AS x""".stripMargin) { t =>
-    val rowWithDefault = fetchOneRowResult(t.q, asJson())
+    val rowWithDefault = fetchOneRowResult(t.q, mkEnv())
     rowWithDefault.size shouldBe 1
     rowWithDefault.head._2.hasNull shouldBe true
-    val rowWith12 = fetchOneRowResult(t.q, asJson(Map("x" -> RawInt(12))))
+    val rowWith12 = fetchOneRowResult(t.q, mkEnv(Map("x" -> RawInt(12))))
     rowWith12.size shouldBe 1
     rowWith12.head._2.getInt.getV shouldBe 12
   }
@@ -1329,10 +1329,10 @@ class TestSqlCompilerServiceAirports
   test("""-- @type x varchar
     |-- @default x null
     |SELECT :x AS x""".stripMargin) { t =>
-    val rowWithDefault = fetchOneRowResult(t.q, asJson())
+    val rowWithDefault = fetchOneRowResult(t.q, mkEnv())
     rowWithDefault.size shouldBe 1
     rowWithDefault.head._2.hasNull shouldBe true
-    val rowWithTralala = fetchOneRowResult(t.q, asJson(Map("x" -> RawString("tralala"))))
+    val rowWithTralala = fetchOneRowResult(t.q, mkEnv(Map("x" -> RawString("tralala"))))
     rowWithTralala.size shouldBe 1
     rowWithTralala.head._2.getString.getV shouldBe "tralala"
   }
@@ -1340,10 +1340,10 @@ class TestSqlCompilerServiceAirports
   test("""-- @type x date
     |-- @default x null
     |SELECT :x AS x""".stripMargin) { t =>
-    val rowWithDefault = fetchOneRowResult(t.q, asJson())
+    val rowWithDefault = fetchOneRowResult(t.q, mkEnv())
     rowWithDefault.size shouldBe 1
     rowWithDefault.head._2.hasNull shouldBe true
-    val rowWithDate = fetchOneRowResult(t.q, asJson(Map("x" -> RawDate(LocalDate.of(2008, 9, 29)))))
+    val rowWithDate = fetchOneRowResult(t.q, mkEnv(Map("x" -> RawDate(LocalDate.of(2008, 9, 29)))))
     rowWithDate.size shouldBe 1
     val d = rowWithDate.head._2.getDate
     d.getYear shouldBe 2008
@@ -1359,10 +1359,10 @@ class TestSqlCompilerServiceAirports
         |                                    AND airport_id = :iata
         |""".stripMargin)
       // hover ':location' returns the type of location (varchar)
-      val v1 = compilerService.hover(t.q, asJson(), Pos(2, 57))
+      val v1 = compilerService.hover(t.q, mkEnv(), Pos(2, 57))
       assert(v1.completion.contains(TypeCompletion("location", "varchar")))
       // hover ':iata' returns the type of iata (integer)
-      val v2 = compilerService.hover(t.q, asJson(), Pos(3, 57))
+      val v2 = compilerService.hover(t.q, mkEnv(), Pos(3, 57))
       assert(v2.completion.contains(TypeCompletion("iata", "integer")))
     }
     {
@@ -1372,17 +1372,17 @@ class TestSqlCompilerServiceAirports
         |                                    AND airport_id = :iata
         |""".stripMargin)
       // hover ':location' still returns the type of location (varchar)
-      val v1 = compilerService.hover(t.q, asJson(), Pos(2, 57))
+      val v1 = compilerService.hover(t.q, mkEnv(), Pos(2, 57))
       assert(v1.completion.contains(TypeCompletion("location", "varchar")))
       // hover ':iata' doesn't return anything since it's ignored.
-      val v2 = compilerService.hover(t.q, asJson(), Pos(3, 57))
+      val v2 = compilerService.hover(t.q, mkEnv(), Pos(3, 57))
       assert(v2.completion.isEmpty)
     }
   }
 
   // Checking nested records with hstore
   test("SELECT 'a=>1,b=>tralala'::hstore AS r") { t =>
-    val Seq((_, v)) = fetchOneRowResult(t.q, asJson())
+    val Seq((_, v)) = fetchOneRowResult(t.q, mkEnv())
     v.getRecord.getFields(0).getName shouldBe "a"
     v.getRecord.getFields(0).getValue.getString.getV shouldBe "1"
     v.getRecord.getFields(1).getName shouldBe "b"
@@ -1390,7 +1390,7 @@ class TestSqlCompilerServiceAirports
   }
 
   test("SELECT NULL::hstore AS r") { t =>
-    val Seq((_, v)) = fetchOneRowResult(t.q, asJson())
+    val Seq((_, v)) = fetchOneRowResult(t.q, mkEnv())
     v.hasNull shouldBe true
   }
 
@@ -1402,13 +1402,13 @@ class TestSqlCompilerServiceAirports
         |""".stripMargin
     fetchStatementResult(
       q,
-      asJson(
+      mkEnv(
         Map("airport" -> RawString("FAKE"), "city" -> RawString("Fake City"), "country" -> RawString("Fake Country"))
       )
     ) shouldBe 1
     val columns = fetchOneRowResult(
       "SELECT city, country FROM example.airports WHERE name = :a",
-      asJson(params = Map("a" -> RawString("FAKE")))
+      mkEnv(params = Map("a" -> RawString("FAKE")))
     )
     columns.size shouldBe 2
     columns(0)._2.getString.getV shouldBe "Fake City"
@@ -1418,11 +1418,11 @@ class TestSqlCompilerServiceAirports
   test("UPDATE") { _ =>
     fetchStatementResult(
       "UPDATE example.airports SET city = :newName WHERE country = :c",
-      asJson(params = Map("newName" -> RawString("La Roche sur Foron"), "c" -> RawString("Portugal")))
+      mkEnv(params = Map("newName" -> RawString("La Roche sur Foron"), "c" -> RawString("Portugal")))
     ) shouldBe 39
     val columns = fetchOneRowResult(
       "SELECT DISTINCT city FROM example.airports WHERE country = :c",
-      asJson(params = Map("c" -> RawString("Portugal")))
+      mkEnv(params = Map("c" -> RawString("Portugal")))
     )
     columns.size shouldBe 1
     columns.head._2.getString.getV shouldBe "La Roche sur Foron"

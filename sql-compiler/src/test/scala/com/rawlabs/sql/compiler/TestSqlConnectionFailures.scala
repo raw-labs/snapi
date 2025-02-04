@@ -478,7 +478,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.eval(code, env, None).right.map {
@@ -502,7 +502,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.hover(code, env, pos)
@@ -521,7 +521,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.wordAutoComplete(code, env, prefix, pos)
@@ -539,7 +539,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.dotAutoComplete(code, env, pos)
@@ -556,7 +556,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.getProgramDescription(code, env)
@@ -573,7 +573,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.validate(code, env)
