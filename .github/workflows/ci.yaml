@@ -25,14 +25,14 @@ env:
 
 jobs:
   code-checks:
-    runs-on: [self-hosted,snapi]
+    runs-on: [self-hosted,snapi,eks]
     steps:
       - uses: actions/checkout@v4
       - run: ./ci/check headerCheckAll
       - run: ./ci/check scalafmtCheckAll
       - run: ./ci/check javafmtCheckAll
   doc:
-    runs-on: [self-hosted,snapi]
+    runs-on: [self-hosted,snapi,eks]
     steps:
       - uses: actions/checkout@v4
       - name: Ensure ANTLR JAR is present
@@ -47,7 +47,7 @@ jobs:
           - snapi-compiler
           - sql-compiler
           - python-compiler
-    runs-on: [self-hosted,snapi]
+    runs-on: [self-hosted,snapi,eks]
     steps:
       - uses: actions/checkout@v4
       - uses: oNaiPs/secrets-to-env-action@v1.5

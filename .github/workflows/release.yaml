@@ -9,7 +9,7 @@ env:
 
 jobs:
   create-gh-release:
-    runs-on: [self-hosted,snapi]
+    runs-on: [self-hosted,snapi,eks]
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001
@@ -38,7 +38,7 @@ jobs:
           #  ./launcher/target/raw-cli-*.jar
   notify-main-repo:
     if: github.event == 'repository_dispatch'
-    runs-on: [self-hosted,snapi]
+    runs-on: [self-hosted,snapi,eks]
     steps:
       - uses: actions/checkout@v3
       - name: Notify main repo
