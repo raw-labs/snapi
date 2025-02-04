@@ -12,7 +12,6 @@
 
 package com.rawlabs.sql.compiler.writers
 
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.google.protobuf.ByteString
 import com.rawlabs.compiler._
@@ -294,18 +293,7 @@ class TypedResultSetRawValueIterator(
             jsonNodeToRawValue(json)
           case "_hstore" =>
             val item = element.asInstanceOf[PGobject]
-            val str = item.getValue
-            // Parse the hstore string into a map
-            val hstoreMap = new java.util.HashMap[String, String]()
-            str
-              .split(",")
-              .foreach { pair =>
-                val Array(k, v) = pair.split("=>")
-                hstoreMap.put(k.strip.replaceAll("\"", ""), v.strip.replaceAll("\"", ""))
-              }
-            // Convert hstore to JSON-like structure
-            val json = mapper.valueToTree[ObjectNode](hstoreMap)
-            jsonNodeToRawValue(json)
+            hstoreToRawRecord(item.getValue)
         }
 
       case _ => throw new IllegalArgumentException(s"Unsupported type: $tipe")
