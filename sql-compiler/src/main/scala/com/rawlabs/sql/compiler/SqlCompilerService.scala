@@ -14,14 +14,10 @@ package com.rawlabs.sql.compiler
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.rawlabs.compiler._
+import com.rawlabs.protocol.raw.{Value, ValueInt, ValueRecord, ValueRecordField}
 import com.rawlabs.sql.compiler.antlr4.{ParseProgramResult, SqlIdnNode, SqlParamUseNode, SqlSyntaxAnalyzer}
 import com.rawlabs.sql.compiler.metadata.UserMetadataCache
-import com.rawlabs.sql.compiler.writers.{
-  StatusCsvWriter,
-  StatusJsonWriter,
-  TypedResultSetCsvWriter,
-  TypedResultSetJsonWriter
-}
+import com.rawlabs.sql.compiler.writers._
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.bitbucket.inkytonik.kiama.util.Positions
 
@@ -87,76 +83,68 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   override def getProgramDescription(
       source: String,
       environment: ProgramEnvironment
-  ): GetProgramDescriptionResponse = {
-    try {
-      logger.debug(s"Getting program description: $source")
-      safeParse(source) match {
-        case Left(errors) => GetProgramDescriptionFailure(errors)
-        case Right(parsedTree) =>
+  ): Either[List[ErrorMessage], ProgramDescription] = {
+    safeParse(source) match {
+      case Left(errors) => Left(errors)
+      case Right(parsedTree) =>
+        try {
+          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
-            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
-            try {
-              val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
-              val description = stmt.queryMetadata match {
-                case Right(info) =>
-                  val queryParamInfo = info.parameters
-                  val outputType = pgRowTypeToIterableType(info.outputType)
-                  val parameterInfo = queryParamInfo
-                    .map {
-                      case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.pgType).map { rawType =>
-                          // we ignore tipe.nullable and mark all parameters as nullable
-                          val paramType = rawType match {
-                            case RawAnyType() => rawType;
-                            case other => other.cloneNullable
-                          }
-                          ParamDescription(
-                            name,
-                            Some(paramType),
-                            paramInfo.default,
-                            comment = paramInfo.comment,
-                            required = paramInfo.default.isEmpty
-                          )
+            val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
+            val description = stmt.queryMetadata match {
+              case Right(info) =>
+                val queryParamInfo = info.parameters
+                val outputType = pgRowTypeToIterableType(info.outputType)
+                val parameterInfo = queryParamInfo
+                  .map {
+                    case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.pgType).map { rawType =>
+                        // we ignore tipe.nullable and mark all parameters as nullable
+                        val paramType = rawType match {
+                          case RawAnyType() => rawType;
+                          case other => other.cloneNullable
                         }
-                    }
-                    .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
-                      case (Left(errors), Left(error)) => Left(errors :+ error)
-                      case (_, Left(error)) => Left(Seq(error))
-                      case (Right(params), Right(param)) => Right(params :+ param)
-                      case (errors @ Left(_), _) => errors
-                      case (_, Right(param)) => Right(Seq(param))
-                    }
-                  (outputType, parameterInfo) match {
-                    case (Right(iterableType), Right(ps)) =>
-                      // Regardless if there are parameters, we declare a main function with the output type.
-                      // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
-                      val ok = ProgramDescription(
-                        Map.empty,
-                        Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
-                        None
-                      )
-                      GetProgramDescriptionSuccess(ok)
-                    case _ =>
-                      val errorMessages =
-                        outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
-                      GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
+                        ParamDescription(
+                          name,
+                          Some(paramType),
+                          paramInfo.default,
+                          comment = paramInfo.comment,
+                          required = paramInfo.default.isEmpty
+                        )
+                      }
                   }
-                case Left(errors) => GetProgramDescriptionFailure(errors)
-              }
-              RawUtils.withSuppressNonFatalException(stmt.close())
-              description
-            } catch {
-              case e: NamedParametersPreparedStatementException => GetProgramDescriptionFailure(e.errors)
-            } finally {
-              RawUtils.withSuppressNonFatalException(conn.close())
+                  .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
+                    case (Left(errors), Left(error)) => Left(errors :+ error)
+                    case (_, Left(error)) => Left(Seq(error))
+                    case (Right(params), Right(param)) => Right(params :+ param)
+                    case (errors @ Left(_), _) => errors
+                    case (_, Right(param)) => Right(Seq(param))
+                  }
+                (outputType, parameterInfo) match {
+                  case (Right(iterableType), Right(ps)) =>
+                    // Regardless if there are parameters, we declare a main function with the output type.
+                    // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
+                    val ok = ProgramDescription(
+                      Map.empty,
+                      Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
+                      None
+                    )
+                    Right(ok)
+                  case _ =>
+                    val errorMessages = outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
+                    Left(treeErrors(parsedTree, errorMessages).toList)
+                }
+              case Left(errors) => Left(errors)
             }
+            RawUtils.withSuppressNonFatalException(stmt.close())
+            description
           } catch {
-            case ex: SQLException if isConnectionFailure(ex) =>
-              logger.warn("SqlConnectionPool connection failure", ex)
-              GetProgramDescriptionFailure(List(treeError(parsedTree, ex.getMessage)))
+            case e: NamedParametersPreparedStatementException => Left(e.errors)
+          } finally {
+            RawUtils.withSuppressNonFatalException(conn.close())
           }
-      }
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+        } catch {
+          case ex: SQLException if isConnectionFailure(ex) => Left(List(treeError(parsedTree, ex.getMessage)))
+        }
     }
   }
 
@@ -175,11 +163,12 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       maybeDecl: Option[String],
       outputStream: OutputStream,
       maxRows: Option[Long]
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
+    import ExecutionError._
+
     try {
-      logger.debug(s"Executing: $source")
       safeParse(source) match {
-        case Left(errors) => ExecutionValidationFailure(errors)
+        case Left(errors) => Left(ValidationError(errors))
         case Right(parsedTree) =>
           val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
@@ -197,26 +186,23 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
                               // No ResultSet, it was an update. Return a status in the expected format.
                               updateResultRendering(environment, outputStream, count, maxRows)
                           }
-                        case Left(error) => ExecutionRuntimeFailure(error)
+                        case Left(error) => Left(error)
                       }
-                    case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
+                    case Left(errors) => Left(RuntimeError(errors.mkString(", ")))
                   }
-                case Left(errors) => ExecutionValidationFailure(errors)
+                case Left(errors) => Left(ValidationError(errors))
               }
             } finally {
               RawUtils.withSuppressNonFatalException(pstmt.close())
             }
           } catch {
-            case e: NamedParametersPreparedStatementException => ExecutionValidationFailure(e.errors)
+            case e: NamedParametersPreparedStatementException => Left(ValidationError(e.errors))
           } finally {
             RawUtils.withSuppressNonFatalException(conn.close())
           }
       }
     } catch {
-      case ex: SQLException if isConnectionFailure(ex) =>
-        logger.warn("SqlConnectionPool connection failure", ex)
-        ExecutionRuntimeFailure(ex.getMessage)
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+      case ex: SQLException if isConnectionFailure(ex) => Left(RuntimeError(ex.getMessage))
     }
   }
 
@@ -226,13 +212,15 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       v: ResultSet,
       outputStream: OutputStream,
       maxRows: Option[Long]
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
+    import ExecutionError._
+
     environment.options
       .get("output-format")
       .map(_.toLowerCase) match {
       case Some("csv") =>
         if (!TypedResultSetCsvWriter.outputWriteSupport(tipe)) {
-          ExecutionRuntimeFailure("unsupported type")
+          RuntimeError("unsupported type")
         }
         val windowsLineEnding = environment.options.get("windows-line-ending") match {
           case Some("true") => true
@@ -242,28 +230,27 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         val w = new TypedResultSetCsvWriter(outputStream, lineSeparator, maxRows)
         try {
           w.write(v, tipe)
-          ExecutionSuccess(w.complete)
+          Right(ExecutionSuccess(w.complete))
         } catch {
-          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          case ex: IOException => Left(RuntimeError(ex.getMessage))
         } finally {
           RawUtils.withSuppressNonFatalException(w.close())
         }
       case Some("json") =>
         if (!TypedResultSetJsonWriter.outputWriteSupport(tipe)) {
-          ExecutionRuntimeFailure("unsupported type")
+          RuntimeError("unsupported type")
         }
         val w = new TypedResultSetJsonWriter(outputStream, maxRows)
         try {
           w.write(v, tipe)
-          ExecutionSuccess(w.complete)
+          Right(ExecutionSuccess(w.complete))
         } catch {
-          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          case ex: IOException => Left(RuntimeError(ex.getMessage))
         } finally {
           RawUtils.withSuppressNonFatalException(w.close())
         }
-      case _ => ExecutionRuntimeFailure("unknown output format")
+      case _ => Left(RuntimeError("unknown output format"))
     }
-
   }
 
   private def updateResultRendering(
@@ -271,7 +258,9 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       stream: OutputStream,
       count: Int,
       maybeLong: Option[Long]
-  ) = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
+    import ExecutionError._
+
     environment.options
       .get("output-format")
       .map(_.toLowerCase) match {
@@ -284,8 +273,9 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         val writer = new StatusCsvWriter(stream, lineSeparator)
         try {
           writer.write(count)
+          Right(ExecutionSuccess(true))
         } catch {
-          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          case ex: IOException => Left(RuntimeError(ex.getMessage))
         } finally {
           RawUtils.withSuppressNonFatalException(writer.close())
         }
@@ -293,16 +283,139 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
         val w = new StatusJsonWriter(stream)
         try {
           w.write(count)
-          ExecutionSuccess(true)
+          Right(ExecutionSuccess(true))
         } catch {
-          case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          case ex: IOException => Left(RuntimeError(ex.getMessage))
         } finally {
           RawUtils.withSuppressNonFatalException(w.close())
         }
-      case _ => ExecutionRuntimeFailure("unknown output format")
+      case _ => Left(RuntimeError("unknown output format"))
     }
-    ExecutionSuccess(true)
   }
+
+  override def eval(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): Either[ExecutionError, EvalSuccess] = {
+
+    import EvalSuccess._
+    import ExecutionError._
+
+    // 1) Parse
+    safeParse(source) match {
+      case Left(parseErrors) => Left(ValidationError(parseErrors))
+
+      case Right(parsedTree) =>
+        // 2) Attempt to get a connection from the pool
+        val conn =
+          try connectionPool.getConnection(environment.jdbcUrl.get)
+          catch {
+            case ex: SQLException if isConnectionFailure(ex) =>
+              return Left(ValidationError(List(ErrorMessage(ex.getMessage, Nil, ErrorCode.SqlErrorCode))))
+          }
+
+        // If parse and connection succeeded, proceed:
+        try {
+          // 3) Build statement
+          val pstmt = new NamedParametersPreparedStatement(conn, parsedTree, environment.scopes)
+          // We do NOT close `pstmt` right away. We only close if we fail or once iteration is done.
+          // So no try/finally here that automatically kills it.
+          val pstmtAutoClose = asAutoCloseable(pstmt)(_.close())
+
+          // 4) Query metadata
+          pstmt.queryMetadata match {
+            case Left(errors) =>
+              // If we can't get metadata, close everything now.
+              closeQuietly(pstmtAutoClose, conn)
+              Left(ValidationError(errors))
+
+            case Right(info) => pgRowTypeToIterableType(info.outputType) match {
+                case Left(errs) =>
+                  // Another error => close.
+                  closeQuietly(pstmtAutoClose, conn)
+                  Left(ValidationError(List(ErrorMessage(errs.mkString(", "), Nil, ErrorCode.SqlErrorCode))))
+
+                case Right(iterableType) =>
+                  // Actually run the statement
+                  val arguments = environment.maybeArguments.getOrElse(Array.empty)
+                  pstmt.executeWith(arguments) match {
+                    case Left(error) =>
+                      // Execution failed => close
+                      closeQuietly(pstmtAutoClose, conn)
+                      Left(error)
+
+                    case Right(result) =>
+                      // We have a success; produce a streaming or single-value iterator
+                      val protocolType = TypeConverter.toProtocolType(iterableType.innerType)
+
+                      result match {
+                        case NamedParametersPreparedStatementResultSet(rs) =>
+                          // Return a streaming iterator that closes RS, stmt, conn in close()
+                          val valueIterator = new TypedResultSetRawValueIterator(rs, iterableType) with AutoCloseable {
+                            override def close(): Unit = {
+                              // Freed when the caller is done iterating
+                              closeQuietly(rs, pstmtAutoClose, conn)
+                            }
+                          }
+
+                          Right(IteratorValue(protocolType, valueIterator))
+
+                        case NamedParametersPreparedStatementUpdate(countV) =>
+                          // A single-value scenario (the "UPDATE count" integer).
+                          // It wraps the count in a record with "update_count"
+                          val resultValue = Value
+                            .newBuilder()
+                            .setRecord(
+                              ValueRecord
+                                .newBuilder()
+                                .addFields(
+                                  ValueRecordField
+                                    .newBuilder()
+                                    .setName("update_count")
+                                    .setValue(Value.newBuilder().setInt(ValueInt.newBuilder().setV(countV)).build())
+                                )
+                                .build()
+                            )
+                            .build()
+
+                          // Close everything now
+                          closeQuietly(pstmtAutoClose)
+                          closeQuietly(conn)
+
+                          Right(ResultValue(protocolType, resultValue))
+                      }
+                  }
+              }
+          }
+
+        } catch {
+          // If building/executing statement fails badly:
+          case e: NamedParametersPreparedStatementException =>
+            closeQuietly(conn) // stmt might not even have been created
+            Left(ValidationError(e.errors))
+
+          case t: Throwable =>
+            closeQuietly(conn)
+            throw t
+        }
+    }
+  }
+
+  /** Utility to close multiple resources ignoring non-fatal exceptions. */
+  private def closeQuietly(resources: AutoCloseable*): Unit = {
+    resources.foreach { r =>
+      try r.close()
+      catch { case NonFatal(_) => () }
+    }
+  }
+
+  /**
+   * Helper to wrap anything that has a `.close()` method into an `AutoCloseable`.
+   * That way we can pass it to `closeQuietly(...)`.
+   */
+  private def asAutoCloseable[T](obj: T)(closeFn: T => Unit): AutoCloseable =
+    new AutoCloseable { def close(): Unit = closeFn(obj) }
 
   override def formatCode(
       source: String,
@@ -310,37 +423,26 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       maybeIndent: Option[Int],
       maybeWidth: Option[Int]
   ): FormatCodeResponse = {
-    try {
-      FormatCodeResponse(Some(source))
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
-    }
+    FormatCodeResponse(Some(source))
   }
 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
-    try {
-      logger.debug(s"dotAutoComplete at position: $position")
-      val analyzer = new SqlCodeUtils(parse(source))
-      // The editor removes the dot in the completion event
-      // So we call the identifier with +1 column
-      analyzer.identifierUnder(Pos(position.line, position.column + 1)) match {
-        case Some(idn: SqlIdnNode) =>
-          val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
-          val matches = metadataBrowser.getDotCompletionMatches(idn)
-          val collectedValues = matches.collect {
-            case (idns, tipe) =>
-              // If the last identifier is quoted, we need to quote the completion
-              val name = if (idns.last.quoted) '"' + idns.last.value + '"' else idns.last.value
-              LetBindCompletion(name, tipe)
-          }
-          logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
-          AutoCompleteResponse(collectedValues.toArray)
-        case Some(_: SqlParamUseNode) =>
-          AutoCompleteResponse(Array.empty) // dot completion makes no sense on parameters
-        case _ => AutoCompleteResponse(Array.empty)
-      }
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+    val analyzer = new SqlCodeUtils(parse(source))
+    // The editor removes the dot in the completion event
+    // So we call the identifier with +1 column
+    analyzer.identifierUnder(Pos(position.line, position.column + 1)) match {
+      case Some(idn: SqlIdnNode) =>
+        val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
+        val matches = metadataBrowser.getDotCompletionMatches(idn)
+        val collectedValues = matches.collect {
+          case (idns, tipe) =>
+            // If the last identifier is quoted, we need to quote the completion
+            val name = if (idns.last.quoted) '"' + idns.last.value + '"' else idns.last.value
+            LetBindCompletion(name, tipe)
+        }
+        AutoCompleteResponse(collectedValues.toArray)
+      case Some(_: SqlParamUseNode) => AutoCompleteResponse(Array.empty) // dot completion makes no sense on parameters
+      case _ => AutoCompleteResponse(Array.empty)
     }
   }
 
@@ -350,72 +452,59 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       prefix: String,
       position: Pos
   ): AutoCompleteResponse = {
-    try {
-      logger.debug(s"wordAutoComplete at position: $position")
-      val tree = parse(source)
-      val analyzer = new SqlCodeUtils(tree)
-      val item = analyzer.identifierUnder(position)
-      logger.debug(s"idn $item")
-      val matches: Seq[Completion] = item match {
-        case Some(idn: SqlIdnNode) =>
-          val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
-          val matches = metadataBrowser.getWordCompletionMatches(idn)
-          matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
-        case Some(use: SqlParamUseNode) => tree.params.collect {
-            case (p, paramDescription) if p.startsWith(use.name) =>
-              FunParamCompletion(p, paramDescription.tipe.getOrElse(""))
-          }.toSeq
-        case _ => Array.empty[Completion]
-      }
-      AutoCompleteResponse(matches.toArray)
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+    val tree = parse(source)
+    val analyzer = new SqlCodeUtils(tree)
+    val item = analyzer.identifierUnder(position)
+    val matches: Seq[Completion] = item match {
+      case Some(idn: SqlIdnNode) =>
+        val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
+        val matches = metadataBrowser.getWordCompletionMatches(idn)
+        matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
+      case Some(use: SqlParamUseNode) => tree.params.collect {
+          case (p, paramDescription) if p.startsWith(use.name) =>
+            FunParamCompletion(p, paramDescription.tipe.getOrElse(""))
+        }.toSeq
+      case _ => Array.empty[Completion]
     }
+    AutoCompleteResponse(matches.toArray)
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
-    try {
-      logger.debug(s"Hovering at position: $position")
-      val tree = parse(source)
-      val analyzer = new SqlCodeUtils(tree)
-      analyzer
-        .identifierUnder(position)
-        .map {
-          case identifier: SqlIdnNode =>
-            val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
-            val matches = metadataBrowser.getWordCompletionMatches(identifier)
-            matches.headOption
-              .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
-              .getOrElse(HoverResponse(None))
-          case use: SqlParamUseNode =>
+    val tree = parse(source)
+    val analyzer = new SqlCodeUtils(tree)
+    analyzer
+      .identifierUnder(position)
+      .map {
+        case identifier: SqlIdnNode =>
+          val metadataBrowser = metadataBrowsers.get(environment.jdbcUrl.get)
+          val matches = metadataBrowser.getWordCompletionMatches(identifier)
+          matches.headOption
+            .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
+            .getOrElse(HoverResponse(None))
+        case use: SqlParamUseNode =>
+          try {
+            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
             try {
-              val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+              val pstmt = new NamedParametersPreparedStatement(conn, tree)
               try {
-                val pstmt = new NamedParametersPreparedStatement(conn, tree)
-                try {
-                  pstmt.parameterInfo(use.name) match {
-                    case Right(typeInfo) => HoverResponse(Some(TypeCompletion(use.name, typeInfo.pgType.typeName)))
-                    case Left(_) => HoverResponse(None)
-                  }
-                } finally {
-                  RawUtils.withSuppressNonFatalException(pstmt.close())
+                pstmt.parameterInfo(use.name) match {
+                  case Right(typeInfo) => HoverResponse(Some(TypeCompletion(use.name, typeInfo.pgType.typeName)))
+                  case Left(_) => HoverResponse(None)
                 }
-              } catch {
-                case _: NamedParametersPreparedStatementException => HoverResponse(None)
               } finally {
-                RawUtils.withSuppressNonFatalException(conn.close())
+                RawUtils.withSuppressNonFatalException(pstmt.close())
               }
             } catch {
-              case ex: SQLException if isConnectionFailure(ex) =>
-                logger.warn("SqlConnectionPool connection failure", ex)
-                HoverResponse(None)
+              case _: NamedParametersPreparedStatementException => HoverResponse(None)
+            } finally {
+              RawUtils.withSuppressNonFatalException(conn.close())
             }
-          case other => throw new AssertionError(s"Unexpected node type: $other")
-        }
-        .getOrElse(HoverResponse(None))
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
-    }
+          } catch {
+            case ex: SQLException if isConnectionFailure(ex) => HoverResponse(None)
+          }
+        case other => throw new AssertionError(s"Unexpected node type: $other")
+      }
+      .getOrElse(HoverResponse(None))
   }
 
   private def formatIdns(idns: Seq[SqlIdentifier]): String = {
@@ -423,11 +512,7 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
   }
 
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
-    try {
-      RenameResponse(Array.empty)
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
-    }
+    RenameResponse(Array.empty)
   }
 
   override def goToDefinition(
@@ -435,55 +520,39 @@ class SqlCompilerService()(implicit protected val settings: RawSettings) extends
       environment: ProgramEnvironment,
       position: Pos
   ): GoToDefinitionResponse = {
-    try {
-      GoToDefinitionResponse(None)
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
-    }
+    GoToDefinitionResponse(None)
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    try {
-      logger.debug(s"Validating: $source")
-      safeParse(source) match {
-        case Left(errors) => ValidateResponse(errors)
-        case Right(parsedTree) =>
+    safeParse(source) match {
+      case Left(errors) => ValidateResponse(errors)
+      case Right(parsedTree) =>
+        try {
+          val conn = connectionPool.getConnection(environment.jdbcUrl.get)
           try {
-            val conn = connectionPool.getConnection(environment.jdbcUrl.get)
+            val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
             try {
-              val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
-              try {
-                stmt.queryMetadata match {
-                  case Right(_) => ValidateResponse(List.empty)
-                  case Left(errors) => ValidateResponse(errors)
-                }
-              } finally {
-                RawUtils.withSuppressNonFatalException(stmt.close())
+              stmt.queryMetadata match {
+                case Right(_) => ValidateResponse(List.empty)
+                case Left(errors) => ValidateResponse(errors)
               }
-            } catch {
-              case e: NamedParametersPreparedStatementException => ValidateResponse(e.errors)
             } finally {
-              RawUtils.withSuppressNonFatalException(conn.close())
+              RawUtils.withSuppressNonFatalException(stmt.close())
             }
           } catch {
-            case ex: SQLException if isConnectionFailure(ex) =>
-              logger.warn("SqlConnectionPool connection failure", ex)
-              ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
+            case e: NamedParametersPreparedStatementException => ValidateResponse(e.errors)
+          } finally {
+            RawUtils.withSuppressNonFatalException(conn.close())
           }
-      }
-    } catch {
-      case NonFatal(t) =>
-        logger.debug(t.getMessage)
-        throw new CompilerServiceException(t, environment)
+        } catch {
+          case ex: SQLException if isConnectionFailure(ex) =>
+            ValidateResponse(List(treeError(parsedTree, ex.getMessage)))
+        }
     }
   }
 
   override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    try {
-      ValidateResponse(List.empty)
-    } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
-    }
+    ValidateResponse(List.empty)
   }
 
   override def doStop(): Unit = {

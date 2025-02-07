@@ -64,5 +64,6 @@ final case class RawInterval(
     seconds: Int,
     millis: Int
 ) extends RawValue
-final case class RawRecord(fields: Map[String, RawValue]) extends RawValue
+final case class RawRecord(atts: Seq[RawRecordAttr]) extends RawValue
+final case class RawRecordAttr(idn: String, value: RawValue)
 final case class RawList(values: List[RawValue]) extends RawValue

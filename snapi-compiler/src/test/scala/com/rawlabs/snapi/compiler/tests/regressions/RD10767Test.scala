@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.compiler.tests.regressions
 
-import com.rawlabs.compiler.{GetProgramDescriptionSuccess, ProgramEnvironment}
+import com.rawlabs.compiler.ProgramEnvironment
 import com.rawlabs.snapi.frontend.snapi.SnapiInterpolator
 import com.rawlabs.snapi.compiler.tests.SnapiTestContext
 
@@ -39,7 +39,7 @@ class RD10767Test extends SnapiTestContext {
       None
     )
     compilerService.getProgramDescription(it.q, programEnvironment) match {
-      case GetProgramDescriptionSuccess(desc) =>
+      case Right(desc) =>
         assert(desc.maybeRunnable.isDefined, "Expected a runnable program")
         val decls = desc.decls("data_type")
         assert(decls.head.outType.isEmpty)
@@ -62,7 +62,7 @@ class RD10767Test extends SnapiTestContext {
       None
     )
     compilerService.getProgramDescription(it.q, programEnvironment) match {
-      case GetProgramDescriptionSuccess(desc) =>
+      case Right(desc) =>
         assert(desc.maybeRunnable.isDefined, "Expected a runnable program")
         val decls = desc.decls("func")
         assert(decls.head.outType.isEmpty)

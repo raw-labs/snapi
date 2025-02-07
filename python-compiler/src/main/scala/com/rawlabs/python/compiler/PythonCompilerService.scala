@@ -12,7 +12,37 @@
 
 package com.rawlabs.python.compiler
 
-import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, CompilerServiceException, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, FormatCodeResponse, GetProgramDescriptionResponse, GoToDefinitionResponse, HoverResponse, Pos, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawValue, RenameResponse, ValidateResponse}
+import com.rawlabs.compiler.{
+  AutoCompleteResponse,
+  CompilerService,
+  ErrorMessage,
+  EvalSuccess,
+  ExecutionError,
+  ExecutionSuccess,
+  FormatCodeResponse,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Pos,
+  ProgramDescription,
+  ProgramEnvironment,
+  RawBool,
+  RawByte,
+  RawDate,
+  RawDecimal,
+  RawDouble,
+  RawFloat,
+  RawInt,
+  RawInterval,
+  RawLong,
+  RawNull,
+  RawShort,
+  RawString,
+  RawTime,
+  RawTimestamp,
+  RawValue,
+  RenameResponse,
+  ValidateResponse
+}
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUtils}
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
@@ -37,7 +67,10 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
 
   override def language: Set[String] = Set("python")
 
-  override def getProgramDescription(source: String, environment: ProgramEnvironment): GetProgramDescriptionResponse = {
+  override def getProgramDescription(
+      source: String,
+      environment: ProgramEnvironment
+  ): Either[List[ErrorMessage], ProgramDescription] = {
     ???
 //    val source = """
 //import ast
@@ -106,7 +139,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
       maybeDecl: Option[String],
       outputStream: OutputStream,
       maxRows: Option[Long]
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, ExecutionSuccess] = {
     val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
     ctx.initialize("python")
     ctx.enter()
@@ -121,7 +154,18 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           val f = bindings.getMember(decl)
           environment.maybeArguments match {
             case Some(args) =>
-              val polyglotArguments = args.map(arg => rawValueToPolyglotValue(arg._2, ctx))
+              val maybePolyglotArguments = args.map(arg => rawValueToPolyglotValue(arg._2, ctx))
+              val unsupportedMandatoryPolyglotArguments = maybePolyglotArguments.zipWithIndex.collect {
+                case (None, idx) => ErrorMessage(
+                    s"unsupported mandatory argument at position ${idx + 1}",
+                    List.empty,
+                    ""
+                  )
+              }
+              if (unsupportedMandatoryPolyglotArguments.nonEmpty) {
+                return Left(ExecutionError.ValidationError(unsupportedMandatoryPolyglotArguments.to))
+              }
+              val polyglotArguments = maybePolyglotArguments.flatten
               f.execute(polyglotArguments: _*)
             case None => f.execute()
           }
@@ -140,9 +184,9 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           try {
             w.write(v)
             w.flush()
-            ExecutionSuccess(complete = true)
+            Right(ExecutionSuccess(complete = true))
           } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+            case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
           } finally {
             RawUtils.withSuppressNonFatalException(w.close())
           }
@@ -151,9 +195,9 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           try {
             w.write(v)
             w.flush()
-            ExecutionSuccess(complete = true)
+            Right(ExecutionSuccess(complete = true))
           } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+            case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
           } finally {
             RawUtils.withSuppressNonFatalException(w.close())
           }
@@ -161,26 +205,26 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
           val w = new PolyglotTextWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess(complete = true)
+            Right(ExecutionSuccess(complete = true))
           } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+            case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
           }
         case Some("binary") =>
           val w = new PolyglotBinaryWriter(outputStream)
           try {
             w.writeAndFlush(v)
-            ExecutionSuccess(complete = true)
+            Right(ExecutionSuccess(complete = true))
           } catch {
-            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+            case ex: IOException => Left(ExecutionError.RuntimeError(ex.getMessage))
           }
-        case _ => ExecutionRuntimeFailure("unknown output format")
+        case _ => Left(ExecutionError.RuntimeError("unknown output format"))
       }
     } catch {
       case ex: PolyglotException =>
         if (ex.isInterrupted) {
           throw new InterruptedException()
         } else {
-          ExecutionRuntimeFailure(ex.getMessage)
+          Left(ExecutionError.RuntimeError(ex.getMessage))
         }
     } finally {
       ctx.leave()
@@ -188,7 +232,7 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
     }
   }
 
-  private def rawValueToPolyglotValue(rawValue: RawValue, ctx: Context): Value = {
+  private def rawValueToPolyglotValue(rawValue: RawValue, ctx: Context): Option[Value] = {
     val code: String = rawValue match {
       case RawNull() => "None"
       case RawByte(v) => ???
@@ -204,11 +248,17 @@ class PythonCompilerService(engineDefinition: (Engine, Boolean))(implicit protec
       case RawTime(v) => ???
       case RawTimestamp(v) => ???
       case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) => ???
-      case _ => throw new CompilerServiceException("type not supported")
+      case _ => return None
     }
     val value = ctx.eval("python", code)
-    ctx.asValue(value)
+    Some(ctx.asValue(value))
   }
+
+  override def eval(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String]
+  ): Either[ExecutionError, EvalSuccess] = ???
 
   override def formatCode(
       source: String,

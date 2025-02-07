@@ -13,29 +13,12 @@
 package com.rawlabs.sql.compiler
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
-import com.rawlabs.compiler.{
-  AutoCompleteResponse,
-  CompilerService,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  GetProgramDescriptionFailure,
-  GetProgramDescriptionResponse,
-  GetProgramDescriptionSuccess,
-  HoverResponse,
-  LetBindCompletion,
-  Pos,
-  ProgramEnvironment,
-  RawInt,
-  TypeCompletion,
-  ValidateResponse
-}
+import com.rawlabs.compiler._
+import com.rawlabs.utils.core._
 import org.scalatest.matchers.must.Matchers.be
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.testcontainers.utility.DockerImageName
-import com.rawlabs.utils.core._
 
-import java.io.ByteArrayOutputStream
 import java.sql.DriverManager
 import java.util.concurrent.{Executors, TimeUnit}
 import scala.io.Source
@@ -125,10 +108,10 @@ class TestSqlConnectionFailures
     val pool = Executors.newFixedThreadPool(others.size)
     try {
       // All other users run a long query which picks a connection for them
-      val futures = others.map(user => pool.submit(() => runExecute(compilerService, user, longRunningQuery, 5)))
+      val futures = others.map(user => pool.submit(() => runEval(compilerService, user, longRunningQuery, 5)))
       val results = futures.map(_.get(60, TimeUnit.SECONDS))
       results.foreach {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(n) => logger.debug(s"Got $n rows")
         case r => fail(s"unexpected result $r")
       }
       // The user is able to get a connection to run all LSP calls.
@@ -161,10 +144,10 @@ class TestSqlConnectionFailures
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(others.size)
     try {
-      val futures = others.map(user => pool.submit(() => runExecute(compilerService, user, longRunningQuery, 5)))
+      val futures = others.map(user => pool.submit(() => runEval(compilerService, user, longRunningQuery, 5)))
       val results = futures.map(_.get(60, TimeUnit.SECONDS))
       results.foreach {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(n) => logger.debug(s"Got $n rows")
         case r => fail(s"unexpected result $r")
       }
       // hover returns nothing
@@ -194,7 +177,7 @@ class TestSqlConnectionFailures
     val compilerService = new SqlCompilerService()
     val pool = Executors.newFixedThreadPool(users.size)
     try {
-      val futures = users.map(user => pool.submit(() => runExecute(compilerService, user, longRunningQuery, 5)))
+      val futures = users.map(user => pool.submit(() => runEval(compilerService, user, longRunningQuery, 5)))
       Thread.sleep(2000) // give some time to make sure they're all running
       val hoverResponse = runHover(compilerService, joe, "SELECT * FROM example.airports", Pos(1, 17))
       assert(hoverResponse.completion.contains(TypeCompletion("example", "schema")))
@@ -209,7 +192,7 @@ class TestSqlConnectionFailures
       }.toSet === Set("airports", "trips", "machines"))
       val results = futures.map(_.get(60, TimeUnit.SECONDS))
       results.foreach {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(n) => logger.debug(s"Got $n rows")
         case r => fail(s"unexpected result $r")
       }
     } finally {
@@ -228,7 +211,7 @@ class TestSqlConnectionFailures
     val pool = Executors.newFixedThreadPool(users.size)
     try {
       // All users run a long query
-      val futures = users.map(user => pool.submit(() => runExecute(compilerService, user, longRunningQuery, 5)))
+      val futures = users.map(user => pool.submit(() => runEval(compilerService, user, longRunningQuery, 5)))
       Thread.sleep(2000) // give some time to make sure they're all running
       // hover is None
       val hoverResponse = runHover(compilerService, joe, "SELECT * FROM example.airports", Pos(1, 17))
@@ -243,7 +226,7 @@ class TestSqlConnectionFailures
       assert(dotCompletionResponse.completions.isEmpty)
       val results = futures.map(_.get(60, TimeUnit.SECONDS))
       results.foreach {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(n) => logger.debug(s"Got $n rows")
         case r => fail(s"unexpected result $r")
       }
     } finally {
@@ -252,7 +235,7 @@ class TestSqlConnectionFailures
     }
   }
 
-  test("[execute] enough connections in total") { _ =>
+  test("[eval] enough connections in total") { _ =>
     // Each user runs three times the same long query, one call at a time. The same connection is reused per user.
     // This is confirmed by setting max-connections-per-db to 1 although several calls are performed per DB.
     // In total, there's one connection per user. Setting max-connections to nUsers is working.
@@ -263,10 +246,10 @@ class TestSqlConnectionFailures
     val iterations = 1 to nCalls
     try {
       val results = users
-        .map(user => user -> iterations.map(_ => runExecute(compilerService, user, longRunningQuery, 0)))
+        .map(user => user -> iterations.map(_ => runEval(compilerService, user, longRunningQuery, 0)))
         .toMap
       for (userResults <- results.values; r <- userResults) r match {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(n) => logger.debug(s"Got $n rows")
         case _ => fail(s"unexpected result $r")
       }
     } finally {
@@ -274,7 +257,7 @@ class TestSqlConnectionFailures
     }
   }
 
-  test("[execute] enough connections per user") { _ =>
+  test("[eval] enough connections per user") { _ =>
     // We run `execute` _in parallel_ using a long query. Each user runs it `nCalls` times. So we have
     // a total number of queries of nUsers x nCalls. We set max-connections to that value to be sure and
     // set max-connections-per-db to nCalls so that all concurrent queries can run.
@@ -287,12 +270,12 @@ class TestSqlConnectionFailures
     try {
       val futures = users
         .map(user =>
-          user -> iterations.map(_ => pool.submit(() => runExecute(compilerService, user, longRunningQuery, 5)))
+          user -> iterations.map(_ => pool.submit(() => runEval(compilerService, user, longRunningQuery, 5)))
         )
         .toMap
       val results = futures.mapValues(_.map(_.get(60, TimeUnit.SECONDS)))
       for (userResults <- results.values; r <- userResults) r match {
-        case ExecutionSuccess(complete) => complete shouldBe true
+        case Right(n) => logger.debug(s"Got $n rows")
         case _ => fail(s"unexpected result $r")
       }
     } finally {
@@ -301,7 +284,7 @@ class TestSqlConnectionFailures
     }
   }
 
-  test("[execute] not enough connections") { _ =>
+  test("[eval] not enough connections") { _ =>
     // Each user runs twice execute, one call at a time. The same connection can be reused per user.
     // In total, there's one connection per user. Setting max-connections to nUsers - 1 triggers the
     // expected failure. The number of errors hit should be positive (checked in the end)
@@ -312,14 +295,16 @@ class TestSqlConnectionFailures
     val iterations = 1 to nCalls
     try {
       val results = users
-        .map(user => user -> iterations.map(_ => runExecute(compilerService, user, longRunningQuery, 0)))
+        .map(user => user -> iterations.map(_ => runEval(compilerService, user, longRunningQuery, 0)))
         .toMap
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
-        case ExecutionSuccess(complete) => complete shouldBe true
-        case ExecutionRuntimeFailure(error) => error shouldBe "no connections available"
+        case Right(n) => logger.debug(s"Got $n rows")
+        case Left(ExecutionError.ValidationError(Seq(error))) =>
+          error.message shouldBe "no connections available"
+          errorCount += 1
         case _ => fail(s"unexpected result $r")
       }
-      val errorCount = results.values.map(_.count(_.isInstanceOf[ExecutionRuntimeFailure])).sum
       errorCount should be > 0
     } finally {
       compilerService.stop()
@@ -339,13 +324,14 @@ class TestSqlConnectionFailures
       val results = users
         .map(user => user -> iterations.map(_ => runGetProgramDescription(compilerService, user, longValidateQuery)))
         .toMap
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
-        case GetProgramDescriptionSuccess(_) =>
-        case GetProgramDescriptionFailure(errors) =>
+        case Right(_) =>
+        case Left(errors) =>
           errors.size shouldBe 1
           errors.head.message shouldBe "no connections available"
+          errorCount += 1
       }
-      val errorCount = results.values.map(_.count(_.isInstanceOf[GetProgramDescriptionFailure])).sum
       errorCount should be > 0
     } finally {
       compilerService.stop()
@@ -365,20 +351,21 @@ class TestSqlConnectionFailures
       val results = users
         .map(user => user -> iterations.map(_ => runValidate(compilerService, user, longValidateQuery)))
         .toMap
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
         case ValidateResponse(errors) if errors.isEmpty =>
         case ValidateResponse(errors) =>
           errors.size shouldBe 1
           errors.head.message shouldBe "no connections available"
+          errorCount += 1
       }
-      val errorCount = results.values.map(_.count(_.messages.nonEmpty)).sum
       errorCount should be > 0
     } finally {
       compilerService.stop()
     }
   }
 
-  test("[execute] not enough connections per user") { _ =>
+  test("[eval] not enough connections per user") { _ =>
     // We run `execute` in parallel using a long query. Each user runs it `nCalls` times. So we have
     // a total number of queries of nUsers x nCalls. We set max-connections to that value to be sure but
     // set max-connections-per-db to two so that all concurrent queries cannot all get a connection although
@@ -392,16 +379,18 @@ class TestSqlConnectionFailures
     try {
       val futures = users
         .map(user =>
-          user -> iterations.map(_ => pool.submit(() => runExecute(compilerService, user, longRunningQuery, 5)))
+          user -> iterations.map(_ => pool.submit(() => runEval(compilerService, user, longRunningQuery, 5)))
         )
         .toMap
       val results = futures.mapValues(_.map(_.get(60, TimeUnit.SECONDS)))
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
-        case ExecutionSuccess(complete) => complete shouldBe true
-        case ExecutionRuntimeFailure(error) => error shouldBe "too many connections active"
+        case Right(n) => logger.debug(s"Got $n rows")
+        case Left(ExecutionError.ValidationError(Seq(error))) =>
+          error.message shouldBe "too many connections active"
+          errorCount += 1
         case _ => fail(s"unexpected result $r")
       }
-      val errorCount = results.values.map(_.count(_.isInstanceOf[ExecutionRuntimeFailure])).sum
       errorCount should be > 0
     } finally {
       pool.close()
@@ -429,13 +418,14 @@ class TestSqlConnectionFailures
         )
         .toMap
       val results = futures.mapValues(_.map(_.get(60, TimeUnit.SECONDS)))
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
-        case GetProgramDescriptionSuccess(_) =>
-        case GetProgramDescriptionFailure(errors) =>
+        case Right(_) =>
+        case Left(errors) =>
           errors.size shouldBe 1
           errors.head.message shouldBe "too many connections active"
+          errorCount += 1
       }
-      val errorCount = results.values.map(_.count(_.isInstanceOf[GetProgramDescriptionFailure])).sum
       errorCount should be > 0
     } finally {
       pool.close()
@@ -461,13 +451,14 @@ class TestSqlConnectionFailures
         )
         .toMap
       val results = futures.mapValues(_.map(_.get(60, TimeUnit.SECONDS)))
+      var errorCount = 0
       for (userResults <- results.values; r <- userResults) r match {
         case ValidateResponse(errors) if errors.isEmpty =>
         case ValidateResponse(errors) =>
           errors.size shouldBe 1
           errors.head.message shouldBe "too many connections active"
+          errorCount += 1
       }
-      val errorCount = results.values.map(_.count(_.messages.nonEmpty)).sum
       errorCount should be > 0
     } finally {
       pool.close()
@@ -475,26 +466,27 @@ class TestSqlConnectionFailures
     }
   }
 
-  private def runExecute(
+  private def runEval(
       compilerService: CompilerService,
       user: RawUid,
       code: String,
       arg: Int
-  ): ExecutionResponse = {
+  ): Either[ExecutionError, Long] = {
     val env = ProgramEnvironment(
       user,
       Some(Array("arg" -> RawInt(arg))),
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
-    val baos = new ByteArrayOutputStream()
-    try {
-      compilerService.execute(code, env, None, baos)
-    } finally {
-      baos.close()
+    compilerService.eval(code, env, None).right.map {
+      case EvalSuccess.IteratorValue(_, it) =>
+        val n = it.size
+        it.close()
+        n
+      case _ => 1
     }
   }
 
@@ -510,7 +502,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.hover(code, env, pos)
@@ -529,7 +521,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.wordAutoComplete(code, env, prefix, pos)
@@ -547,7 +539,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.dotAutoComplete(code, env, pos)
@@ -557,14 +549,14 @@ class TestSqlConnectionFailures
       compilerService: CompilerService,
       user: RawUid,
       code: String
-  ): GetProgramDescriptionResponse = {
+  ): Either[List[ErrorMessage], ProgramDescription] = {
     val env = ProgramEnvironment(
       user,
       None,
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.getProgramDescription(code, env)
@@ -581,7 +573,7 @@ class TestSqlConnectionFailures
       Set.empty,
       Map.empty,
       Map.empty,
-      Map("output-format" -> "json"),
+      Map.empty,
       jdbcUrl = Some(jdbcUrl(user))
     )
     compilerService.validate(code, env)
