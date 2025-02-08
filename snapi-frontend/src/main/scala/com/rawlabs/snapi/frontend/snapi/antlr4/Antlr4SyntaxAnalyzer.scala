@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi.antlr4
 
-import com.rawlabs.compiler.Message
+import com.rawlabs.snapi.frontend.api.Message
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream, TokenStream}
 import org.bitbucket.inkytonik.kiama.parsing.Parsers

@@ -14,58 +14,10 @@ package com.rawlabs.snapi.compiler
 
 import com.google.protobuf.ByteString
 import com.rawlabs.compiler.utils.RecordFieldsNaming
-import com.rawlabs.compiler.{
-  AutoCompleteResponse,
-  CompilerService,
-  DeclDescription,
-  ErrorMessage,
-  ErrorPosition,
-  ErrorRange,
-  EvalSuccess,
-  ExecutionError,
-  ExecutionSuccess,
-  FormatCodeResponse,
-  GoToDefinitionResponse,
-  HoverResponse,
-  Message,
-  ParamDescription,
-  Pos,
-  ProgramDescription,
-  ProgramEnvironment,
-  RawBool,
-  RawByte,
-  RawDate,
-  RawDecimal,
-  RawDouble,
-  RawFloat,
-  RawInt,
-  RawInterval,
-  RawLong,
-  RawNull,
-  RawShort,
-  RawString,
-  RawTime,
-  RawTimestamp,
-  RawValue,
-  RenameResponse,
-  TypeConverter,
-  ValidateResponse
-}
+import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, EvalSuccess, ExecutionError, ExecutionSuccess, FormatCodeResponse, GoToDefinitionResponse, HoverResponse, Message, ParamDescription, Pos, ProgramDescription, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawType, RawValue, RenameResponse, TypeConverter, ValidateResponse}
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import com.rawlabs.protocol.raw
-import com.rawlabs.protocol.raw.{
-  ValueBinary,
-  ValueBool,
-  ValueByte,
-  ValueError,
-  ValueInterval,
-  ValueList,
-  ValueNull,
-  ValueRecord,
-  ValueRecordField,
-  ValueShort
-}
-import com.rawlabs.snapi.compiler.SnapiCompilerService.getTruffleClassLoader
+import com.rawlabs.protocol.raw.{ValueBinary, ValueBool, ValueByte, ValueError, ValueInterval, ValueList, ValueNull, ValueRecord, ValueRecordField, ValueShort}
 import com.rawlabs.snapi.compiler.writers.{SnapiCsvWriter, SnapiJsonWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
@@ -90,26 +42,6 @@ import scala.collection.JavaConverters._
 
 object SnapiCompilerService extends CustomClassAndModuleLoader {
   val LANGUAGE: Set[String] = Set("snapi")
-
-  private val JARS_PATH = "raw.snapi.compiler.jars-path"
-
-  private var maybeTruffleClassLoader: Option[ClassLoader] = _
-  private val maybeTruffleClassLoaderLock = new Object
-
-  def getTruffleClassLoader(implicit settings: RawSettings): Option[ClassLoader] = {
-    maybeTruffleClassLoaderLock.synchronized {
-      if (maybeTruffleClassLoader == null) {
-        // If defined, contains the path used to create a classloader for the Truffle language runtime.
-        val maybeJarsPath = settings.getStringOpt(JARS_PATH)
-        maybeJarsPath match {
-          case Some(jarsPath) => maybeTruffleClassLoader = Some(createCustomClassAndModuleLoader(jarsPath))
-          case None => maybeTruffleClassLoader = None
-        }
-      }
-      maybeTruffleClassLoader
-    }
-  }
-
 }
 
 class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
@@ -128,7 +60,7 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
   // Refer to SnapiTruffleCompilerServiceTestContext to see the engine being created and released from the test
   // framework, so that every test suite instance has a fresh engine.
   def this()(implicit settings: RawSettings) = {
-    this(CompilerService.getEngine(SnapiCompilerService.getTruffleClassLoader))
+    this(CompilerService.getEngine())
   }
 
   override def language: Set[String] = SnapiCompilerService.LANGUAGE
@@ -1062,12 +994,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       ctxBuilder.option("snapi.staged-compiler", stagedCompiler)
     }
     ctxBuilder.option("snapi.settings", settings.renderAsString)
-    // If the jars path is defined, create a custom class loader and set it as the host class loader.
-    getTruffleClassLoader.map { classLoader =>
-      // Set the module class loader as the Truffle runtime classloader.
-      // This enables the Truffle language runtime to be fully isolated from the rest of the application.
-      ctxBuilder.hostClassLoader(classLoader)
-    }
 
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
     val ctx = ctxBuilder.build()
@@ -1086,6 +1012,58 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     } finally {
       ctx.leave()
       ctx.close()
+    }
+  }
+
+  // Returns Option[RawType] as not all Snapi types are representable as Raw types.
+  private def snapiTypeToRawType(t: Type): Option[RawType] = {
+    def convert(t: Type): RawType = {
+      // Read nullable and triable properties.
+      var nullable = false
+      var triable = false
+      t match {
+        case tp: SnapiTypeWithProperties =>
+          if (tp.props.contains(SnapiIsNullableTypeProperty())) {
+            nullable = true
+          }
+          if (tp.props.contains(SnapiIsTryableTypeProperty())) {
+            triable = true
+          }
+        case _ =>
+      }
+      // Convert type.
+      t match {
+        case _: SnapiUndefinedType => RawUndefinedType(nullable, triable)
+        case _: SnapiByteType => RawByteType(nullable, triable)
+        case _: SnapiShortType => RawShortType(nullable, triable)
+        case _: SnapiIntType => RawIntType(nullable, triable)
+        case _: SnapiLongType => RawLongType(nullable, triable)
+        case _: SnapiFloatType => RawFloatType(nullable, triable)
+        case _: SnapiDoubleType => RawDoubleType(nullable, triable)
+        case _: SnapiDecimalType => RawDecimalType(nullable, triable)
+        case _: SnapiBoolType => RawBoolType(nullable, triable)
+        case _: SnapiStringType => RawStringType(nullable, triable)
+        case _: SnapiBinaryType => RawBinaryType(nullable, triable)
+        case _: SnapiDateType => RawDateType(nullable, triable)
+        case _: SnapiTimeType => RawTimeType(nullable, triable)
+        case _: SnapiTimestampType => RawTimestampType(nullable, triable)
+        case _: SnapiIntervalType => RawIntervalType(nullable, triable)
+        case SnapiRecordType(atts, _) => RawRecordType(
+            atts.map { case SnapiAttrType(idn, t1) => RawAttrType(idn, convert(t1)) },
+            nullable,
+            triable
+          )
+        case SnapiListType(inner, _) => RawListType(convert(inner), nullable, triable)
+        case SnapiIterableType(inner, _) => RawIterableType(convert(inner), nullable, triable)
+        case SnapiOrType(ors, _) => RawOrType(ors.map(convert), nullable, triable)
+        case _ => throw new IllegalArgumentException()
+      }
+    }
+
+    try {
+      Some(convert(t))
+    } catch {
+      case _: IllegalArgumentException => None
     }
   }
 

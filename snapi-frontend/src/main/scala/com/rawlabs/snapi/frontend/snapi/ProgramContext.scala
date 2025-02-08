@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi
 
-import com.rawlabs.compiler.ProgramEnvironment
+import com.rawlabs.snapi.frontend.api.ProgramEnvironment
 import com.rawlabs.snapi.frontend.base.CompilerContext
 import com.rawlabs.snapi.frontend.base.errors.ErrorCompilerMessage
 import com.rawlabs.snapi.frontend.snapi.extensions.{PackageExtension, PackageExtensionProvider}
@@ -49,11 +49,6 @@ class ProgramContext(
       f: => Either[ErrorCompilerMessage, SnapiValue]
   ): Either[ErrorCompilerMessage, SnapiValue] = {
     stageCompilerCache.getOrElseUpdate(program, f)
-  }
-
-  override def dumpDebugInfo: List[(String, String)] = {
-    super.dumpDebugInfo ++
-      List("Inferrer Cache" -> inferCache.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
   }
 
 }

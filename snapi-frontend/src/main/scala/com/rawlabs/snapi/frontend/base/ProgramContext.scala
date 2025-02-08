@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.base
 
-import com.rawlabs.compiler.ProgramEnvironment
+import com.rawlabs.snapi.frontend.api.ProgramEnvironment
 import com.rawlabs.utils.core.RawSettings
 
 /**
@@ -25,18 +25,5 @@ trait ProgramContext {
   def compilerContext: CompilerContext
 
   def settings: RawSettings = compilerContext.settings
-
-  def dumpDebugInfo: List[(String, String)] = {
-    List(
-      "Trace ID" -> programEnvironment.maybeTraceId.getOrElse("<undefined>"),
-      "Arguments" -> programEnvironment.maybeArguments
-        .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
-        .getOrElse("<undefined>"),
-      "Uid" -> programEnvironment.uid.toString,
-      "Scopes" -> programEnvironment.scopes.mkString(","),
-      "Options" -> programEnvironment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
-      //"Settings" -> runtimeContext.settings.toString
-    )
-  }
 
 }

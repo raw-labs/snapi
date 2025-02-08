@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi
 
-import com.rawlabs.compiler.{
+import com.rawlabs.snapi.frontend.api.{
   AutoCompleteResponse,
   Completion,
   ErrorPosition,

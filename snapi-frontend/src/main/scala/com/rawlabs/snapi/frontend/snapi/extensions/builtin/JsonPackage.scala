@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi.extensions.builtin
 
-import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
+import com.rawlabs.snapi.frontend.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import com.rawlabs.snapi.frontend.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}

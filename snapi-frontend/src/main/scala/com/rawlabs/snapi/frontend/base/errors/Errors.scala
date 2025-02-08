@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.base.errors
 
-import com.rawlabs.compiler.{ErrorMessage, ErrorRange, HintMessage, InfoMessage, Message, WarningMessage}
+import com.rawlabs.snapi.frontend.api.{ErrorMessage, ErrorRange, HintMessage, InfoMessage, Message, WarningMessage}
 import com.rawlabs.snapi.frontend.base.source._
 
 object CompilationMessageMapper {

@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi.extensions
 
-import com.rawlabs.compiler.{EntryDoc, PackageDoc}
+import com.rawlabs.snapi.frontend.api.{EntryDoc, PackageDoc}
 import com.rawlabs.snapi.frontend.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, BaseNode, Type}
 import com.rawlabs.snapi.frontend.snapi.source._

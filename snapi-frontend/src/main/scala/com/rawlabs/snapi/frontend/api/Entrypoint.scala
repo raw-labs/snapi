@@ -10,17 +10,9 @@
  * licenses/APL.txt.
  */
 
-package com.rawlabs.snapi.frontend.snapi.antlr4
+package com.rawlabs.snapi.frontend.api
 
-import com.rawlabs.snapi.frontend.api.Message
-
-import scala.collection.mutable
-
-class SnapiVisitorParseErrors {
-
-  private val errors = new mutable.ListBuffer[Message]
-
-  def addError(error: Message): Unit = errors.append(error)
-
-  def getErrors: List[Message] = errors.to
+// TODO (msb): Add methods for execution so that same interface is respected by all.
+trait Entrypoint {
+  def target: Any
 }

@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi.antlr4
 
-import com.rawlabs.compiler.{ErrorMessage, ErrorPosition, ErrorRange, Message}
+import com.rawlabs.snapi.frontend.api.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
 
 import scala.collection.mutable

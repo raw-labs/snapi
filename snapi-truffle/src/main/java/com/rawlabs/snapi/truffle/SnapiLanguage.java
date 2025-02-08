@@ -24,7 +24,7 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.Shape;
-import com.rawlabs.compiler.Entrypoint;
+import com.rawlabs.snapi.frontend.api.Entrypoint;
 import com.rawlabs.snapi.frontend.base.CompilerContext;
 import com.rawlabs.snapi.frontend.base.InitPhase;
 import com.rawlabs.snapi.frontend.base.Phase;
