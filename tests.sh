@@ -9,9 +9,3 @@ sdk use java 21.0.1-graalce
 
 # compiler-snapi-frontend
 sbt compilerSnapiFrontend/test
-
-# compiler-snapi
-sbt compilerSnapi/test
-
-# compiler-sql
-sbt compilerSql/test

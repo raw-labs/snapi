@@ -37,13 +37,9 @@ writeVersionToFile := {
 lazy val root = (project in file("."))
   .doPatchDependencies()
   .aggregate(
-    compiler,
     snapiParser,
     snapiFrontend,
-    snapiTruffle,
-    snapiCompiler,
-    sqlParser,
-    sqlCompiler
+    snapiTruffle
   )
   .settings(
     commonSettings,
@@ -53,21 +49,6 @@ lazy val root = (project in file("."))
     publish / skip := true,
     publishSigned / skip := true,
     publishLocal / skip := true
-  )
-
-lazy val compiler = (project in file("compiler"))
-  .doPatchDependencies()
-  .settings(
-    commonSettings,
-    // Ignore deprecation warnings in the compiler. Needed for a Jackson feature we require.
-    // TODO (msb): When in Scala 2.13, use @nowarn annotation instead in the exact code location.
-    nonStrictScalaCompileSettings,
-    testSettings,
-    libraryDependencies ++= Seq(
-      utilsCore % "compile->compile;test->test",
-      protocolCompiler % "compile->compile;test->test",
-      trufflePolyglot
-    ) ++ jacksonDeps
   )
 
 lazy val snapiParser = (project in file("snapi-parser"))
@@ -91,7 +72,6 @@ lazy val snapiParser = (project in file("snapi-parser"))
 lazy val snapiFrontend = (project in file("snapi-frontend"))
   .doPatchDependencies()
   .dependsOn(
-    compiler % "compile->compile;test->test",
     snapiParser % "compile->compile;test->test"
   )
   .settings(
@@ -101,14 +81,16 @@ lazy val snapiFrontend = (project in file("snapi-frontend"))
     libraryDependencies ++= Seq(
       utilsCore % "compile->compile;test->test",
       utilsSources % "compile->compile;test->test",
+      protocolCompiler % "compile->compile;test->test",
       commonsLang,
       commonsText,
       icuDeps,
       woodstox,
       kiama,
       commonsCodec,
-      kryo
-    )
+      kryo,
+      trufflePolyglot // Used by the stage compiler
+    ) ++ jacksonDeps
   )
 
 val calculateClasspath = taskKey[Seq[File]]("Calculate the full classpath")
@@ -188,67 +170,4 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     publish := (publish dependsOn runJavaAnnotationProcessor).value,
     publishLocal := (publishLocal dependsOn runJavaAnnotationProcessor).value,
     publishSigned := (publishSigned dependsOn runJavaAnnotationProcessor).value
-  )
-
-lazy val snapiCompiler = (project in file("snapi-compiler"))
-  .doPatchDependencies()
-  .dependsOn(
-    compiler % "compile->compile;test->test",
-    snapiFrontend % "compile->compile;test->test",
-    snapiTruffle % "test->test"
-  )
-  .settings(
-    commonSettings,
-    missingInterpolatorCompileSettings,
-    testSettings
-  )
-
-lazy val sqlParser = (project in file("sql-parser"))
-  .doPatchDependencies()
-  .enablePlugins(GenParserPlugin)
-  .settings(
-    commonSettings,
-    commonCompileSettings,
-    parserDefinitions := List(
-      (
-        s"${(Compile / sourceManaged).value}/java/com/rawlabs/sql/parser/generated",
-        "com.rawlabs.sql.parser.generated",
-        s"${(Compile / sourceDirectory).value}/java/com/rawlabs/sql/parser/grammar",
-        "Psql"
-      )
-    ),
-    Compile / doc := { file("/dev/null") },
-    libraryDependencies += antlr4Runtime
-  )
-
-lazy val sqlCompiler = (project in file("sql-compiler"))
-  .doPatchDependencies()
-  .dependsOn(
-    compiler % "compile->compile;test->test",
-    sqlParser % "compile->compile;test->test"
-  )
-  .settings(
-    commonSettings,
-    missingInterpolatorCompileSettings,
-    testSettings,
-    libraryDependencies ++= Seq(
-      kiama,
-      postgresqlDeps,
-      hikariCP,
-      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.41.3" % Test,
-      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.41.3" % Test
-    )
-  )
-
-lazy val pythonCompiler = (project in file("python-compiler"))
-  .doPatchDependencies()
-  .dependsOn(
-    compiler % "compile->compile;test->test"
-  )
-  .settings(
-    commonSettings,
-    missingInterpolatorCompileSettings,
-    testSettings,
-    Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client"),
-    libraryDependencies += "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
   )

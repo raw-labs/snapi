@@ -40,7 +40,6 @@ module raw.snapi.frontend {
   requires raw.utils.core;
   requires raw.protocol.raw;
   requires raw.protocol.compiler;
-  requires raw.compiler;
   requires raw.utils.sources;
   requires raw.snapi.parser;
 
