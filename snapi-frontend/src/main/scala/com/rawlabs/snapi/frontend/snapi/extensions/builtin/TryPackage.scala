@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi.extensions.builtin
 
-import com.rawlabs.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
+import com.rawlabs.snapi.frontend.api.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.snapi.source._
 import com.rawlabs.snapi.frontend.snapi._

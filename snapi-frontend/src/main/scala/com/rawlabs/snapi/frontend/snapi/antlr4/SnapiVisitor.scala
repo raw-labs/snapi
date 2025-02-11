@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi.antlr4
 
-import com.rawlabs.compiler.{ErrorMessage, ErrorPosition, ErrorRange}
+import com.rawlabs.snapi.frontend.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import com.rawlabs.utils.core.RawUtils
 import org.antlr.v4.runtime.ParserRuleContext
 import org.apache.commons.codec.binary.Hex

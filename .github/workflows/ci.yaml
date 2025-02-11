@@ -5,12 +5,8 @@ on:
       - .sbtopts
       - build.sbt
       - project/**
-      - compiler/**
       - snapi-frontend/**
       - snapi-truffle/**
-      - snapi-compiler/**
-      - python-compiler/**
-      - sql-compiler/**
       - .github/workflows/ci.yaml
       - ci/**
   workflow_dispatch:
@@ -38,30 +34,16 @@ jobs:
       - name: Ensure ANTLR JAR is present
         uses: ./.github/actions/get-antlr4
       - run: ./ci/check doc
-  tests:
+  compile:
     strategy:
       fail-fast: false
       matrix:
         component:
           - snapi-frontend
-          - snapi-compiler
-          - sql-compiler
-          - python-compiler
+          - snapi-truffle
     runs-on: [self-hosted,snapi]
     steps:
       - uses: actions/checkout@v4
-      - uses: oNaiPs/secrets-to-env-action@v1.5
-        with:
-          secrets: ${{ toJSON(secrets) }}
-      - run: env > .env
       - name: Ensure ANTLR JAR is present
         uses: ./.github/actions/get-antlr4
-      - run: ./ci/test ${{ matrix.component }}
-      - uses: mikepenz/action-junit-report@v4
-        if: success() || failure()
-        with:
-          annotate_only: true
-          check_name: JUnit ${{ matrix.component }} report
-          report_paths: ${{ matrix.component }}/target/test-reports/*.xml
-          detailed_summary: true
-          require_tests: true
+      - run: ./ci/compile ${{ matrix.component }}

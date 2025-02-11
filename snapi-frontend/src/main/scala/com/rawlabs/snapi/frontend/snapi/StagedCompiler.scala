@@ -12,9 +12,9 @@
 
 package com.rawlabs.snapi.frontend.snapi
 
-import com.rawlabs.compiler.{CompilerService, ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment}
+import com.rawlabs.snapi.frontend.api.{ErrorMessage, ErrorPosition, ErrorRange, ProgramEnvironment}
 import com.rawlabs.utils.core.RawSettings
-import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
+import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
 import com.rawlabs.snapi.frontend.base.source.Type
 import com.rawlabs.snapi.frontend.snapi.antlr4.ParserErrors
 import com.rawlabs.snapi.frontend.snapi.extensions._
@@ -50,73 +50,76 @@ trait StagedCompiler {
   def eval(source: String, tipe: Type, environment: ProgramEnvironment)(
       implicit settings: RawSettings
   ): StagedCompilerResponse = {
-    val (engine, _) = CompilerService.getEngine()
-
-    // Add environment settings as hardcoded environment variables.
-    val ctxBuilder = Context
-      .newBuilder("snapi")
-      .engine(engine)
-      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
-      .allowExperimentalOptions(true)
-      .allowPolyglotAccess(PolyglotAccess.ALL)
-    environment.options.get("staged-compiler").foreach { stagedCompiler =>
-      ctxBuilder.option("snapi.staged-compiler", stagedCompiler)
-    }
-    ctxBuilder.option("snapi.settings", settings.renderAsString)
-
-    val ctx = ctxBuilder.build()
-    ctx.initialize("snapi")
-    ctx.enter()
+    val engine = Engine.newBuilder().allowExperimentalOptions(true).build()
     try {
-      val truffleSource = Source
-        .newBuilder("snapi", source, "unnamed")
-        .cached(false) // Disable code caching because of the inferrer.
-        .build()
-      val polyglotValue = ctx.eval(truffleSource)
-      val snapiValue = polyglotValueToSnapiValue(polyglotValue, tipe)
-      StagedCompilerSuccess(snapiValue)
-    } catch {
-      case ex: PolyglotException =>
-        // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
-        // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
-        // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
-        // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
-        // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
-        // and which must handle interruption as well.
-        if (ex.isInterrupted) {
-          throw new InterruptedException()
-        } else if (ex.getCause.isInstanceOf[InterruptedException]) {
-          throw ex.getCause
-        } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
-          throw new InterruptedException()
-        } else if (ex.isGuestException) {
-          val err = ex.getGuestObject
-          if (err != null && err.hasMembers && err.hasMember("errors")) {
-            val errorsValue = err.getMember("errors")
-            val errors = (0L until errorsValue.getArraySize).map { i =>
-              val errorValue = errorsValue.getArrayElement(i)
-              val message = errorValue.asString
-              val positions = (0L until errorValue.getArraySize).map { j =>
-                val posValue = errorValue.getArrayElement(j)
-                val beginValue = posValue.getMember("begin")
-                val endValue = posValue.getMember("end")
-                val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
-                val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
-                ErrorRange(begin, end)
+      // Add environment settings as hardcoded environment variables.
+      val ctxBuilder = Context
+        .newBuilder("snapi")
+        .engine(engine)
+        .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
+        .allowExperimentalOptions(true)
+        .allowPolyglotAccess(PolyglotAccess.ALL)
+      environment.options.get("staged-compiler").foreach { stagedCompiler =>
+        ctxBuilder.option("snapi.staged-compiler", stagedCompiler)
+      }
+      ctxBuilder.option("snapi.settings", settings.renderAsString)
+
+      val ctx = ctxBuilder.build()
+      ctx.initialize("snapi")
+      ctx.enter()
+      try {
+        val truffleSource = Source
+          .newBuilder("snapi", source, "unnamed")
+          .cached(false) // Disable code caching because of the inferrer.
+          .build()
+        val polyglotValue = ctx.eval(truffleSource)
+        val snapiValue = polyglotValueToSnapiValue(polyglotValue, tipe)
+        StagedCompilerSuccess(snapiValue)
+      } catch {
+        case ex: PolyglotException =>
+          // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
+          // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
+          // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
+          // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
+          // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
+          // and which must handle interruption as well.
+          if (ex.isInterrupted) {
+            throw new InterruptedException()
+          } else if (ex.getCause.isInstanceOf[InterruptedException]) {
+            throw ex.getCause
+          } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
+            throw new InterruptedException()
+          } else if (ex.isGuestException) {
+            val err = ex.getGuestObject
+            if (err != null && err.hasMembers && err.hasMember("errors")) {
+              val errorsValue = err.getMember("errors")
+              val errors = (0L until errorsValue.getArraySize).map { i =>
+                val errorValue = errorsValue.getArrayElement(i)
+                val message = errorValue.asString
+                val positions = (0L until errorValue.getArraySize).map { j =>
+                  val posValue = errorValue.getArrayElement(j)
+                  val beginValue = posValue.getMember("begin")
+                  val endValue = posValue.getMember("end")
+                  val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
+                  val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
+                  ErrorRange(begin, end)
+                }
+                ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
               }
-              ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
+              StagedCompilerValidationFailure(errors.to)
+            } else {
+              StagedCompilerRuntimeFailure(ex.getMessage)
             }
-            StagedCompilerValidationFailure(errors.to)
           } else {
-            StagedCompilerRuntimeFailure(ex.getMessage)
+            // Unexpected error. For now we throw the PolyglotException.
+            throw ex
           }
-        } else {
-          // Unexpected error. For now we throw the PolyglotException.
-          throw ex
-        }
+      } finally {
+        ctx.leave()
+        ctx.close()
+      }
     } finally {
-      ctx.leave()
-      ctx.close()
+      engine.close()
     }
   }
 

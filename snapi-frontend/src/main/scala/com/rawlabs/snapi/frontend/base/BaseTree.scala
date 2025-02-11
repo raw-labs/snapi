@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.base
 
-import com.rawlabs.compiler.Message
+import com.rawlabs.snapi.frontend.api.Message
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.relation.{EnsureTree, LeaveAlone, TreeRelation}
 import com.rawlabs.snapi.frontend.base.errors.{CompilationMessageMapper, ErrorCompilerMessage}

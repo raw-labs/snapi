@@ -12,7 +12,7 @@
 
 package com.rawlabs.snapi.frontend.snapi.extensions.builtin
 
-import com.rawlabs.compiler.{EntryDoc, PackageDoc}
+import com.rawlabs.snapi.frontend.api.{EntryDoc, PackageDoc}
 import com.typesafe.scalalogging.StrictLogging
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.snapi._

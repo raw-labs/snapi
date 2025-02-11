@@ -14,7 +14,7 @@ package com.rawlabs.snapi.truffle.emitter;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.rawlabs.compiler.Entrypoint;
+import com.rawlabs.snapi.frontend.api.Entrypoint;
 
 public class TruffleEntrypoint implements Entrypoint {
 

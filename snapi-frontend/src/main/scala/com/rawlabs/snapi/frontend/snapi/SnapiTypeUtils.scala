@@ -12,29 +12,6 @@
 
 package com.rawlabs.snapi.frontend.snapi
 
-import com.rawlabs.compiler.{
-  RawAttrType,
-  RawBinaryType,
-  RawBoolType,
-  RawByteType,
-  RawDateType,
-  RawDecimalType,
-  RawDoubleType,
-  RawFloatType,
-  RawIntType,
-  RawIntervalType,
-  RawIterableType,
-  RawListType,
-  RawLongType,
-  RawOrType,
-  RawRecordType,
-  RawShortType,
-  RawStringType,
-  RawTimeType,
-  RawTimestampType,
-  RawType,
-  RawUndefinedType
-}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import com.rawlabs.snapi.frontend.base.source.{AnythingType, Type}
 import com.rawlabs.snapi.frontend.snapi.source._
@@ -141,58 +118,6 @@ trait SnapiTypeUtils {
   def isComparable(t: Type): Boolean = {
     everywhere(query[Type] { case _: FunType => return false })(t)
     true
-  }
-
-  // Returns Option[RawType] as not all Snapi types are representable as Raw types.
-  def snapiTypeToRawType(t: Type): Option[RawType] = {
-    def convert(t: Type): RawType = {
-      // Read nullable and triable properties.
-      var nullable = false
-      var triable = false
-      t match {
-        case tp: SnapiTypeWithProperties =>
-          if (tp.props.contains(SnapiIsNullableTypeProperty())) {
-            nullable = true
-          }
-          if (tp.props.contains(SnapiIsTryableTypeProperty())) {
-            triable = true
-          }
-        case _ =>
-      }
-      // Convert type.
-      t match {
-        case _: SnapiUndefinedType => RawUndefinedType(nullable, triable)
-        case _: SnapiByteType => RawByteType(nullable, triable)
-        case _: SnapiShortType => RawShortType(nullable, triable)
-        case _: SnapiIntType => RawIntType(nullable, triable)
-        case _: SnapiLongType => RawLongType(nullable, triable)
-        case _: SnapiFloatType => RawFloatType(nullable, triable)
-        case _: SnapiDoubleType => RawDoubleType(nullable, triable)
-        case _: SnapiDecimalType => RawDecimalType(nullable, triable)
-        case _: SnapiBoolType => RawBoolType(nullable, triable)
-        case _: SnapiStringType => RawStringType(nullable, triable)
-        case _: SnapiBinaryType => RawBinaryType(nullable, triable)
-        case _: SnapiDateType => RawDateType(nullable, triable)
-        case _: SnapiTimeType => RawTimeType(nullable, triable)
-        case _: SnapiTimestampType => RawTimestampType(nullable, triable)
-        case _: SnapiIntervalType => RawIntervalType(nullable, triable)
-        case SnapiRecordType(atts, _) => RawRecordType(
-            atts.map { case SnapiAttrType(idn, t1) => RawAttrType(idn, convert(t1)) },
-            nullable,
-            triable
-          )
-        case SnapiListType(inner, _) => RawListType(convert(inner), nullable, triable)
-        case SnapiIterableType(inner, _) => RawIterableType(convert(inner), nullable, triable)
-        case SnapiOrType(ors, _) => RawOrType(ors.map(convert), nullable, triable)
-        case _ => throw new IllegalArgumentException()
-      }
-    }
-
-    try {
-      Some(convert(t))
-    } catch {
-      case _: IllegalArgumentException => None
-    }
   }
 
   final def valueToExp(value: SnapiValue, t: Type): Exp = value match {

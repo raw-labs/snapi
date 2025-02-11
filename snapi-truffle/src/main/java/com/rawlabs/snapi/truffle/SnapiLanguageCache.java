@@ -58,7 +58,6 @@ public class SnapiLanguageCache {
       activeContexts.remove(context);
       if (activeContexts.isEmpty()) {
         // Close all compiler contexts.
-        compilerContextsCache.values().forEach(CompilerContext::stop);
         compilerContextsCache.clear();
       }
     }

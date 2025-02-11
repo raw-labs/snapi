@@ -1611,8 +1611,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
         val stagedCompilerEnvironment = programContext.programEnvironment
           .copy(
-            options = programContext.programEnvironment.options + ("staged-compiler" -> "true"),
-            maybeArguments = None
+            options = programContext.programEnvironment.options + ("staged-compiler" -> "true")
           )
 
         logger.trace("Pretty printed staged compiler program is:\n" + prettyPrinterProgram)
