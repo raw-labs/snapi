@@ -40,6 +40,7 @@ jobs:
       matrix:
         component:
           - snapi-frontend
+          - snapi-truffle
     runs-on: [self-hosted,snapi]
     steps:
       - uses: actions/checkout@v4
