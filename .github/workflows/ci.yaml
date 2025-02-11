@@ -5,12 +5,8 @@ on:
       - .sbtopts
       - build.sbt
       - project/**
-      - compiler/**
       - snapi-frontend/**
       - snapi-truffle/**
-      - snapi-compiler/**
-      - python-compiler/**
-      - sql-compiler/**
       - .github/workflows/ci.yaml
       - ci/**
   workflow_dispatch:
@@ -44,9 +40,6 @@ jobs:
       matrix:
         component:
           - snapi-frontend
-          - snapi-compiler
-          - sql-compiler
-          - python-compiler
     runs-on: [self-hosted,snapi]
     steps:
       - uses: actions/checkout@v4
