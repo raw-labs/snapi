@@ -12,23 +12,8 @@
 
 package com.rawlabs.snapi.compiler
 
-import com.google.protobuf.ByteString
-import com.rawlabs.compiler.utils.RecordFieldsNaming
 import com.rawlabs.compiler._
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
-import com.rawlabs.protocol.raw
-import com.rawlabs.protocol.raw.{
-  ValueBinary,
-  ValueBool,
-  ValueByte,
-  ValueError,
-  ValueInterval,
-  ValueList,
-  ValueNull,
-  ValueRecord,
-  ValueRecordField,
-  ValueShort
-}
 import com.rawlabs.snapi.compiler.writers.{SnapiCsvWriter, SnapiJsonWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
@@ -37,7 +22,6 @@ import org.graalvm.polyglot._
 import com.rawlabs.snapi.frontend.base
 
 import scala.language.implicitConversions
-//import com.rawlabs.snapi.frontend.api._
 import com.rawlabs.snapi.frontend.base.errors._
 import com.rawlabs.snapi.frontend.base.source.{BaseNode, Type}
 import com.rawlabs.snapi.frontend.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
@@ -50,9 +34,7 @@ import com.rawlabs.snapi.frontend.inferrer.api.InferrerServiceProvider
 import com.rawlabs.snapi.frontend.snapi.extensions.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 
 import java.io.{IOException, OutputStream}
-import scala.collection.mutable
 import scala.util.control.NonFatal
-import scala.collection.JavaConverters._
 
 object SnapiCompilerService {
   val LANGUAGE: Set[String] = Set("snapi")
@@ -60,6 +42,7 @@ object SnapiCompilerService {
 
 class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protected val settings: RawSettings)
     extends CompilerService
+    with TruffleValueConverter
     with SnapiTypeUtils {
 
   private val (engine, initedEngine) = engineDefinition
@@ -84,10 +67,11 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     new ProgramContext(environment, compilerContext)
   }
 
-  implicit def convertProgramEnvironment(env: com.rawlabs.snapi.frontend.api.ProgramEnvironment): ProgramEnvironment = {
-    ProgramEnvironment(
+  implicit def convertProgramEnvironment(
+      env: com.rawlabs.compiler.ProgramEnvironment
+  ): com.rawlabs.snapi.frontend.api.ProgramEnvironment = {
+    com.rawlabs.snapi.frontend.api.ProgramEnvironment(
       env.uid,
-      None,
       env.scopes,
       env.secrets,
       env.locationConfigs,
@@ -96,20 +80,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
       env.maybeTraceId
     )
   }
-  /*
-
-final case class ProgramEnvironment(
-    uid: RawUid,
-    maybeArguments: Option[Array[(String, RawValue)]],
-    scopes: Set[String],
-    secrets: Map[String, String],
-    locationConfigs: Map[String, LocationConfig],
-    options: Map[String, String],
-    jdbcUrl: Option[String] = None,
-    maybeTraceId: Option[String] = None
-)
-
-   */
 
   def prettyPrint(node: BaseNode, user: RawUid): String = {
     SourcePrettyPrinter.format(node)
@@ -214,10 +184,22 @@ final case class ProgramEnvironment(
           )
           Right(programDescription)
         } else {
-          Left(tree.errors.collect { case e: ErrorMessage => e })
+          val errs = tree.errors.collect { case e: com.rawlabs.snapi.frontend.api.ErrorMessage => e }
+          Left(errs)
         }
       }
     )
+  }
+
+  implicit def convertErrorMessage(err: com.rawlabs.snapi.frontend.api.ErrorMessage): ErrorMessage = {
+    ErrorMessage(err.message, err.positions.map(convertErrorRange), err.code, err.tags)
+  }
+
+  implicit def convertListErrorMessage(errs: List[com.rawlabs.snapi.frontend.api.ErrorMessage]): List[ErrorMessage] = {
+    errs.map {
+      case com.rawlabs.snapi.frontend.api.ErrorMessage(message, positions, code, tags) =>
+        ErrorMessage(message, positions.map(convertErrorRange), code, tags)
+    }
   }
 
   override def execute(
@@ -541,7 +523,7 @@ final case class ProgramEnvironment(
             case TruffleRuntimeError(message) => return Left(RuntimeError(message))
           }
 
-        val valueIterator = new Iterator[raw.Value] with AutoCloseable {
+        val valueIterator = new Iterator[com.rawlabs.protocol.raw.Value] with AutoCloseable {
           // Lazy to avoid calling getIterator if we don't need it
           // Note we do not need to check if v.isException because we know 'v' is not a triable.
 
@@ -629,6 +611,10 @@ final case class ProgramEnvironment(
     )
   }
 
+  implicit def convertFromPos(pos: Pos): com.rawlabs.snapi.frontend.api.Pos = {
+    com.rawlabs.snapi.frontend.api.Pos(pos.line, pos.column)
+  }
+
   implicit def convertAutoCompleteResponse(
       response: com.rawlabs.snapi.frontend.api.AutoCompleteResponse
   ): AutoCompleteResponse = {
@@ -652,6 +638,12 @@ final case class ProgramEnvironment(
       completion: Option[com.rawlabs.snapi.frontend.api.Completion]
   ): Option[Completion] = {
     completion.map(convertCompletion)
+  }
+
+  implicit def convertArrayCompletion(
+      completions: Array[com.rawlabs.snapi.frontend.api.Completion]
+  ): Array[Completion] = {
+    completions.map(convertCompletion)
   }
 
   implicit def convertFormatCodeResponse(
@@ -891,10 +883,18 @@ final case class ProgramEnvironment(
     }.toList
   }
 
+  implicit def convertFromErrorRange(range: ErrorRange): com.rawlabs.snapi.frontend.api.ErrorRange = {
+    com.rawlabs.snapi.frontend.api.ErrorRange(
+      com.rawlabs.snapi.frontend.api.ErrorPosition(range.begin.line, range.begin.column),
+      com.rawlabs.snapi.frontend.api.ErrorPosition(range.end.line, range.end.column)
+    )
+  }
+
+  implicit def convertFromListErrorRange(ranges: List[ErrorRange]): List[com.rawlabs.snapi.frontend.api.ErrorRange] = {
+    ranges.map(convertFromErrorRange)
+  }
+
   override def doStop(): Unit = {
-    compilerContextCachesLock.synchronized {
-      compilerContextCaches.clear()
-    }
     inferrer.stop()
     if (initedEngine) {
       CompilerService.releaseEngine

@@ -949,6 +949,13 @@ trait SnapiTestContext extends RawTestSuite with Matchers with SettingsTestConte
           case ex: Exception => Left(ex.getMessage)
         }
       } else {
+
+        // FIXME (msb): The use of TruffleValueComparer is not correct/sufficient.
+        //              In the case of top-level iterators, we must consume the entire iterator and wrap for exceptions.
+        //              When the iterator is being consumed, it can throw an exception.
+        //              The test suite is designed so that such an Exception ought to be mapped to "Left(...)", which
+        //              this does not currently implement.
+
         Right(result)
       }
     } catch {
