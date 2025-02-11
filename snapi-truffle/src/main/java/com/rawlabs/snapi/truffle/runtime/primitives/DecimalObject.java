@@ -200,8 +200,8 @@ public final class DecimalObject implements TruffleObject {
   @TruffleBoundary
   private static boolean withinRange(BigDecimal bd, long minVal, long maxVal) {
     // Check bd >= minVal AND bd <= maxVal
-    return bd.compareTo(BigDecimal.valueOf(minVal)) >= 0 &&
-            bd.compareTo(BigDecimal.valueOf(maxVal)) <= 0;
+    return bd.compareTo(BigDecimal.valueOf(minVal)) >= 0
+        && bd.compareTo(BigDecimal.valueOf(maxVal)) <= 0;
   }
 
   @TruffleBoundary
