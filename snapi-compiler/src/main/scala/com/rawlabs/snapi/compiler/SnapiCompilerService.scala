@@ -14,16 +14,30 @@ package com.rawlabs.snapi.compiler
 
 import com.google.protobuf.ByteString
 import com.rawlabs.compiler.utils.RecordFieldsNaming
-import com.rawlabs.compiler.{AutoCompleteResponse, CompilerService, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, EvalSuccess, ExecutionError, ExecutionSuccess, FormatCodeResponse, GoToDefinitionResponse, HoverResponse, Message, ParamDescription, Pos, ProgramDescription, ProgramEnvironment, RawBool, RawByte, RawDate, RawDecimal, RawDouble, RawFloat, RawInt, RawInterval, RawLong, RawNull, RawShort, RawString, RawTime, RawTimestamp, RawType, RawValue, RenameResponse, TypeConverter, ValidateResponse}
+import com.rawlabs.compiler._
 import com.rawlabs.compiler.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import com.rawlabs.protocol.raw
-import com.rawlabs.protocol.raw.{ValueBinary, ValueBool, ValueByte, ValueError, ValueInterval, ValueList, ValueNull, ValueRecord, ValueRecordField, ValueShort}
+import com.rawlabs.protocol.raw.{
+  ValueBinary,
+  ValueBool,
+  ValueByte,
+  ValueError,
+  ValueInterval,
+  ValueList,
+  ValueNull,
+  ValueRecord,
+  ValueRecordField,
+  ValueShort
+}
 import com.rawlabs.snapi.compiler.writers.{SnapiCsvWriter, SnapiJsonWriter}
 import com.rawlabs.utils.core.{RawSettings, RawUid, RawUtils}
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot._
 import com.rawlabs.snapi.frontend.base
+
+import scala.language.implicitConversions
+//import com.rawlabs.snapi.frontend.api._
 import com.rawlabs.snapi.frontend.base.errors._
 import com.rawlabs.snapi.frontend.base.source.{BaseNode, Type}
 import com.rawlabs.snapi.frontend.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
@@ -40,7 +54,7 @@ import scala.collection.mutable
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
 
-object SnapiCompilerService extends CustomClassAndModuleLoader {
+object SnapiCompilerService {
   val LANGUAGE: Set[String] = Set("snapi")
 }
 
@@ -65,20 +79,37 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
 
   override def language: Set[String] = SnapiCompilerService.LANGUAGE
 
-  // Map of users to compiler context.
-  private val compilerContextCaches = new mutable.HashMap[RawUid, CompilerContext]
-  private val compilerContextCachesLock = new Object
-
-  private def getCompilerContext(user: RawUid): CompilerContext = {
-    compilerContextCachesLock.synchronized {
-      compilerContextCaches.getOrElseUpdate(user, new CompilerContext(user, inferrer))
-    }
-  }
-
   private def getProgramContext(user: RawUid, environment: ProgramEnvironment): ProgramContext = {
-    val compilerContext = getCompilerContext(user)
+    val compilerContext = new CompilerContext(user, inferrer)
     new ProgramContext(environment, compilerContext)
   }
+
+  implicit def convertProgramEnvironment(env: com.rawlabs.snapi.frontend.api.ProgramEnvironment): ProgramEnvironment = {
+    ProgramEnvironment(
+      env.uid,
+      None,
+      env.scopes,
+      env.secrets,
+      env.locationConfigs,
+      env.options,
+      env.jdbcUrl,
+      env.maybeTraceId
+    )
+  }
+  /*
+
+final case class ProgramEnvironment(
+    uid: RawUid,
+    maybeArguments: Option[Array[(String, RawValue)]],
+    scopes: Set[String],
+    secrets: Map[String, String],
+    locationConfigs: Map[String, LocationConfig],
+    options: Map[String, String],
+    jdbcUrl: Option[String] = None,
+    maybeTraceId: Option[String] = None
+)
+
+   */
 
   def prettyPrint(node: BaseNode, user: RawUid): String = {
     SourcePrettyPrinter.format(node)
@@ -120,6 +151,35 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
         }
       }
     )
+  }
+
+  implicit def convertMessage(msg: com.rawlabs.snapi.frontend.api.Message): Message = {
+    msg match {
+      case com.rawlabs.snapi.frontend.api.HintMessage(message, positions, code, tags) =>
+        HintMessage(message, positions, code, tags)
+      case com.rawlabs.snapi.frontend.api.InfoMessage(message, positions, code, tags) =>
+        InfoMessage(message, positions, code, tags)
+      case com.rawlabs.snapi.frontend.api.WarningMessage(message, positions, code, tags) =>
+        WarningMessage(message, positions, code, tags)
+      case com.rawlabs.snapi.frontend.api.ErrorMessage(message, positions, code, tags) =>
+        ErrorMessage(message, positions, code, tags)
+    }
+  }
+
+  implicit def convertListMessage(msgs: List[com.rawlabs.snapi.frontend.api.Message]): List[Message] = {
+    msgs.map(convertMessage)
+  }
+
+  implicit def convertErrorRange(range: com.rawlabs.snapi.frontend.api.ErrorRange): ErrorRange = {
+    ErrorRange(range.begin, range.end)
+  }
+
+  implicit def convertListErrorRange(ranges: List[com.rawlabs.snapi.frontend.api.ErrorRange]): List[ErrorRange] = {
+    ranges.map(convertErrorRange)
+  }
+
+  implicit def convertErrorPosition(pos: com.rawlabs.snapi.frontend.api.ErrorPosition): ErrorPosition = {
+    ErrorPosition(pos.line, pos.column)
   }
 
   override def getProgramDescription(
@@ -537,222 +597,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
     st.props.contains(tryableProp) && v.isException
   }
 
-  /**
-   * Convert a single Truffle Value to a RawValue (no iteration at top level).
-   * It recurses into records, or-lambda, intervals, etc.  If the type is triable
-   * and the value is an exception, we produce a RawError; if the type is nullable
-   * and value is null, we produce RawNull, etc.
-   *
-   * This mirrors your SnapiJsonWriter logic, but instead of writing JSON,
-   * we build up the appropriate RawValue.
-   */
-  private def fromTruffleValue(
-      v: Value,
-      t: SnapiTypeWithProperties
-  ): com.rawlabs.protocol.raw.Value = {
-    val tryable = SnapiIsTryableTypeProperty()
-    val nullable = SnapiIsNullableTypeProperty()
-
-    // 1) If triable
-    if (t.props.contains(tryable)) {
-      // if the value is an exception => produce RawError
-      if (v.isException) {
-        try {
-          // attempt to "throw" to get the actual Java exception
-          v.throwException()
-          // If we get here, it didn't actually throw? We'll produce RawError anyway.
-          throw new AssertionError("triable error did not throw exception!")
-        } catch {
-          case NonFatal(ex) => com.rawlabs.protocol.raw.Value
-              .newBuilder()
-              .setError(ValueError.newBuilder().setMessage(ex.getMessage).build())
-              .build()
-        }
-      } else {
-        // remove the property and keep going
-        fromTruffleValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[SnapiTypeWithProperties])
-      }
-    }
-    // 2) If nullable
-    else if (t.props.contains(nullable)) {
-      if (v.isNull) com.rawlabs.protocol.raw.Value.newBuilder().setNull(ValueNull.newBuilder()).build()
-      else fromTruffleValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[SnapiTypeWithProperties])
-    }
-    // 3) Otherwise match on the underlying type
-    else {
-      t match {
-        case _: SnapiBinaryType =>
-          // read all bytes from the buffer
-          val bytes = Array.ofDim[Byte](v.getBufferSize.toInt)
-          var idx = 0
-          while (idx < bytes.length) {
-            bytes(idx) = v.readBufferByte(idx.toLong)
-            idx += 1
-          }
-          com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setBinary(ValueBinary.newBuilder().setV(ByteString.copyFrom(bytes)))
-            .build()
-
-        case _: SnapiBoolType =>
-          com.rawlabs.protocol.raw.Value.newBuilder().setBool(ValueBool.newBuilder().setV(v.asBoolean())).build()
-        case _: SnapiByteType =>
-          com.rawlabs.protocol.raw.Value.newBuilder().setByte(ValueByte.newBuilder().setV(v.asByte())).build()
-        case _: SnapiShortType =>
-          com.rawlabs.protocol.raw.Value.newBuilder().setShort(ValueShort.newBuilder().setV(v.asShort())).build()
-        case _: SnapiIntType => com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setInt(com.rawlabs.protocol.raw.ValueInt.newBuilder().setV(v.asInt()))
-            .build()
-        case _: SnapiLongType => com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setLong(com.rawlabs.protocol.raw.ValueLong.newBuilder().setV(v.asLong()))
-            .build()
-        case _: SnapiFloatType => com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setFloat(com.rawlabs.protocol.raw.ValueFloat.newBuilder().setV(v.asFloat()))
-            .build()
-        case _: SnapiDoubleType => com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setDouble(com.rawlabs.protocol.raw.ValueDouble.newBuilder().setV(v.asDouble()))
-            .build()
-        case _: SnapiDecimalType =>
-          // If asString() returns decimal textual form, parse into BigDecimal
-          val txt = v.asString()
-          com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setDecimal(com.rawlabs.protocol.raw.ValueDecimal.newBuilder().setV(txt))
-            .build()
-
-        case _: SnapiStringType => com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setString(com.rawlabs.protocol.raw.ValueString.newBuilder().setV(v.asString()))
-            .build()
-
-        case _: SnapiDateType =>
-          // v.asDate() => LocalDate
-          com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setDate(
-              com.rawlabs.protocol.raw.ValueDate
-                .newBuilder()
-                .setYear(v.asDate().getYear)
-                .setMonth(v.asDate().getMonthValue)
-                .setDay(v.asDate().getDayOfMonth)
-            )
-            .build()
-
-        case _: SnapiTimeType =>
-          // v.asTime() => LocalTime
-          com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setTime(
-              com.rawlabs.protocol.raw.ValueTime
-                .newBuilder()
-                .setHour(v.asTime().getHour)
-                .setMinute(v.asTime().getMinute)
-                .setSecond(v.asTime().getSecond)
-                .setNano(v.asTime().getNano)
-            )
-            .build()
-
-        case _: SnapiTimestampType =>
-          // Typically we treat v.asDate() as LocalDate, v.asTime() as LocalTime, then combine
-          com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setTimestamp(
-              com.rawlabs.protocol.raw.ValueTimestamp
-                .newBuilder()
-                .setYear(v.asDate().getYear)
-                .setMonth(v.asDate().getMonthValue)
-                .setDay(v.asDate().getDayOfMonth)
-                .setHour(v.asTime().getHour)
-                .setMinute(v.asTime().getMinute)
-                .setSecond(v.asTime().getSecond)
-                .setNano(v.asTime().getNano)
-            )
-            .build()
-
-        case _: SnapiIntervalType =>
-          val duration = v.asDuration()
-          val days = duration.toDays
-          val hours = duration.toHoursPart
-          val minutes = duration.toMinutesPart
-          val seconds = duration.toSecondsPart
-          val millis = duration.toMillisPart
-
-          com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setInterval(
-              ValueInterval
-                .newBuilder()
-                .setYears(0)
-                .setMonths(0)
-                .setWeeks(0)
-                .setDays(days.toInt)
-                .setHours(hours)
-                .setMinutes(minutes)
-                .setSeconds(seconds)
-                .setMillis(millis)
-            )
-            .build()
-
-        case SnapiRecordType(attributes, _) =>
-          // Snapi language produces record fields that can be renamed (while the type is not!)
-          // So this compensates for that, so that when we do TRuffle value.getMember(...) we can use the
-          // distinct name
-          val names = new java.util.Vector[String]()
-          attributes.foreach(a => names.add(a.idn))
-          val distincted = RecordFieldsNaming.makeDistinct(names).asScala
-
-          // Build a RawRecord
-          val recordAttrs = attributes.zip(distincted).map {
-            case (att, distinctFieldName) =>
-              val fieldName = att.idn
-              val memberVal = v.getMember(distinctFieldName)
-              val fieldValue = fromTruffleValue(
-                memberVal,
-                att.tipe.asInstanceOf[SnapiTypeWithProperties]
-              )
-              ValueRecordField.newBuilder().setName(fieldName).setValue(fieldValue).build()
-          }
-          com.rawlabs.protocol.raw.Value
-            .newBuilder()
-            .setRecord(ValueRecord.newBuilder().addAllFields(recordAttrs.asJava))
-            .build()
-
-        case SnapiIterableType(innerType, _) =>
-          val items = mutable.ArrayBuffer[com.rawlabs.protocol.raw.Value]()
-          val iterator = v.getIterator
-          while (iterator.hasIteratorNextElement) {
-            val elem = iterator.getIteratorNextElement
-            items += fromTruffleValue(elem, innerType.asInstanceOf[SnapiTypeWithProperties])
-          }
-          com.rawlabs.protocol.raw.Value.newBuilder().setList(ValueList.newBuilder().addAllValues(items.asJava)).build()
-
-        case SnapiListType(innerType, _) =>
-          val size = v.getArraySize
-          val items = (0L until size).map { i =>
-            val elem = v.getArrayElement(i)
-            fromTruffleValue(elem, innerType.asInstanceOf[SnapiTypeWithProperties])
-          }
-          com.rawlabs.protocol.raw.Value.newBuilder().setList(ValueList.newBuilder().addAllValues(items.asJava)).build()
-
-        case SnapiOrType(tipes, _) if tipes.exists(SnapiTypeUtils.getProps(_).nonEmpty) =>
-          // A trick to make sur inner types do not have properties
-          val inners = tipes.map { case inner: SnapiTypeWithProperties => SnapiTypeUtils.resetProps(inner, Set.empty) }
-          val orProps = tipes.flatMap { case inner: SnapiTypeWithProperties => inner.props }.toSet
-          fromTruffleValue(v, SnapiOrType(inners, orProps))
-
-        case SnapiOrType(inners, _) =>
-          // We can check which index the union picked. Typically you do:
-          val index = v.invokeMember("getIndex").asInt()
-          val value = v.invokeMember("getValue")
-          fromTruffleValue(value, inners(index).asInstanceOf[SnapiTypeWithProperties])
-      }
-    }
-  }
-
   override def formatCode(
       source: String,
       environment: ProgramEnvironment,
@@ -783,6 +627,110 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
         }
       }
     )
+  }
+
+  implicit def convertAutoCompleteResponse(
+      response: com.rawlabs.snapi.frontend.api.AutoCompleteResponse
+  ): AutoCompleteResponse = {
+    AutoCompleteResponse(response.completions)
+  }
+
+  implicit def convertCompletion(completion: com.rawlabs.snapi.frontend.api.Completion): Completion = {
+    completion match {
+      case com.rawlabs.snapi.frontend.api.TypeCompletion(name, tipe) => TypeCompletion(name, tipe)
+      case com.rawlabs.snapi.frontend.api.FieldCompletion(name, tipe) => FieldCompletion(name, tipe)
+      case com.rawlabs.snapi.frontend.api.LetBindCompletion(name, tipe) => LetBindCompletion(name, tipe)
+      case com.rawlabs.snapi.frontend.api.LetFunCompletion(name, tipe) => LetFunCompletion(name, tipe)
+      case com.rawlabs.snapi.frontend.api.LetFunRecCompletion(name, tipe) => LetFunRecCompletion(name, tipe)
+      case com.rawlabs.snapi.frontend.api.FunParamCompletion(name, tipe) => FunParamCompletion(name, tipe)
+      case com.rawlabs.snapi.frontend.api.PackageCompletion(name, doc) => PackageCompletion(name, doc)
+      case com.rawlabs.snapi.frontend.api.PackageEntryCompletion(name, doc) => PackageEntryCompletion(name, doc)
+    }
+  }
+
+  implicit def convertOptionCompletion(
+      completion: Option[com.rawlabs.snapi.frontend.api.Completion]
+  ): Option[Completion] = {
+    completion.map(convertCompletion)
+  }
+
+  implicit def convertFormatCodeResponse(
+      response: com.rawlabs.snapi.frontend.api.FormatCodeResponse
+  ): FormatCodeResponse = {
+    FormatCodeResponse(response.code)
+  }
+
+  implicit def convertHoverResponse(response: com.rawlabs.snapi.frontend.api.HoverResponse): HoverResponse = {
+    HoverResponse(response.completion)
+  }
+
+  implicit def convertRenameResponse(response: com.rawlabs.snapi.frontend.api.RenameResponse): RenameResponse = {
+    RenameResponse(response.positions)
+  }
+
+  implicit def convertGoToDefinitionResponse(
+      response: com.rawlabs.snapi.frontend.api.GoToDefinitionResponse
+  ): GoToDefinitionResponse = {
+    GoToDefinitionResponse(response.position)
+  }
+
+  implicit def convertValidateResponse(response: com.rawlabs.snapi.frontend.api.ValidateResponse): ValidateResponse = {
+    ValidateResponse(response.messages)
+  }
+
+  implicit def convertPos(pos: com.rawlabs.snapi.frontend.api.Pos): Pos = {
+    Pos(pos.line, pos.column)
+  }
+
+  implicit def convertListPos(pos: Array[com.rawlabs.snapi.frontend.api.Pos]): Array[Pos] = {
+    pos.map(convertPos)
+  }
+
+  implicit def convertOptionPos(pos: Option[com.rawlabs.snapi.frontend.api.Pos]): Option[Pos] = {
+    pos.map(convertPos)
+  }
+
+  implicit def convertPackageDoc(doc: com.rawlabs.snapi.frontend.api.PackageDoc): PackageDoc = {
+    PackageDoc(doc.description, doc.info, doc.warning, doc.danger)
+  }
+
+  implicit def convertEntryDoc(doc: com.rawlabs.snapi.frontend.api.EntryDoc): EntryDoc = {
+    EntryDoc(
+      doc.summary,
+      doc.description,
+      doc.examples.map(convertExampleDoc),
+      doc.params.map(convertParamDoc),
+      doc.ret.map(convertReturnDoc),
+      doc.info,
+      doc.warning,
+      doc.danger
+    )
+  }
+
+  implicit def convertExampleDoc(doc: com.rawlabs.snapi.frontend.api.ExampleDoc): ExampleDoc = {
+    ExampleDoc(doc.example, doc.result)
+  }
+
+  implicit def convertParamDoc(doc: com.rawlabs.snapi.frontend.api.ParamDoc): ParamDoc = {
+    ParamDoc(
+      doc.name,
+      convertTypeDoc(doc.typeDoc),
+      doc.description,
+      doc.isOptional,
+      doc.isVarArg,
+      doc.info,
+      doc.warning,
+      doc.danger,
+      doc.customSyntax
+    )
+  }
+
+  implicit def convertReturnDoc(doc: com.rawlabs.snapi.frontend.api.ReturnDoc): ReturnDoc = {
+    ReturnDoc(doc.description, doc.retType.map(convertTypeDoc))
+  }
+
+  implicit def convertTypeDoc(doc: com.rawlabs.snapi.frontend.api.TypeDoc): TypeDoc = {
+    TypeDoc(doc.possibleTypes)
   }
 
   override def wordAutoComplete(
@@ -945,7 +893,6 @@ class SnapiCompilerService(engineDefinition: (Engine, Boolean))(implicit protect
 
   override def doStop(): Unit = {
     compilerContextCachesLock.synchronized {
-      compilerContextCaches.values.foreach(_.stop())
       compilerContextCaches.clear()
     }
     inferrer.stop()

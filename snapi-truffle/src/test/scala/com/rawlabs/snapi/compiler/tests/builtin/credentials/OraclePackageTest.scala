@@ -117,9 +117,7 @@ class OraclePackageTest extends SnapiTestContext {
     s"""Oracle.Read("$oracleSchema", "rdbmstest", "$oracleTable",
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string))
       |)""".stripMargin
-  ) { it =>
-    it should runErrorAs(s"""o credential found for oracle: $oracleSchema""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""o credential found for oracle: $oracleSchema""".stripMargin))
 
   // server does not exist
   test(
@@ -128,9 +126,7 @@ class OraclePackageTest extends SnapiTestContext {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "oracle.localdomain", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}"
       |)""".stripMargin
-  ) { it =>
-    it should runErrorAs("""unknown host: oracle.localdomain""".stripMargin)
-  }
+  )(it => it should runErrorAs("""unknown host: oracle.localdomain""".stripMargin))
 
   // network error
   test(
@@ -139,9 +135,7 @@ class OraclePackageTest extends SnapiTestContext {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "localhost", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}"
       |)""".stripMargin
-  ) { it =>
-    it should runErrorAs("error connecting to database: localhost")
-  }
+  )(it => it should runErrorAs("error connecting to database: localhost"))
 
   // wrong port
   // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
@@ -151,9 +145,7 @@ class OraclePackageTest extends SnapiTestContext {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.getUser}", password = "${oracleCreds.getPassword}", port = 1234
       |)""".stripMargin
-  ) { it =>
-    it should runErrorAs("""connect timed out: test-oracle.raw-labs.com""".stripMargin)
-  }
+  )(it => it should runErrorAs("""connect timed out: test-oracle.raw-labs.com""".stripMargin))
 
   // No password
   test(
@@ -162,9 +154,7 @@ class OraclePackageTest extends SnapiTestContext {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "test-oracle.raw-labs.com"
       |)""".stripMargin
-  ) { it =>
-    it should runErrorAs("""username is required""".stripMargin)
-  }
+  )(it => it should runErrorAs("""username is required""".stripMargin))
 
   // wrong password
   test(
@@ -173,9 +163,7 @@ class OraclePackageTest extends SnapiTestContext {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.getUser}", password = "wrong!"
       |)""".stripMargin
-  ) { it =>
-    it should runErrorAs("""authentication failed""".stripMargin)
-  }
+  )(it => it should runErrorAs("""authentication failed""".stripMargin))
 
   test(s"""Oracle.InferAndQuery("oracle", "SELECT * FROM $oracleSchema.$oracleTable")""") { it =>
     it should evaluateTo(

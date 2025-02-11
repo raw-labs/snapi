@@ -48,14 +48,10 @@ class RD3084Test extends SnapiTestContext {
     _ should run
   }
 
-  test("""Oracle.InferAndQuery("oracle-test", "select * from rawtest.test_types")""") { it =>
-    it should run
-  }
+  test("""Oracle.InferAndQuery("oracle-test", "select * from rawtest.test_types")""")(it => it should run)
 
   test("""Oracle.Query("oracle-test", "select * from rawtest.test_types",
-    |       type collection(record(integer1: int, char1: string)))""".stripMargin) { it =>
-    it should run
-  }
+    |       type collection(record(integer1: int, char1: string)))""".stripMargin)(it => it should run)
 
   test("""SQLServer.InferAndQuery("mssql-test", "select * from rdbmstest.test_types")""") {
     _ should run

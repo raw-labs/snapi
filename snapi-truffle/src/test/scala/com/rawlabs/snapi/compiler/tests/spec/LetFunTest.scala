@@ -247,8 +247,6 @@ class LetFunTest extends SnapiTestContext {
   test("""let numbers = [1,2,3,4],
     |    functions = List.Transform(numbers, n -> let f(x: int, v: int = n) = x * v in f)
     |in List.Transform(functions, f -> f(10))
-    |""".stripMargin) { it =>
-    it should evaluateTo("[10, 20, 30, 40]")
-  }
+    |""".stripMargin)(it => it should evaluateTo("[10, 20, 30, 40]"))
 
 }

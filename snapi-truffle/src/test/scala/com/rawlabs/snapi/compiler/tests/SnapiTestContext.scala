@@ -26,7 +26,6 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
 import com.rawlabs.snapi.frontend.base.source.{BaseNode, BaseProgram, Type}
-import com.rawlabs.snapi.frontend.inferrer.local.{LocalInferrerService, LocalInferrerTestContext}
 import com.rawlabs.protocol.compiler.{
   DropboxAccessTokenConfig,
   HttpHeadersConfig,
@@ -43,19 +42,21 @@ import com.rawlabs.snapi.frontend.api._
 import com.rawlabs.snapi.frontend.base
 import com.rawlabs.snapi.frontend.base.CompilerContext
 import com.rawlabs.snapi.frontend.base.errors._
+import com.rawlabs.snapi.frontend.inferrer.api.InferrerService
+import com.rawlabs.snapi.frontend.inferrer.local.LocalInferrerService
 import com.rawlabs.snapi.frontend.snapi.{LspAnalyzer, ProgramContext, SemanticAnalyzer, TreeWithPositions}
 import com.rawlabs.snapi.frontend.snapi.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
 import com.rawlabs.snapi.frontend.snapi.source._
 import com.rawlabs.snapi.frontend.snapi.errors._
 import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
-import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source}
+import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
 
-import java.io.OutputStream
 import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.{Files, Path}
 import scala.collection.mutable
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 object TestCredentials {
 
@@ -191,12 +192,11 @@ object TestCredentials {
 
 }
 
-trait SnapiTestContext
-    extends RawTestSuite
-    with Matchers
-    with SettingsTestContext
-    with TrainingWheelsContext
-    with LocalInferrerTestContext {
+trait SnapiTestContext extends RawTestSuite with Matchers with SettingsTestContext with TrainingWheelsContext {
+
+  private val contexts = new ArrayBuffer[Context]()
+
+  private var inferrer: InferrerService = _
 
   private val secrets = new mutable.HashMap[String, String]()
 
@@ -258,49 +258,28 @@ trait SnapiTestContext
     programOptions.put(key, value)
   }
 
+  def deepEquals(v1: Value, v2: Value): Boolean = {
+    TruffleValueComparer.deepEquals(v1, v2)
+  }
+
   override def beforeAll(): Unit = {
     super.beforeAll()
     dataFiles.foreach { case ViewFileContent(content, charset, path) => Files.write(path, content.getBytes(charset)) }
 
-    /*
-
-  private def withTruffleContext[T](
-      environment: ProgramEnvironment,
-      f: Context => T
-  ): T = {
-    val ctx = buildTruffleContext(environment)
-    ctx.initialize("snapi")
-    ctx.enter()
-    try {
-      f(ctx)
-    } finally {
-      ctx.leave()
-      ctx.close()
-    }
-  }
-
-  private def buildTruffleContext(
-      environment: ProgramEnvironment,
-      maybeOutputStream: Option[OutputStream] = None
-  ): Context = {
-    // Add environment settings as hardcoded environment variables.
-    val ctxBuilder = Context
-      .newBuilder("snapi")
-      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
-      .allowExperimentalOptions(true)
-      .allowPolyglotAccess(PolyglotAccess.ALL)
-    ctxBuilder.option("snapi.settings", settings.renderAsString)
-
-    maybeOutputStream.foreach(os => ctxBuilder.out(os))
-    val ctx = ctxBuilder.build()
-    ctx
-  }
-
-     */
-
+    inferrer = new LocalInferrerService()
   }
 
   override def afterAll(): Unit = {
+    contexts.foreach { ctx =>
+      ctx.leave()
+      ctx.close(true)
+    }
+
+    if (inferrer != null) {
+      inferrer.stop()
+      inferrer = null
+    }
+
     for (f <- dataFiles) {
       RawUtils.deleteTestPath(f.path)
     }
@@ -335,7 +314,7 @@ trait SnapiTestContext
       val (actual, actualType) =
         executeQuery(actualQuery.q, precision = delta, ordered = true, floatingPointAsString = true)
       MatchResult(
-        actual == expected,
+        deepEquals(actual, expected),
         s"""ordered results didn't match!
           |expected: $expected ($expectedType)
           |actual:   $actual ($actualType)""".stripMargin,
@@ -596,7 +575,7 @@ trait SnapiTestContext
       val (expected, expectedType) = executeQuery(expectedQuery, precision = delta, floatingPointAsString = true)
       val (actual, actualType) = executeQuery(actualQuery.q, precision = delta, floatingPointAsString = true)
       MatchResult(
-        actual == expected,
+        deepEquals(actual, expected),
         s"""results didn't match!
           |expected: $expected ($expectedType)
           |actual:   $actual ($actualType)""".stripMargin,
@@ -678,18 +657,13 @@ trait SnapiTestContext
       source: String,
       environment: ProgramEnvironment
   ) = {
-    withTruffleContext(
-      environment,
-      _ => {
-        val programContext = getProgramContext(environment.uid, environment)
-        val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-        if (tree.valid) {
-          Right(tree.rootType)
-        } else {
-          Left(tree.errors)
-        }
-      }
-    )
+    val programContext = getProgramContext(environment.uid, environment)
+    val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+    if (tree.valid) {
+      Right(tree.rootType)
+    } else {
+      Left(tree.errors)
+    }
   }
 
   def tryToType(s: String): Either[Seq[String], Type] = {
@@ -718,38 +692,6 @@ trait SnapiTestContext
     }
   }
 
-  private def withTruffleContext[T](
-      environment: ProgramEnvironment,
-      f: Context => T
-  ): T = {
-    val ctx = buildTruffleContext(environment)
-    ctx.initialize("snapi")
-    ctx.enter()
-    try {
-      f(ctx)
-    } finally {
-      ctx.leave()
-      ctx.close()
-    }
-  }
-
-  private def buildTruffleContext(
-      environment: ProgramEnvironment,
-      maybeOutputStream: Option[OutputStream] = None
-  ): Context = {
-    // Add environment settings as hardcoded environment variables.
-    val ctxBuilder = Context
-      .newBuilder("snapi")
-      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(environment))
-      .allowExperimentalOptions(true)
-      .allowPolyglotAccess(PolyglotAccess.ALL)
-    ctxBuilder.option("snapi.settings", settings.renderAsString)
-
-    maybeOutputStream.foreach(os => ctxBuilder.out(os))
-    val ctx = ctxBuilder.build()
-    ctx
-  }
-
   private def withLspTree[T](source: String, f: LspAnalyzer => T)(
       implicit programContext: base.ProgramContext
   ): Either[(String, Position), T] = {
@@ -767,7 +709,7 @@ trait SnapiTestContext
   }
 
   private def getCompilerContext(user: RawUid): CompilerContext = {
-    new CompilerContext(user, new LocalInferrerService())
+    new CompilerContext(user, inferrer)
   }
 
   private def getProgramContext(user: RawUid, environment: ProgramEnvironment): ProgramContext = {
@@ -780,64 +722,56 @@ trait SnapiTestContext
     List(ErrorMessage(error, List(range), ParserErrors.ParserErrorCode))
   }
 
-  def validate(source: String, environment: ProgramEnvironment = getQueryEnvironment()): ValidateResponse = {
-    withTruffleContext(
-      environment,
-      _ => {
-        val programContext = getProgramContext(environment.uid, environment)
-        withLspTree(
-          source,
-          lspService => lspService.validate
-        )(programContext) match {
-          case Right(value) => value
-          case Left((err, pos)) => ValidateResponse(parseError(err, pos))
-        }
-      }
-    )
+  def validate(source: String): ValidateResponse = {
+    val environment = getQueryEnvironment()
+    val programContext = getProgramContext(environment.uid, environment)
+    withLspTree(
+      source,
+      lspService => lspService.validate
+    )(programContext) match {
+      case Right(value) => value
+      case Left((err, pos)) => ValidateResponse(parseError(err, pos))
+    }
   }
 
-  def aiValidate(source: String, environment: ProgramEnvironment = getQueryEnvironment()): ValidateResponse = {
-    withTruffleContext(
-      environment,
-      _ => {
-        val programContext = getProgramContext(environment.uid, environment)
-        // Will analyze the code and return only unknown declarations errors.
-        val positions = new Positions()
-        val parser = new Antlr4SyntaxAnalyzer(positions, true)
-        val parseResult = parser.parse(source)
-        if (parseResult.isSuccess) {
-          val sourceProgram = parseResult.tree
-          val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
-            sourceProgram
-          )
-          val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
+  def aiValidate(source: String): ValidateResponse = {
+    val environment = getQueryEnvironment()
+    val programContext = getProgramContext(environment.uid, environment)
+    // Will analyze the code and return only unknown declarations errors.
+    val positions = new Positions()
+    val parser = new Antlr4SyntaxAnalyzer(positions, true)
+    val parseResult = parser.parse(source)
+    if (parseResult.isSuccess) {
+      val sourceProgram = parseResult.tree
+      val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+        sourceProgram
+      )
+      val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
 
-          // Selecting only a subset of the errors
-          val selection = analyzer.errors.filter {
-            // For the case of a function that does not exist in a package
-            case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
-            case _: UnknownDecl => true
-            case _: OutputTypeRequiredForRecursiveFunction => true
-            case _: UnexpectedOptionalArgument => true
-            case _: NoOptionalArgumentsExpected => true
-            case _: KeyNotComparable => true
-            case _: ItemsNotComparable => true
-            case _: MandatoryArgumentAfterOptionalArgument => true
-            case _: RepeatedFieldNames => true
-            case _: UnexpectedArguments => true
-            case _: MandatoryArgumentsMissing => true
-            case _: RepeatedOptionalArguments => true
-            case _: PackageNotFound => true
-            case _: NamedParameterAfterOptionalParameter => true
-            case _: ExpectedTypeButGotExpression => true
-            case _ => false
-          }
-          ValidateResponse(formatErrors(selection, positions))
-        } else {
-          ValidateResponse(parseResult.errors)
-        }
+      // Selecting only a subset of the errors
+      val selection = analyzer.errors.filter {
+        // For the case of a function that does not exist in a package
+        case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
+        case _: UnknownDecl => true
+        case _: OutputTypeRequiredForRecursiveFunction => true
+        case _: UnexpectedOptionalArgument => true
+        case _: NoOptionalArgumentsExpected => true
+        case _: KeyNotComparable => true
+        case _: ItemsNotComparable => true
+        case _: MandatoryArgumentAfterOptionalArgument => true
+        case _: RepeatedFieldNames => true
+        case _: UnexpectedArguments => true
+        case _: MandatoryArgumentsMissing => true
+        case _: RepeatedOptionalArguments => true
+        case _: PackageNotFound => true
+        case _: NamedParameterAfterOptionalParameter => true
+        case _: ExpectedTypeButGotExpression => true
+        case _ => false
       }
-    )
+      ValidateResponse(formatErrors(selection, positions))
+    } else {
+      ValidateResponse(parseResult.errors)
+    }
   }
 
   private def formatErrors(errors: Seq[CompilerMessage], positions: Positions): List[Message] = {
@@ -852,25 +786,19 @@ trait SnapiTestContext
     }.toList
   }
 
-  def hover(source: String, position: Pos, environment: ProgramEnvironment = getQueryEnvironment()): HoverResponse = {
-    withTruffleContext(
-      environment,
-      _ => {
-        val programContext = getProgramContext(environment.uid, environment)
-        withLspTree(source, lspService => lspService.hover(source, environment, position))(programContext) match {
-          case Right(value) => value
-          case Left(_) => HoverResponse(None)
-        }
-      }
-    )
-
+  def hover(source: String, position: Pos): HoverResponse = {
+    val environment = getQueryEnvironment()
+    val programContext = getProgramContext(environment.uid, environment)
+    withLspTree(source, lspService => lspService.hover(source, environment, position))(programContext) match {
+      case Right(value) => value
+      case Left(_) => HoverResponse(None)
+    }
   }
 
   def formatCode(
       source: String,
       maybeIndent: Option[Int] = None,
-      maybeWidth: Option[Int] = None,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      maybeWidth: Option[Int] = None
   ): FormatCodeResponse = {
     val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
     pretty.prettyCode(source) match {
@@ -881,78 +809,57 @@ trait SnapiTestContext
 
   def dotAutoComplete(
       source: String,
-      position: Pos,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      position: Pos
   ): AutoCompleteResponse = {
-    withTruffleContext(
-      environment,
-      _ => {
-        val programContext = getProgramContext(environment.uid, environment)
-        withLspTree(source, lspService => lspService.dotAutoComplete(source, environment, position))(
-          programContext
-        ) match {
-          case Right(value) => value
-          case Left(_) => AutoCompleteResponse(Array.empty)
-        }
-      }
-    )
+    val environment = getQueryEnvironment()
+    val programContext = getProgramContext(environment.uid, environment)
+    withLspTree(source, lspService => lspService.dotAutoComplete(source, environment, position))(
+      programContext
+    ) match {
+      case Right(value) => value
+      case Left(_) => AutoCompleteResponse(Array.empty)
+    }
   }
 
   def wordAutoComplete(
       source: String,
       prefix: String,
-      position: Pos,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      position: Pos
   ): AutoCompleteResponse = {
-    withTruffleContext(
-      environment,
-      _ => {
-        val programContext = getProgramContext(environment.uid, environment)
-        withLspTree(source, lspService => lspService.wordAutoComplete(source, environment, prefix, position))(
-          programContext
-        ) match {
-          case Right(value) => value
-          case Left(_) => AutoCompleteResponse(Array.empty)
-        }
-      }
-    )
+    val environment = getQueryEnvironment()
+    val programContext = getProgramContext(environment.uid, environment)
+    withLspTree(source, lspService => lspService.wordAutoComplete(source, environment, prefix, position))(
+      programContext
+    ) match {
+      case Right(value) => value
+      case Left(_) => AutoCompleteResponse(Array.empty)
+    }
   }
 
   def goToDefinition(
       source: String,
-      position: Pos,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      position: Pos
   ): GoToDefinitionResponse = {
-    withTruffleContext(
-      environment,
-      _ => {
-        val programContext = getProgramContext(environment.uid, environment)
-        withLspTree(source, lspService => lspService.definition(source, environment, position))(
-          programContext
-        ) match {
-          case Right(value) => value
-          case Left(_) => GoToDefinitionResponse(None)
-        }
-      }
-    )
+    val environment = getQueryEnvironment()
+    val programContext = getProgramContext(environment.uid, environment)
+    withLspTree(source, lspService => lspService.definition(source, environment, position))(
+      programContext
+    ) match {
+      case Right(value) => value
+      case Left(_) => GoToDefinitionResponse(None)
+    }
   }
 
   def rename(
       source: String,
-      position: Pos,
-      environment: ProgramEnvironment = getQueryEnvironment()
+      position: Pos
   ): RenameResponse = {
-    withTruffleContext(
-      environment,
-      _ => {
-        val programContext = getProgramContext(environment.uid, environment)
-        withLspTree(source, lspService => lspService.rename(source, environment, position))(programContext) match {
-          case Right(value) => value
-          case Left(_) => RenameResponse(Array.empty)
-        }
-      }
-    )
-
+    val environment = getQueryEnvironment()
+    val programContext = getProgramContext(environment.uid, environment)
+    withLspTree(source, lspService => lspService.rename(source, environment, position))(programContext) match {
+      case Right(value) => value
+      case Left(_) => RenameResponse(Array.empty)
+    }
   }
 
   def executeQuery(
@@ -962,7 +869,7 @@ trait SnapiTestContext
       floatingPointAsString: Boolean = false,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
-  ): (Any, String) = {
+  ): (Value, String) = {
     tryExecuteQuery(queryString, ordered, precision, floatingPointAsString, options, scopes) match {
       case Right(r) => r
       case Left(error) => fail(s"query is invalid; error was: $error")
@@ -976,7 +883,7 @@ trait SnapiTestContext
       floatingPointAsString: Boolean = false,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
-  ): Either[String, (Any, String)] = {
+  ): Either[String, (Value, String)] = {
     val allOptions = this.options ++ options ++ programOptions
     val allScopes = this.runnerScopes ++ scopes
 
@@ -1014,17 +921,36 @@ trait SnapiTestContext
       source: String,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
-  ): Either[String, Any] = {
-    val ctx = buildTruffleContext(getQueryEnvironment(scopes, options))
+  ): Either[String, Value] = {
+    // Add environment settings as hardcoded environment variables.
+    val ctxBuilder = Context
+      .newBuilder("snapi")
+      .environment("RAW_PROGRAM_ENVIRONMENT", ProgramEnvironment.serializeToString(getQueryEnvironment()))
+      .allowExperimentalOptions(true)
+      .allowPolyglotAccess(PolyglotAccess.ALL)
+    ctxBuilder.option("snapi.settings", settings.renderAsString)
+    val ctx = ctxBuilder.build()
     ctx.initialize("snapi")
     ctx.enter()
+    contexts.append(ctx)
+
     try {
       val truffleSource = Source
         .newBuilder("snapi", source, "unnamed")
         .cached(false) // Disable code caching because of the inferrer.
         .build()
       val result = ctx.eval(truffleSource)
-      Right(result)
+      logger.debug("Result is {}", result)
+      if (result.isException) {
+        try {
+          result.throwException()
+          fail("expected exception but none was thrown")
+        } catch {
+          case ex: Exception => Left(ex.getMessage)
+        }
+      } else {
+        Right(result)
+      }
     } catch {
       case ex: PolyglotException =>
         // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
@@ -1075,9 +1001,6 @@ trait SnapiTestContext
           // Unexpected error. For now we throw the PolyglotException.
           throw ex
         }
-    } finally {
-      ctx.leave()
-      ctx.close()
     }
   }
 

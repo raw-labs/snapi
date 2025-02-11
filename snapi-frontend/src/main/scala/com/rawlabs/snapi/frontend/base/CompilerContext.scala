@@ -12,8 +12,7 @@
 
 package com.rawlabs.snapi.frontend.base
 
-import com.rawlabs.utils.core.{RawService, RawSettings, RawUid}
-import com.typesafe.scalalogging.StrictLogging
+import com.rawlabs.utils.core.{RawSettings, RawUid}
 import com.rawlabs.snapi.frontend.inferrer.api.{InferrerInput, InferrerOutput, InferrerService}
 
 /**
@@ -21,13 +20,10 @@ import com.rawlabs.snapi.frontend.inferrer.api.{InferrerInput, InferrerOutput, I
  */
 class CompilerContext(val user: RawUid, val inferrer: InferrerService)(
     implicit val settings: RawSettings
-) extends RawService
-    with StrictLogging {
+) extends {
 
   def infer(inferrerInput: InferrerInput): Either[String, InferrerOutput] = {
     inferrer.inferWithCache(inferrerInput)
   }
-
-  override protected def doStop(): Unit = {}
 
 }

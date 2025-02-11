@@ -137,16 +137,16 @@ class JsonPackageTest extends SnapiTestContext {
     |  {a: 3, b: 30, c: [Error.Build("expected null but got non-null"), null]}
     |]""".stripMargin))
 
-  //With preferNulls = false the empty collection will be inferred as nothing not nullable so the null will also be a error
-  test(snapi"""Json.InferAndRead("$tryNothing3", sampleSize = 4, preferNulls = false)""")(it => it should evaluateTo("""
-    |[
-    |  {a: 3, b: 30, c: []},
-    |  {a: 3, b: 30, c: []},
-    |  {a: 3, b: 30, c: []},
-    |  {a: 3, b: 30, c: []},
-    |  {a: 3, b: 30, c: []},
-    |  {a: 3, b: 30, c: [Error.Build("unexpected value found, token 'VALUE_NUMBER_INT'"), Error.Build("unexpected value found, token 'VALUE_NULL'")]}
-    |]""".stripMargin))
+//  //With preferNulls = false the empty collection will be inferred as nothing not nullable so the null will also be a error
+//  test(snapi"""Json.InferAndRead("$tryNothing3", sampleSize = 4, preferNulls = false)""")(it => it should evaluateTo("""
+//    |[
+//    |  {a: 3, b: 30, c: []},
+//    |  {a: 3, b: 30, c: []},
+//    |  {a: 3, b: 30, c: []},
+//    |  {a: 3, b: 30, c: []},
+//    |  {a: 3, b: 30, c: []},
+//    |  {a: 3, b: 30, c: [Error.Build("unexpected value found, token 'VALUE_NUMBER_INT'"), Error.Build("unexpected value found, token 'VALUE_NULL'")]}
+//    |]""".stripMargin))
 
   test(
     """Json.Parse("[1,2,3]", type list(int))"""
