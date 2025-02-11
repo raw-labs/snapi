@@ -1,0 +1,56 @@
+#!/bin/bash -e
+
+SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
+SNAPI_HOME="$(cd "${SCRIPT_HOME}/.."; pwd)"
+cd "${SNAPI_HOME}"
+
+find . -type d -name "target" -exec rm -rf {} + || true
+
+JAVA_VERSION="21.0.1-graalce"
+
+toCamel() {
+  local input=$1
+  local camel=""
+  local i=0
+  local len=${#input}
+
+  while [ $i -lt $len ]; do
+    char=${input:$i:1}
+    if [ "$char" == "-" ]; then
+      ((i++))
+      char=${input:$i:1}
+      camel+=$(echo "$char" | tr '[:lower:]' '[:upper:]')
+    else
+      camel+=$char
+    fi
+    ((i++))
+  done
+
+  echo "$camel"
+}
+camelComponent=$(toCamel "${1}")
+# Needed to pull private deps from main repo
+if [ -z "$GITHUB_TOKEN" ]; then
+  echo "Error: GITHUB_TOKEN is not set. Exiting..."
+  exit 1
+fi
+export GITHUB_TOKEN
+
+# Install SDKMAN! if not present
+if [ ! -s "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+  echo "Installing SDKMAN!..."
+  curl -s "https://get.sdkman.io" | bash || { echo "SDKMAN installation failed"; exit 1; }
+fi
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# Install Java through SDKMAN!
+if ! sdk list java | grep -q "$JAVA_VERSION"; then
+  echo "Installing Java version $JAVA_VERSION..."
+  yes | sdk install java "$JAVA_VERSION" || { echo "Java installation failed"; exit 1; }
+  sdk default java "$JAVA_VERSION"
+  echo "Java version $JAVA_VERSION installation complete and set as default."
+fi
+sdk use java "$JAVA_VERSION"
+
+sbt update
+sbt clean "${camelComponent}"/compile
