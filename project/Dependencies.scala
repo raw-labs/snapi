@@ -8,7 +8,7 @@ object Dependencies {
 
   val utilsSources = "com.raw-labs" %% "utils-sources" % "0.51.1"
 
-  val protocolCompiler = "com.raw-labs" %% "protocol-compiler" % "0.54.0"
+  val protocolCompiler = "com.raw-labs" %% "protocol-compiler" % "0.55.0"
 
   val commonsText = "org.apache.commons" % "commons-text" % "1.11.0"
 
